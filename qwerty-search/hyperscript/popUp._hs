@@ -1,0 +1,24 @@
+behavior Popup
+
+	init
+		add .pop-up
+	end
+
+	on show
+		set visibility to my *visibility
+
+		if visibility is "hidden" then
+			log "set visible"
+			set my *visibility to "visible"
+		end
+	end
+
+	on hide
+		set visibility to my *visibility
+		if visibility is "visible" then
+			log "set hidden"
+			set my *visibility to "hidden"
+		end
+	end
+
+end

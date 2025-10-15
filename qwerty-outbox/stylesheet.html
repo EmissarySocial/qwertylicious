@@ -1,0 +1,135 @@
+body {
+
+{{ if ne "" (.Data "background-body" )}}
+	background-image:url("{{.Data "background-body"}}");
+	background-repeat: no-repeat;
+	background-size: cover;
+{{ end }}
+
+{{ if ne "" (.Data "color-body") -}}
+	{{- $bodyColor := parseColor (.Data "color-body") -}}
+	--body-background: {{.Data "color-body"}};
+	--page-border: {{($bodyColor.Darken 10)}};
+{{- end }}
+
+{{ if ne "" (.Data "image-body" )}}
+
+{{ end }}
+
+{{ if ne "" (.Data "color-menu" )}}
+	{{$menu := parseColor (.Data "color-menu")}}
+	{{$menuHover := $menu.Contrast 15}}
+	{{$menuSelected := $menu.Contrast 30}}
+
+	--menu-background: {{$menu}};
+	--menu-text: {{$menu.TextExt}};
+	--menu-hover-background: {{$menuHover}};
+	--menu-hover-text: {{$menuHover.Text}};
+	--menu-selected-background: {{$menuSelected}};
+	--menu-selected-text: {{$menuSelected.Text}};
+{{- end -}}
+
+{{ if ne "" (.Data "color-page") -}}
+	{{- $pageColor := parseColor (.Data "color-page") -}}
+	{{- $textColor := $pageColor.Text -}}
+	--page-background: {{.Data "color-page"}};
+	--heading-color: {{$pageColor.Text}};
+	--text-color: {{$pageColor.TextExt}};
+
+	{{if $pageColor.IsLight }}
+		--white: #ffffff;
+		--gray00: #ffffff;
+		--gray01: rgba(0,0,0,0.01);
+		--gray02: rgba(0,0,0,0.02);
+		--gray03: rgba(0,0,0,0.03);
+		--gray04: rgba(0,0,0,0.04);
+		--gray05: rgba(0,0,0,0.05);
+		--gray10: rgba(0,0,0,0.1);
+		--gray15: rgba(0,0,0,0.15);
+		--gray20: rgba(0,0,0,0.2);
+		--gray30: rgba(0,0,0,0.3);
+		--gray40: rgba(0,0,0,0.4);
+		--gray50: rgba(0,0,0,0.5);
+		--gray60: rgba(0,0,0,0.6);
+		--gray70: rgba(0,0,0,0.7);
+		--gray80: rgba(0,0,0,0.8);
+		--gray90: rgba(0,0,0,0.9);
+		--gray100: rgb(0,0,0);
+		--black:  #000000;
+	{{- else }}
+		--black: rgb(255,255,255);
+		--gray100: rgb(255,255,255);
+		--gray90: rgba(255,255,255,0.9);
+		--gray80: rgba(255,255,255,0.8);
+		--gray70: rgba(255,255,255,0.7);
+		--gray60: rgba(255,255,255,0.6);
+		--gray50: rgba(255,255,255,0.5);
+		--gray40: rgba(255,255,255,0.4);
+		--gray30: rgba(255,255,255,0.3);
+		--gray20: rgba(255,255,255,0.2);
+		--gray15: rgba(255,255,255,0.15);
+		--gray10: rgba(255,255,255,0.1);
+		--gray05: rgba(255,255,255,0.05);
+		--gray04: rgba(255,255,255,0.04);
+		--gray03: rgba(255,255,255,0.03);
+		--gray02: rgba(255,255,255,0.02);
+		--gray01: rgba(255,255,255, 0.01);
+		--gray00: #000000;
+		--white: #000000;
+	{{- end -}}
+	
+{{- end }}
+
+{{ if ne "" (.Data "color-button") -}}
+	{{- $buttonColor := parseColor (.Data "color-button") -}}
+	{{- $buttonText := $buttonColor.Text }}
+	{{- $buttonColorHover := ($buttonColor.Lighten 10) -}}
+	{{- $buttonTextHover := $buttonColorHover.Text }}
+	{{- $buttonColor := .Data "color-button" -}}
+
+	--button-primary-background: {{$buttonColor}};
+	--button-primary-background-hover: {{$buttonColorHover}};
+	--button-primary-color: {{$buttonText}};
+	--button-primary-color-hover: {{$buttonTextHover}};
+	--link-color: {{$buttonColor}};
+	--link-color-hover: {{$buttonColorHover}};
+{{- end }}
+
+}
+
+{{- $bannerHex := first (.Data "color-banner") "#a0a0a0" -}}
+{{- $bannerColor := parseColor $bannerHex -}}
+
+#profile-banner {
+	background-color: {{$bannerColor}};
+	height:256px;
+	background-image:url('{{.ImageURL}}');
+	background-size:cover;
+	background-position:center;
+}
+
+#profile-menu {
+	background-color: var(--menu-background);
+	font-size: 1.25em;
+	text-align: center;
+}
+
+#profile-menu > [role=menuitem] {
+	display: inline-block;
+	padding: var(--rhythm) calc(var(--rhythm) * 1.5) ;
+	color: var(--menu-text);
+}
+
+#profile-menu > [role=menuitem]:hover {
+	background-color: var(--menu-hover-background);
+	color: var(--menu-hover-text);
+}
+
+#profile-menu > [role=menuitem][aria-selected=true],
+#profile-menu > [role=menuitem][aria-selected=true]:hover {
+	background-color: var(--menu-selected-background);
+	color: var(--menu-selected-text);
+}
+
+
+{{.Data "stylesheet" | css }}

@@ -1,0 +1,14 @@
+{{- $isMyself := .IsMyself -}}
+{{- $showAlbums := eq "true" (.Data "show-albums") -}}
+{{- $showEvents := eq "true" (.Data "show-events") -}}
+{{- $showNews := eq "true" (.Data "show-news") -}}
+{{- $showShop := ne "" (.Data "shop-url") -}}
+{{- $hasBannerImage := ne "" .ImageURL -}}
+{{- $hasBannerColor := ne "" (.Data "color-banner") -}}
+
+<style>{{- template "stylesheet" . -}}</style>
+
+<!-- Banner Image -->
+{{- if or $hasBannerImage $hasBannerColor $isMyself -}}
+	<div id="profile-banner" class="pos-relative width-100% hide sm:show"></div>
+{{- end -}}

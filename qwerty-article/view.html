@@ -1,0 +1,101 @@
+<div class="page h-entry">
+
+	{{- $bannerURL := .Data "bannerUrl" -}}
+	{{- if ne "" $bannerURL -}}
+		{{- $bannerDescription := .Data "bannerDescription" -}}
+		<div id="article-banner" style="background-image:url('{{$bannerURL}}');"></div>
+	{{- end -}}
+
+	<article id="article" class="margin-bottom">
+		<h1 id="article-name" class="p-name">{{.Name}}</h1>
+		<div id="article-description" class="text-gray p-summary">{{.Description}}</div>
+
+		<div class="flex-row margin-top margin-bottom-xl">
+			<div class="width-48 flex-center">
+				<img src="{{.AttributedTo.IconURL}}" id="article-author-icon" class="width-48 circle">
+			</div>
+			<div id="article-author" class="p-author h-card">
+				<div class="p-name margin-none">
+					<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
+				</div>
+				<div class="text-sm text-gray">
+					{{- if eq "published" .StateID -}}
+						{{.PublishDate | longDate}}
+					{{- else -}}
+						Draft: Last Edited {{.UpdateDate | longDate}}
+					{{- end -}}
+				</div>
+			</div>
+		</div>
+
+		<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
+	</article>
+
+	{{- if .UserCan "edit" -}}
+		<div style="position:absolute; top:4px; right:8px;">
+			<a class="text-xs button" href="/{{.StreamID}}/edit">Edit &rarr;</a>
+		</div>
+	{{- end -}}
+
+	<div 
+		hx-get="/{{.StreamID}}" 
+		hx-trigger="refreshPage from:window"
+		hx-target="#main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+	
+</div>
+
+<style>
+
+	#article-banner {
+		height:240px;
+		background-size:cover;
+		background-position:top center;
+	}
+
+	#article {
+		width:100%;
+		max-width:752px;
+		margin:24px auto;
+
+		& #article-name {
+			font-family:"Times New Roman", serif;
+		}
+
+		& #article-description {
+			font-family:"Times New Roman", serif;
+		}
+
+		& #article-author {
+			font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+			color: var(--gray50);
+		}
+
+		& #article-content {
+			font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+			color: var(--gray80);
+			font-size:16px;
+
+			&h1, &h2, &h3, &h4, &h5, &h6 {
+				font-family:"Times New Roman", serif;
+				color: var(--black);
+				font-weight:normal;
+				margin-top: 1.5em;
+				margin-bottom: 0em;
+				line-height:1.25em;
+			}
+
+			& p {
+				line-height:1.75em;
+				margin-bottom: 2em;
+			}
+		}
+
+		& img {
+			max-width:100%;
+		}
+	}
+
+</style>

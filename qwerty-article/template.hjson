@@ -1,0 +1,238 @@
+{
+	templateId:"qwerty-article"
+	templateRole:"article"
+	socialRole:"Article"
+	containedBy: ["outbox"]
+	model: Stream
+	extends:["base-widget-editor"]
+	label:"Article (BASE TEMPLATE)"
+	description:"Base Template, extended by article-editorjs and article-markdown"
+	widgetlocations: ["LEFT", "TOP", "RIGHT", "BOTTOM"]
+	bundles: {
+		stylesheet: {
+			content-type:"text/css"
+		}
+	}
+	schema: {
+		type:"object"
+		properties: {
+			icon:{type:"string"}
+			token: {type:"string", required:true}
+			label: {type:"string"}
+			summary: {type:"string"}
+			content:{type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string"}
+				html: {type:"string", format:"html"}
+			},
+			data: {type:"object", properties: {
+				tags: {type:"string"}
+				iconDescription: {type:"string", maxlength:2048}
+				bannerDescription: {type:"string", maxlength:2048}
+			}}}
+		}
+	}
+	states: {
+		default: {
+			label:"Default State"
+			description:"Visible only to Authors and Owners"
+		}
+		published: {
+			label:"Published"
+			description:"Visible to all people with permissions"
+		}
+	}
+	roles: {
+		viewer: {
+			label:"Viewer"
+			description:"Can read and comment on this article."
+		}
+		editor: {
+			label:"Editor"
+			description:"Can make changes to this article."
+		}
+	}
+	actions: {
+
+		create:{
+			roles: ["self"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html"}
+					{
+						do:"edit", 
+						options: ["submit-label:Start a Draft"]
+						form:{
+							type: layout-vertical
+							children: [
+								{type: "text", path:"name", label:"Title", description:"This shows in your news feed and at the top of the post."}
+								{type: "textarea", path:"description", label:"Description", description:"This shows in your news feed beneath the post title.", options:{rows:2}}
+								{type: "text", path:"data.tags", label:"#Hashtags", description:"Organize this post and make it more discoverable on the home page."}
+							]
+						}
+					}
+					{do:"save"}
+					{do:"forward-to", url: "/{{.StreamID}}/edit"}
+				]}
+			]
+		}
+
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps:[
+				{do:"view-html"}
+			]
+		}
+
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		edit-banner: {
+			roles: ["author"]
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		edit-content: {
+			roles: ["author"]
+			steps: [
+				{do:"edit-content", file:"editor", format:"EDITORJS"}
+				{do:"process-content", add-links:false, remote-html:false, add-tags:true}
+				{do:"save"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"All content and comments will be lost.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+						
+		sharing: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps: [
+					{do:"set-circle-sharing", role: "viewer", title:"Who Can See This Article?", message:"Select who can view and comment on this article."}
+					{do:"save", message:"Sharing updated by {{.Author}}"}
+				]}
+			]
+		}
+		
+		publish: {
+			states: ["default"]
+			roles: ["author"]
+			steps: [
+				{do:"as-confirmation", title:"Publish this Stream?", message:"Viewers will be able to see this stream on your website immediately.", submit:"Publish"}
+				{do:"save-and-publish", state:"published", outbox:"false"}
+				{do:"search-index"}
+				{do:"refresh-page"}
+			]
+		}
+		
+		unpublish: {
+			states: ["published"]
+			roles: ["author"]
+			steps: [
+				{do:"as-confirmation", title:"Un-Publish this Stream?", message:"Viewers will no longer be able to see this stream on your website.", submit:"Un-Publish"}
+				{do:"unpublish", state:"default", outbox:"false"}
+				{do:"refresh-page"}
+			]
+		}
+						
+		properties: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps: [
+					{
+						do: edit
+						form: {
+							type: layout-tabs
+							label: Article Properties
+							children: [
+								{
+									type:"layout-vertical"
+									label:"Properties"
+									children: [
+										{type: "text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
+										{type: "textarea", path:"description", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
+										{type: "text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
+										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)"}
+									]
+								}
+								{
+									type:layout-vertical
+									label:"Icon"
+									children:[
+										{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.StreamID}}/delete-icon"}}
+										{type:"textarea", path:"data.iconDescription", label:"Icon Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+									]
+								}
+								{
+									type:layout-vertical
+									label:"Banner"
+									children:[
+										{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.StreamID}}/delete-banner"}}
+										{type:"textarea", path:"data.bannerDescription", label:"Banner Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+									]
+								}
+							]
+						}
+					}
+				]}
+				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", rules:{width:800, height:800, types:["webp"]}}
+				{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl", download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", rules:{}}
+				{do:"save", comment:"Properties updated by {{.Author}}"}
+				{do:"trigger-event", event:"refreshBanner"}
+			]
+		}
+
+		delete-icon: {
+			roles: ["author"]
+			steps: [
+				{do: "delete-attachments", category:"icon"}
+				{do: "set-data", values:{"iconUrl": ""}}
+				{do: "save"}
+			]
+		}
+
+		upload-banner: {
+			roles: ["author"]
+			steps: [
+				{do: "upload-attachments", fieldname:"image", download-path:"data.bannerUrl", category:"banner", accept-type:"image/*"}
+				{do: "save"}
+				{do: "trigger-event", event:"refreshBanner"}
+			]
+		}
+		
+		delete-banner: {
+			roles: ["author"]
+			steps: [
+				{do: "as-confirmation", title:"Remove Banner Image?", message:"This banner will be permanently removed from your article.  There is NO UNDO.", submit:"Remove"}
+				{do: "delete-attachments", category:"banner"}
+				{do: "set-data", values:{"data.bannerUrl": ""}}
+				{do: "save"}
+				{do: "trigger-event", event:"refreshBanner"}
+			]
+		}
+
+		upload-image: {
+			roles: ["author"]
+			steps: [
+				{do: "upload-attachments", fieldname:"image", maximum:32, json-result:true, category:"image", accept-type:"image/*"}
+				{do: "save"}
+				{do: "trigger-event", event:"refreshBanner"}
+			]
+		}		
+	}
+}

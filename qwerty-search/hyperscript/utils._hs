@@ -1,0 +1,19 @@
+def useSuggestion()
+
+	-- do not execute if suggestions are not visible
+	if the #search-suggestions's *visibility is "hidden" then
+		exit
+	end
+			
+	-- find the first "selected" suggestion
+	set suggestion to the first <div.selected /> in #search-suggestions
+
+	if suggestion is undefined then
+		exit
+	end
+
+	-- send the request to the server
+	set the #search-input's value to "#" + suggestion.innerHTML
+	send click to the #search-submit
+	hide the #search-suggestions with visibility
+end

@@ -1,0 +1,115 @@
+{{- $postTo := .GetString "postTo" -}}
+
+<article id="content-editor" data-content="{{.ContentRaw}}" style="margin-left:-80px;"></article>
+
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/editorjs-color-picker@latest/dist/index.umd.js"></script>
+<script>
+	const { ColorPicker } = window;
+	var editor = new EditorJS({
+		holder: "content-editor",
+		data: JSON.parse(document.getElementById("content-editor").getAttribute("data-content")),
+		tools: {
+			paragraph: {
+				class: Paragraph,
+				inlineToolbar: true,
+			},
+			header: {
+				class: Header,
+				inlineToolbar: ['link'],
+				config: {
+					placeholder: 'Header',
+					levels: [1, 2, 3],
+					defaultLevel: 2,
+				},
+			},
+			linkTool: {
+				class: LinkTool,
+				config: {}
+			},
+			image: {
+				class: ImageTool,
+				config: {
+					endpoints: {
+						byFile: '/{{.StreamID}}/upload-image', // Your backend file uploader endpoint
+						byUrl: '/{{.StreamID}}/upload-image', // Your endpoint that provides uploading by Url
+					}
+				}
+			},
+			embed: {
+				class: Embed,
+				config: {
+				}
+			},
+			attaches: {
+				class: AttachesTool,
+				config: {
+					endpoint: 'http://localhost:8008/uploadFile'
+				}
+			},
+			/* REMOVED FOR NOW
+			table: {
+				class: Table,
+				inlineToolbar: true,
+				config: {
+					rows: 2,
+					cols: 3,
+				},
+			},
+			*/
+			list: {
+				class: EditorjsList,
+				inlineToolbar: true,
+				config: {
+					defaultStyle: 'unordered',
+				},
+			},
+			quote: {
+				class: Quote,
+				inlineToolbar: true,
+			},
+			code: {
+				class: CodeTool,
+			},
+			ColorPicker: {
+      			class: ColorPicker.default,
+    		}
+		},
+	})
+</script>
+
+<script type="text/hyperscript">
+
+	def publish()
+		saveDraft()
+
+		// display the "publish" dialog
+	end
+
+	def saveDraft()
+		save()
+		go to url "/{{.StreamID}}"
+	end
+
+	def save()
+		set content to the editor.save()
+
+		fetch "/{{.StreamID}}/edit-content" 
+		with {
+			method: "POST", 
+			body: JSON.stringify(content),
+			headers: {"Content-Type": "application/json"}
+		}
+	end
+
+</script>

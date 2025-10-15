@@ -1,0 +1,72 @@
+behavior SearchWidget
+	init
+		send focus(initial:true) to the #search-input
+	end
+
+	-- submit the search
+	on click from #search-submit
+		send submit to #search-form
+	end
+
+	---------------------------
+	-- Search Suggestions
+
+	on showSuggestions		
+		-- clean up the search value
+		set searchValue to the #search-input's value
+		set searchValue to lastWord(searchValue)
+		set searchValue to searchValue.toLowerCase()
+
+		-- send query and show suggestions
+		set #search-suggestion-query.value to searchValue
+		send search to the #search-suggestions-form
+		send show to #search-suggestions
+	end
+
+	---------------------------
+	-- Keyboard Navigation
+
+	on keydown[key=="Escape"] from #search-input
+		send hide to #search-suggestions
+	end
+
+	on keydown[key=="Enter"] from #search-input
+		if the #search-suggestions's *visibility is "visible" then
+			useSuggestion()
+		else
+			send submit to #search-form
+		end
+	end
+
+	on keydown[key=="ArrowDown"] from #search-input
+		if the #search-suggestions's *visibility is "hidden" then
+			trigger showSuggestions
+		else
+			send ArrowDown to #search-suggestions
+		end
+	end
+
+	on keydown[key=="ArrowUp"] from #search-input
+		halt the event
+		send ArrowUp to #search-suggestions
+	end
+
+	on keyup from #search-input throttled at 100ms
+		set ignoreKeys to ["ArrowDown", "ArrowUp", "Enter", "Escape"]
+
+		if ignoreKeys.includes(event.key) then
+			exit
+		end
+
+		-- handle regular keystrokes
+		send showSuggestions
+	end
+
+	on blur from #search-input debounced at 50ms
+		send hide to #search-suggestions
+	end
+
+	on submit from #search-form
+		send hide to #search-suggestions
+	end
+end

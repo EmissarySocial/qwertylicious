@@ -1,0 +1,115 @@
+{
+	templateId:"qwerty-outbox-message"
+	templateRole:"outbox-message"
+	socialRole:"Note"
+	extends:["base-social", "base-intent"]
+	model: Stream
+	icon:"message"
+	label:"Post"
+	description:"Single comment in the comments section of a page."
+	sort: 0
+	containedBy: ["outbox"]
+	schema: {
+		type:"object"
+		properties: {
+			summary: {type:"string", format:"html"}
+			iconUrl: {type:"string", format:"url"}
+		}
+	}
+	states: {
+		default: {
+			label:"Default"
+			description:"This item only has one state"
+		}
+	}
+	roles: {}
+	actions: {
+		
+		create:{
+			roles:["self"]
+			steps: [
+				{do:"edit-content", file:"create", format:"HTML"}
+				{do:"process-content"}
+				{do:"save"}
+				{do:"upload-attachments"}
+				{do:"set-thumbnail", path:"iconUrl"}
+				{do:"save-and-publish", state:"default", outbox:"true"}
+				{do:"search-index"}
+			]
+		}
+
+		view: {
+			roles:["anonymous"]
+			steps:[
+				{do:"set-query-param", url:"{{.Permalink}}"}
+				{do:"view-html"}
+			]
+		}
+		
+		edit: {
+			roles:["self"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"set-args", postTo:"/{{.StreamID}}/edit"}
+					{do:"edit-content", file:"edit", format:"HTML"}
+					{do:"process-content"}
+					{do:"save"}
+					{do:"save-and-publish", state:"default", outbox:"true"}
+					{do:"refresh-page"}
+				]}
+			]
+		}
+		
+		delete: {
+			roles:["self"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete this Post?", message:"If you continue, this post will be permanently removed from your profile.  There is NO UNDO."}
+				{do:"refresh-page"}
+			]
+		}
+		
+		responses-replies:{
+			roles:["anonymous"]
+			steps: [
+				{do:"set-args", path:"/{{.StreamID}}"}
+				{do:"view-html"}
+			]
+		}
+
+		responses-announces:{
+			roles:["anonymous"]
+			steps: [
+				{do:"set-args", path:"/{{.StreamID}}"}
+				{do:"view-html"}
+			]
+		}
+
+		responses-likes:{
+			roles:["anonymous"]
+			steps: [
+				{do:"set-args", path:"/{{.StreamID}}"}
+				{do:"view-html"}
+			]
+		}
+
+		replies:{
+			roles:["anonymous"]
+			steps:[
+				{do:"set-args", path:"/{{.StreamID}}"}
+				{do:"view-html"}
+			]
+		}
+
+		reply:{
+			roles:["authenticated"]
+			steps:[
+				{do:"set-args", path:"/{{.StreamID}}", replies:"{{.StreamID}}/reply", postTo:"/{{.StreamID}}/reply"}
+				{do:"add-stream", style:"inline", roles:["outbox-reply"], location:"outbox", with-data:{inReplyTo:"{{.Permalink}}"}}
+				{do:"set-header", method:"post", name:"hx-retarget", value:"#responses"}
+				{do:"set-header", method:"post", name:"hx-reswap", value:"outerHTML"}
+				{do:"view-html", method:"post", file:"responses-replies"}
+			]
+		}
+	}
+}
