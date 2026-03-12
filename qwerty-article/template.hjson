@@ -28,6 +28,8 @@
 			data: {type:"object", properties: {
 				tags: {type:"string"}
 				iconDescription: {type:"string", maxlength:2048}
+				bannerUrl: {type:"string", format:"url"}
+				bannerId: {type:"string", format:"objectId"}
 				bannerDescription: {type:"string", maxlength:2048}
 			}}}
 		}
@@ -164,9 +166,9 @@
 									type:"layout-vertical"
 									label:"Properties"
 									children: [
-										{type: "text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
-										{type: "textarea", path:"description", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
-										{type: "text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
+										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
+										{type:"textarea", path:"description", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
+										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
 										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)"}
 									]
 								}
@@ -190,8 +192,8 @@
 						}
 					}
 				]}
-				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", rules:{width:800, height:800, types:["webp"]}}
-				{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl", download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", rules:{}}
+				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
+				{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
 				{do:"save", comment:"Properties updated by {{.Author}}"}
 				{do:"trigger-event", event:"refreshBanner"}
 			]
@@ -209,7 +211,7 @@
 		upload-banner: {
 			roles: ["author"]
 			steps: [
-				{do: "upload-attachments", fieldname:"image", download-path:"data.bannerUrl", category:"banner", accept-type:"image/*"}
+				{do: "upload-attachments", category:"banner", fieldname:"image", attachment-path:"data.bannerId", download-path:"data.bannerUrl", accept-type:"image/*"}
 				{do: "save"}
 				{do: "trigger-event", event:"refreshBanner"}
 			]

@@ -5,6 +5,8 @@
 {{- $showShop := ne "" (.Data "shop-url") -}}
 {{- $hasBannerImage := ne "" .ImageURL -}}
 {{- $hasBannerColor := ne "" (.Data "color-banner") -}}
+{{- $circleCount := .Circles.Featured.Count -}}
+{{- $isPublic := .IsPublic -}}
 
 <style>{{- template "stylesheet" . -}}</style>
 
@@ -12,3 +14,92 @@
 {{- if or $hasBannerImage $hasBannerColor $isMyself -}}
 	<div id="profile-banner" class="pos-relative width-100% hide sm:show"></div>
 {{- end -}}
+
+
+<div class="pos-relative">
+
+	<!-- Author Name -->
+	<div class="padding md:flex-row flex-align-center margin-top">
+		<div class="md:flex-align-self-start margin-horizontal-auto align-center">
+			<img id="profile-icon" src="{{.IconURL}}" class="circle width-30% sm:width:20% md:width-96" aria-hidden="true">
+		</div>
+		<div class="flex-grow">
+			<h1 id="profile-name" class="text-2xl bold margin-none align-center md:align-left">{{.DisplayName}}</h1>
+
+			<div class="margin-vertical sm:margin-none align-center md:align-left">
+				<div id="profile-username" class="text-gray margin-right-sm nowrap" script="install Clipboard">
+					<span class="clipboard-text" hidden>@{{.Username}}@{{.Hostname}}</span>
+					<span class="clickable clipboard-copy-button">
+						<span>{{icon "at"}} {{.Username}}</span>
+						<span class="text-xs">{{icon "copy"}}</span>
+					</span>
+					<span class="clipboard-copy-feedback" style="display:none;">
+						<span>{{icon "at"}} {{.Username}}</span>
+						<span class="text-xs text-green">{{icon "check"}} Copied to clipboard</span>
+					</span>
+				</div>
+
+				<div class="text-gray nowrap">
+					{{- if ne "" .Location }}
+						<span id="profile-location"> {{icon "location"}} {{.Location}}</span>
+					{{- end -}}
+
+					{{- if .Links.NotEmpty -}}
+						<span id="profile-links">
+							{{- range  $index, $link := .Links }}									
+								<span aria-hidden="true">&middot;</span>
+								<a href="{{$link.ProfileURL}}" rel="me" target="_blank">{{$link.Name}}</a>
+							{{- end -}}
+						</span>
+					{{- end -}}
+				</div>
+			</div>
+
+		</div>
+		<div class="margin-top-lg md:margin-none align-center md:align-left">
+
+			<div class="nowrap" script="on load trigger storage on window">
+				<div class="margin-none">
+
+					{{- if $isMyself -}}
+						<div class="pos-absolute-top-right flex-row text-xs">
+							<span class="button-group">
+								<button hx-get="/@me/edit">Edit Profile</button>
+								<button hx-get="/@{{.UserID}}/links">Links</button>
+								<button hx-get="/@me/edit-layout">Layout</button>
+							</span>
+
+							<button hx-post="/@{{.UserID}}/add" class="primary">+ New Post</button>
+						</div>
+					{{- else -}}
+
+						{{- if .IsAuthenticated -}}
+							{{- $following := .AmFollowing .Permalink -}}
+							{{- if $following.IsNew -}}
+								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary">{{icon "fediverse"}} Follow for Updates</button>
+							{{- else -}}
+								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary">{{icon "check"}} Following</button>
+							{{- end -}}
+						{{- else -}}
+							<button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary">{{icon "fediverse"}} Follow for Updates</button>
+						{{- end -}}
+
+						{{- if gt $circleCount 0 -}}
+							<button hx-get="/@{{.UserID}}/checkout" class="outline margin-left-sm">
+								{{icon "star"}}
+								Subscribe
+							</button>
+						{{- end -}}
+
+					{{- end -}}
+
+				</div>
+				{{- if not .IsAuthenticated -}}
+					<div class="margin-top-sm text-xs text-light-gray">
+						<span hx-get="/@{{.UserID}}/intent" class="clickable intentMarker-account">&nbsp;</span>
+					</div>
+				{{- end -}}
+			</div>
+		</div>
+	</div>
+</div>

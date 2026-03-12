@@ -1,0 +1,49 @@
+{
+	templateId: qwerty-common
+	model: None
+	label: Qwerty Common
+	description: Common element for Qwertylicious apps
+	extends: []
+	containedBy: []
+
+	states: {
+		default: {
+			label: Default
+			description: Default state for Qwerty Common
+		}
+	}
+
+	datasets: {
+		colors: [
+			{Label:"Red", Value:"#ea3829"}
+			{Label:"Orange", Value:"#f68511"}
+			{Label:"Yellow", Value:"#f8d904"}
+			{Label":"Light Green", Value:"#aad816"}
+			{Label:"Green", Value:"#27bb36"}
+			{Label:"Dark Green", Value:"#008f5d"}
+			{Label:"Teal", Value:"#0fb5ae"}
+			{Label:"Cyan", Value:"#33c5e8"}
+			{Label:"Blue", Value:"#3892f3"}
+			{Label:"Indigo", Value:"#686df4"}
+			{Label:"Purple", Value:"#893de7"}
+			{Label:"Pink", Value:"#e055e2"}
+			{Label:"Magenta", Value: "#de3d82"}
+			{Label:"Gray", Value:"#888888"}
+		]
+		fonts: [
+			{Label:"System Fonts", Group:"Sans Serif", Value:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"}
+			{Label:"Merriweather Sans", Group:"Sans Serif", Value:"Merriweather Sans"}
+			{Label:"Oxygen", Group:"Sans Serif", Value:"Oxygen"}
+			{Label:"Fira Sans", Group:"Sans Serif", Value:"Fira Sans"}
+			{Label:"Noto", Group:"Sans Serif", Value:"Noto *"}
+			{Label:"Baskerville", Group:"Serif", Value:"Baskerville"}
+			{Label:"Spectral", Group:"Serif", Value:"Spectral"}
+			{Label:"Newsreader", Group:"Serif", Value:"Newsreader"}
+			{Label:"Playfair Display", Value:"Playfair Display"}
+			{Label:"Cormorant *", Group:"Serif", Value:"Cormorant *"}
+			{Label:"Merriweather", Group:"Serif", Value:"Merriweather"}
+			{Label:"Source Serif", Group:"Fixed Width", Value:"Source Serif"}
+			{Label:"Oxygen Mono", Group:"Fixed Width", Value:"Oxygen Mono"}
+		]
+	}
+}

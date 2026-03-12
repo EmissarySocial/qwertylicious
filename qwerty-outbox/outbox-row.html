@@ -1,0 +1,19 @@
+{{- $posts := .Outbox.ByPublishDate.Reverse.Slice -}}
+
+{{- range $posts -}}
+	<hr class="margin-vertical">
+	<a href="{{.URL}}" hx-boost="true" class="flex-row qwerty-outbox-item text-plain text-nocolor margin-bottom">
+		{{- if ne "" .IconURL -}}
+			<img src="{{.IconURL}}.webp" class="rounded square width-96 sm:width-128 md:width-192 object-fit-cover qwerty-outbox-item-image">
+		{{- else -}}
+			<div class="rounded square width-96 sm:width-128 md:width-192"></div>
+		{{- end -}}
+
+		<div class="flex-grow">
+			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
+			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
+			<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
+		</div>
+	</a>
+{{- end -}}
+<hr class="margin-vertical">

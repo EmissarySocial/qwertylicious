@@ -1,0 +1,36 @@
+{{- $isMyself := .IsMyself -}}
+
+<div class="framed page padding-none">
+
+	{{- template "header" . -}}
+
+	<div class="padding max-width-800">
+
+		<!-- "Tabs" -->
+		<div role="tablist" class="underlined">
+			<a href="/@{{.UserID}}" hx-boost="true" role="tab">Posts</a>
+			<span role="tab" aria-selected="true">About</span>
+		</div>
+
+		<!-- About Me -->
+		<div class="margin-bottom-xl">
+
+			<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
+
+			<div class="flex-row flex-align-center">
+				<div id="profile-tags">
+					{{- range .Tags -}}
+						<a href="/artists?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
+					{{- end -}}
+				</div>
+				<div id="profile-stats">
+					<b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span>
+					&nbsp;
+					<b>{{.FollowingCount}}</b> <span class="text-gray">Following</span>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</div>

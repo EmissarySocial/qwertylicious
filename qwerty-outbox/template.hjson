@@ -2,8 +2,8 @@
 	templateId: qwerty-outbox
 	templateRole: user-outbox
 	model: User
-	label: Qwertylicious Outbox
-	extends: ["user-outbox"]
+	label: Qwertylicious Profile
+	extends: ["user-outbox", "qwerty-common"]
 
 	schema: {
 		type: object
@@ -16,11 +16,9 @@
 				properties: {
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
+					layout: {type:"string"}
+					layout-highlight-first: {type:"boolean"}
 					stylesheet: {type:"string"}
-					color-body: {type:"string", format:"color"}
-					color-banner: {type:"string", format:"color"}
-					color-menu: {type:"string", format:"color"}
-					color-page: {type:"string", format:"color"} 
 					color-button: {type:"string", format:"color"}
 				}
 			}
@@ -47,6 +45,30 @@
 		}
 	}
 
+	datasets: {
+		fonts: [
+			{Label:"System Fonts", Value:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"}
+			{Label:"Open Sans", Value:"Open Sans"}
+			{Label:"Oxygen", Value:"Oxygen"}
+			{Label:"Fira Sans", Value:"Fira Sans"}
+			{Label:"Noto *", Value:"Noto *"}
+			{Label:"Baskerville", Value:"Baskerville"}
+			{Label:"Spectral", Value:"Spectral"}
+			{Label:"Newsreader", Value:"Newsreader"}
+			{Label:"Playfair Display", Value:"Playfair Display"}
+			{Label:"Cormorant *", Value:"Cormorant *"}
+			{Label:"Source Serif", Value:"Source Serif"}
+		]
+
+		layouts: [
+			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
+			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
+			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
+			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
+			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
+		]
+	}
+
 	tagPaths: ["data.tags"]
 
 	actions: {
@@ -56,12 +78,7 @@
 			steps:[
 				{
 					do:"set-data", 
-					values:{
-						"data.label-albums":"Releases"
-						"data.label-events":"Events"
-						"data.label-news":"News"
-						"data.label-shop":"Shop"
-					}
+					values:{}
 				}
 			]
 		}
@@ -84,8 +101,8 @@
 				]}
 			]
 		}
-				
-		news: {
+
+		about: {
 			roles: ["anonymous"]
 			steps:[
 				{do:"view-html"}
@@ -123,35 +140,23 @@
 									children: [
 										{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)", options:{autocomplete:"off"}}
 										{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
+										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
 									]
 								}
 								{
 									type: layout-vertical
-									label: About Me
+									label: About
 									children: [
 										{type:"textarea", path:"statusMessage", label:"About Me", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
+										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
 									]
 								}
 								{
 									label: Style
 									type: layout-vertical
 									children: [
-										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
 										{type:"upload", path:"imageUrl", label:"Banner Image", description:"Displays at the top of your profile page. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-image"}}
-										{type:"colorpicker", path:"data.color-button", label:"Highlight Color"}
-									]
-								}
-								{
-									type: layout-vertical
-									label: Security
-									children: [
-										{type:"text", path:"username", label:"Username", description:"How others will identify you online. (PUBLIC)", options:{autocomplete:"off", validator:"/.validate/username"}}
-										{type:"text", path:"emailAddress", label:"Email Address", description:"Used to sign in and support your account. Not shared. (PRIVATE)"}
-										{type:"password", path:"new_password", label:"Change Password", description:"At least 8 characters. Please use a Password Manager. (PRIVATE)"}
-										{type:"toggle", path:"isPublic", options:{text:"Public (visible to people)"}}
-										{type:"toggle", path:"isIndexable", options:{text:"Indexable (request inclusion in search engines)"}}
-										{type:"html", description:"<div class='float-right'><span hx-get='/@me/delete' class='margin-top-xs text-red clickable'>Delete my account</span></div>"}
+										{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}							
 									]
 								}
 							]
@@ -167,6 +172,27 @@
 					{do:"refresh-page"}
 				]}
 			] 
+		}
+
+		edit-layout: {
+			roles: ["self"]
+			steps: [
+				{do: "as-modal", background:"view", steps:[
+					{
+						do: "edit"
+						form:{
+							label: Edit Layout
+							type:layout-vertical
+							children: [
+								{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-outbox.layouts"}}
+								//{type:"checkbox", path:"data.layout-highlight-first", label:"Expand the Top Item in the list"}
+							]
+						}
+					}
+					{do:"save"}
+					{do:"refresh-page"}
+				]}
+			]
 		}
 
 		edit-status: {
@@ -251,67 +277,20 @@
 					form: {
 						type:layout-vertical
 						children: [
-							{type:"text", path:"displayName", label:"Artist/Band Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
+							{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
 							{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
-							{type:"text", path:"emailAddress", label:"Email Address", description:"Used to sign in, and support your account. Not shared. Not displayed publicly.", options:{autocomplete:"email", required:true}}
 							{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
+							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
+							{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}
 						]
 					}
 					options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
 				},
-				{do:"set-state", state:"WIZARD-STEP-2"}
+				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
+				{do:"set-state", state:"LIVE"}
 				{do:"save"}
 				{do:"set-password"}
 				{do:"set-header", name:"HX-Refresh", value:"true"}
-			]
-		}
-
-		wizard-2: {
-			roles: ["self"]
-			steps: [
-				{
-					do:edit
-					form: {
-						type: layout-vertical
-						children: [
-							{type:"textarea", path:"statusMessage", label:"About You", description:"A brief description of you and your music. Markdown is okay."}
-							{type:"textarea", path:"data.tags", label:"Tags", description:"Enter #Hashtags separated by spaces."}
-							{type:"text", path:"location", label:"Location", description:"City, State, or Country where you are based."}
-							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
-							{type:"upload", path:"imageUrl", label:"Banner", description:"Displays at the top of your profile page.", options:{accept:"image/*"}}
-						]
-					}
-					options: ["endpoint:/@{{.UserID}}/wizard-2", "submit-label:Continue >>", "cancel-button:hide"]
-				},
-				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
-				{do:"upload-attachments", category:"image", fieldname:"imageUrl", attachment-path:"imageId", rules:{types:["webp"]}}
-				{do:"set-state", state:"WIZARD-STEP-3"}
-				{do:"save"}
-				{do:"set-header", name:"Hx-Refresh", value:"true"}
-			]
-		}
-
-		wizard-3: {
-			roles: ["self"]
-			steps: [
-				{
-					do:edit
-					form: {
-						type:layout-vertical
-						children: [
-							{type:"colorpicker", path:"data.color-body", label:"Window Background"}
-							{type:"colorpicker", path:"data.color-menu", label:"Menu Background"}
-							{type:"colorpicker", path:"data.color-page", label:"Page Background"}
-							{type:"colorpicker", path:"data.color-button", label:"Links and Buttons"}
-
-						]
-					}
-					options: ["endpoint:/@{{.UserID}}/wizard-3", "submit-label:Continue to Upload Music", "cancel-button:hide"]
-				},
-				{do:"set-state", state:"LIVE"}
-				{do:"save"}
-				{do:"search-index", if:"{{.IsIndexable}}"}
-				{do:"set-header", name:"Hx-Refresh", value:"true"}
 			]
 		}
 
