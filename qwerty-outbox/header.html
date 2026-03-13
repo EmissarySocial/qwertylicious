@@ -12,7 +12,9 @@
 
 <!-- Banner Image -->
 {{- if or $hasBannerImage $hasBannerColor $isMyself -}}
-	<div id="profile-banner" class="pos-relative width-100% hide sm:show"></div>
+	<div id="profile-banner" class="pos-relative hide sm:show">
+		<img src="{{.ImageURL}}" class="width-100%">
+	</div>
 {{- end -}}
 
 

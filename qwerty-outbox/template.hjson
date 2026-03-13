@@ -140,23 +140,24 @@
 									children: [
 										{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)", options:{autocomplete:"off"}}
 										{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
+										{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}							
 									]
 								}
 								{
 									type: layout-vertical
 									label: About
 									children: [
-										{type:"textarea", path:"statusMessage", label:"About Me", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
+										{type:"textarea", path:"statusMessage", description:"Displayed on the 'About' section of your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
 										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
 									]
 								}
 								{
-									label: Style
+									label: Images
 									type: layout-vertical
 									children: [
+										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
 										{type:"upload", path:"imageUrl", label:"Banner Image", description:"Displays at the top of your profile page. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-image"}}
-										{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}							
+										{type:"html"}
 									]
 								}
 							]
