@@ -20,13 +20,13 @@
 			<div class="flex-row flex-align-center">
 				<div id="profile-tags">
 					{{- range .Tags -}}
-						<a href="/artists?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
+						<a href="/people?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
 					{{- end -}}
 				</div>
 				<div id="profile-stats">
-					<b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span>
+					<span xclass="clickable" disabled-because-followers-arent-public-hx-get="/@{{.UserID}}/followers" hx-target="#profile-stats"><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
 					&nbsp;
-					<b>{{.FollowingCount}}</b> <span class="text-gray">Following</span>
+					<span xclass="clickable" disabled-because-following-arent-public-hx-get="/@{{.UserID}}/following" hx-target="#profile-stats"><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
 				</div>
 			</div>
 		</div>

@@ -4,10 +4,9 @@
 	socialRole:"Article"
 	containedBy: ["outbox"]
 	model: Stream
-	extends:["base-widget-editor"]
-	label:"Article (BASE TEMPLATE)"
-	description:"Base Template, extended by article-editorjs and article-markdown"
-	widgetlocations: ["LEFT", "TOP", "RIGHT", "BOTTOM"]
+	extends:["base-intent"]
+	label:"Qwertylicious Article"
+	description:"Articles show up on a Qwertylicious user's profile page."
 	bundles: {
 		stylesheet: {
 			content-type:"text/css"
@@ -18,8 +17,8 @@
 		properties: {
 			icon:{type:"string"}
 			token: {type:"string", required:true}
-			label: {type:"string"}
-			summary: {type:"string"}
+			name: {type:"string"}
+			description: {type:"string"}
 			content:{type:"object", properties: {
 				format: {type:"string"}
 				raw: {type:"string"}
@@ -47,39 +46,31 @@
 	roles: {
 		viewer: {
 			label:"Viewer"
-			description:"Can read and comment on this article."
-		}
-		editor: {
-			label:"Editor"
-			description:"Can make changes to this article."
+			description:"Can read full content of this article."
 		}
 	}
 	actions: {
 
 		create:{
-			roles: ["self"]
+			roles: ["author"]
 			steps: [
-				{do:"as-modal", steps:[
-					{do:"view-html"}
-					{
-						do:"edit", 
-						options: ["submit-label:Start a Draft"]
-						form:{
-							type: layout-vertical
-							children: [
-								{type: "text", path:"name", label:"Title", description:"This shows in your news feed and at the top of the post."}
-								{type: "textarea", path:"description", label:"Description", description:"This shows in your news feed beneath the post title.", options:{rows:2}}
-								{type: "text", path:"data.tags", label:"#Hashtags", description:"Organize this post and make it more discoverable on the home page."}
-							]
-						}
-					}
-					{do:"save"}
-					{do:"forward-to", url: "/{{.StreamID}}/edit"}
-				]}
+				{do:"set-data", values:{"name":"New Article Title", "content.format":"EDITORJS", "content.raw":"{\"time\":0,\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"Enter your article text here...\"}}],\"version\":\"2.31.5\"}"}}
+				{do:"save"}
+				{do:"forward-to", url: "/{{.StreamID}}/edit"}
 			]
 		}
 
 		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["anonymous"]
+			}
+			steps:[
+				{do:"view-html"}
+			]
+		}
+
+		view-premium: {
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
@@ -125,20 +116,20 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps: [
-					{do:"set-circle-sharing", role: "viewer", title:"Who Can See This Article?", message:"Select who can view and comment on this article."}
+					{do:"set-circle-sharing", role: "viewer", title:"Who Can Read This Article?", message:"Select which people have full access."}
 					{do:"save", message:"Sharing updated by {{.Author}}"}
 				]}
 			]
 		}
 		
 		publish: {
-			states: ["default"]
+			states: ["default", "published"]
 			roles: ["author"]
 			steps: [
-				{do:"as-confirmation", title:"Publish this Stream?", message:"Viewers will be able to see this stream on your website immediately.", submit:"Publish"}
-				{do:"save-and-publish", state:"published", outbox:"false"}
+				{do:"as-confirmation", title:"Publish this Article?", message:"Viewers will be able to see this article on your profile.", submit:"Publish"}
+				{do:"save-and-publish", state:"published", outbox:"true"}
 				{do:"search-index"}
-				{do:"refresh-page"}
+				{do:"forward-to", url:"/{{.StreamID}}"}
 			]
 		}
 		
@@ -146,16 +137,16 @@
 			states: ["published"]
 			roles: ["author"]
 			steps: [
-				{do:"as-confirmation", title:"Un-Publish this Stream?", message:"Viewers will no longer be able to see this stream on your website.", submit:"Un-Publish"}
-				{do:"unpublish", state:"default", outbox:"false"}
-				{do:"refresh-page"}
+				{do:"as-confirmation", title:"Un-Publish this Article?", message:"This article will remain on your profile, but viewers will no longer be able to see it", submit:"Un-Publish"}
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"forward-to", url:"/{{.StreamID}}"}
 			]
 		}
 						
 		properties: {
 			roles: ["author"]
 			steps: [
-				{do:"as-modal", steps: [
+				{do:"as-modal", steps:[
 					{
 						do: edit
 						form: {
@@ -191,11 +182,11 @@
 							]
 						}
 					}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
+					{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
+					{do:"save", comment:"Properties updated by {{.Author}}"}
+					{do:"trigger-event", event:"refreshBanner"}
 				]}
-				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
-				{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
-				{do:"save", comment:"Properties updated by {{.Author}}"}
-				{do:"trigger-event", event:"refreshBanner"}
 			]
 		}
 

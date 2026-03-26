@@ -90,17 +90,6 @@
 
 <script type="text/hyperscript">
 
-	def publish()
-		saveDraft()
-
-		// display the "publish" dialog
-	end
-
-	def saveDraft()
-		save()
-		go to url "/{{.StreamID}}"
-	end
-
 	def save()
 		set content to the editor.save()
 
@@ -110,6 +99,7 @@
 			body: JSON.stringify(content),
 			headers: {"Content-Type": "application/json"}
 		}
+		go to url "/{{.StreamID}}"
 	end
 
 </script>

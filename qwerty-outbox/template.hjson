@@ -241,6 +241,24 @@
 			] 
 		}
 
+		followers: {
+			roles: ["self"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html", file:"followers"}
+				]}
+			]
+		}
+
+		following: {
+			roles: ["self"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html", file:"following"}
+				]}
+			]
+		}
+
 		sort-featured: {
 			roles: ["self"]
 			steps: [

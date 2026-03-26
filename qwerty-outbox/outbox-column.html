@@ -1,4 +1,4 @@
-{{- $posts := .Outbox.ByPublishDate.Reverse.Slice -}}
+{{- $posts := (.Outbox.Where "templateId" "qwerty-article").ByPublishDate.Reverse.Slice -}}
 
 {{- range $posts -}}
 	<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor max-width-640 margin-bottom">

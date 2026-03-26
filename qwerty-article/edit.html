@@ -15,10 +15,11 @@
 
 		<div class="right">
 			{{- if eq .StateID "published" -}}
-				<button script="on click publish()" class="button primary">Republish</button>
+				<button hx-on:click="save()" class="button primary">Save Changes</button>
+				<button hx-get="/{{.StreamID}}/unpublish" class="button">✓ Published</button>
 			{{- else -}}
-				<button script="on click publish()" class="button primary">Publish</button>
-				<button script="on click saveDraft()">Save Draft</button>
+				<button hx-get="/{{.StreamID}}/publish" class="button primary">Publish</button>
+				<button hx-on:click="save()" class="button">Save Draft</button>
 			{{- end -}}
 
 			{{- if .UserCan "delete" -}}
@@ -56,7 +57,7 @@
 							Published on {{.PublishDate | longDate}}
 						</span>
 					{{- else -}}
-						DRAFT EDIT: {{.UpdateDate | longDate}}
+						DRAFT Edited: {{.UpdateDate | longDate}}
 					{{- end -}}
 				</div>
 			</div>
