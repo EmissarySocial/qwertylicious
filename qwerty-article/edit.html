@@ -18,7 +18,7 @@
 				<button hx-on:click="save()" class="button primary">Save Changes</button>
 				<button hx-get="/{{.StreamID}}/unpublish" class="button">✓ Published</button>
 			{{- else -}}
-				<button hx-get="/{{.StreamID}}/publish" class="button primary">Publish</button>
+				<button hx-on:click="publish()" class="button primary">Publish</button>
 				<button hx-on:click="save()" class="button">Save Draft</button>
 			{{- end -}}
 
@@ -64,5 +64,14 @@
 		</div>
 
 		{{- template "edit-content" . -}}
-	</div>	
+	</div>
+
+	<div 
+		hx-get="/{{.StreamID}}/edit"
+		hx-trigger="refreshPage from:window"
+		hx-target="main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+
 </div>

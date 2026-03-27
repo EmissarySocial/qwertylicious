@@ -3,10 +3,10 @@
 {{- range $posts -}}
 	<hr class="margin-vertical">
 	<a href="{{.URL}}" hx-boost="true" class="flex-row qwerty-outbox-item text-plain text-nocolor margin-bottom">
-		<div class="flex-grow">
+		<div class="flex-grow margin-right-sm">
 			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
 			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
-			<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
+			<div class="text-sm text-gray text-bold qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
 		</div>
 
 		{{- if ne "" .IconURL -}}

@@ -1,12 +1,18 @@
-<div class="card padding">
+<div class="cardx padding-xl bg-stripes">
 
-	<div class="text-2xl align-center margin-bottom"><i class="bi bi-shield"></i></div>
+	<div class="margin-vertical align-center text-sm">
+		&nbsp;
+	</div>
 
-	<h1><a href="/guest">Sign In</a> Or <a href="/subscribe">Subscribe</a> to View</h1>
+	<div class="align-center margin-vertical">
+		<button hx-get="/@{{.AttributedTo.UserID.Hex}}/subscribe" class="primary">
+			<div class="align-center text-lg margin-xs bold">Subscribe Now</div>
+			<div class="align-center text-sm text-gray margin-none">To access subscriber-only content</div>
+		</button>
+	</div>
 
-	<p>
-		This article is only available to subscribers. 
-		Please sign in to your guest account to read the full article, or 
-		subscribe to gain access to this and other subscriber-only content.
-	</p>
+	<div class="margin-vertical align-center text-sm">
+		<a href="/@guest">Or sign in to your guest account</a>
+	</div>
+
 </div>

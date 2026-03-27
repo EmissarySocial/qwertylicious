@@ -1,20 +1,32 @@
-{{- $circles := .Circles.Slice -}}
+{{- $products := .Products -}}
 
-<h1>Subscribe to {{.DisplayName}}</h1>
+{{- if $products.NotEmpty -}}
+	<div class="margin-top align-center"><img src="{{.IconURL}}" class="circle width-64"></div>
+	<div class="bold text-lg margin-bottom-lg align-center">Subscribe to {{.DisplayName}}</div>
 
-<hr>
-{{- range $index, $circle := $circles -}}
-	<div role="button" class="flex-row">
+	<div hx-get="/@{{.UserID}}/follow" role="button" class="clickable card padding flex-row flex-align-center margin-bottom-sm">
 		<div class="flex-grow">
-			<div class="text-lg bold margin-none">{{$circle.Name}}</div>
-			<div class="text-gray">{{$circle.Description}}</div>
+			<div class="bold margin-none">Free Updates Only</div>
+			<div class="text-sm text-gray">Follow with your Fediverse or Email account</div>
 		</div>
-		<div class="text-2xl">{{icon "chevron-right"}}</div>
+		<div class="link text-xl margin-none">{{icon "chevron-right"}}</div>
 	</div>
-	<hr>
+
+	{{- $permalink := .Permalink -}}
+	{{- range $index, $product := $products -}}
+		<a href="/.checkout?productId={{$product.ProductID.Hex}}&return={{$permalink}}" class="clickable card padding margin-bottom-sm flex-row flex-align-center text-nocolor text-plain margin-bottom-xs">
+			<div class="flex-grow">
+				<div class="bold margin-none">{{$product.Name}}</div>
+				<div class="text-sm text-gray">{{$product.Price}}</div>
+			</div>
+			<div class="link text-xl margin-none">{{icon "chevron-right"}}</div>
+		</a>
+	{{- end -}}
+
+	<div class="margin-top">
+		<button script="on click trigger closeModal">Cancel</button>
+	</div>
+
+{{- else -}}
+	{{- template "follow" . -}}
 {{- end -}}
-
-
-<div class="margin-top">
-	<button script="on click trigger closeModal">Close Window</button>
-</div>

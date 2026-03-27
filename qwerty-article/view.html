@@ -26,20 +26,22 @@
 				</div>
 			</div>
 
-			<div id="article-social" class="flex-row flex-align-center">
-				<div class="flex-grow">
-					<button hx-get="/{{.AttributedTo.UserID}}/follow" class="text-xs primary">⁂ Follow {{.AttributedTo.Name}}</button>
-					<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="text-xs">{{icon "heart"}} 0</button>
-					<button hx-get="/{{.StreamID}}/intent?intent=Announce&object={{.Permalink}}" class="text-xs">{{icon "announce"}} 0</button>
-					<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="text-xs">{{icon "chat"}} 0</button>
-				</div>
-				<div class="flex-grow align-right">
-					<span hx-get="/{{.StreamID}}/replies" class="text-gray text-sm clickable" tabIndex="0">View Replies</span>
-				</div>
-			</div>
-
 			{{- if .UserCan "view-premium" -}}
+
+				<div id="article-social" class="flex-row flex-align-center">
+					<div class="flex-grow">
+						<button hx-get="/@{{.AttributedTo.UserID.Hex}}/subscribe" class="text-xs primary">Subscribe Now</button>
+						<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="text-xs">{{icon "heart"}} 0</button>
+						<!--button hx-get="/{{.StreamID}}/intent?intent=Announce&object={{.Permalink}}" class="text-xs">{{icon "announce"}} 0</button-->
+						<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="text-xs">{{icon "chat"}} 0</button>
+					</div>
+					<div class="flex-grow align-right">
+						<span hx-get="/{{.StreamID}}/replies" class="text-gray text-sm clickable" tabIndex="0">View Replies</span>
+					</div>
+				</div>
+
 				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
+
 			{{- else -}}
 				{{- template "view-subscribe" . -}}
 			{{- end -}}

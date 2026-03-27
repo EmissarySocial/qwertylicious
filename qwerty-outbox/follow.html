@@ -1,0 +1,91 @@
+<div class="text-gray bold">Follow for updates from</div>
+<div class="flex-row flex-align-center margin-top-sm margin-bottom">
+	<img src="{{.IconURL}}" class="circle width-48">
+	<h1 class="margin-none">{{.DisplayName}}</h1>
+</div>
+
+<div class="card margin-bottom-sm accordion">
+	<label for="accordion-fediverse" class="padding clickable block">
+		<input id="accordion-fediverse" type="radio" name="accordion" checked script="on click focus() the #join-button"> <b>Join the Fediverse	</b>
+	</label>
+	<div class="details">
+		<div class="padding padding-top-none">
+			<div class="margin-vertical-sm">
+				Follow <i>{{.DisplayName}}</i> on the Fediverse - a free, global community without ads, tracking, or algorithms.
+				<a href="https://fediverse.info" target="_blank">Learn more {{icon "link-outbound"}}</a>
+			</div>
+
+			<div class="margin-top-lg flex-column flex-align-center">
+				<a id="join-button" href="https://joinmastodon.org" class="button primary margin-none" target="_blank" style="font-size:24px;">
+					Join Mastodon.social
+				</a>
+				<div class="align-center margin-top-sm text-sm text-gray">
+					This server is recommended but you <br> 
+					can <a href="https://joinmastodon.org/servers" target="_blank">choose from many others {{icon "link-outbound"}}</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card margin-bottom-sm accordion">
+	<label for="accordion-join" class="clickable block padding">
+		<input id="accordion-join" type="radio" name="accordion" script="on click wait 100ms then focus() the #fediverse-handle"> <b>Use my Fediverse Account</b>
+	</label>
+	<div class="details">
+		<div class="padding padding-top-none">
+			<div id="fediverse-description" class="margin-vertical-xs">
+				Use your existing account on any Fediverse server. 
+				You'll receive updates in your newsfeed and can "like", "boost", and "reply" to posts from <i>{{.DisplayName}}</i>.
+			</div>
+			<div class="margin-top-lg flex-row flex-align-center">
+				<input id="fediverse-handle" name="username" type="text" placeholder="@username@server.social" class="flex-grow" aria-labelledby="fediverse-description" autocomplete="off" data-1p-ignore>
+				<button class="primary">&rarr;</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card margin-bottom-sm accordion">
+	<label for="accordion-email" class="clickable block padding">
+		<input id="accordion-email" type="radio" name="accordion" script="on click wait 100ms then focus() the #email-address"> <b>Use my Email Address</b>
+	</label>
+
+	<div class="details">
+		<div class="padding padding-top-none">
+			<div id="email-description" class="margin-vertical-sm">
+				You can also receive updates in your email inbox, 
+				but email followers cannot comment on posts.
+			</div>
+			<div class="margin-top-lg flex-row flex-align-center">
+				<input id="email-address" name="email" type="email" placeholder="username@email.com" class="flex-grow" aria-describedby="email-description" autocomplete="off" data-1p-ignore>
+				<button class="primary">&rarr;</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="margin-top">
+	<button script="on click trigger closeModal">Cancel</button>
+</div>
+
+<style>
+
+	.accordion {
+
+		& > .details {
+			height:0px;
+			overflow:hidden;
+			opacity:0;
+			transition: height 300ms, opacity 300ms, overflow 1ms 300ms;
+		}
+
+		&:has(input:checked) > .details {
+			height: 220px;
+			overflow:visible;
+			opacity: 1;
+			transition: height 300ms, opacity 300ms, overflow 1ms 300ms;
+		}
+	}
+
+</style>
