@@ -4,14 +4,6 @@
 	<div class="margin-top align-center"><img src="{{.IconURL}}" class="circle width-64"></div>
 	<div class="bold text-lg margin-bottom-lg align-center">Subscribe to {{.DisplayName}}</div>
 
-	<div hx-get="/@{{.UserID}}/follow" role="button" class="clickable card padding flex-row flex-align-center margin-bottom-sm">
-		<div class="flex-grow">
-			<div class="bold margin-none">Free Updates Only</div>
-			<div class="text-sm text-gray">Follow with your Fediverse or Email account</div>
-		</div>
-		<div class="link text-xl margin-none">{{icon "chevron-right"}}</div>
-	</div>
-
 	{{- $permalink := .Permalink -}}
 	{{- range $index, $product := $products -}}
 		<a href="/.checkout?productId={{$product.ProductID.Hex}}&return={{$permalink}}" class="clickable card padding margin-bottom-sm flex-row flex-align-center text-nocolor text-plain margin-bottom-xs">

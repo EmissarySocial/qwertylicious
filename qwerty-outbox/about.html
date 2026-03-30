@@ -15,7 +15,18 @@
 		<!-- About Me -->
 		<div class="margin-bottom-xl">
 
-			<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
+			{{- if eq "" .StatusMessage -}}
+				{{- if $isMyself -}}
+					<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes max-width-640">
+						Your personal message will appear here once you add something.<br>
+						Click the <span hx-get="/@{{.UserID}}/edit" class="link">Edit Profile</span> button to post your "About Me" message
+					</div>
+				{{- else -}}
+					<div id="profile-status" class="margin-vertical">{{.DisplayName}} hasn't added an "About Me" message yet.</div>
+				{{- end -}}
+			{{- else -}}
+				<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
+			{{- end -}}
 
 			<div class="flex-row flex-align-center">
 				<div id="profile-tags">
@@ -32,5 +43,13 @@
 		</div>
 
 	</div>
+
+<div 
+	hx-get="/@{{.UserID}}/about" 
+	hx-trigger="refreshPage from:window" 
+	hx-target="main" 
+	hx-swap="innerHTML"
+	hx-push-url="false">
+</div>
 
 </div>

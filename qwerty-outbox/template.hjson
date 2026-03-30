@@ -161,14 +161,13 @@
 									children: [
 										{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)", options:{autocomplete:"off"}}
 										{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-										{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}							
 									]
 								}
 								{
 									type: layout-vertical
 									label: About
 									children: [
-										{type:"textarea", path:"statusMessage", description:"Displayed on your 'About' page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
+										{type:"textarea", path:"statusMessage", description:"Displayed on your 'About' page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
 										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
 									]
 								}
@@ -348,15 +347,14 @@
 							{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
 							{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
 							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
-							{type:"radio-colors", path:"data.color-button", label:"Link and Button Color", description:"Customize the color on your profile", options:{provider:"qwerty-common.colors"}}
 						]
 					}
 					options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
 				},
 				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
 				{do:"set-state", state:"LIVE"}
-				{do:"save"}
 				{do:"set-password"}
+				{do:"save"}
 				{do:"set-header", name:"HX-Refresh", value:"true"}
 			]
 		}

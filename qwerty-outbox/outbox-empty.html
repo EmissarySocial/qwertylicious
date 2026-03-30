@@ -1,0 +1,18 @@
+{{- if .IsMyself -}}
+
+	<div class="bg-stripes padding-horizontal padding-vertical-xl max-width-640">
+
+		<div class="text-lg bold margin-top-none margin-bottom">Let's Write Your First Post!</div>
+
+		<div>
+			Click the <span class="link" hx-post="/@{{.UserID}}/add">+ New Post</span> button in the top-right corner to continue.
+		</div>
+	</div>
+
+{{- else -}}
+
+	<div class="card padding-horizontal padding-vertical-xl max-width-640">
+		<b>{{.DisplayName}}</b> hasn't published anything yet.  Check back later!
+	</div>
+
+{{- end -}}

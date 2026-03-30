@@ -5,8 +5,8 @@
 </div>
 
 <div class="card margin-bottom-sm accordion">
-	<label for="accordion-fediverse" class="padding clickable block">
-		<input id="accordion-fediverse" type="radio" name="accordion" checked script="on click focus() the #join-button"> <b>Join the Fediverse	</b>
+	<label for="accordion-join" class="padding clickable block">
+		<input id="accordion-join" type="radio" name="accordion" script="on click focus() the #join-button"> <b>Join the Fediverse	</b>
 	</label>
 	<div class="details">
 		<div class="padding padding-top-none">
@@ -29,45 +29,89 @@
 </div>
 
 <div class="card margin-bottom-sm accordion">
-	<label for="accordion-join" class="clickable block padding">
-		<input id="accordion-join" type="radio" name="accordion" script="on click wait 100ms then focus() the #fediverse-handle"> <b>Use my Fediverse Account</b>
+	<label for="accordion-fediverse" class="clickable block padding">
+		<input id="accordion-fediverse" type="radio" name="accordion" script="on click wait 100ms then focus() the #fediverse-handle"> <b>Use my Fediverse Account</b>
 	</label>
 	<div class="details">
-		<div class="padding padding-top-none">
-			<div id="fediverse-description" class="margin-vertical-xs">
-				Use your existing account on any Fediverse server. 
-				You'll receive updates in your newsfeed and can "like", "boost", and "reply" to posts from <i>{{.DisplayName}}</i>.
+		<div class="padding padding-top-none flex-column flex-justify-between height-100%">
+
+			<div class="margin-bottom camper-accounts" data-intent="follow" data-object="{{.Permalink}}"></div>
+
+			<div id="fediverse-description" class="camper-add-first-account margin-vertical-xs">
+				If you're already on the Fediverse, enter your username and server to get updates in your newsfeed.
 			</div>
-			<div class="margin-top-lg flex-row flex-align-center">
-				<input id="fediverse-handle" name="username" type="text" placeholder="@username@server.social" class="flex-grow" aria-labelledby="fediverse-description" autocomplete="off" data-1p-ignore>
-				<button class="primary">&rarr;</button>
-			</div>
+
+			<form id="idFollowWithFediverse" method="post" class="camper-add-account flex-row flex-align-center">
+				<input id="fediverse-handle" class="camper-input flex-grow" name="username" type="text" placeholder="@username@server.social" class="flex-grow" aria-labelledby="fediverse-description" autocomplete="off" data-1p-ignore required="true">
+				<button type="submit" class="primary">
+					<span class="camper-loading" hidden><span class="spin">{{icon "loading"}}</span></span>
+					<span class="camper-add-first-account">Add Account</span>
+					<span class="camper-add-another-account" hidden>Add Another</span>
+				</button>
+			</form>
+
 		</div>
 	</div>
 </div>
 
 <div class="card margin-bottom-sm accordion">
 	<label for="accordion-email" class="clickable block padding">
-		<input id="accordion-email" type="radio" name="accordion" script="on click wait 100ms then focus() the #email-address"> <b>Use my Email Address</b>
+		<input id="accordion-email" type="radio" name="accordion" script="on click wait 100ms then focus() the #full-name"> <b>Use my Email Address</b>
 	</label>
 
 	<div class="details">
-		<div class="padding padding-top-none">
-			<div id="email-description" class="margin-vertical-sm">
-				You can also receive updates in your email inbox, 
-				but email followers cannot comment on posts.
+		<form action="/.follower/new" method="post" class="height-100%">
+			<input type="hidden" name="type", value="User">
+			<input type="hidden" name="parentId" value="{{.UserID}}">
+
+			<div class="padding padding-top-none height-100% flex-column flex-justify-between">
+
+				<div id="email-description" class="margin-vertical-sm">
+					Receive updates via email, 
+					but email followers cannot comment on posts.
+				</div>
+
+				<div>
+					<div class="margin-vertical-sm">
+						<input id="full-name" type="text" name="name" placeholder="My Name" required autofocus autocomplete="name" data-1p-ignore>
+					</div>
+					<div class="margin-vertical-sm">
+						<input id="email-address" type="email" name="email" placeholder="my@email-adddress.com" required autocomplete="email" data-1p-ignore>
+					</div>
+				</div>
+
+				<div class="margin-top">
+					<button type="submit" class="primary">Follow via Email</button>
+					<button script="on click trigger closeModal">Cancel</button>
+				</div>
+
 			</div>
-			<div class="margin-top-lg flex-row flex-align-center">
-				<input id="email-address" name="email" type="email" placeholder="username@email.com" class="flex-grow" aria-describedby="email-description" autocomplete="off" data-1p-ignore>
-				<button class="primary">&rarr;</button>
-			</div>
-		</div>
+		</form>
 	</div>
 </div>
 
-<div class="margin-top">
-	<button script="on click trigger closeModal">Cancel</button>
-</div>
+<script defer>
+	document.getElementById("idFollowWithFediverse").addEventListener("submit", async (event) =>
+	{
+		// Halt the Event
+		event.preventDefault();
+		event.cancelBubble = true;
+
+		// Use the provided handle to retrieve the WebFinger and ActivityIntents metadata.
+		const fediverseHandle = document.getElementById("fediverse-handle")
+		Camper.addAccount(fediverseHandle.value)
+	});
+
+	Camper.render()
+
+	// If we already have saved accounts, then display the "Use my Fediverse Account" section by default
+	if (Camper.hasSavedAccounts()) {
+		document.getElementById("accordion-fediverse").checked = true
+	} else {
+		document.getElementById("accordion-join").checked = true
+	}
+
+</script>
 
 <style>
 
@@ -85,6 +129,48 @@
 			overflow:visible;
 			opacity: 1;
 			transition: height 300ms, opacity 300ms, overflow 1ms 300ms;
+		}
+	}
+
+	.camper-accounts {
+
+		& > .camper-account {
+
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			padding:8px;
+			border: solid 1px var(--white);
+			cursor: pointer;
+
+			&:hover {
+				border:solid 1px var(--blue60);
+				border-radius:8px;
+			}
+
+			& > .camper-account-icon {
+				width:48px;
+				height:48px;
+				border-radius:24px;
+				margin-right:12px;
+			}
+
+			& > .camper-account-info {
+				flex-grow:1;
+
+				& > .camper-account-name {
+					font-weight:bold;
+				}
+
+				& > .camper-account-username {
+					font-size:smaller;
+					color:var(--color-gray);
+				}
+			}
+
+			& > .camper-account-remove-button {
+				font-size:12px;
+			}
 		}
 	}
 

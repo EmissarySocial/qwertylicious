@@ -6,6 +6,7 @@
 {{- $hasBannerImage := ne "" .ImageURL -}}
 {{- $hasBannerColor := ne "" (.Data "color-banner") -}}
 {{- $circleCount := .Circles.Featured.Count -}}
+{{- $layout := .Data "layout" -}}
 {{- $isPublic := .IsPublic -}}
 
 <style>{{- template "stylesheet" . -}}</style>
@@ -16,7 +17,6 @@
 		<img src="{{.ImageURL}}" class="width-100%">
 	</div>
 {{- end -}}
-
 
 <div class="pos-relative">
 
@@ -67,8 +67,20 @@
 						<div class="pos-absolute-top-right flex-row text-xs">
 							<span class="button-group">
 								<button hx-get="/@me/edit">Edit Profile</button>
-								<button hx-get="/@{{.UserID}}/links">Links</button>
-								<button hx-get="/@me/edit-layout">Layout</button>
+								<button hx-get="/@{{.UserID}}/links">Links ({{.Links.Length}})</button>
+								<button hx-get="/@me/edit-layout">
+									{{- if eq $layout "column-1" -}}
+										{{icon "view-stacked"}} 1 Column
+									{{- else if eq $layout "column-2" -}}
+										{{icon "grid"}} 2 Columns
+									{{- else if eq $layout "column-3" -}}
+										{{icon "grid-3x2-gap"}} 3 Columns
+									{{- else if eq $layout "row-reverse" -}}
+										{{icon "list-columns"}} Rows Reversed
+									{{- else -}}
+										{{icon "list-columns-reverse"}} Rows
+									{{- end -}}
+								</button>
 							</span>
 
 							<button hx-post="/@{{.UserID}}/add" class="primary">+ New Post</button>
@@ -92,13 +104,14 @@
 						{{- end -}}
 						-->
 
+						<!--button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary"-->
+						<button hx-get="/@{{.UserID}}/follow" class="primary">
+							⁂ Follow
+						</button>
+
 						{{- if gt $circleCount 0 -}}
-							<button hx-get="/@{{.UserID}}/subscribe" class="primary">
-								⁂ Subscribe
-							</button>
-						{{- else -}}
-							<button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary">
-								⁂ Follow
+							<button hx-get="/@{{.UserID}}/subscribe" class="primary outline">
+								Subscribe
 							</button>
 						{{- end -}}
 

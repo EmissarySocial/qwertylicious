@@ -1,22 +1,28 @@
 {{- $posts := (.Outbox.Where "templateId" "qwerty-article").ByPublishDate.Reverse.Slice -}}
 
-{{- range $posts -}}
-	<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor flex-column">
-		<div class="width-100% rectangle" style="height:200px; overflow:hidden;">
-			{{- if ne "" .IconURL -}}
-			<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
-			{{- end -}}
-		</div>
+{{- if $posts.IsEmpty -}}
+	{{- template "outbox-empty" . -}}
+{{- else -}}
 
-		<div class="padding flex-grow">
-			<div>
-				{{- range .Hashtags -}} {{.}} {{- end -}}
+	{{- range $posts -}}
+		<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor flex-column">
+			<div class="width-100% rectangle" style="height:200px; overflow:hidden;">
+				{{- if ne "" .IconURL -}}
+				<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
+				{{- end -}}
 			</div>
-			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
-			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
-		</div>
-		<div class="padding">
-			<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
-		</div>
-	</a>
+
+			<div class="padding flex-grow">
+				<div>
+					{{- range .Hashtags -}} {{.}} {{- end -}}
+				</div>
+				<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
+				<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
+			</div>
+			<div class="padding">
+				<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
+			</div>
+		</a>
+	{{- end -}}
+
 {{- end -}}

@@ -6,17 +6,17 @@
 
 		<article id="article" class="margin-bottom">
 			<h1 id="article-name" class="p-name">{{.Name}}</h1>
-			<div id="article-description" class="text-gray p-summary">{{.Description}}</div>
+			<div id="article-description" class="p-summary">{{.Description}}</div>
 
-			<div id="article-byline" class="flex-row">
+			<div id="article-byline" class="flex-row flex-align-center">
 				<div class="width-48 flex-center">
 					<img src="{{.AttributedTo.IconURL}}" id="article-author-icon" class="width-48 circle">
 				</div>
-				<div id="article-author" class="p-author h-card">
-					<div class="p-name margin-none">
+				<div id="article-author" class="p-author h-card flex-grow">
+					<div class="p-name">
 						<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
 					</div>
-					<div class="text-sm text-gray">
+					<div class="text-sm">
 						{{- if eq "published" .StateID -}}
 							{{.PublishDate | longDate}}
 						{{- else -}}
@@ -24,15 +24,16 @@
 						{{- end -}}
 					</div>
 				</div>
+				<div>
+					<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary outline text-sm">⁂ Follow</button>
+				</div>
 			</div>
 
 			{{- if .UserCan "view-premium" -}}
 
 				<div id="article-social" class="flex-row flex-align-center">
 					<div class="flex-grow">
-						<button hx-get="/@{{.AttributedTo.UserID.Hex}}/subscribe" class="text-xs primary">Subscribe Now</button>
 						<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="text-xs">{{icon "heart"}} 0</button>
-						<!--button hx-get="/{{.StreamID}}/intent?intent=Announce&object={{.Permalink}}" class="text-xs">{{icon "announce"}} 0</button-->
 						<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="text-xs">{{icon "chat"}} 0</button>
 					</div>
 					<div class="flex-grow align-right">
@@ -83,6 +84,9 @@
 
 		& > #article-description {
 			font-size:18px;
+			font-weight:600;
+			line-height:1.5em;
+			color: var(--gray50);
 		}
 
 		& > #article-byline {
@@ -129,3 +133,5 @@
 	}
 
 </style>
+
+<script src="/.themes/global/resources/camperjs/camper.js" defer></script>
