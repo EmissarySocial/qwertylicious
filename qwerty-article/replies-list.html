@@ -1,0 +1,15 @@
+{{- $minDate := .QueryParam "minDate" -}}
+{{- $maxRows := 12 -}}
+{{- $replies := .ReplyLinksAfter $minDate $maxRows -}}
+
+<div class="">Join the Conversation</div>
+<div class="">Reply from your own Fediverse Account</div>
+
+<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="primary text-xs">{{icon "chat"}} Reply</button>
+
+	<pre>...{{ $replies | jsonIndent }}</pre>
+
+{{- range $reply := $replies -}}
+	<pre>{{ $reply | jsonIndent }}</pre>
+	<hr>
+{{- end -}}

@@ -1,0 +1,23 @@
+<h1 id="article-name" class="p-name">{{.Name}}</h1>
+<div id="article-description" class="p-summary">{{.Description}}</div>
+
+<div id="article-byline" class="flex-row flex-align-center">
+	<div class="width-48 flex-center">
+		<img src="{{.AttributedTo.IconURL}}" id="article-author-icon" class="width-48 circle">
+	</div>
+	<div id="article-author" class="p-author h-card flex-grow">
+		<div class="p-name">
+			<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
+		</div>
+		<div class="text-sm">
+			{{- if eq "published" .StateID -}}
+				{{.PublishDate | longDate}}
+			{{- else -}}
+				Draft: Last Edited {{.UpdateDate | longDate}}
+			{{- end -}}
+		</div>
+	</div>
+	<div>
+		<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary outline text-sm">⁂ Follow</button>
+	</div>
+</div>

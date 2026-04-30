@@ -1,46 +1,17 @@
+<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet">
+
 <div class="page padding-none h-entry">
 
-	{{- template "banner" . -}}
+	{{- template "head-banner" . -}}
 
 	<div class="pos-relative">
 
 		<article id="article" class="margin-bottom">
-			<h1 id="article-name" class="p-name">{{.Name}}</h1>
-			<div id="article-description" class="p-summary">{{.Description}}</div>
 
-			<div id="article-byline" class="flex-row flex-align-center">
-				<div class="width-48 flex-center">
-					<img src="{{.AttributedTo.IconURL}}" id="article-author-icon" class="width-48 circle">
-				</div>
-				<div id="article-author" class="p-author h-card flex-grow">
-					<div class="p-name">
-						<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
-					</div>
-					<div class="text-sm">
-						{{- if eq "published" .StateID -}}
-							{{.PublishDate | longDate}}
-						{{- else -}}
-							Draft: Last Edited {{.UpdateDate | longDate}}
-						{{- end -}}
-					</div>
-				</div>
-				<div>
-					<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary outline text-sm">⁂ Follow</button>
-				</div>
-			</div>
+			{{- template "head-summary" . -}}
+			{{- template "head-social" . -}}
 
 			{{- if .UserCan "view-premium" -}}
-
-				<div id="article-social" class="flex-row flex-align-center">
-					<div class="flex-grow">
-						<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="text-xs">{{icon "heart"}} 0</button>
-						<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="text-xs">{{icon "chat"}} 0</button>
-					</div>
-					<div class="flex-grow align-right">
-						<span hx-get="/{{.StreamID}}/replies" class="text-gray text-sm clickable" tabIndex="0">View Replies</span>
-					</div>
-				</div>
-
 				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
 
 			{{- else -}}
@@ -66,72 +37,3 @@
 	</div>
 	
 </div>
-
-<style>
-
-	#article-banner {}
-
-	#article {
-		width:100%;
-		max-width:640px;
-		margin:16px auto;
-		padding:16px;
-
-		& > #article-name {
-			font-size:32px;
-			margin:0px;
-		}
-
-		& > #article-description {
-			font-size:18px;
-			font-weight:600;
-			line-height:1.5em;
-			color: var(--gray50);
-		}
-
-		& > #article-byline {
-			margin:24px 0px 32px 0px;
-
-			& > #author-icon {
-				width:48px;
-				height:48px;
-			}
-
-			& > #article-author {
-				color: var(--gray50);
-			}
-		}
-
-
-		& > #article-social {
-			padding: 8px 0px;
-			border-top: solid 1px var(--gray20);
-			border-bottom: solid 1px var(--gray20);
-			margin:16px 0px 32px 0px;
-		}
-
-		& > #article-content {
-			color: var(--gray80);
-			font-size:16px;
-
-			& h1, & h2, & h3, & h4, & h5, & h6 {
-				color: var(--black);
-				font-weight:normal;
-				margin-top: 1.5em;
-				margin-bottom: 0em;
-				line-height:1.25em;
-			}
-
-			& p {
-				line-height:1.75em;
-			}
-		}
-
-		& img {
-			max-width:100%;
-		}
-	}
-
-</style>
-
-<script src="/.themes/global/resources/camperjs/camper.js" defer></script>

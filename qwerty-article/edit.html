@@ -1,6 +1,8 @@
-<div class="page">
+<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet">
 
-	<div id="menu-bar">
+<div class="page padding-none h-entry">
+
+	<div id="menu-bar" class="padding-sm margin-none">
 		<div class="left">
 			<a href="/{{.StreamID}}">&larr; Back</a>
 			<a hx-get="/{{.StreamID}}/properties">Info</a>
@@ -26,44 +28,16 @@
 				<a hx-get="/{{.StreamID}}/delete" class="text-red">Delete</a>
 			{{- end -}}
 		</div>
-
 	</div>
 
 	{{- template "edit-banner" . -}}
 
-	<div style="width:100%; max-width:752px; margin:24px auto;">
-		<div class="margin-vertical">
-			<div class="flex-row">
-				<h1 hx-get="/{{.StreamID}}/properties" class="clickable margin-none">{{.Name}}</h1>
-				<div class="flex-center margin-left-sm"><button hx-get="/{{.StreamID}}/properties" class="text-xs">Edit</button></div>
-			</div>
-			<div class="margin-vertical-sm text-gray text-lg">
-				<span class="clickable" hx-get="/{{.StreamID}}/properties">{{.Description}}</span>
-			</div>
-		</div>
-
-		<div class="flex-row margin-vertical-xl">
-			<div class="width-32 flex-center">
-				<img src="{{.AttributedTo.IconURL}}" class="width-32 circle">
-			</div>
-			<div>
-				<div class="p-author h-card flex-row flex-align-center p-name margin-none">
-					<span class="margin-none">{{.AttributedTo.Name}}</span>
-				</div>
-
-				<div class="text-gray text-sm margin-none">
-					{{- if eq .StateID "published" -}}
-						<span class="dt-published">
-							Published on {{.PublishDate | longDate}}
-						</span>
-					{{- else -}}
-						DRAFT Edited: {{.UpdateDate | longDate}}
-					{{- end -}}
-				</div>
-			</div>
-		</div>
-
-		{{- template "edit-content" . -}}
+	<div class="pos-relative">
+		<article id="article" class="margin-bottom">
+			{{- template "head-summary" . -}}
+			<hr>
+			{{- template "edit-content" . -}}
+		</article>
 	</div>
 
 	<div 

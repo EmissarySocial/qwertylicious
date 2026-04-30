@@ -1,0 +1,31 @@
+{{- $isMyself := .IsMyself -}}
+
+<div class="framed page padding-none">
+
+	{{- template "header" . -}}
+
+	<div class="padding max-width-800">
+
+		<!-- "Tabs" -->
+		<div role="tablist" class="underlined">
+			<a href="/@{{.UserID}}" hx-boost="true" role="tab">Posts</a>
+			<span role="tab" aria-selected="true">Replies</span>
+			<a href="/@{{.UserID}}/about" hx-boost="true" role="tab">About</a>
+		</div>
+
+		<!-- Replies -->
+		<div class="margin-bottom-xl">
+			{{- template "replies-list" . -}}
+		</div>
+
+	</div>
+
+	<div 
+		hx-get="/@{{.UserID}}/about" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main" 
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+
+</div>

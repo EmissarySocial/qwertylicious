@@ -1,0 +1,13 @@
+<div id="article-social" class="flex-row flex-align-center">
+	<div class="flex-grow">
+		<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="text-xs">{{icon "heart"}} 0</button>
+		<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}" class="text-xs">{{icon "chat"}} 0</button>
+	</div>
+	<div class="flex-grow align-right">
+		<a hx-get="/{{.StreamID}}/responses" class="text-nocolor text-sm"> {{.ResponseCount}} Likes</a>
+		&nbsp;
+		<a hx-get="/{{.StreamID}}/replies" class="text-nocolor text-sm"> {{.ReplyCount}} Replies</a>
+	</div>
+</div>
+
+<script src="/.themes/global/resources/camperjs/camper.js" defer></script>

@@ -9,6 +9,7 @@
 		<!-- "Tabs" -->
 		<div role="tablist" class="underlined">
 			<a href="/@{{.UserID}}" hx-boost="true" role="tab">Posts</a>
+			<a href="/@{{.UserID}}/replies" hx-boost="true" role="tab">Replies</a>
 			<span role="tab" aria-selected="true">About</span>
 		</div>
 
@@ -44,12 +45,12 @@
 
 	</div>
 
-<div 
-	hx-get="/@{{.UserID}}/about" 
-	hx-trigger="refreshPage from:window" 
-	hx-target="main" 
-	hx-swap="innerHTML"
-	hx-push-url="false">
-</div>
+	<div 
+		hx-get="/@{{.UserID}}/about" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main" 
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
 
 </div>

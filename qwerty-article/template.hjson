@@ -80,6 +80,28 @@
 			]
 		}
 
+		replies: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["anonymous"]
+			}
+			steps:[
+				{do:"as-modal", options:["class:normal"], steps:[
+					{do:"view-html"}
+				]}
+			]
+		}
+
+		replies-list: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["anonymous"]
+			}
+			steps:[
+				{do:"view-html"}
+			]
+		}
+
 		edit: {
 			roles: ["author"]
 			steps: [
