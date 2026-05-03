@@ -1,5 +1,6 @@
 {
 	templateId: qwerty-common
+	category: Content
 	model: None
 	label: Qwerty Common
 	description: Common element for Qwertylicious apps
