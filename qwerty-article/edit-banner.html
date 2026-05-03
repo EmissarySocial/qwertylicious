@@ -5,10 +5,14 @@
 	script="install DropToUpload">
 
 	{{- if isZero $bannerURL -}}
-		<span class="align-center text-gray text-sm">
-			Click here to <u>upload an image or video</u><br>
-			or drag a file into this box.
-		</span>
+		<div class="align-center">
+			<div class="text-lg bold">Banner</div>
+			<div class="align-center text-sm">
+				Click here to <u>upload an image or video</u><br>
+				or drag a file into this box.
+			</div>
+			<div class="text-lg">&nbsp;</div>
+		</div>
 	{{- else -}}
 		{{- template "head-banner" . -}}
 	{{- end -}}
@@ -44,7 +48,6 @@
 		min-height:240px;
 		background-size:cover;
 		background-position:top center;
-		background-color:var(--gray10); 
 		
 		&.highlight {
 			outline: solid 2px var(--blue60);

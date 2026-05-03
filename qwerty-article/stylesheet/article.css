@@ -1,5 +1,7 @@
 
-#article-banner {}
+#article-banner {
+	background-color:var(--gray30);
+}
 
 #article {
 	width:100%;
