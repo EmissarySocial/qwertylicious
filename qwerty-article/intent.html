@@ -33,16 +33,20 @@
 
 		<div class="padding padding-top-none flex-column flex-justify-between height-100%">
 
+			<div id="fediverse-description" class="camper-show-if-has-accounts margin-vertical-xs">
+				You have self-identified as this Fediverse account.<br> Click below to make changes.
+			</div>
+
+			<div id="fediverse-description" class="camper-hide-if-has-accounts margin-vertical-xs">
+				If you're already on the Fediverse, enter your username and server to get updates in your newsfeed.
+			</div>
+
 			<div 
 				class="margin-bottom camper-accounts" 
 				data-intent="follow" 
 				data-object="{{.Permalink}}" 
 				data-max-accounts="1"
 				hx-on:camper-hide="htmx.trigger(window, 'closeModal')">
-			</div>
-
-			<div id="fediverse-description" class="camper-add-first-account margin-vertical-xs">
-				If you're already on the Fediverse, enter your username and server to get updates in your newsfeed.
 			</div>
 
 			<form 
