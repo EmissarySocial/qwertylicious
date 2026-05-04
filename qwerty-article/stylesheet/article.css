@@ -6,8 +6,8 @@
 #article {
 	width:100%;
 	max-width:640px;
-	margin:16px auto;
-	padding:16px;
+	margin:0px auto;
+	padding:32px 16px;
 
 	& > #article-name {
 		font-size:32px;

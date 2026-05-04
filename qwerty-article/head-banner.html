@@ -1,7 +1,6 @@
 {{- $banner := .AttachmentsByCategory "banner" -}}
 {{- $bannerDescription := .Data "bannerDescription" -}}
 
-<div>
 {{- range $index, $attachment := $banner -}}
 	{{- $category := $attachment.MimeCategory -}}
 
@@ -16,4 +15,3 @@
 	{{- end -}}
 
 {{- end -}}
-</div>

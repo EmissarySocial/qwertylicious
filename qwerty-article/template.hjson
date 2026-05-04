@@ -249,6 +249,18 @@
 				{do: "save"}
 				{do: "trigger-event", event:"refreshBanner"}
 			]
-		}		
+		}	
+
+		intent: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["anonymous"]
+			}
+			steps:[
+				{do:"as-modal", steps:[
+					{do:"view-html"}
+				]}
+			]
+		}
 	}
 }

@@ -8,9 +8,9 @@
 
 		<!-- "Tabs" -->
 		<div role="tablist" class="underlined">
-			<a href="/@{{.UserID}}" hx-boost="true" role="tab">Posts</a>
+			<a href="/@{{.UserID}}" hx-get="/@{{.UserID}}" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Posts</a>
 			<span role="tab" aria-selected="true">Replies</span>
-			<a href="/@{{.UserID}}/about" hx-boost="true" role="tab">About</a>
+			<a href="/@{{.UserID}}/about" hx-get="/@{{.UserID}}/about" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">About</a>
 		</div>
 
 		<!-- Replies -->

@@ -56,8 +56,8 @@
 				<!-- "Tabs" -->
 				<div role="tablist" class="underlined">
 					<span role="tab" aria-selected="true">Posts</span>
-					<a href="/@{{.UserID}}/replies" hx-boost="true" role="tab">Replies</a>
-					<a href="/@{{.UserID}}/about" hx-boost="true" role="tab">About</a>
+					<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
+					<a href="/@{{.UserID}}/about" hx-get="/@{{.UserID}}/about" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">About</a>
 				</div>
 
 				<!-- Layout -->
@@ -113,7 +113,7 @@
 		</div>
 	{{- end -}}
 
-	<script src="/.themes/global/resources/camperjs/camper.js" async></script>
+	<script src="/.themes/global/resources/camperjs/camper.js"></script>
 
 {{- else if not $isMyself -}}
 	{{- template "coming-soon" . -}}

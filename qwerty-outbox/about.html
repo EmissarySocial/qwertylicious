@@ -8,8 +8,8 @@
 
 		<!-- "Tabs" -->
 		<div role="tablist" class="underlined">
-			<a href="/@{{.UserID}}" hx-boost="true" role="tab">Posts</a>
-			<a href="/@{{.UserID}}/replies" hx-boost="true" role="tab">Replies</a>
+			<a href="/@{{.UserID}}" hx-get="/@{{.UserID}}" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Posts</a>
+			<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
 			<span role="tab" aria-selected="true">About</span>
 		</div>
 
