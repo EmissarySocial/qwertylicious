@@ -1,13 +1,14 @@
 <div id="article-social" class="flex-row flex-align-center">
-	<div class="flex-grow text-xs camper-show-if-has-accounts flex-row flex-align-center" hidden>
-		<span data-intent="like" data-object="{{.Permalink}}">
-			<button class="camper-like-button" hx-on:click="Camper.doIntent(this)">{{icon "heart"}} 0</button>
-		</span>
-		<span data-intent="create" data-inreplyto="{{.Permalink}}">
-			<button class="camper-reply-button" hx-on:click="Camper.doIntent(this)">{{icon "chat"}} 0</button>
-		</span>
+	<div class="flex-grow text-xs camper-show-if-has-accounts flex-row flex-align-center" style="gap:0px;" hidden>
+		<button class="camper-intent-button" data-intent="like" data-object="{{.Permalink}}">
+			{{icon "heart"}} 0
+		</button>
+		<button class="camper-intent-button" data-intent="reply" data-inreplyto="{{.Permalink}}">
+			{{icon "chat"}} 0
+		</button>
 		<span hx-get="/{{.StreamID}}/intent">
 			<span class="flex-row flex-align-center clickable">
+				&nbsp;
 				<img class="camper-account-image circle" style="height:1em;" />
 				<span class="camper-account-name text-underlined text-gray"></span>
 			</span>
@@ -15,7 +16,7 @@
 	</div>
 	<div class="flex-grow text-xs camper-hide-if-has-accounts">
 		<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}">{{icon "heart"}} 0</button>
-		<button hx-get="/{{.StreamID}}/intent?intent=Create&inReplyTo={{.Permalink}}">{{icon "chat"}} 0</button>
+		<button hx-get="/{{.StreamID}}/intent?intent=Reply&inReplyTo={{.Permalink}}">{{icon "chat"}} 0</button>
 	</div>
 	<div class="flex-grow align-right">
 		<a hx-get="/{{.StreamID}}/responses" class="text-nocolor text-sm"> {{.ResponseCount}} Likes</a>
