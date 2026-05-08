@@ -1,13 +1,13 @@
 {
-	themeId: "qwerty-theme"
+	themeId: qwerty-theme
 	extends:["global"]
 	isVisible:true
-	category:"General"
-	label: "Qwertylicious"
-	description: "Modern theme to emphasize long-form text content."
+	category: General
+	label: Qwertylicious
+	description: Modern theme to emphasize long-form text content.
 	rank: 0
 	schema: {
-		type: "object", 
+		type: object
 		properties: {
 			iconId: {type:"string", format:"objectId"}
 			iconUrl: {type:"string", format:"url"}

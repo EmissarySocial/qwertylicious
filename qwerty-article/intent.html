@@ -45,12 +45,10 @@
 				class="margin-bottom camper-accounts" 
 				data-intent="follow" 
 				data-object="{{.Permalink}}" 
-				data-max-accounts="1"
 				hx-on:camper-hide="htmx.trigger(window, 'closeModal')">
 			</div>
 
 			<form 
-				id="idFollowWithFediverse" 
 				method="post" 
 				class="camper-form camper-add-account flex-row flex-align-center"
 				data-max-accounts="1">
