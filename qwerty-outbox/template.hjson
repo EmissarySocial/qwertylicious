@@ -9,6 +9,7 @@
 	schema: {
 		type: object
 		properties: {
+			new_password: {type:"string"}
 			statusMessage: {type:"string"}
 			location: {type:"string"}
 			data: {
@@ -360,7 +361,6 @@
 						children: [
 							{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
 							{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
-							{type:"hidden", path:"old_password", options:{value:""}}
 							{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
 							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
 						]

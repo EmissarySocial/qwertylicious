@@ -19,7 +19,7 @@
 			icon:{type:"string"}
 			token: {type:"string", required:true}
 			name: {type:"string"}
-			description: {type:"string"}
+			summary: {type:"string"}
 			content:{type:"object", properties: {
 				format: {type:"string"}
 				raw: {type:"string"}
@@ -181,7 +181,7 @@
 									label:"Properties"
 									children: [
 										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
-										{type:"textarea", path:"description", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
+										{type:"textarea", path:"summary", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
 										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
 										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/streamToken?streamId={{.StreamID}}"}}
 									]
