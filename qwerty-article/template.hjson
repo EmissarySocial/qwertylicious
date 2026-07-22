@@ -6,6 +6,7 @@
 	containedBy: ["outbox"]
 	model: Stream
 	extends:["base-intent"]
+	tagPaths:["data.tags"]
 	label:"Qwertylicious Article"
 	description:"Articles show up on a Qwertylicious user's profile page."
 	bundles: {
@@ -121,7 +122,7 @@
 			roles: ["author"]
 			steps: [
 				{do:"edit-content", file:"editor", format:"EDITORJS"}
-				{do:"process-content", add-links:false, remote-html:false, add-tags:true}
+				{do:"process-content", add-links:false, remote-html:false}
 				{do:"save"}
 			]
 		}
