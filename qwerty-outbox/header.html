@@ -64,26 +64,24 @@
 				<div class="margin-none">
 
 					{{- if $isMyself -}}
-						<div class="pos-absolute-top-right flex-row text-xs">
-							<span class="button-group">
-								<button hx-get="/@me/edit">Edit Profile</button>
-								<button hx-get="/@{{.UserID}}/links">Links ({{.Links.Length}})</button>
-								<button hx-get="/@me/edit-layout">
-									{{- if eq $layout "column-1" -}}
-										{{icon "view-stacked"}} 1 Column
-									{{- else if eq $layout "column-2" -}}
-										{{icon "grid"}} 2 Columns
-									{{- else if eq $layout "column-3" -}}
-										{{icon "grid-3x2-gap"}} 3 Columns
-									{{- else if eq $layout "row-reverse" -}}
-										{{icon "list-columns"}} Rows Reversed
-									{{- else -}}
-										{{icon "list-columns-reverse"}} Rows
-									{{- end -}}
-								</button>
-							</span>
-
+						<div class="pos-absolute-top-right flex-row text-sm">
 							<button hx-post="/@{{.UserID}}/add" class="primary">+ New Post</button>
+							<button hx-get="/@me/edit-layout">
+								{{- if eq $layout "column-1" -}}
+									{{icon "view-stacked"}} 1 Column Layout
+								{{- else if eq $layout "column-2" -}}
+									{{icon "grid"}} 2 Columns Layout
+								{{- else if eq $layout "column-3" -}}
+									{{icon "grid-3x2-gap"}} 3 Columns Layout
+								{{- else if eq $layout "row-reverse" -}}
+									{{icon "list-columns"}} Rows Reversed Layout
+								{{- else -}}
+									{{icon "list-columns-reverse"}} Rows Layout
+								{{- end -}}
+							</button>
+							<button hx-get="/@me/settings">{{icon "gear"}} Edit Profile</button>
+							<button hx-post="/signout">{{icon "logout"}} Sign Out</button>
+
 						</div>
 					{{- else -}}
 
