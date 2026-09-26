@@ -57,9 +57,12 @@
 		]
 
 		layouts: [
-			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
-			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
-			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
+			{label:"Icons (1x)", value:"icons-1", icon:"view-stacked", description:"Square icons for each item"}
+			{label:"Icons (2x)", value:"icons-2", icon:"grid", description:"Square icons for each item arranged in two columns"}
+			{label:"Icons (3x)", value:"icons-3", icon:"grid-3x2-gap", description:"Square icons for each item arranged in three columns"}
+			{label:"Cards (1x)", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
+			{label:"Cards (2x)", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
+			{label:"Cards (3x)", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
 			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
 			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
 		]
@@ -262,7 +265,7 @@
 			] 
 		}
 
-		follow: {
+		_follow: {
 			roles: ["anonymous"]
 			steps: [
 				{do:"as-modal", steps:[

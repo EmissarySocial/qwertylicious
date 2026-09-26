@@ -9,7 +9,14 @@
 {{- $layout := .Data "layout" -}}
 {{- $isPublic := .IsPublic -}}
 
-<!--style>{{- template "stylesheet" . -}}</style-->
+<!-- Publish message -->
+{{- if not .IsPublic -}}
+	<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none" role="button">
+		{{icon "check-circle"}} 
+		Your profile IS READY TO PUBLISH on the social web.
+		<span class="text-underline">Click here to publish it now</span>
+	</div>
+{{- end -}}
 
 <!-- Banner Image -->
 {{- if or $hasBannerImage $hasBannerColor $isMyself -}}
@@ -67,16 +74,23 @@
 						<div class="pos-absolute-top-right flex-row text-sm">
 							<button hx-post="/@{{.UserID}}/add" class="primary">+ New Post</button>
 							<button hx-get="/@me/edit-layout">
-								{{- if eq $layout "column-1" -}}
-									{{icon "view-stacked"}} 1 Column Layout
+
+								{{- if eq $layout "icons-1" -}}
+									{{icon "view-stacked"}} Icons (1x)
+								{{- else if eq $layout "icons-2" -}}
+									{{icon "grid"}} Icons (2x)
+								{{- else if eq $layout "icons-3" -}}
+									{{icon "grid-3x2-gap"}} Icons (3x)
+								{{- else if eq $layout "column-1" -}}
+									{{icon "view-stacked"}} Cards (1x)
 								{{- else if eq $layout "column-2" -}}
-									{{icon "grid"}} 2 Columns Layout
+									{{icon "grid"}} Cards (2x)
 								{{- else if eq $layout "column-3" -}}
-									{{icon "grid-3x2-gap"}} 3 Columns Layout
+									{{icon "grid-3x2-gap"}} Cards (3x)
 								{{- else if eq $layout "row-reverse" -}}
-									{{icon "list-columns"}} Rows Reversed Layout
+									{{icon "list-columns"}} Rows Reversed
 								{{- else -}}
-									{{icon "list-columns-reverse"}} Rows Layout
+									{{icon "list-columns-reverse"}} Rows
 								{{- end -}}
 							</button>
 							<button hx-get="/@me/settings">{{icon "gear"}} Edit Profile</button>

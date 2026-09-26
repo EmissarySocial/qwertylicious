@@ -7,11 +7,11 @@
 	{{- range $posts -}}
 		<hr class="margin-vertical">
 		<a href="{{.URL}}" hx-boost="true" class="flex-row qwerty-outbox-item text-plain text-nocolor margin-bottom">
-			{{- if ne "" .IconURL -}}
-				<img src="{{.IconURL}}.webp" class="rounded square width-96 sm:width-128 md:width-192 object-fit-cover qwerty-outbox-item-image">
-			{{- else -}}
-				<div class="rounded square width-96 sm:width-128 md:width-192"></div>
-			{{- end -}}
+			<div class="rounded square width-96 sm:width-128 md:width-192" style="view-transition-name:article-image-{{.ID}}">
+				{{- if ne "" .IconURL -}}
+					<img src="{{.IconURL}}.webp" alt="{{.Data.iconDescription}}" class="rounded square width-100% object-fit-cover qwerty-outbox-item-image">
+				{{- end -}}
+			</div>
 
 			<div class="flex-grow margin-left-sm">
 				<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>

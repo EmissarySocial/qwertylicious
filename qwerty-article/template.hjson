@@ -150,7 +150,7 @@
 			states: ["default", "published"]
 			roles: ["author"]
 			steps: [
-				{do:"as-confirmation", title:"Publish this Article?", message:"Viewers will be able to see this article on your profile.", submit:"Publish"}
+				{do:"as-confirmation", title:"Publish this Article?", message:"When you publish this article, viewers will be able to see it on your profile.", submit:"Publish"}
 				{do:"save-and-publish", state:"published", outbox:"true"}
 				{do:"search-index"}
 				{do:"forward-to", url:"/{{.StreamID}}"}
@@ -161,7 +161,7 @@
 			states: ["published"]
 			roles: ["author"]
 			steps: [
-				{do:"as-confirmation", title:"Un-Publish this Article?", message:"This article will remain on your profile, but viewers will no longer be able to see it", submit:"Un-Publish"}
+				{do:"as-confirmation", title:"Un-Publish this Article?", message:"When you unpublish this article, it will remain on your profile, but viewers will no longer be able to see it", submit:"Un-Publish"}
 				{do:"unpublish", state:"default", outbox:"true"}
 				{do:"refresh-page"}
 			]
@@ -184,7 +184,7 @@
 										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
 										{type:"textarea", path:"summary", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
 										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
-										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/streamToken?streamId={{.StreamID}}"}}
+										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.StreamID}}"}}
 									]
 								}
 								{

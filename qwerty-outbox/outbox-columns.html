@@ -6,9 +6,9 @@
 
 	{{- range $posts -}}
 		<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor flex-column">
-			<div class="width-100% rectangle" style="height:200px; overflow:hidden;">
+			<div class="width-100% rectangle aspect-16-9 scroll-none" aria-hidden="true" style="view-transition-name:article-image-{{.ID}}">
 				{{- if ne "" .IconURL -}}
-				<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
+					<img src="{{.IconURL}}.webp" alt="{{.Data.iconDescription}}" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
 				{{- end -}}
 			</div>
 

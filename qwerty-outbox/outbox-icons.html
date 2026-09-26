@@ -1,0 +1,17 @@
+{{- $posts := (.Outbox.Where "templateId" "qwerty-article").ByPublishDate.Reverse.Slice -}}
+
+{{- if $posts.IsEmpty -}}
+	{{- template "outbox-empty" . -}}
+{{- else -}}
+
+	{{- range $posts -}}
+		<a href="{{.URL}}" hx-boost="true" class="qwerty-outbox-item text-plain text-nocolor flex-column">
+			<div class="square width-100% rectangle scroll-none" style="view-transition-name:article-image-{{.ID}}">
+				{{- if ne "" .IconURL -}}
+					<img src="{{.IconURL}}.webp" alt="{{.Data.iconDescription}}" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
+				{{- end -}}
+			</div>
+		</a>
+	{{- end -}}
+
+{{- end -}}
