@@ -184,14 +184,14 @@
 										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
 										{type:"textarea", path:"summary", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
 										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
-										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.StreamID}}"}}
+										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
 									]
 								}
 								{
 									type:layout-vertical
 									label:"Icon"
 									children:[
-										{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.StreamID}}/delete-icon"}}
+										{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
 										{type:"textarea", path:"data.iconDescription", label:"Icon Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
 									]
 								}
@@ -199,7 +199,7 @@
 									type:layout-vertical
 									label:"Banner"
 									children:[
-										{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.StreamID}}/delete-banner"}}
+										{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.ID}}/delete-banner"}}
 										{type:"textarea", path:"data.bannerDescription", label:"Banner Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
 									]
 								}
