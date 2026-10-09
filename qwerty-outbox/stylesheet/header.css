@@ -1,0 +1,21 @@
+#profile-card {
+	border: 1px solid var(--page-border);
+	border-radius: var(--border-radius);
+	overflow: hidden;
+}
+
+
+ #profile-banner img {
+	aspect-ratio: 3/1;
+	object-fit: cover;
+ }
+
+#profile-icon {
+ 	aspect-ratio: 1/1;
+ 	border-radius: calc(var(--border-radius) * 0.8);
+  background-color: var(--gray20);
+ }
+
+ button {
+	border-radius: calc(var(--rhythm) * 3);
+ }

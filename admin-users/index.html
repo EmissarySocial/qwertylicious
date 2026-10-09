@@ -1,0 +1,79 @@
+{{- $registration := .Registration -}}
+{{- $groupID := .QueryParam "groupId" -}}
+{{- $search := .QueryParam "search" -}}
+
+<div class="page framed">
+   
+    <script src="/.themes/global/resources/sortable-1.15.0/Sortable.min.js"></script>
+	
+	{{template "menubar" .}}
+
+	<div class="flex-column-reverse md:flex-column">
+
+		<div class="md:flex-row">
+			<div class="clickable card padding-sm padding-horizontal margin-bottom md:width-33%"  hx-get="/admin/domain/signup?registrationId={{$registration.RegistrationID}}">
+				<div class="text-sm text-gray">New User Signups</div>
+				<div class="text-lg bold">
+				{{ if $registration.IsZero -}}
+					{{icon "none" }} Not Allowed
+				{{- else -}}
+					{{- icon $registration.Icon}} {{ $registration.Label -}}
+				{{- end}}
+				</div>
+				<button class="pos-absolute-top-right tertiary icon">{{icon "pencil"}}</button>
+			</div>
+
+			<div class="card padding-sm padding-horizontal margin-bottom md:width-33% flex-row">
+				<div class="flex-grow align-center">
+					<div class="text-sm text-gray">Total</div>
+					<div class="text-lg bold">{{.CountUsers}}</div>
+				</div>
+				<div class="flex-grow align-center">
+					<div class="text-sm text-gray">Public</div>
+					<div class="text-lg bold">{{.CountPublicUsers}}</div>
+				</div>
+				<div class="flex-grow align-center">
+					<div class="text-sm text-gray">Indexable</div>
+					<div class="text-lg bold">{{.CountIndexableUsers}}</div>
+				</div>
+			</div>
+			<div class="clickable card flex-center padding margin-bottom md:width-33%" hx-get="/admin/users/add">
+				<div class="text-lg bold">
+					<button class="primary"><span aria-hidden>{{icon "add"}}</span> Invite a Person</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="card padding margin-bottom">
+			<form hx-get="/admin/users/list" hx-trigger="change, keyup throttle:500ms" hx-target="#users" hx-swap="innerHTML" hx-push-url="false">
+				<div class="flex-row">
+					<div>
+						<label for="groupId" class="text-xs text-gray">GROUP</label>
+						<select id="groupId" name="groupId" class="text-sm" script="install select(value:'{{$groupID}}', options:{{.Groups |json }})">
+							<option value="">(All Groups)</option>
+						</select>
+					</div>
+					<div>
+						<label for="search" class="text-xs text-gray">NAME</label>
+						<input id="search" name="search" value="{{$search}}" class="text-sm" autocomplete="off">
+					</div>
+				</div>
+			</form>
+
+			<table id="users" class="table margin-top">
+				{{- .View "list" -}}
+			</table>
+
+		</div>
+
+	</div>
+
+	<div
+		hx-get="/admin/users/index" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main" 
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+	
+</div>

@@ -1,0 +1,76 @@
+{{- $isDesktop := .IsDesktop -}}
+
+<div class="app" script="init send SelectNav(id:'settings')">
+	<title>Social | Followers ({{.FollowerCount}})</title>
+
+	<!-- {{- if $isDesktop -}}
+		<div id="app-sidebar" class="expanded">
+			{{- template "menu" "social" -}}
+		</div>
+	{{- end -}} -->
+	
+	<div id="app-sidebar" class="flex-column flex-justify-between{{if $isDesktop}} expanded{{else}} collapsed{{end}}">
+		{{- template "menu" "social" -}}
+	</div>
+	
+	<div class="app-content padding transition-main-card">
+
+		<div id="menu-bar">
+			<!-- {{ if not $isDesktop }}
+				<a href="/@me/settings/mobile" class="turboclick tab" hx-boost="true">{{icon "back"}}</a>
+			{{ end }} -->
+			{{ if $isDesktop }}
+				<div class="left tabs">
+					<a href="/@me/settings/following" class="turboclick tab" hx-boost="true">Following</a>
+					<a href="/@me/settings/followers" class="turboclick tab selected" hx-boost="true">Followers</a>
+					<a href="/@me/settings/circles" class="turboclick tab" hx-boost="true">Circles</a>
+					<a href="/@me/settings/notifications" class="turboclick tab" hx-boost="true">Notifications</a>
+					<a href="/@me/settings/rules" class="turboclick tab" hx-boost="true">Rules</a>
+				</div>
+			{{ else }}
+				<div class="dropdown">
+					<a class="button">Followers {{icon "chevron-down"}}</a>
+					<div class="dropdown-content left">
+						<a href="/@me/settings/following" class="turboclick dropdown-item" hx-boost="true">Following</a>
+						<a href="/@me/settings/followers" class="turboclick dropdown-item selected" hx-boost="true">Followers</a>
+						<a href="/@me/settings/circles" class="turboclick dropdown-item" hx-boost="true">Circles</a>
+						<a href="/@me/settings/notifications" class="turboclick dropdown-item" hx-boost="true">Notifications</a>
+						<a href="/@me/settings/rules" class="turboclick dropdown-item" hx-boost="true">Rules</a>
+					</div>
+				</div>
+			{{ end }}
+			<div class="right">
+				<a href="https://emissary.dev/followers" target="_blank" class="link">
+					{{icon "help"}}
+					{{ if $isDesktop }} Help {{ end }}
+				</a>
+			</div>
+		</div>
+
+		<div>
+			<input
+				type="text" 
+				name="search" 
+				placeholder="Search Followers"
+				hx-get="/@me/settings/followers-list"
+				hx-trigger="keyup queue:last delay:100ms"
+				hx-target="#followers-list"
+				hx-swap="innerHTML"
+				hx-push-url="false">
+		</div>
+
+		<div id="followers-list" class="table margin-top">
+			{{.View "followers-list"}}
+		</div>
+
+	</div>
+
+	<div 
+		hx-get="{{.RelativeURL}}" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main" 
+		hx-swap="innerHTML" 
+		hx-push-url="false">
+	</div>
+
+</div>

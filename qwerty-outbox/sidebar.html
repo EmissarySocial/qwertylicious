@@ -1,0 +1,62 @@
+<div id="app-sidebar">
+	
+	<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
+
+	<div class="margin-bottom pos-relative hover-trigger">
+		<div style="width:90%; max-width:200px; margin:0px auto;">
+			{{- if ne "" .ActivityPubIconURL -}}
+				<img class="circle u-photo width-100%" src="{{.ActivityPubIconURL}}" alt="" loading="lazy">
+			{{- else -}}
+				<div class="circle" style="width:90%; max-width:200px; margin:0px auto;"></div>
+			{{- end -}}
+		</div>
+	</div>
+
+	<div class="margin-bottom">
+
+		<div class="pos-relative align-center hover-trigger">
+			<h1 class="text-xl bold p-name margin-none align-center">{{.DisplayName}}</h1>
+		</div>
+
+		<div script="install Clipboard" class="text-sm gray50 align-center ellipsis">
+			<span class="clipboard-copy-button clickable">
+				<span class="clipboard-text">@{{.Username}}@{{.Hostname}}</span>
+				{{icon "copy"}}
+			</span>
+			<span class="clipboard-copy-feedback text-green" style="display:none">{{icon "check"}} Copied</span>
+		</div>
+		
+		{{- if .IsMyself -}}
+			<div class="margin-top-lg text-sm align-center">
+				<a href="/@me/settings" class="button">{{icon "gear"}} Edit Profile</a>
+				<button hx-post="/signout" hx-target="body">Sign Out</button>
+			</div>
+		{{- else -}}
+			<div class="margin-top-lg">
+				<button type="button" class="primary width-100% ellipsis" hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}">{{icon "plus-circle"}} Follow {{.DisplayName}}</button>
+			</div>
+		{{- end -}}
+
+		<div class="margin-top-lg">
+			<div class="p-note">{{.StatusMessageHTML}}</div>
+		</div>
+
+		{{- if ne "" .Location -}}
+			<div class="margin-top p-adr"><span class="p-label">{{icon "map-pin"}} {{.Location}}</a></div>
+		{{- end -}}
+
+	</div>
+
+	<div class="margin-top align-left">
+
+		{{- $links := .Links -}}
+
+		{{- if $links.NotEmpty -}}
+			{{- range $links -}}
+				<div class="margin-top-xs"><a rel="me" class="text-plain u-url" href="{{.ProfileURL}}" target="_blank">{{icon "globe"}} {{.Name}}</a></div>
+			{{- end -}}
+		{{- end -}}
+
+	</div>
+
+</div>

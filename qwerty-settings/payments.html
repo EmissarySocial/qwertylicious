@@ -1,0 +1,124 @@
+{{- $isDesktop := .IsDesktop -}}
+{{- $isMobile := not $isDesktop -}}
+{{- $merchantAccounts := .MerchantAccounts.Slice -}}
+
+<div class="app" script="init send SelectNav(id:'settings')">
+	<title>Payments</title>
+	
+	<!-- {{- if $isDesktop -}}
+		<div id="app-sidebar" class="expanded">
+			{{- template "menu" "payments" -}}	
+		</div>
+	{{- end -}} -->
+
+	<div id="app-sidebar" class="flex-column flex-justify-between{{if $isDesktop}} expanded{{else}} collapsed{{end}}">
+		{{- template "menu" "payments" -}}
+	</div>
+	
+	<div class="app-content padding transition-main-card flex-justify-center">
+
+		{{- if $merchantAccounts.IsEmpty -}}
+
+			{{- $connections := .AvailableMerchantAccounts -}}
+
+			{{- if $connections.IsEmpty -}}
+
+				{{- if $isDesktop -}}
+					<h1 class="text-xl bold margin-none">
+						Payments Not Available
+					</h1>
+				{{- else -}}
+					<div class="flex-row text-xl bold margin-none">
+						<!-- <a href="/@me/settings/mobile">{{icon "back"}}</a> -->
+						<div class="bold margin-none flex-grow">Payments Not Available</div>
+					</div>
+				{{- end -}}
+				
+				<div class="margin-top margin-bottom-lg md:width-80% lg:width-60%">
+					This server has not been configured to support payments. Please ask your server administrator
+					to enable one or more payment processors, and  you to accept payments for your posts.
+				</div>
+			{{- else -}}
+
+				{{- if $isDesktop -}}
+					<h1 class="text-xl bold">
+						Accept Payments for your Posts
+					</h1>
+				{{- else -}}
+					<h1 class="text-xl bold">
+						<a href="/@me/settings/mobile">{{icon "back"}}</a>
+						Accept Payments for your Posts
+					</h1>
+				{{- end -}}
+				
+				<div class="margin-bottom-lg  md:width-80% lg:width-60%">
+					To sell access to your online posts, you must first sign up and connect to one of the supported payment procesors below.
+					<br><br>
+					After you've entered your merchant account information, you'll be able to use the product plan(s) from your merchant account to 
+					charge for access to this item.
+					<a href="https://emissary.dev/payments" class="nowrap" target="_blank">Learn More {{icon "new-window"}}</a>
+				</div>
+
+				<div class="md:flex-row margin-bottom md:text-sm">
+					{{template "merchantAccount-add-list" $connections}}
+				</div>
+
+			{{- end -}}
+
+		{{- else -}}
+
+			{{- if $isDesktop -}}
+				<div class="flex-row flex-align-center margin-bottom">
+					<h1 class="text-xl bold margin-none flex-grow">Merchant Accounts</h1>
+					<a href="https://emissary.dev/payments" target="_blank">{{icon "help"}} Help</a>
+				</div>
+			{{- else -}}
+				<div class="flex-row flex-align-center text-xl margin-none margin-bottom">
+					<a href="/@me/settings/mobile">{{icon "back"}}</a>
+					<h1 class="bold flex-grow">Merchant Accounts</h1>
+					<a href="https://emissary.dev/payments" target="_blank">{{icon "help"}}</a>
+				</div>
+			{{- end -}}
+				
+			<div class="table margin-top">
+				{{- range  $index, $merchantAccount := $merchantAccounts -}}
+					{{- $type := lowerCase $merchantAccount.Type -}}
+					<div role="button" class="flex-row turboclick">
+						<div hx-get="/@me/settings/merchantAccount-edit-{{$type}}?merchantAccountId={{$merchantAccount.ID}}" class="flex-row flex-grow">
+							<div>{{- icon $merchantAccount.Icon -}}</div>
+							<div class="flex-grow">{{$merchantAccount.Name}}</div>
+							<!--div>
+								{{- if $merchantAccount.LiveMode -}}
+									<span class="text-green">Live</span>
+								{{- else -}}
+									<span class="text-gray">Sandbox</span>
+								{{- end -}}
+							</div-->
+						</div>
+					</div>
+				{{- end -}}
+				<div hx-get="/@me/settings/merchantAccount-add" role="button" class="flex-row link turboclick">
+					<div>{{- icon "add" -}}</div>
+					<div>Connect Another</div>
+				</div>
+			</div>
+
+			<div hx-get="/@me/settings/remoteProducts" hx-target="this" hx-trigger="load, focus from:window" hx-push-url="false" hx-swap="innerHTML" class="margin-top-xl">
+				<span class="text-gray"><span class="spin">{{icon "loading"}}</span> Loading Products</span>
+			</div>
+
+		{{- end -}}
+	
+	</div>
+
+	<div 
+		hx-get="{{.RelativeURL}}" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+
+</div>
+
+

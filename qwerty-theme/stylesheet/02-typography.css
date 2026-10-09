@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&display=swap');
+
+html {
+  font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+		"Helvetica Neue", sans-serif;
+  font-optical-sizing: auto;
+}
+
+/******************************************
+ * Font Stack
+ ******************************************/
+:root {
+	--rhythm: 8px;
+	--weight: 300;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.medium {
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--weight: 300;
+	}
+}
+
+.mobile {
+	:root {
+		--rhythm: 10px;
+		--weight: 300;
+	}
+}
+
+
+/******************************************
+ * Text Sizes
+ ******************************************/
+
+.text-3xl,
+.text-3xl p,
+.text-3xl input,
+.input.text-3xl {
+	font-size: calc(var(--rhythm) * 7 * 2 / 3);
+	line-height: calc(var(--rhythm) * 7);
+	margin-top: calc(var(--rhythm) * 3);
+	margin-bottom: calc(var(--rhythm) * 1);
+	font-weight: calc(var(--weight) + 100);
+}
+
+.text-2xl,
+.text-2xl p,
+.text-2xl input,
+input.text-2xl {
+	font-size: calc(var(--rhythm) * 4);
+	line-height: calc(var(--rhythm) * 6);
+	margin-top: calc(var(--rhythm) * 3);
+	margin-bottom: calc(var(--rhythm) * 1);
+	font-weight: calc(var(--weight) + 100);
+}
+
+.text-xl,
+.text-xl p,
+.text-xl input,
+input.text-xl {
+	font-size: calc(var(--rhythm) * 5 * 2 / 3);
+	line-height: calc(var(--rhythm) * 5);
+	margin-top: calc(var(--rhythm) * 2);
+	margin-bottom: calc(var(--rhythm) * 1);
+	font-weight: calc(var(--weight) + 100);
+}
+
+.text-lg,
+.text-lg p,
+.text-lg input,
+input.text-lg {
+	font-size: calc(var(--rhythm) * 4 * 2 / 3);
+	line-height: calc(var(--rhythm) * 4);
+	margin-top: calc(var(--rhythm));
+	margin-bottom: calc(var(--rhythm) * 1);
+	font-weight: calc(var(--weight) - 100);
+}
+
+p,
+.text-md,
+.text-md input,
+input.text-md {
+	font-size: calc(var(--rhythm) * 2);
+	line-height: calc(var(--rhythm) * 3);
+	margin-top: calc(var(--rhythm) * 0);
+	margin-bottom: calc(var(--rhythm) * 2);
+}
+
+.text-sm,
+.text-sm p {
+	font-size: calc(var(--rhythm) * 1.75);
+	line-height: calc(var(--rhythm) * 2.5);
+	margin-top: calc(var(--rhythm) * 0.5);
+	margin-bottom: calc(var(--rhythm) * 0.5);
+}
+
+.text-xs,
+.text-xs p {
+	font-size: calc(var(--rhythm) * 1.5);
+	line-height: calc(var(--rhythm) * 2);
+	margin-top: calc(var(--rhythm) * 0.5);
+	margin-bottom: calc(var(--rhythm) * 0.5);
+}
+
+.icon {
+  margin-top: unset;
+  margin-bottom: unset;
+	line-height: 100%;
+}
+
+/******************************************
+ * Text Colors
+ ******************************************/
+
+.text.primary {
+  color: var(--text-color);
+}
+
+.text.secondary {
+  color: var(--text-color-secondary);
+}
+
+.text.tertiary {
+  color: var(--text-color-tertiary);
+}

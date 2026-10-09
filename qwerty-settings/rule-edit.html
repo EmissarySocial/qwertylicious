@@ -1,0 +1,14 @@
+{{- $object := .Object -}}
+{{- $origin := $object.Origin -}}
+
+{{- if eq `ADMIN` $origin -}}
+	{{- .View "rule-edit-admin" -}}
+{{- else if and (eq `REMOTE` $origin) (ne "true" (.QueryParam "edit")) -}}
+	{{- .View "rule-edit-remote" -}}
+{{- else if eq "ACTOR" $object.Type -}}
+	{{- .View "rule-edit-actor" -}}
+{{- else if eq "DOMAIN" $object.Type -}}
+	{{- .View "rule-edit-domain" -}}
+{{- else -}}
+	{{- .View "rule-edit-tag" -}}
+{{- end -}}

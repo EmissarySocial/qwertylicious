@@ -1,0 +1,110 @@
+{{- $isDesktop := .IsDesktop -}}
+{{- $circle := .Object -}}
+{{- $members := .CircleMembers.Slice -}}
+{{- $icon := concat $circle.Icon "-fill" -}}
+
+<div class="app" script="init send SelectNav(id:'settings')">
+	<title> {{.Name}} | Circles</title>
+
+	<div id="app-sidebar" class="flex-column flex-justify-between{{if $isDesktop}} expanded{{else}} collapsed{{end}}">
+		{{- template "menu" "social" -}}
+	</div>
+
+	<div class="app-content padding transition-main-card">
+
+		<div id="menu-bar">
+			<div class=" tabs">
+				<a href="/@me/settings/following" hx-boost="true">Following</a>
+				<a href="/@me/settings/followers" hx-boost="true">Followers</a>
+				<a href="/@me/settings/circles" class="selected" hx-boost="true">Circles</a>
+				<a href="/@me/settings/notifications" hx-boost="true">Notifications</a>
+				<a href="/@me/settings/rules" hx-boost="true">Rules</a>
+			</div>
+			<div class="right">
+				<a href="https://emissary.dev/circles" target="_blank" class="link">
+					{{icon "help"}}
+					{{ if $isDesktop }} Help {{ end }}
+				</a>
+			</div>
+		</div>
+
+		<h1 class="text-md bold margin-none margin-bottom flex-grow">
+			<a href="/@me/settings/circles" hx-boost="true">All Circles</a>  &middot;
+			{{.Name}}
+		</h1>
+
+		<div class="md:flex-row width-100% margin-top margin-bottom-lg">
+
+			<div class="clickable card flex-grow flex-column padding margin-bottom md:width-1-2" hx-get="/@me/settings/circle-edit?circleId={{$circle.ID}}">
+
+				<div class="text-sm text-gray margin-bottom">{{icon "circle"}} CIRCLE DESCRIPTION</div>
+				<div class="flex-grow margin-bottom">{{$circle.Description}}</div>
+				<div class="flex-row">
+					<div class="flex-grow">
+						{{- if $circle.IsFeatured -}}
+							<span class="text-sm text-green">{{icon "check-circle-fill"}} Shows on Profile</span>
+						{{- else -}}
+							<span class="text-sm text-light-gray">{{icon "circle"}} Not Featured</span>
+						{{- end -}}
+					</div>
+
+					<button class="text-xs">Edit Circle</button>
+				</div>
+			</div>
+			<div class="clickable card flex-grow flex-column padding align-center margin-bottom md:width-1-4" hx-get="/@me/settings/circle-edit?circleId={{$circle.ID}}&selected-tab=2">
+				<div class="text-sm text-gray">{{icon "box-fill"}} SELL ONLINE</div>
+				<div class="flex-grow text-2xl margin-none bold">
+					{{- if $circle.ProductIDs.IsEmpty -}}
+						&mdash;
+					{{- else -}}
+						Yes
+					{{- end -}}
+				</div>
+				<div class="align-center">
+					<button class="text-xs">Edit Products</button>
+				</div>
+			</div>
+			<div class="clickable card flex-grow flex-column padding align-center margin-bottom md:width-1-4" hx-get="/@me/settings/circle-member-add?circleId={{$circle.ID}}">
+				<div class="text-sm text-gray">{{icon "person-fill"}} MEMBERS</div>
+				<div class="flex-grow text-2xl margin-none bold">{{$circle.MemberCount}}</div>
+				<div class="align-center">
+					<button class="primary text-xs" class="primary">&plus; Add a Member</button>
+				</div>
+			</div>
+		</div>
+
+		{{- if $members.IsEmpty -}}
+			This circle is empty.  Click here to <span hx-get="/@me/settings/circle-member-add?circleId={{$circle.ID}}" class="link">add the first member</span> manually,
+			or set up a merchant account to let people purchase membership.
+		{{- else -}}
+
+			<div class="table">
+				{{- range $index, $member := $members -}}
+					<div hx-get="/@me/settings/circle-member-edit?identityId={{$member.ID}}&circleId={{$circle.ID}}" class="flex-row flex-align-center" role="button">
+						<div class="margin-none">
+							{{- if $member.IconURL -}}
+								<img src="{{$member.IconURL}}" class="circle width-32">
+							{{- else -}}
+								<span style="font-size:32px; line-height:32px;">{{icon $member.Icon}}</span>
+							{{- end -}}
+						</div>
+						<div class="flex-grow">
+							<div>{{$member.Name}}</div>
+						</div>
+						<div></div>
+					</div>
+				{{- end -}}
+			</div>
+		{{- end -}}
+
+	</div>
+	
+	<div 
+		hx-get="{{.RelativeURL}}" 
+		hx-trigger="refreshPage from:window" 
+		hx-target="main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+
+</div>

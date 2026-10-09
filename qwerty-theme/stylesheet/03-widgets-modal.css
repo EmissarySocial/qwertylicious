@@ -1,0 +1,5 @@
+#modal-window {
+  border: unset;
+  border-radius: calc(var(--border-radius) * 1.5);
+  padding: calc(var(--border-radius) * 1.8);
+}

@@ -1,0 +1,9 @@
+<div class="flex-row flex-align-center margin-bottom">
+	<div class="flex-grow text-lg bold">{{.Name}}</div>
+	<div class="text-gray">{{.UpdateDate | longDate}}</div>
+</div>
+<hr>
+
+Replies:
+
+{{- template "replies-list" . -}}

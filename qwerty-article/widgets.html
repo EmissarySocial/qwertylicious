@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page framed">
 
 	<script type="text/hyperscript">
 		def saveDraft(promote)
@@ -11,27 +11,26 @@
 	</script>
 
 	<div id="menu-bar">
-
-		<div class="left">
+		<div class="left tabs">
 			<button script="on click saveDraft(false)">&larr; View</button>
 			{{- if .UserCan "edit" -}}
-				<a href="/{{.StreamID}}/edit">Edit</a>
+				<a class="tab" href="/{{.StreamID}}/edit">Edit</a>
 			{{- end -}}
 
 			{{- if .UserCan "widgets" -}}
-				<a href="/{{.StreamID}}/widgets" class="bold">Widgets</a>
+				<a class="tab" href="/{{.StreamID}}/widgets" class="bold">Widgets</a>
 			{{- end -}}
 
 			{{- if .UserCan "children" -}}
-				<a href="/{{.StreamID}}/children">Children</a>
+				<a class="tab" href="/{{.StreamID}}/children">Children</a>
 			{{- end -}}
 
 			{{- if .UserCan "properties" -}}
-				<a hx-get="/{{.StreamID}}/properties">Info</a>
+				<a class="tab" hx-get="/{{.StreamID}}/properties">Info</a>
 			{{- end -}}
 
 			{{- if .UserCan "sharing" -}}
-				<a hx-get="/{{.StreamID}}/sharing">Sharing</a>
+				<a class="tab" hx-get="/{{.StreamID}}/sharing">Sharing</a>
 			{{- end -}}
 
 		</div>

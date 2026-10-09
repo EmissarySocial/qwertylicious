@@ -1,0 +1,286 @@
+/******************************************
+ * Buttons
+ ******************************************/
+
+button, .button,
+#menu-bar button, #menu-bar .button,
+.text-xs button, .text-xs .button,
+.text-sm button, .text-sm .button {
+	margin-right: unset;
+	padding: calc(var(--rhythm) * 1.25) calc(var(--rhythm) * 1.625);
+	border-radius: calc(var(--rhythm) * 4);
+	background-color: var(--button-background);
+	color: var(--button-color);
+
+	i.ti {
+		color: var(--text-color-tertiary);
+	}
+
+	&.icon {
+		padding: calc(var(--rhythm) * 1.25);
+		align-content: center;
+		text-align: center;
+		aspect-ratio: 1/1;
+
+		i {
+			color: var(--text-color-tertiary);
+		}
+	}
+
+	&.action {
+		background-color: var(--button-action-background);
+		color: var(--button-action-color);
+
+		i.ti {
+			color: var(--button-action-color);
+		}
+
+		&:hover, &.icon:hover {
+			background-color: var(--button-action-background-hover);
+			color: var(--button-action-color);
+		}
+	}
+
+	&.primary {
+		background-color: var(--button-primary-background);
+		color: var(--button-primary-color);
+
+		i.ti {
+			color: var(--button-primary-color);
+		}
+
+		&:hover, &.icon:hover {
+			background-color: var(--button-primary-background-hover);
+			color: var(--button-primary-color);
+		}
+	}
+
+	&.secondary {
+		background-color: var(--button-secondary-background);
+		color: var(--button-secondary-color);
+
+		i.ti {
+			color: var(--text-color-tertiary);
+		}
+
+		&:hover, &.icon:hover {
+			background-color: var(--button-secondary-background-hover);
+		}
+	}
+
+	&.tertiary {
+		background-color: unset;
+	}
+
+	i.ti {
+		color: var(--text-color-tertiary);
+	}
+
+	&:hover, &.icon:hover {
+		background-color: var(--button-background-hover);
+		color: var(--button-color);
+	}
+
+	&.text-sm {
+		padding: calc(var(--rhythm) * 1.25) calc(var(--rhythm) * 1.625);
+		border-radius: calc(var(--rhythm) * 4);
+	}
+
+	&.text-xs {
+		padding: calc(var(--rhythm) * 1.5) calc(var(--rhythm) * 1);
+		border-radius: calc(var(--rhythm) * 4);
+	}
+
+	&.text-red {
+		color: var(--red60);
+
+		i.ti {
+			color: var(--red60);
+		}
+	}
+
+	&.warning {
+		background-color: var(--red70);
+		color: var(--button-primary-color);
+
+		i.ti {
+			color: var(--button-primary-color);
+		}
+
+		&:hover, &:focus {
+			background-color: var(--red60);
+			color: var(--button-primary-color);
+		}
+	}
+
+	&.success, &.primary.success {
+		background-color: var(--green70);
+		color: var(--button-primary-color);
+
+		i.ti {
+			color: var(--button-primary-color);
+		}
+
+		&:hover, &:focus {
+			background-color: var(--green80);
+			color: var(--button-primary-color);
+		}
+	}
+}
+
+input[disabled],
+button[disabled],
+.button[disabled],
+input[disabled]:hover,
+button[disabled]:hover,
+.button[disabled]:hover {
+	background-color: var(--gray10);
+	color: var(--text-color-tertiary);
+	cursor: default;
+}
+
+button.inactive,
+.button.inactive,
+button.inactive:hover,
+.button.inactive:hover {
+	background-color: var(--gray10);
+	color: var(--gray90);
+	cursor: default;
+}
+
+.button.barberpole,
+.button.primary.barberpole,
+button.barberpole,
+button.primary.barberpole,
+button[disabled].barberpole {
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--blue60),
+		var(--blue60) 1rem,
+		var(--blue70) 1rem,
+		var(--blue70) 2rem
+	) !important;
+	background-size: 200% 200%;
+	animation: barberpole 0.4s linear infinite;
+}
+
+.barberpole {
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--gray20),
+		var(--gray20) 1rem,
+		var(--gray30) 1rem,
+		var(--gray30) 2rem
+	) !important;
+	background-size: 200% 200%;
+	animation: barberpole 10s linear infinite;
+}
+
+.button.button-invisible,
+button.button-invisible {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.button-group {
+	margin-right: 8px;
+	display: inline-flex;
+}
+
+.button-group > button,
+.button-group > .button {
+	margin: 0px !important;
+	border-radius: 0px;
+	border-top: solid 1px var(--page-border);
+	border-right: solid 1px var(--page-border);
+	border-bottom: solid 1px var(--page-border);
+}
+
+.button-group > button:first-child,
+.button-group > .button:first-child {
+	border-left: solid 1px var(--page-border);
+}
+
+/* Dark Mode */
+
+@media (prefers-color-scheme: dark) {
+	button, .button,
+	#menu-bar button, #menu-bar .button,
+	.text-xs button, .text-xs .button,
+	.text-sm button, .text-sm .button {
+
+		&.warning {
+			background-color: var(--red40);
+			color: var(--button-primary-color);
+
+			i.ti {
+				color: var(--button-primary-color);
+			}
+
+			&:hover, &:focus {
+				background-color: var(--red30);
+				color: var(--button-primary-color);
+			}
+		}
+
+		&.success, &.primary.success {
+			background-color: var(--green40);
+			color: var(--button-primary-color);
+
+			i.ti {
+				color: var(--button-primary-color);
+			}
+
+			&:hover, &:focus {
+				background-color: var(--green30);
+				color: var(--button-primary-color);
+			}
+		}
+	}
+}
+
+/******************************************
+ * Input Elements
+ ******************************************/
+
+input:not([type="submit"], [type="checkbox"], [type="radio"], [type="color"]),
+textarea,
+select,
+.input,
+[role="textbox"] {
+	border: solid 1px var(--input-border);
+	background-color: var(--input-background);
+	color: var(--input-color);
+	padding: var(--rhythm);
+	width: 100%;
+	box-sizing: border-box;
+	font-family:
+		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+		sans-serif;
+	border-radius: calc(var(--rhythm) * 0.75);
+	line-height: 150%;
+}
+
+/******************************************
+ * Checkbutton - Fancy Checkboxes
+ ******************************************/
+
+.checkbutton {
+	background-color: var(--input-background);
+	border: solid 1px var(--input-background);
+	border-radius: var(--border-radius);
+
+	&:hover {
+		background-color: var(--input-background);
+		border: solid 1px var(--input-border);
+	}
+}
+
+/******************************************
+ * Radiobutton - Fancy Radio Buttons
+ ******************************************/
+
+.radiobutton:has(input[type="radio"]) {
+	border: solid 1px var(--input-border);
+	background-color: var(--input-background);
+	border-radius: var(--border-radius);
+}

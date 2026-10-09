@@ -1,0 +1,73 @@
+{{- $streamID := .StreamID -}}
+
+<link rel="stylesheet" href="/.templates/base-widget-editor/stylesheet">
+<script type="text/javascript" src="/.themes/global/resources/sortable-1.15.0/Sortable.min.js"></script>
+<script type="text/hyperscript" src="/.templates/base-widget-editor/hyperscript"></script>
+
+<form hx-post="/{{$streamID}}/widgets" hx-trigger="editor:save" hx-target="main" hx-swap="innerHTML">
+
+	<div class="widget-editor" script="install widgetEditor(url:'/{{$streamID}}/widgets')">
+
+		<div class="widget-editor-NONE">
+			<div class="widget-label">Available Widgets</div>
+			<div class="widget-editor-sortable" data-location="NONE">
+				{{- range .ListAllWidgets -}}
+					<div class="widget" data-widgetId="{{.Value}}">
+						<span class="widget-handle">{{icon "drag-handle"}}</span> 
+						{{.Label}}
+					</div>
+				{{- end -}}
+			</div>
+		</div>
+
+		<div class="widget-editor-layout">
+
+			<div class="widget-editor-LEFT">
+				<div class="widget-label">Left</div>
+				<div class="widget-editor-sortable" data-location="LEFT">
+					<input type="hidden" name="LEFT" value="">
+					{{- range .ListWidgetsByLocation "LEFT" -}}
+						{{- template "widget" . -}}
+					{{- end -}}
+				</div>
+			</div>
+
+			<div class="widget-editor-CENTER">
+				<div class="widget-editor-TOP">
+					<div class="widget-label">Top</div>
+					<div class="widget-editor-sortable" data-location="TOP">
+						<input type="hidden" name="TOP" value="">
+						{{- range .ListWidgetsByLocation "TOP" -}}
+							{{- template "widget" . -}}
+						{{- end -}}
+					</div>
+				</div>
+				
+				<div class="widget-editor-MAIN">
+					<div class="widget-label">... Stream Content Here ...</div>
+				</div>
+
+				<div class="widget-editor-BOTTOM">
+					<div class="widget-label">Bottom</div>
+					<div class="widget-editor-sortable" data-location="BOTTOM">
+						<input type="hidden" name="BOTTOM" value="">
+						{{- range .ListWidgetsByLocation "BOTTOM" -}}
+							{{- template "widget" . -}}
+						{{- end -}}
+					</div>
+				</div>
+			</div>
+
+			<div class="widget-editor-RIGHT">
+				<div class="widget-label">Right</div>
+				<div class="widget-editor-sortable" data-location="RIGHT">
+					<input type="hidden" name="RIGHT" value="">
+					{{- range .ListWidgetsByLocation "RIGHT" -}}
+						{{- template "widget" . -}}
+					{{- end -}}
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>

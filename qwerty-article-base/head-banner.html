@@ -1,0 +1,17 @@
+{{- $banner := .AttachmentsByCategory "banner" -}}
+{{- $bannerDescription := .Data "bannerDescription" -}}
+
+{{- range $index, $attachment := $banner -}}
+	{{- $category := $attachment.MimeCategory -}}
+
+	{{- if eq "image" $category -}}
+		<img id="article-banner" src="{{$attachment.URL}}" alt="{{$bannerDescription}}" class="width-100% rectangle">
+	{{- else if eq "video" $category -}}
+		<video id="article-banner" src="{{$attachment.URL}}.mp4" alt="{{$bannerDescription}}" class="width-100% rectangle" controls>
+			<source src="{{$attachment.URL}}.mp4" type="video/mp4">
+			<source src="{{$attachment.URL}}.webm" type="video/webm">
+			<source src="{{$attachment.URL}}.ogg" type="video/ogg">
+		</video>
+	{{- end -}}
+
+{{- end -}}

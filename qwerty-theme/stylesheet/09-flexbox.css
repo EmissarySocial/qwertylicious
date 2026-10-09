@@ -1,0 +1,5 @@
+@media screen and (max-width: 768px) {
+  .flex-row, .flex-row-reverse {
+    gap: calc(var(--rhythm) * 0.5);
+  }
+}

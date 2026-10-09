@@ -1,0 +1,35 @@
+.codex-editor {
+
+  ::selection {
+    background-color: var(--blue40);
+    color: var(--white);
+  }
+
+  .ce-toolbar__actions {
+    color: var(--black);
+
+    .ce-toolbar__plus {
+      color: var(--black);
+      background-color: var(--page-background);
+    }
+
+    .ce-toolbar__settings-btn {
+      color: var(--black);
+      background-color: var(--page-background);
+    }
+  }
+}
+
+.ctx-notifies {
+.ctx-notify {
+  background-color: var(--white);
+}
+}
+
+.cdx-search-field.ce-popover__search {
+align-items: center;
+}
+
+.codex-editor__redactor {
+  padding-bottom: unset !important;
+}

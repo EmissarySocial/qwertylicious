@@ -1,13 +1,13 @@
 {{- $isMyself := .IsMyself -}}
 
-<div class="framed page padding-none">
+<div class="framed page">
 
 	{{- template "header" . -}}
 
-	<div class="padding max-width-800">
+	<div class="max-width-800 margin-top">
 
 		<!-- "Tabs" -->
-		<div role="tablist" class="underlined">
+		<div role="tablist" class="pills">
 			<a href="/@{{.UserID}}" hx-get="/@{{.UserID}}" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Posts</a>
 			<span role="tab" aria-selected="true">Replies</span>
 			<a href="/@{{.UserID}}/about" hx-get="/@{{.UserID}}/about" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">About</a>
@@ -29,3 +29,5 @@
 	</div>
 
 </div>
+
+<link rel="stylesheet" href="/.templates/user-outbox/stylesheet" />

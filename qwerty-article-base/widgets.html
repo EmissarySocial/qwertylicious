@@ -1,0 +1,67 @@
+<div class="page framed">
+
+	{{- $breadcrumbs := .Breadcrumbs -}}
+	<script type="text/hyperscript">
+		def saveDraft(promote)
+			if promote then
+				fetch /{{.StreamID}}/promote-draft with method:"POST"
+			end
+	
+			set window.location to "/{{.StreamID}}"
+		end
+	</script>
+
+	<!-- <div id="menu-bar" class="margin-bottom">
+		{{- range $index, $stream := $breadcrumbs -}}
+			<a href="/{{$stream.ID}}/edit" class="text-gray margin-none padding-horizontal-xs">{{$stream.Name}} &rarr;</a>
+		{{- end -}}
+		<button script="on click saveDraft(false)" class="bold margin-none padding-horizontal-xs">{{.Name}}</button>
+	</div> -->
+
+	<div id="menu-bar">
+		
+		<div class="left">
+			<button class="button tertiary" script="on click saveDraft(false)"><span class="icon margin-right-xs">{{icon "chevron-left"}}</span><span>Back</span></button>
+		</div>
+
+		<div class="center dropdown">
+			<a class="button">Widgets</a>
+			<div class="dropdown-content center pos-fixed">
+				{{- if .UserCan "edit" -}}
+					<a class="dropdown-item" href="/{{.StreamID}}/edit">Edit</a>
+				{{- end -}}
+
+				{{- if .UserCan "widgets" -}}
+					<a class="dropdown-item selected" href="/{{.StreamID}}/widgets">Widgets</a>
+				{{- end -}}
+
+				{{- if .UserCan "children" -}}
+					<a class="dropdown-item" href="/{{.StreamID}}/children">Children</a>
+				{{- end -}}
+
+				{{- if .UserCan "properties" -}}
+					<a class="dropdown-item" hx-get="/{{.StreamID}}/properties">Info</a>
+				{{- end -}}
+
+				{{- if .UserCan "sharing" -}}
+					<a class="dropdown-item" hx-get="/{{.StreamID}}/sharing">Sharing</a>
+				{{- end -}}
+			</div>
+		</div>
+
+		<div class="right">
+			<div class="dropdown">
+				<a class="button icon">{{icon "dots"}}</a>
+				{{- if .UserCan "delete" -}}
+					<div class="dropdown-content">
+						<a hx-get="/{{.StreamID}}/delete" class="dropdown-item text-red">{{icon "trash"}} Delete</a>
+					</div>
+				{{- end -}}
+			</div>
+		</div>
+
+	</div>
+
+	{{- template "widgets-list" . -}}
+
+</div>

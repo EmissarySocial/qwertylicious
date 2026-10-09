@@ -1,10 +1,10 @@
-<div class="page padding-none h-entry">
+<div class="page framed h-entry">
 
 	{{- template "head-banner" . -}}
 
-	<div class="pos-relative">
+	<div class="pos-relative card">
 
-		<article id="article" class="margin-bottom">
+		<article id="article" class="content">
 
 			{{- template "head-summary" . -}}
 			{{- template "head-social" . -}}
@@ -20,7 +20,7 @@
 
 		{{- if .UserCan "edit" -}}
 			<div class="pos-absolute-top-right">
-				<a class="text-xs button" href="/{{.StreamID}}/edit">Edit &rarr;</a>
+				<a class="button icon" href="/{{.StreamID}}/edit">{{icon "pencil"}}</a>
 			</div>
 		{{- end -}}
 
@@ -34,6 +34,6 @@
 		hx-push-url="false">
 	</div>
 	
-	<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet" />
+	<link rel="stylesheet" href="/.templates/user-article/stylesheet" />
 
 </div>

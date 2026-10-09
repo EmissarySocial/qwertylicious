@@ -1,0 +1,97 @@
+{
+	templateId: admin-domain
+	templateRole: admin
+	category: Admin
+	model: Domain
+	extends: ["admin-common"]
+	containedBy:["admin"]
+	label: Domain
+	description: Domain Owners only.  Site Admin
+	schema: {type: "object", properties: {
+		label:   {type:"string", maxLength:100}
+		themeId: {type:"string", maxLength: 100}
+		signupForm: {type:"object", properties: {
+			title:   {type:"string", format:"no-html", maxLength:100}
+			message: {type:"string", format:"no-html", maxLength:100}
+			active:  {type:"boolean"}
+		}}
+	}}
+	actions: {
+		index: {
+			roles:["owner"]
+			steps: [
+				{do: "view-html"}
+				{do: "edit", options:["{{if .NotDomainStartup}}cancel-button:hide{{end}}", "cancel-href:/startup"]}
+				{do: "upload-attachments", fieldname:"iconUrl", attachment-path:"iconId", category:"Icon", maximum:1, accept-type:"image/*", rules:{types:["webp"]}}
+				{do: "upload-attachments", fieldname:"imageUrl", attachment-path:"imageId", category:"Image", maximum:1, accept-type:"image/*", rules:{types:["webp"]}}
+				{do: "save"}
+				{do: "startup-save-task", value:"/admin/domain"}
+				{do: "if", condition: "{{.IsDomainStartup}}",
+				then:[
+					{do: "inline-success", message:"Return to Startup Checklist &rarr;", href:"/startup"}
+				],
+				else: [
+					{do: "inline-save-button"}
+				]}
+				{do: "reload-page"}
+			]
+		}
+		themes: {
+			roles:["owner"]
+			steps: [{
+				do: as-modal
+				options: {size: "large"}
+				steps: [
+					{do: "view-html"}
+					{do: "set-data", from-form:["themeId"]}
+					{do: "save"}
+					{do: "reload-page"}
+				]
+			}]
+		}
+
+		defaults: {
+			roles:["owner"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html"}
+					{do:"edit", form:{
+						type:"layout-vertical",
+						children: [
+							{type:"text", path:"defaultAnonymous", label:"Anonymous Visitors", options:{placeholder:"/home"}},
+							{type:"text", path:"defaultAuthenticated", label:"Signed-In Users", options:{placeholder:"/@me/newsfeed"}}
+							{type:"text", path:"defaultOwner", label:"Domain Owners", options:{placeholder:"/admin"}}
+						]
+					}}
+					{do:"save"}
+					{do:"refresh-page"}
+				]}
+			]
+		}
+
+		signup: {
+			roles:["owner"]
+			steps: [
+				{do: "edit-registration"}
+				{do: "save"}
+				{do: "startup-save-task", value:"/admin/domain/signup"}
+				{do: "refresh-page"}
+			]
+		}
+
+		delete-icon:{
+			roles:["owner"]
+			steps: [
+				{do:"delete-attachments", field:"iconId"}
+			]
+		}
+
+
+		delete-image:{
+			roles:["owner"]
+			steps: [
+				{do:"delete-attachments", field:"imageId"}
+			]
+		}
+	}
+}

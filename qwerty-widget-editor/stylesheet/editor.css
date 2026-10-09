@@ -1,0 +1,138 @@
+.widget-editor-layout {
+	display: flex;
+	flex-direction:row;
+	align-items: stretch;
+	min-height:500px;
+}
+
+.widget-editor-title {
+	font-size: 24px;
+	font-weight: 500;
+	color: var(--gray80);
+}
+
+.widget-editor-LEFT {
+	width: 25%;
+	flex-grow:0;
+	flex-shrink:0;
+	margin-right:16px;
+	border-right: solid 1px var(--page-border);
+	padding:8px;
+	padding-right:16px;
+	position:relative;
+}
+
+.widget-editor-CENTER {
+	display:flex;
+	flex-direction:column;
+	align-items: stretch;
+	flex-grow:1;
+	flex-shrink:1;
+	padding:0px;
+}
+
+.widget-editor-RIGHT {
+	width: 25%;
+	flex-grow:0;
+	flex-shrink:0;
+	margin-left:16px;
+	border-left: solid 1px var(--page-border);
+	padding:8px;
+	padding-left:16px;
+	position:relative;
+}
+
+.widget-editor-TOP {
+	flex-grow:1;
+	flex-shrink:1;
+	margin-bottom:16px;
+	padding:8px;
+	position:relative;
+}
+
+.widget-editor-MAIN {
+	flex-grow:2;
+	flex-shrink:1;
+	padding: calc(var(--rhythm) * 2);
+	background-color: var(--page-background);
+	border-radius: var(--border-radius);
+	display:flex;
+	flex-direction:column;
+	align-items: center;
+	justify-content:center;
+}
+
+.widget-editor-BOTTOM {
+	flex-grow:1;
+	flex-shrink:1;
+	margin-top:16px;
+	padding:8px;
+	position:relative;
+}
+
+.widget-label {
+	color: var(--gray60);
+	text-transform: uppercase;
+}
+
+.widget-editor-sortable {
+	height:100%;
+}
+
+.widget-editor-sortable .widget {
+	cursor:grab;
+}
+
+.widget {
+	background-color: var(--input-background);
+	border: solid 1px var(--input-border);
+	border-radius: var(--border-radius);
+	padding: 8px;
+	margin-bottom:8px;
+	position:relative;
+}
+
+.widget button {
+	position:absolute;
+	font-size:12px;
+	top:9px;
+	right:4px;
+	padding:4px 8px;
+	border:solid 1px var(--input-border);
+	background:var(--gray20);
+	cursor:pointer;
+}
+
+.widget.widget-dragging {
+	cursor:grabbing!important;
+}
+
+.widget.widget-ghost {
+	background-color:var(--blue10);
+	border:solid 1px var(--blue20);
+}
+
+.widget-editor-NONE {
+	display: block;
+	font-size: 12px;
+	margin-bottom: 16px;
+	padding: calc(var(--rhythm) * 2);
+	background-color: var(--page-background);
+	border-radius: var(--border-radius);
+}
+
+.widget-editor-NONE .widget-editor-sortable {
+	display:flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+}
+
+.widget-editor-NONE .widget {
+	padding:4px 8px;
+	margin-right:4px;
+}
+
+.widget-editor-NONE button {
+	display:none;
+}
+

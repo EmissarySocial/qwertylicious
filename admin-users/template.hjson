@@ -1,0 +1,202 @@
+{
+	templateId:"admin-users"
+	templateRole:"admin"
+	category: Admin
+	model:"User"
+	extends: ["admin-common"]
+	containedBy:["admin"]
+	label: "User"
+	description: "Manage all users on this website"
+	states: {
+		LIVE: {
+			label: Live
+			description: This user is activated and visible to all viewers
+		}
+	}
+	actions: {
+		index: {
+			roles:["owner"]
+			steps: [
+				{do: "view-html"}
+			]
+		}
+
+		list: {
+			roles:["owner"]
+			steps: [
+				{do: "view-html"}
+			]
+		}
+
+		add: {
+			roles:["owner"]
+			steps: [{
+				do: as-modal
+				steps: [
+					{
+						do: edit
+						type: user
+						form: {
+							label: + Invite a Person
+							type: layout-tabs
+							children: [
+								{
+									label: General
+									type: layout-vertical
+									children: [
+										{type: "text", label: "Full Name", path: "displayName"}
+										{type: "text", label: "Username", path: "username"}
+										{type: "text", label: "Email Address", path: "emailAddress"}
+									]
+								},
+								{
+									label: Profile
+									type: layout-vertical
+									children: [
+										{type: "select", path: "inboxTemplate", label:"Inbox", options:{provider: "inbox-templates", sort:false}}
+										{type: "select", path: "outboxTemplate", label:"Outbox (Profile)", options:{provider: "outbox-templates", sort:false}}
+									]
+								},
+								{
+									label: Groups
+									type: layout-vertical
+									children: [
+										{type: "multiselect", label: "Group(s)", path: "groupIds", options:{provider:"groups", sort:false}}
+									]
+								},
+								{
+									type: layout-vertical
+									label: Visibility
+									children: [
+										{type: "toggle", path: "isPublic", options: {true-text: "Show Profile Publicly", false-text: "Show Profile Publicly"}}
+										{type: "toggle", path: "isBridgeBluesky", options: {true-text: "Bridge Bluesky Account", false-text: "Bridge Bluesky Account"}}
+										{type: "toggle", path: "isIndexable", options: {true-text: "Include in Search Engines", false-text: "Include in Search Engines"}}
+									]	
+								},
+								{
+									type: layout-vertical
+									label: Owner
+									children: [
+										{type: "toggle", path: "isOwner", options: {true-text: "Grant this user full control over this domain.", false-text: "Grant this user full control over this domain."}}
+									]
+								}
+							]
+						}
+					}
+					// FIX #2 (root cause of the non-owner profile 500): admin-created accounts skip the
+					// self-service onboarding wizard, which is the ONLY step that moves a User to the "LIVE"
+					// state. Without this they stay pre-LIVE forever, and their profile.html renders the
+					// self-only wizard branch -> HTTP 500 for every other viewer. Activate them on creation.
+					{do: "set-state", state: "LIVE"}
+					{do: "save"}
+					{do: "refresh-page"}
+				]
+			}]
+		}
+
+		edit:{
+			roles:["owner"]
+			steps:[
+				{
+					do:"as-modal"
+					steps:[
+						{do:"view-html"}
+						{
+							do: "edit"
+							form: {
+								type: layout-tabs
+								children: [
+									{
+										type: layout-vertical
+										label: General
+										children: [
+											{type: "text", label: "Full Name", path: "displayName"}
+											{type: "text", label: "Username", path: "username"}
+											{type: "text", label: "Email Address", path: "emailAddress"}
+										]
+									},
+									{
+										label: Profile
+										type: layout-vertical
+										children: [
+											{type: "select", path: "inboxTemplate", label:"Inbox", options:{provider: "inbox-templates", sort:false}}
+											{type: "select", path: "outboxTemplate", label:"Outbox (Profile)", options:{provider: "outbox-templates", sort:false}}
+										]
+									},
+									{
+										type: layout-vertical
+										label: Groups
+										children: [
+											{type: "multiselect", path: "groupIds", description:"Select one or more groups to grant privileges to this user", options:{provider: "groups", sort:false}}
+										]
+									},
+									{
+										type: layout-vertical
+										label: Visibility
+										children: [
+											{type: "toggle", path: "isPublic", options: {true-text: "Show Profile Publicly", false-text: "Show Profile Publicly"}}
+											{type: "toggle", path: "isBridgeBluesky", options: {true-text: "Bridge Bluesky Account", false-text: "Bridge Bluesky Account"}}
+											{type: "toggle", path: "isIndexable", options: {true-text: "Include in Search Engines", false-text: "Include in Search Engines"}}
+										]	
+									},
+									{
+										type: layout-vertical
+										label: Owner
+										children: [
+											{type: "toggle", path: "isOwner", options: {true-text: "Grant this user full control over this domain.", false-text: "Grant this user full control over this domain."}}
+										]
+									}
+								]
+							}
+							options: [
+								"delete:/admin/users/{{.UserID}}/delete"
+							]
+						},
+						{do:"save"}
+						{do:"refresh-page"}
+					]
+				}
+			]
+		}
+
+		edit-form: {
+			roles:["owner"]
+			steps: [
+				{
+					do: "edit"
+					form: {
+						type: "layout-vertical"
+						description: ""
+						children: [
+							{type: "text", label: "Full Name", path: "displayName"}
+							{type: "text", label: "Email Address", path: "emailAddress"}
+							{type: "text", label: "Username", path: "username"}
+							{type: "toggle", label: "Public?", path: "isPublic"}
+							{type: "multiselect", label: "Group(s)", path: "groupIds", options:{provider: "groups", sort:false}}
+						]
+					}
+					options: [
+						"endpoint:/admin/users/{{.UserID}}/edit-form"
+						"delete:/admin/users/{{.UserID}}/delete"
+					]
+				}
+				{do: "save"}
+			]
+		}
+
+		send-welcome: {
+			roles:["owner"]
+			steps:[
+				{do:"send-email", email:"welcome"}
+			]
+		}
+
+		delete: {
+			roles:["owner"]
+			steps:[
+				{do: "delete", type: "user"}
+				{do: "refresh-page"}
+			]
+		}
+	}
+}

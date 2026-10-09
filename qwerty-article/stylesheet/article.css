@@ -1,6 +1,6 @@
 
 #article-banner {
-	background-color:var(--gray30);
+	background-color: var(--page-background);
 }
 
 #article {
@@ -18,7 +18,7 @@
 		font-size:18px;
 		font-weight:600;
 		line-height:1.5em;
-		color: var(--gray50);
+		color: var(--text-color-tertiary);
 	}
 
 	& > #article-byline {
@@ -30,7 +30,7 @@
 		}
 
 		& > #article-author {
-			color: var(--gray50);
+			color: var(--text-color-tertiary);
 		}
 	}
 

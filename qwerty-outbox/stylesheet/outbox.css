@@ -1,0 +1,17 @@
+/* Outbox Columns */
+
+.cols-6,
+.cols-5,
+.cols-4,
+.cols-3,
+.cols-2,
+.cols-1 {
+	--gap: calc(var(--rhythm) * 2);
+}
+
+.cols-2-6,
+.cols-2-5,
+.cols-2-4,
+.cols-2-3 {
+	--gap: calc(var(--rhythm) * 2);
+}

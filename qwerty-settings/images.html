@@ -1,0 +1,68 @@
+{{- $isDesktop := .IsDesktop -}}
+
+<div class="app" script="init send SelectNav(id:'settings')">
+	<title>Profile | Images</title>
+
+	<!-- {{- if $isDesktop -}}
+		<div id="app-sidebar" class="expanded">
+			{{- template "menu" "general" -}}
+		</div>
+	{{- end -}} -->
+	
+	<div id="app-sidebar" class="flex-column flex-justify-between{{if $isDesktop}} expanded{{else}} collapsed{{end}}">
+		{{- template "menu" "general" -}}
+	</div>
+	
+	<div class="app-content padding transition-main-card">
+
+		<div id="menu-bar">
+			<!-- {{ if not $isDesktop }}
+				<a href="/@me/settings/mobile" class="turboclick tab" hx-boost="true">{{icon "back"}}</a>
+			{{ end }} -->
+			{{ if $isDesktop }}
+				<div class="left tabs">
+					<a href="/@me/settings/general" class="turboclick tab" hx-boost="true">General</a>
+					<a href="/@me/settings/images" class="turboclick tab selected" hx-boost="true">Images</a>
+					<a href="/@me/settings/links" class="turboclick tab" hx-boost="true">Links</a>
+					<a href="/@me/settings/import" class="turboclick tab" hx-boost="true">Import</a>
+					<a href="/@me/settings/export" class="turboclick tab" hx-boost="true">Export</a>
+				</div>
+			{{ else }}
+				<div class="dropdown">
+					<a class="button">Images {{icon "chevron-down"}}</a>
+					<div class="dropdown-content left">
+						<a href="/@me/settings/general" class="turboclick dropdown-item" hx-boost="true">General</a>
+						<a href="/@me/settings/images" class="turboclick dropdown-item selected" hx-boost="true">Images</a>
+						<a href="/@me/settings/links" class="turboclick dropdown-item" hx-boost="true">Links</a>
+						<a href="/@me/settings/import" class="turboclick dropdown-item" hx-boost="true">Import</a>
+						<a href="/@me/settings/export" class="turboclick dropdown-item" hx-boost="true">Export</a>
+					</div>
+				</div>
+			{{ end }}
+			<div class="right">
+				<a href="https://emissary.dev/user-profile" target="_blank" class="link">
+					{{icon "help"}}
+					{{ if $isDesktop }} Help {{ end }}
+				</a>
+			</div>
+		</div>
+
+		<div class="card padding">
+
+			<div class="margin-bottom">
+				Images are shared everywhere your profile appears on the Internet.
+				Your icon displays next to your name, and your banner appears at the top of your profile page.
+			</div>
+
+			<div
+				hx-get="/@me/settings/images-form"
+				hx-trigger="load, refreshPage from:window"
+				hx-target="this"
+				hx-swap="innerHTML"
+				hx-push-url="false">
+			</div>
+		</div>
+
+	</div>
+
+</div>

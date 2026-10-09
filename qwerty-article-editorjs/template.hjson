@@ -1,0 +1,37 @@
+{
+	templateId:"article-editorjs"
+	category: Content
+	extends: ["article-base"]
+	tagPaths:["data.tags"]
+	containedBy: ["top", "home", "folder", "article"]
+	label:"Visual Editor"
+	description:"Block-based WYSIWYG editor. Best for beginners."
+	icon:"article"
+
+	actions: {
+		create: {
+			roles:["author","editor"]
+			steps: [
+				{
+					do:"set-data", 
+					values: {
+						label:"New Article"
+						content.format:"EDITORJS"
+						content.raw:"{}"
+					}
+				}
+				{do:"set-state", state:"default"}
+				{do:"save"}
+				{do:"forward-to", url:"/{{.StreamID}}/edit"}
+			]
+		}
+		editor: {
+			roles: ["author", "editor"]
+			steps: [
+				{do:"with-draft", steps: [
+					{do:"edit-content", file:"editor", format:"EDITORJS", max-length:1024}
+				]}
+			]
+		}
+	}
+}

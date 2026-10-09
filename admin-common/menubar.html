@@ -1,0 +1,91 @@
+<div id="menu-bar" hx-push-url="true" script="init send SelectNav(id:'admin')">
+	<div class="tabs">
+		<a href="/admin/domain/index" hx-boost="true" class="tab turboclick {{if eq .Token `domain`}}selected{{end}}">
+			General
+		</a>
+
+		<a href="/admin/navigation/index" hx-boost="true" class="tab turboclick {{if eq .Token `navigation`}}selected{{end}}">
+			Navigation
+		</a>
+
+		<a href="/admin/rules/index" hx-boost="true" class="tab turboclick {{if eq .Token `rules`}}selected{{end}}">
+			Rules
+		</a>
+
+		<a href="/admin/users/index" hx-boost="true" class="tab turboclick {{if in .Token `users` `groups`}}selected{{end}}">
+			People
+		</a>
+
+		<a href="/admin/tags/index" hx-boost="true" class="tab turboclick {{if in .Token `search` `followers` `following` `tags`}}selected{{end}}">
+			Search
+		</a>
+
+		<a href="/admin/connections/index" hx-boost="true" class="tab turboclick {{if in .Token `connections` `mls` `webhooks` `syndication` `sso`}}selected{{end}}">
+			External
+		</a>
+
+	</div>
+
+</div>
+
+<!-- Sub-Menus -->
+{{ if in .Token "users" "groups" }}
+
+	<div id="menu-bar">
+		<a href="/admin/users/index" hx-boost="true" class="turboclick {{if eq `users` .Token}}selected{{end}}">
+			Users
+		</a>
+		<a href="/admin/groups/index" hx-boost="true" class="turboclick {{if eq `groups` .Token}}selected{{end}}">
+			Groups
+		</a>
+	</div>
+
+{{ else if in .Token "search" "followers" "following" "tags" }}
+
+	<div id="menu-bar">
+	
+		<a href="/admin/tags/index" hx-boost="true" class="turboclick {{if eq `tags` .Token}}selected{{end}}">
+			Tags
+		</a>
+
+		<a href="/admin/following/index" hx-boost="true" class="turboclick {{if eq `following` .Token}}selected{{end}}">
+			Sources
+		</a>
+
+		<a href="/admin/followers/index" hx-boost="true" class="turboclick {{if eq `followers` .Token}}selected{{end}}">
+			Followers
+		</a>
+
+		<a href="/admin/search/index" hx-boost="true" class="turboclick {{if eq `search` .Token}}selected{{end}}">
+			Indexes
+		</a>
+
+	</div>
+
+{{ else if in .Token "connections" "mls" "webhooks" "syndication" "sso" }}
+
+	<span id="menu-bar">
+
+		<a href="/admin/connections/index" hx-boost="true" class="turboclick {{if eq .Token `connections`}}selected{{end}}">
+			API Keys
+		</a>
+	
+		<a href="/admin/mls/index" hx-boost="true" class="turboclick {{if eq .Token `mls`}}selected{{end}}">
+			Encrypted Messaging
+		</a>
+
+		<a href="/admin/webhooks/index" hx-boost="true" class="turboclick {{if eq .Token `webhooks`}}selected{{end}}">
+			Webhooks
+		</a>
+
+		<a href="/admin/sso/index" hx-boost="true" class="turboclick {{if eq .Token `sso`}}selected{{end}}">
+			Single Sign On
+		</a>
+	
+		<a href="/admin/syndication/index" hx-boost="true" class="turboclick {{if eq .Token `syndication`}}selected{{end}}">
+			Syndication
+		</a>
+
+	</span>
+
+{{ end }}

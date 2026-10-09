@@ -1,0 +1,235 @@
+:root {
+	--body-background: var(--gray01);
+	--page-background: var(--gray10);
+	--page-border: var(--gray20);
+
+	--input-border: var(--gray30);
+	--input-background: var(--gray03);
+	--input-color: var(--gray60);
+
+	--input-border-invalid: var(--red40);
+	--input-background-invalid: var(--red20);
+	--input-color-invalid: var(--red50);
+	
+	--link-color:var(--blue50);
+	--link-color-hover: color-mix(in srgb, var(--link-color), black 4%);
+	--focus-color:var(--link-color);
+
+	--button-color: var(--black);
+	--button-background: var(--gray05);
+	--button-background-hover: color-mix(in srgb, var(--gray10), black 4%);
+
+	--button-action-color: var(--white);
+	--button-action-background: var(--black);
+	--button-action-background-hover: color-mix(in srgb, var(--button-action-background), white 20%);
+	
+	--button-primary-color: var(--white);
+	--button-primary-color-hover: var(--white);
+	--button-primary-background: var(--blue50);
+	--button-primary-background-hover: color-mix(in srgb, var(--button-primary-background), black 4%);
+
+	--button-secondary-color: var(--black);
+	--button-secondary-background: var(--gray-01);
+	--button-secondary-background-hover: color-mix(in srgb, var(---button-secondary-background), black 4%);
+
+	--button-tertiary-color: var(--black);
+	--button-tertiary-background: unset;
+	--button-tertiary-background-hover: var(--gray10);
+	
+	--heading-color: var(--black);
+	--text-color: var(--gray80);
+	--text-color-secondary: var(--gray60);
+	--text-color-tertiary: var(--gray50);
+	
+	--grid-highlight-background: var(--blue20);
+
+	--border-radius: calc(var(--rhythm) * 2);
+
+	--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Cool Colors */
+
+:root[data-theme="slate"] {
+	--white: #ffffff;
+	--gray00: #ffffff;
+	--gray01: #fefefe;
+	--gray02: #fdfdfd;
+	--gray03: #fcfcfc;
+	--gray04: #fbfbfb;
+	--gray05: #fafafa;
+	--gray10: #f2f5f8;
+	--gray15: #eff0f0;
+	--gray20: #e2e8f0;
+	--gray30: #cbd5e1;
+	--gray40: #94a3b8;
+	--gray50: #64748b;
+	--gray60: #475569;
+	--gray70: #334155;
+	--gray80: #1e293b;
+	--gray90: #0f172a;
+	--gray100: #020617;
+	--black: #020617;
+}
+
+/* Neutral Colors */
+
+:root[data-theme="neutral"] {
+	--white: #ffffff;
+	--gray00: #ffffff;
+	--gray01: #fefefe;
+	--gray02: #fdfdfd;
+	--gray03: #fcfcfc;
+	--gray04: #fbfbfb;
+	--gray05: #fafafa;
+	--gray10: #f5f5f4;
+	--gray15: #eaeaea;
+	--gray20: #e5e5e5;
+	--gray30: #d4d4d4;
+	--gray40: #a3a3a3;
+	--gray50: #737373;
+	--gray60: #525252;
+	--gray70: #404040;
+	--gray80: #262626;
+	--gray90: #171717;
+	--gray100: #0a0a0a;
+	--black: #0a0a0a;
+}
+
+/* Warm Colors */
+
+:root[data-theme="stone"] {
+	--white: #ffffff;
+	--gray00: #ffffff;
+	--gray01: #fefefe;
+	--gray02: #fdfdfd;
+	--gray03: #fcfcfc;
+	--gray04: #fbfbfb;
+	--gray05: #fafafa;
+	--gray10: #f5f5f4;
+	--gray15: #eaeaea;
+	--gray20: #e7e5e4;
+	--gray30: #d6d3d1;
+	--gray40: #a8a29e;
+	--gray50: #78716c;
+	--gray60: #57534e;
+	--gray70: #44403c;
+	--gray80: #292524;
+	--gray90: #1c1917;
+	--gray100: #0c0a09;
+	--black: #0c0a09;
+}
+
+/* Dark Mode */
+
+@media (prefers-color-scheme: dark) {
+
+	:root {
+		--body-background: var(--gray01);
+		--page-background: var(--gray02);
+		--page-border: var(--gray03);
+
+		--input-border: var(--gray03);
+
+		--input-border-invalid: var(--red40);
+		--input-background-invalid: var(--red20);
+		--input-color-invalid: var(--red50);
+
+		--link-color: var(--blue80);
+		--link-color-hover: color-mix(in srgb, var(--link-color), black 4%);
+		--focus-color: var(--link-color);
+
+		--button-color: var(--black);
+		--button-background: var(--gray02);
+		--button-background-hover: color-mix(in srgb, var(--button-background), black 4%);
+
+		--button-action-color: var(--white);
+		--button-action-background: var(--black);
+		--button-action-background-hover: color-mix(in srgb, var(--button-action-background), white 4%);
+		
+		--button-primary-color: var(--black);
+		--button-primary-color-hover: var(--black);
+		--button-primary-background: var(--blue60);
+		--button-primary-background-hover: color-mix(in srgb, var(--button-primary-background), black 4%);
+
+		--button-secondary-color: var(--black);
+		--button-secondary-background: var(--gray01);
+		--button-secondary-background-hover: color-mix(in srgb, var(---button-primary-background), black 4%);
+
+		--button-tertiary-color: var(--black);
+		--button-tertiary-background: unset;
+		--button-tertiary-background-hover: var(--gray01);
+
+		--text-color: var(--gray90);
+		--text-color-secondary: var(--gray20);
+		--text-color-tertiary: var(--gray10);
+	}
+
+	:root[data-theme="slate"] {
+		--white: #020617;
+		--gray00: #020617;
+		--gray01: #0f172a;
+		--gray02: #1e293b;
+		--gray03: #334155;
+		--gray04: #475569;
+		--gray05: #64748b;
+		--gray10: #94a3b8;
+		--gray15: #cbd5e1;
+		--gray20: #e2e8f0;
+		--gray30: #eff0f0;
+		--gray40: #f2f5f8;
+		--gray50: #fafafa;
+		--gray60: #fbfbfb;
+		--gray70: #fcfcfc;
+		--gray80: #fdfdfd;
+		--gray90: #fefefe;
+		--gray100: #ffffff;
+		--black: #ffffff;
+	}
+
+	:root[data-theme="neutral"] {
+		--white: #0a0a0a;
+		--gray00: #0a0a0a;
+		--gray01: #171717;
+		--gray02: #262626;
+		--gray03: #404040;
+		--gray04: #525252;
+		--gray05: #737373;
+		--gray10: #a3a3a3;
+		--gray15: #d4d4d4;
+		--gray20: #e5e5e5;
+		--gray30: #eaeaea;
+		--gray40: #f5f5f4;
+		--gray50: #fafafa;
+		--gray60: #fbfbfb;
+		--gray70: #fcfcfc;
+		--gray80: #fdfdfd;
+		--gray90: #fefefe;
+		--gray100: #ffffff;
+		--black: #ffffff;
+	}
+
+	:root[data-theme="stone"] {
+		--white: #0c0a09;
+		--gray00: #0c0a09;
+		--gray01: #1c1917;
+		--gray02: #292524;
+		--gray03: #44403c;
+		--gray04: #57534e;
+		--gray05: #78716c;
+		--gray10: #a8a29e;
+		--gray15: #d6d3d1;
+		--gray20: #e7e5e4;
+		--gray30: #eaeaea;
+		--gray40: #f5f5f4;
+		--gray50: #fafafa;
+		--gray60: #fbfbfb;
+		--gray70: #fcfcfc;
+		--gray80: #fdfdfd;
+		--gray90: #fefefe;
+		--gray100: #ffffff;
+		--black: #ffffff;
+	}
+}

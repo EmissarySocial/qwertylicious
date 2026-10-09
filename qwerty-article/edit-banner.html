@@ -6,7 +6,8 @@
 
 	{{- if isZero $bannerURL -}}
 		<div class="align-center">
-			<div class="text-lg bold">Banner</div>
+			{{icon "photo text-lg margin-none"}}
+			<div class="text-lg bold margin-none">Banner</div>
 			<div class="align-center text-sm">
 				Click here to <u>upload an image or video</u><br>
 				or drag a file into this box.
@@ -38,7 +39,7 @@
 	</form>
 
 	{{- if notZero $bannerURL -}}
-		<button hx-get="/{{.StreamID}}/delete-banner" class="pos-absolute-top-right text-xs">{{icon "delete"}}</button>
+		<button hx-get="/{{.StreamID}}/delete-banner" class="pos-absolute-top-right button icon">{{icon "trash"}}</button>
 	{{- end -}}
 
 </div>
@@ -50,7 +51,7 @@
 		background-position:top center;
 		
 		&.highlight {
-			outline: solid 2px var(--blue60);
+			outline: solid 1px var(--blue60);
 		}
 	}
 </style>

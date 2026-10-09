@@ -1,0 +1,57 @@
+{{- $search := .QueryParam "search" -}}
+{{- $following := .Following.Top12.ByLabel.Slice -}}
+
+{{- range $following -}}
+	<div  hx-get="/@me/settings/following-edit?followingId={{.FollowingID.Hex}}" class="flex-row flex-align-center" role="button" tabIndex="0">
+
+		<div class="flex-row flex-grow-1">
+
+			<div class="margin-right-xs flex-grow-0 flex-shrink-0">
+				{{- if ne "" .IconURL -}}
+					<img src="{{.IconURL}}" class="circle width-48"/>
+				{{- else -}}
+					<div class="circle width-48"></div>
+				{{- end -}}
+			</div>
+
+			<div class="width-3-5">
+				{{- if ne "" .Label -}}
+					<div class="ellipsis-block" style="max-height:3em;">
+						<div class="bold">{{- .Label -}}</div>
+						<div class="text-light-gray">{{- .UsernameOrID -}}</div>
+					</div>
+				{{- else -}}
+					<div class="ellipsis-block" style="max-height:1.75em;">
+						{{- .UsernameOrID -}}
+					</div>
+				{{- end -}}
+			</div>
+			<div class="width-2-5">
+				<div class="text-black bold">{{.Folder}}</div>
+				<div class="text-sm margin-none">
+					{{ if eq "SUCCESS" .Status -}}
+						<span class="text-light-gray">
+							{{ icon .Icon }} 
+							{{.Method}}
+							{{ .LastPolled | tinyDate }}
+						</span>
+					{{- else if eq "IMPORT-PENDING" .Status -}}
+						<span class="text-light-gray">
+							{{icon "import"}}
+							Imported
+						</span>
+					{{- else if eq "ERROR" .Status -}}
+						<span class="text-red">{{.Status}}</span>
+					{{- else -}}
+						<span class="text-green">{{.Status}}</span>
+					{{- end -}}
+				</div>
+			</div>
+		</div>
+	</div>
+{{- end -}}
+
+{{- if eq 12 $following.Length -}}
+	{{- $last := $following.Last -}}
+	<div hx-get="/@me/settings/following-list?search={{$search}}&label=GT:{{$last.Label}}" hx-target="this" hx-trigger="revealed" hx-swap="outerHTML" hx-push-url="false"></div>
+{{- end -}}

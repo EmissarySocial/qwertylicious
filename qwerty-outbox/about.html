@@ -1,13 +1,13 @@
 {{- $isMyself := .IsMyself -}}
 
-<div class="framed page padding-none">
+<div class="framed page">
 
 	{{- template "header" . -}}
 
-	<div class="padding max-width-800">
+	<div class="max-width-800 margin-top">
 
 		<!-- "Tabs" -->
-		<div role="tablist" class="underlined">
+		<div role="tablist" class="pills">
 			<a href="/@{{.UserID}}" hx-get="/@{{.UserID}}" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Posts</a>
 			<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
 			<span role="tab" aria-selected="true">About</span>
@@ -18,7 +18,7 @@
 
 			{{- if eq "" .StatusMessage -}}
 				{{- if $isMyself -}}
-					<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes max-width-640">
+					<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes">
 						Your personal message will appear here once you add something.<br>
 						Click the <span hx-get="/@{{.UserID}}/edit" class="link">Edit Profile</span> button to post your "About Me" message
 					</div>
@@ -54,3 +54,5 @@
 	</div>
 
 </div>
+
+<link rel="stylesheet" href="/.templates/user-outbox/stylesheet" />

@@ -1,0 +1,116 @@
+nav.desktop, nav.mobile {
+	display: flex;
+  justify-content: space-between;
+  min-height: 100dvh;
+  min-width: 240px;
+	background-color: var(--body-background);
+	border-right: solid 1px var(--page-border);
+	padding: calc(var(--rhythm) * 2);
+	color: var(--black);
+
+	&.mobile {
+		min-height: unset;
+		height: unset;
+		padding: unset;
+	}
+
+	@media screen and (width >= 640px) {
+		& {
+			border-bottom: unset;
+		}
+	}
+}
+
+nav.collapsed {
+	min-width: 0;
+
+	.nav-item {
+		aspect-ratio: 1/1;
+		
+		.label {
+			display: none;
+		}
+	}
+}
+
+#topbar {
+	display: flex;
+	position: relative;
+	padding: var(--rhythm);
+	border-bottom: 1px solid var(--page-border);
+
+	.nav-item {
+		aspect-ratio: 1/1;
+		padding: var(--rhythm);
+	}
+}
+
+#topbar-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	position: absolute;
+	min-width: 240px;
+	height: 100dvh;
+	z-index: 100;
+	padding: calc(var(--rhythm) * 2);
+	border-right: 1px solid var(--page-border);
+	background-color: var(--body-background);
+
+	.nav-item {
+		padding: calc(var(--rhythm) * 1.2) calc(var(--rhythm) * 1.6);
+	}
+}
+
+.nav-item {
+	display: flex;
+  flex-direction: row;
+  gap: var(--rhythm);
+  margin: unset;
+	padding: calc(var(--rhythm) * 1.2) calc(var(--rhythm) * 2);
+	color:var(--gray90);
+	background-color: unset;
+	font-size: calc(var(--rhythm) * 2);
+	border-radius: calc(var(--rhythm) * 1.5);
+	line-height:1.5em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+  + .nav-item:not(.ToggleHide) {
+    margin-top: var(--rhythm);
+  }
+  
+	.mobile & * {
+		font-size: calc(var(--rhythm) * 1.8);
+	}
+
+	&:last-child {
+		border: none;
+	}
+
+	&:hover, &.selected, &:focus {
+		background-color: var(--page-background);
+	}
+
+	&.selected {
+		font-weight:bold;
+
+		&:hover {
+			background-color: color-mix(in srgb, var(--page-background), var(--black) 6%)
+		}
+	}
+
+	&.link {
+		color: var(--link-color);
+	}
+
+	.icon {
+		font-size: calc(var(--rhythm) * 2.25);
+
+		i.ti {
+			color: var(--text-color-tertiary);
+			font-size: calc(var(--rhythm) * 2.25);
+		}
+	}
+
+}

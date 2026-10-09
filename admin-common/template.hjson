@@ -1,0 +1,13 @@
+{
+	templateId: admin-common
+	category: Admin
+	model: None
+	templateRole: admin
+	states: {
+		default: {
+			label: Default State,
+			description: Admin templates do not use any other states
+		}
+	}
+	containedBy: ["admin"]
+}

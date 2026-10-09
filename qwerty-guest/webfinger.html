@@ -1,0 +1,5 @@
+{{- if .HasWebfingerUsername -}}
+	{{- template "webfinger-edit" . -}}
+{{- else -}}
+	{{- template "webfinger-add" . -}}
+{{- end -}}

@@ -1,51 +1,63 @@
-<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet">
-
-<div class="page padding-none h-entry">
-
-	<div id="menu-bar" class="padding-sm margin-none">
+<div class="page framed editor-none h-entry">
+	<div id="menu-bar">
 		<div class="left">
-			<a href="/{{.StreamID}}">&larr; Back</a>
-			<a hx-get="/{{.StreamID}}/properties">Info</a>
-
-			{{- if .Products.NotEmpty -}}
-				<a hx-get="/{{.StreamID}}/sharing">{{icon "lock-fill"}} Restricted</a>
-			{{- else -}}
-				<a hx-get="/{{.StreamID}}/sharing">{{icon "globe"}} Public</a>
-			{{- end -}}
-
+			<button class="tertiary" hx-get="/{{.StreamID}}/discard-draft">{{icon "chevron-left margin-right-xs"}}<span>Back</span></button>
+		</div>
+		
+		<div class="center">
+			<a class="button" hx-get="/{{.StreamID}}/properties">Info</a>
 		</div>
 
 		<div class="right">
 			{{- if eq .StateID "published" -}}
-				<button hx-on:click="save()" class="button primary">Save Changes</button>
-				<button hx-get="/{{.StreamID}}/unpublish" class="button">✓ Published</button>
+				<button hx-get="/{{.StreamID}}/unpublish" class="button success">{{icon "check"}} Published</button>
 			{{- else -}}
-				<button hx-on:click="publish()" class="button primary">Publish</button>
-				<button hx-on:click="save()" class="button">Save Draft</button>
+				<button hx-on:click="publish()" class="button action">Publish</button>
 			{{- end -}}
-
-			{{- if .UserCan "delete" -}}
-				<a hx-get="/{{.StreamID}}/delete" class="text-red">Delete</a>
-			{{- end -}}
+			<div class="dropdown">
+				<a class="button icon margin-left-xs">{{icon "dots"}}</a>
+				<div class="dropdown-content">
+					<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
+					<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "x"}} Discard</button>
+					{{- if .UserCan "delete" -}}
+						<a class="button dropdown-item text-red" hx-get="/{{.StreamID}}/delete">{{icon "trash"}} Delete</a>
+					{{- end -}}
+				</div>
+			</div>
 		</div>
 	</div>
 
-	{{- template "edit-banner" . -}}
+	<article class="card border padding-none flex-column margin-bottom">
+		<div class="pos-relative">
+			{{- template "edit-banner" . -}}
+		</div>
 
-	<div class="pos-relative">
-		<article id="article" class="margin-bottom">
+		<div class="pos-relative padding">
 			{{- template "head-summary" . -}}
-			<hr>
-			{{- template "edit-content" . -}}
-		</article>
-	</div>
+		</div>
 
-	<div 
-		hx-get="/{{.StreamID}}/edit"
-		hx-trigger="refreshPage from:window"
-		hx-target="main"
-		hx-swap="innerHTML"
-		hx-push-url="false">
+		<div class="padding">
+			{{- template "edit-content" . -}}
+		</div>
+
+		<div 
+			hx-get="/{{.StreamID}}/edit"
+			hx-trigger="refreshPage from:window"
+			hx-target="main"
+			hx-swap="innerHTML"
+			hx-push-url="false">
+		</div>
+	</article>
+
+	<div class="card padding border flex-row flex-align-center flex-justify-between">
+		<span class="medium margin-none">Visibility</span>
+		{{- if .Products.NotEmpty -}}
+			<a class="button" hx-get="/{{.StreamID}}/sharing">{{icon "lock"}} Restricted</a>
+		{{- else -}}
+			<a class="button" hx-get="/{{.StreamID}}/sharing">{{icon "world"}} Public</a>
+		{{- end -}}
 	</div>
 
 </div>
+
+<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet" />

@@ -9,33 +9,27 @@
 {{- $layout := .Data "layout" -}}
 {{- $isPublic := .IsPublic -}}
 
-<!-- Publish message -->
-{{- if not .IsPublic -}}
-	<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none" role="button">
-		{{icon "check-circle"}} 
-		Your profile IS READY TO PUBLISH on the social web.
-		<span class="text-underline">Click here to publish it now</span>
-	</div>
-{{- end -}}
+{{- $isMobile := .IsMobile -}}
+{{- $isDesktop := not $isMobile -}}
 
-<!-- Banner Image -->
-{{- if or $hasBannerImage $hasBannerColor $isMyself -}}
-	<div id="profile-banner" class="pos-relative hide sm:show">
-		<img src="{{.ImageURL}}" class="width-100%">
-	</div>
-{{- end -}}
+<!--style>{{- template "stylesheet" . -}}</style-->
 
-<div class="pos-relative">
+<div id="profile-card" class="pos-relative">
+	<!-- Banner Image -->
+	{{- if or $hasBannerImage $hasBannerColor $isMyself -}}
+		<div id="profile-banner" class="pos-relative hide sm:show">
+			<img src="{{.ImageURL}}" class="width-100%">
+		</div>
+	{{- end -}}
 
 	<!-- Author Name -->
-	<div class="padding md:flex-row flex-align-center margin-top">
-		<div class="md:flex-align-self-start margin-horizontal-auto align-center">
-			<img id="profile-icon" src="{{.IconURL}}" class="circle width-30% sm:width:20% md:width-96" aria-hidden="true">
+	<div class="padding flex-row flex-align-start pos-relative">
+		<div class="width-128 height-100 margin-right-sm">
+			<img id="profile-icon" src="{{.IconURL}}" class="width-100%" aria-hidden="true">
 		</div>
-		<div class="flex-grow">
-			<h1 id="profile-name" class="text-2xl bold margin-none align-center md:align-left">{{.DisplayName}}</h1>
-
-			<div class="margin-vertical sm:margin-none align-center md:align-left">
+		<div class="width-100%">
+			<h1 id="profile-name" class="text-2xl bold margin-none align-left">{{.DisplayName}}</h1>
+			<div class="margin-vertical sm:margin-none align-left">
 				<div id="profile-username" class="text-gray margin-right-sm nowrap" script="install Clipboard">
 					<span class="clipboard-text" hidden>@{{.Username}}@{{.Hostname}}</span>
 					<span class="clickable clipboard-copy-button">
@@ -50,7 +44,7 @@
 
 				<div class="text-gray nowrap">
 					{{- if ne "" .Location }}
-						<span id="profile-location"> {{icon "location"}} {{.Location}}</span>
+						<span id="profile-location"> {{icon "map-pin"}} {{.Location}}</span>
 					{{- end -}}
 
 					{{- if .Links.NotEmpty -}}
@@ -65,37 +59,31 @@
 			</div>
 
 		</div>
-		<div class="margin-top-lg md:margin-none align-center md:align-left">
+		<div>
 
 			<div class="nowrap" script="on load trigger storage on window">
-				<div class="margin-none">
-
+				<div class="flex-row margin-none">
+					<button hx-post="/@{{.UserID}}/add" class="action{{if $isMobile}} icon{{end}}">{{icon "plus"}}{{if $isDesktop}} New Post{{end}}</button>
 					{{- if $isMyself -}}
-						<div class="pos-absolute-top-right flex-row text-sm">
-							<button hx-post="/@{{.UserID}}/add" class="primary">+ New Post</button>
-							<button hx-get="/@me/edit-layout">
-
-								{{- if eq $layout "icons-1" -}}
-									{{icon "view-stacked"}} Icons (1x)
-								{{- else if eq $layout "icons-2" -}}
-									{{icon "grid"}} Icons (2x)
-								{{- else if eq $layout "icons-3" -}}
-									{{icon "grid-3x2-gap"}} Icons (3x)
-								{{- else if eq $layout "column-1" -}}
-									{{icon "view-stacked"}} Cards (1x)
-								{{- else if eq $layout "column-2" -}}
-									{{icon "grid"}} Cards (2x)
-								{{- else if eq $layout "column-3" -}}
-									{{icon "grid-3x2-gap"}} Cards (3x)
-								{{- else if eq $layout "row-reverse" -}}
-									{{icon "list-columns"}} Rows Reversed
-								{{- else -}}
-									{{icon "list-columns-reverse"}} Rows
-								{{- end -}}
-							</button>
-							<button hx-get="/@me/settings">{{icon "gear"}} Edit Profile</button>
-							<button hx-post="/signout">{{icon "logout"}} Sign Out</button>
-
+						<div class="dropdown">
+							<a class="button icon">{{icon "dots"}}</a>
+							<div class="dropdown-content fixed" style="{{if $isMobile}}right: calc(var(--rhythm) * 4){{end}}">
+								<button class="dropdown-item" hx-get="/@me/edit-layout">
+									{{- if eq $layout "column-1" -}}
+										{{icon "columns-1"}} 1 Column Layout
+									{{- else if eq $layout "column-2" -}}
+										{{icon "columns-2"}} 2 Columns Layout
+									{{- else if eq $layout "column-3" -}}
+										{{icon "columns-3"}} 3 Columns Layout
+									{{- else if eq $layout "row-reverse" -}}
+										{{icon "layout-rows"}} Rows Reversed Layout
+									{{- else -}}
+										{{icon "layout-rows"}} Rows Layout
+									{{- end -}}
+								</button>
+								<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
+								<button class="dropdown-item text-red" hx-post="/signout">{{icon "logout"}} Sign Out</button>
+							</div>
 						</div>
 					{{- else -}}
 
@@ -118,11 +106,11 @@
 
 						<!--button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary"-->
 						<button hx-get="/@{{.UserID}}/follow" class="primary">
-							⁂ Follow
+							Follow
 						</button>
 
 						{{- if gt $circleCount 0 -}}
-							<button hx-get="/@{{.UserID}}/subscribe" class="primary outline">
+							<button hx-get="/@{{.UserID}}/subscribe" class="primary">
 								Subscribe
 							</button>
 						{{- end -}}

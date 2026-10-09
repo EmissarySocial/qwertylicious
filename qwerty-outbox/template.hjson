@@ -1,12 +1,24 @@
 {
 	templateId: qwerty-outbox
-	category: Special
 	templateRole: user-outbox
-	model: User
+	category: Special
+	model: Outbox
 	label: Qwertylicious Profile
-	extends: ["user-outbox", "qwerty-common"]
+	description:Profile displays everything about a user, including their inbox and outbox information
+	icon: inbox
+	extends: ["base-social", "base-intent"]
+    containedBy: []
+    tagPaths: ["statusMessage"]
+	tagUrl:"/search?q="
+	
+	bundles: {
+		stylesheet: {
+			content-type: "text/css"
+		}
+	}
 
 	schema: {
+		title: User Profile
 		type: object
 		properties: {
 			new_password: {type:"string"}
@@ -57,12 +69,9 @@
 		]
 
 		layouts: [
-			{label:"Icons (1x)", value:"icons-1", icon:"view-stacked", description:"Square icons for each item"}
-			{label:"Icons (2x)", value:"icons-2", icon:"grid", description:"Square icons for each item arranged in two columns"}
-			{label:"Icons (3x)", value:"icons-3", icon:"grid-3x2-gap", description:"Square icons for each item arranged in three columns"}
-			{label:"Cards (1x)", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
-			{label:"Cards (2x)", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
-			{label:"Cards (3x)", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
+			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
+			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
+			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
 			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
 			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
 		]
@@ -265,7 +274,7 @@
 			] 
 		}
 
-		_follow: {
+		follow: {
 			roles: ["anonymous"]
 			steps: [
 				{do:"as-modal", steps:[
