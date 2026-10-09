@@ -63,8 +63,8 @@
 
 			<div class="nowrap" script="on load trigger storage on window">
 				<div class="flex-row margin-none">
-					<button hx-post="/@{{.UserID}}/add" class="action{{if $isMobile}} icon{{end}}">{{icon "plus"}}{{if $isDesktop}} New Post{{end}}</button>
 					{{- if $isMyself -}}
+						<button hx-post="/@{{.UserID}}/add" class="action{{if $isMobile}} icon{{end}}">{{icon "plus"}}{{if $isDesktop}} New Post{{end}}</button>
 						<div class="dropdown">
 							<a class="button icon">{{icon "dots"}}</a>
 							<div class="dropdown-content fixed" style="{{if $isMobile}}right: calc(var(--rhythm) * 4){{end}}">
