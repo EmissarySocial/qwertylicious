@@ -15,7 +15,7 @@
 				<button hx-on:click="publish()" class="button action">Publish</button>
 			{{- end -}}
 			<div class="dropdown">
-				<a class="button icon margin-left-xs">{{icon "dots"}}</a>
+				<a class="button icon margin-left-xs">{{icon "three-dots"}}</a>
 				<div class="dropdown-content">
 					<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
 					<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "x"}} Discard</button>
