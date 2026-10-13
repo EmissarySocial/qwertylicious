@@ -1,6 +1,33 @@
 # Qwertylicious — Notes for AI Agents
 
-Qwertylicious is an Emissary template package for long-form writing, installed onto a running Emissary server through a Git package adapter rather than compiled or deployed on its own. See [README.md](README.md) for the product description. Every top-level folder is one template whose folder name must equal the `templateId` inside its `template.hjson`, and the `.html` files beside it are the views its actions render: `qwerty-article`, `qwerty-outbox`, `qwerty-search`, `qwerty-theme`, and the dataset-only `qwerty-common`.
+Qwertylicious is an Emissary template package for long-form writing, installed onto a running Emissary server through a Git package adapter rather than compiled or deployed on its own. See [README.md](README.md) for the product description. Every top-level folder except `meta/` holds one definition file (`template.hjson`, or `theme.hjson` for the theme), and the `.html` files beside it are the views its actions render.
+
+## The templates
+
+The ID a template registers under is the `templateId` inside its file, not the folder name. Emissary's loader passes the folder name in, but the unmarshalled `templateId` replaces it (`service.Template.Add`). So several folders here carry a `qwerty-` prefix that their ID does not.
+
+| Folder | ID | Model | What it is |
+| ------ | -- | ----- | ---------- |
+| `qwerty-outbox` | `qwerty-outbox` | Outbox | The profile page, with role `user-outbox`. Lists the user's articles in one of five card layouts |
+| `qwerty-article` | `qwerty-article` | Stream | The article a user posts to their outbox, with `containedBy: ["outbox"]` |
+| `qwerty-inbox` | `qwerty-inbox` | Inbox | The user's inbox, with role `user-inbox` |
+| `qwerty-common` | `qwerty-common` | None | No actions. Holds the shared card-layout views (`layout-*.html`) and the `colors` and `fonts` datasets. `qwerty-outbox` extends it |
+| `qwerty-theme` | `qwerty-theme` (a `themeId`) | — | The site theme, extending Emissary's `global` |
+| `qwerty-search` | `qwerty-search` | Stream | **Parked**: its manifest is `z-template.hjson`, so it never loads (see below) |
+| `qwerty-settings` | `user-settings` | Settings | Replaces Emissary's built-in settings template |
+| `qwerty-guest` | `guest` | Identity | Replaces Emissary's built-in guest template |
+| `qwerty-widget-editor` | `base-widget-editor` | Stream | Replaces Emissary's built-in widget-editor base |
+| `qwerty-article-base` | `article-base` | Stream | Replaces Emissary's article base, which `article-editorjs` and `article-markdown` extend |
+| `qwerty-article-editorjs` | `article-editorjs` | Stream | Replaces Emissary's Editor.js article, with `containedBy: ["top", "home", "folder", "article"]` |
+| `qwerty-article-markdown` | `article-markdown` | Stream | Replaces Emissary's Markdown article, with the same `containedBy` |
+| `admin-common` | `admin-common` | None | Replaces Emissary's shared admin template |
+| `admin-domain` | `admin-domain` | Domain | Replaces Emissary's domain admin |
+| `admin-navigation` | `admin-navigation` | Stream | Replaces Emissary's navigation admin |
+| `admin-users` | `admin-users` | User | Replaces Emissary's user admin |
+
+`meta/` holds the logo and a font list, and is not a template.
+
+**Ten of these IDs are also shipped in Emissary's `_embed/templates`.** Emissary registers templates by ID, so whichever location loads last wins. That is the order of the `templates` entries in the server's config, and a qwertylicious entry listed after Emissary's own replaces Emissary's copy for the whole server, not only for qwertylicious users. To find the definition actually serving a role, check both repositories and the config's load order.
 
 This file lives at the repo root and is the only place to add notes. Do not create files inside a template folder.
 
@@ -16,7 +43,9 @@ A theme's `resources/` folder is different — it is served as plain static file
 
 ## `extends` composes templates, and the base templates live in Emissary
 
-A template inherits actions, states, roles, schema, and datasets from each entry in its `extends` array, and a value defined locally wins over an inherited one. `user-outbox` and `base-intent` are **not in this repo** — they ship inside Emissary's `_embed/templates`, so an unexplained action or role usually comes from there. `qwerty-common` is `model: None` with no actions; its whole job is to hold the shared `colors` and `fonts` datasets that `qwerty-outbox` inherits by extending it.
+A template inherits actions, states, roles, schema, and datasets from each entry in its `extends` array, and a value defined locally wins over an inherited one. `user-outbox` and `base-intent` are **not in this repo** — they ship inside Emissary's `_embed/templates`, so an unexplained action or role usually comes from there. `qwerty-common` is `model: None` with no actions. It holds the shared card-layout views and the `colors` and `fonts` datasets, and `qwerty-outbox` extends it (since 2026-10-12, for QWERTY-COLLECTIONS §1.1).
+
+**Views are inherited too, and a local view wins.** `extends` copies each parent view into the child unless the child already has one with that name. So a shared view in `qwerty-common` is shadowed by any same-named file left in the extending template's folder. That is why the shared layouts are named `layout-row`, `layout-row-reverse`, `layout-column`, and `layout-columns`, and not `outbox-*`. Each takes a slice of stream summaries as `.`, and fetches nothing. A `{{template}}` call passes exactly one value, and the funcmap has no `dict`, so the caller handles the empty state and the choice of layout.
 
 ## Option providers are `{templateId}.{datasetName}` and resolve through inheritance
 

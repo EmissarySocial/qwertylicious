@@ -59,25 +59,28 @@
 				</div>
 
 				<!-- Layout -->
-				{{- if eq $layout "column-1" -}}
+				{{- $posts := (.Outbox.Where "templateId" "qwerty-article").ByPublishDate.Reverse.Slice -}}
+				{{- if $posts.IsEmpty -}}
+					{{- template "outbox-empty" . -}}
+				{{- else if eq $layout "column-1" -}}
 					<div class="cols-1">
-						{{template "outbox-column" .}}
+						{{template "layout-column" $posts}}
 					</div>
 				{{- else if eq $layout "column-2" -}}
 					<div class="cols-2">
-						{{template "outbox-columns" .}}
+						{{template "layout-columns" $posts}}
 					</div>
 				{{- else if eq $layout "column-3" -}}
 					<div class="cols-2-3">
-						{{template "outbox-columns" .}}
+						{{template "layout-columns" $posts}}
 					</div>
 				{{- else if eq $layout "row-reverse" -}}
 					<div class="max-width-800">
-						{{template "outbox-row-reverse" .}}
+						{{template "layout-row-reverse" $posts}}
 					</div>
 				{{- else -}}
 					<div class="max-width-800">
-						{{template "outbox-row" .}}
+						{{template "layout-row" $posts}}
 					</div>
 				{{- end -}}
 

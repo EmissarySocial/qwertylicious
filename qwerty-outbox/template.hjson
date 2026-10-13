@@ -6,7 +6,7 @@
 	label: Qwertylicious Profile
 	description:Profile displays everything about a user, including their inbox and outbox information
 	icon: inbox
-	extends: ["base-social", "base-intent"]
+	extends: ["base-social", "base-intent", "qwerty-common"]
     containedBy: []
     tagPaths: ["statusMessage"]
 	tagUrl:"/search?q="
