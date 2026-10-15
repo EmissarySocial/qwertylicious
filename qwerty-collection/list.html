@@ -1,0 +1,38 @@
+{{- /* list is this collection's tab: the profile's tab bar with this collection selected and its owner's menu
+     beside it, then its description and its Articles.  The profile page swaps it in for #profile-tabs
+     (QWERTY-COLLECTIONS §1.3).  The tab bar reads the profile's own Outbox query, so it lists the same
+     collections the profile page does. */ -}}
+<div id="profile-tabs">
+
+<!-- The tab bar on the left, and the owner's menu on the right: the edit items, then the add items.  The menu wraps below the
+     tabs when the row is too narrow for both.  .profile-tabs-row moves the tab bar's bottom margin onto the row,
+     so the menu centers on the tabs themselves (qwerty-outbox/stylesheet/outbox.css). -->
+<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+	<div class="flex-grow">
+		{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID) -}}
+	</div>
+
+	{{- if .UserCan "add" -}}
+		<span class="dropdown flex-shrink-0">
+			<button aria-label="Collection Menu">{{icon "more-horizontal"}}</button>
+			<div class="dropdown-content right">
+				<div class="text-gray text-xs">PROFILE</div>
+				<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
+				<button class="dropdown-item" hx-get="/@{{.ParentID}}/add-collection">{{icon "plus"}} Add a Collection</button>
+				<hr>
+				<div class="text-gray text-xs">COLLECTION</div>
+				<button class="dropdown-item" hx-get="/{{.StreamID}}/settings">{{icon "edit"}} Edit Collection</button>
+				{{- $sharing := .SharingStatus "viewer" -}}
+				<button class="dropdown-item" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+				<button class="dropdown-item action" hx-post="/{{.StreamID}}/add">{{icon "plus"}} Add an Article</button>
+			</div>
+		</span>
+	{{- end -}}
+</div>
+
+{{- if ne "" .Summary -}}
+	<div class="text-gray margin-bottom">{{.Summary}}</div>
+{{- end -}}
+
+{{- template "items" . -}}
+</div>

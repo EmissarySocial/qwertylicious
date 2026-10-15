@@ -1,0 +1,41 @@
+{{- /* items lists this collection's Articles in its chosen format, featured Articles first.  ChildrenWithDrafts shows the author their unpublished Articles too, and shows everyone else only the published ones. */ -}}
+{{- $layout := .Data "layout" -}}
+{{- $featured := (.ChildrenWithDrafts.Where "isFeatured" true).Slice -}}
+{{- $articles := (.ChildrenWithDrafts.Where "isFeatured" false).Slice -}}
+
+{{- if and $featured.IsEmpty $articles.IsEmpty -}}
+
+	{{- if .UserCan "add" -}}
+		<div class="bg-stripes padding-horizontal padding-vertical-xl">
+			<div class="text-lg bold margin-top-none margin-bottom">Let's Write Your First Article!</div>
+			<div>
+				<span class="link" hx-post="/{{.StreamID}}/add">+ Add an Article</span> to this collection, or choose it from the ⋯ menu.
+			</div>
+		</div>
+	{{- else -}}
+		<div class="card padding-horizontal padding-vertical-xl">
+			Nothing has been published here yet.  Check back later!
+		</div>
+	{{- end -}}
+
+{{- else if or (eq $layout "gallery") (eq $layout "map") (eq $layout "timeline") (eq $layout "calendar") -}}
+
+	<!-- Placeholder formats, listed in qwerty-common's layouts dataset before they are built -->
+	<div class="card padding-horizontal padding-vertical-xl align-center text-gray">Coming soon...</div>
+
+{{- else -}}
+
+	{{- if $featured.NotEmpty -}}
+		{{- if $articles.NotEmpty -}}
+			<div class="text-sm bold text-gray margin-bottom-sm">{{icon "pin-fill"}} Featured</div>
+		{{- end -}}
+		<div class="margin-bottom">
+			{{- template "layout" (array $layout $featured) -}}
+		</div>
+	{{- end -}}
+
+	{{- if $articles.NotEmpty -}}
+		{{- template "layout" (array $layout $articles) -}}
+	{{- end -}}
+
+{{- end -}}

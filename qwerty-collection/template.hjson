@@ -1,0 +1,159 @@
+{
+	templateId: qwerty-collection
+	templateRole: qwerty-collection
+	category: Special
+	model: Stream
+	containedBy: ["outbox"]
+	extends: ["qwerty-common"]
+	label: Qwertylicious Collection
+	description: A tab on a Qwertylicious profile that groups the author's Articles
+	icon: collection
+	childSortType: rank
+	childSortDirection: asc
+
+	schema: {
+		type: object
+		properties: {
+			label: {type:"string", maxLength:128, required:true}
+			summary: {type:"string", maxLength:2048}
+			data: {
+				type: object
+				properties: {
+					// contentType is set once, when the collection is created.  Empty means ARTICLE.
+					contentType: {type:"string", enum:["ARTICLE", "NOTES"]}
+					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar"]}
+				}
+			}
+		}
+	}
+
+	states: {
+		default: {
+			label: Default
+			description: Visible to the people this collection is shared with
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: Viewer
+			description: Can see this collection and the Articles in it
+		}
+	}
+
+	actions: {
+
+		// Add a Collection opens this as a modal, through the outbox's add-collection (add-stream),
+		// and nothing is saved until the form is submitted.  The form posts back to add-collection,
+		// which runs these steps again as a POST.  The format starts as Rows.  Sharing is off by
+		// default, so a new collection is visible only to its author until it is shared.
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"set-data", values:{"data.layout":"row"}}
+				{do:"as-modal", steps: [
+					{
+						do: "edit"
+						form: {
+							type: layout-vertical
+							label: Add a Collection
+							children: [
+								{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+								{type:"radio-button-group", path:"data.layout", label:"Format", options:{provider:"qwerty-collection.layouts"}}
+							]
+						}
+					}
+					{do:"save", comment:"Created by {{.Author}}"}
+				]}
+				{do:"forward-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
+			]
+		}
+
+		// A collection has no page of its own.  It is a tab on its owner's profile, so its URL
+		// (in breadcrumbs, search results, and links from its Articles) opens that tab.
+		view: {
+			roles: ["author", "viewer"]
+			steps: [
+				{do:"redirect-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
+			]
+		}
+
+		list: {
+			roles: ["author", "viewer"]
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		feed: {
+			roles: ["author", "viewer"]
+			steps: [
+				{do:"view-feed"}
+			]
+		}
+
+		// Edit Collection is a modal, like Sharing, and holds the Delete link.  refresh-page
+		// reloads the profile on the same tab, so a renamed tab shows straight away.
+		settings: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps: [
+					{
+						do: "edit"
+						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete This Collection"]
+						form: {
+							type: layout-vertical
+							label: Edit Collection
+							children: [
+								{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+								{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+								{type:"radio-button-group", path:"data.layout", label:"Format", options:{provider:"qwerty-collection.layouts"}}
+							]
+						}
+					}
+					{do:"save", comment:"Settings updated by {{.Author}}"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		sharing: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps: [
+					{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see this collection and the Articles in it."}
+					{do:"save", comment:"Sharing updated by {{.Author}}"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		add: {
+			roles: ["author"]
+			steps: [
+				{
+					do: add-stream
+					style: inline
+					location: child
+					template: qwerty-article
+					title: + Add an Article
+				}
+			]
+		}
+
+		sort: {
+			roles: ["author"]
+			steps: [
+				{do:"sort", keys:"_id", values:"rank"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This deletes the collection and all {{.ChildrenWithDrafts.Count}} Articles in it, drafts included.  There is NO UNDO."}
+				{do:"forward-to", url:"/@me"}
+			]
+		}
+	}
+}
