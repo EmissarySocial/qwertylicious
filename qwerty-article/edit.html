@@ -32,9 +32,9 @@
 								{{- end -}}
 							{{- end -}}
 							<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
-							<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "x"}} Discard</button>
+							<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "arrow-counterclockwise"}} Discard</button>
 							{{- if .UserCan "delete" -}}
-								<a class="button dropdown-item text-red" hx-get="/{{.StreamID}}/delete">{{icon "trash"}} Delete</a>
+								<a class="button dropdown-item text-red" hx-get="/{{.StreamID}}/delete">{{icon "delete"}} Delete</a>
 							{{- end -}}
 						</div>
 					</div>

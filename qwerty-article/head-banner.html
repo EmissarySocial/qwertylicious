@@ -1,3 +1,6 @@
+{{- /* head-banner is the Article's banner image or video.  Its top corners are rounded inline, to the theme's
+     --border-radius, so it matches the edit page's card: the public view does not load the Article stylesheet
+     (view.html links /.templates/user-article/stylesheet, which does not exist). */ -}}
 {{- $banner := .AttachmentsByCategory "banner" -}}
 {{- $bannerDescription := .Data "bannerDescription" -}}
 
@@ -5,9 +8,9 @@
 	{{- $category := $attachment.MimeCategory -}}
 
 	{{- if eq "image" $category -}}
-		<img id="article-banner" src="{{$attachment.URL}}" alt="{{$bannerDescription}}" class="width-100% rectangle">
+		<img id="article-banner" src="{{$attachment.URL}}" alt="{{$bannerDescription}}" class="width-100% rectangle" style="border-top-left-radius:var(--border-radius); border-top-right-radius:var(--border-radius);">
 	{{- else if eq "video" $category -}}
-		<video id="article-banner" src="{{$attachment.URL}}.mp4" alt="{{$bannerDescription}}" class="width-100% rectangle" controls>
+		<video id="article-banner" src="{{$attachment.URL}}.mp4" alt="{{$bannerDescription}}" class="width-100% rectangle" style="border-top-left-radius:var(--border-radius); border-top-right-radius:var(--border-radius);" controls>
 			<source src="{{$attachment.URL}}.mp4" type="video/mp4">
 			<source src="{{$attachment.URL}}.webm" type="video/webm">
 			<source src="{{$attachment.URL}}.ogg" type="video/ogg">

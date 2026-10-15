@@ -64,9 +64,9 @@
 	}
 }
 
-/* The collection's name above an Article's title, on the public view and the edit page */
+/* The collection's name above an Article's title, on the public view and the edit page.  Its
+   capitals come from the text-uppercase class; this only spaces them. */
 #article-collection {
-	text-transform: uppercase;
 	letter-spacing: 0.05em;
 }
 
