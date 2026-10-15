@@ -15,7 +15,7 @@
 {{- $allFolders := $selectedID.IsZero -}}
 
 <div id="app-sidebar" 
-	class="{{if $isDesktop}}expanded{{else}}collapsed{{end}}"
+	class="expanded"
 	hx-get="/@me/newsfeed/newsfeed-menu?folderId={{$folders.SelectedID.Hex}}"
 	hx-trigger="refreshSidebar from:window"
 	hx-swap="outerHTML"

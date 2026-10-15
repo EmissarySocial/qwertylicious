@@ -6,7 +6,7 @@
 <div class="app" script="init send SelectNav(id:'settings')">
 
 	{{- if .IsAuthenticated -}}
-		<div id="app-sidebar" class="flex-column flex-justify-between{{if $isDesktop}} expanded{{else}} collapsed{{end}}">
+		<div id="app-sidebar" class="flex-column flex-justify-between expanded">
 			<div class="top">
 				<a href="/@me/settings/general" hx-boost="true" class="turboclick menu-item ellipsis" style="view-transition-name:nav-general;">{{icon "settings"}}<span class="label"> Profile</span></a>
 				<a href="/@me/settings/visibility" hx-boost="true" class="turboclick menu-item ellipsis" style="view-transition-name:nav-security;">{{icon "shield"}}<span class="label"> Security</span></a>

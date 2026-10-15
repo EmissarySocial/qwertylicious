@@ -35,21 +35,6 @@
 		min-width: 160px;
 		max-width: 240px;
 	}
-
-	&.collapsed {
-		width: min-content;
-		min-width: unset;
-		max-width: unset;
-		padding: var(--rhythm);
-
-		.menu-item {
-			padding: calc(var(--rhythm) * 1.5);
-
-			.label {
-				display: none;
-			}
-		}
-	}
 }
 
 
