@@ -1,6 +1,3 @@
-{{- $isMobile := .IsMobile -}}
-{{- $class := iif $isMobile "mobile" "desktop" -}}
-
 <!DOCTYPE html>
 <html data-theme="stone" lang="en">
 <head>
@@ -9,28 +6,18 @@
 	{{ template "includes-head" .}}
 </head>
 
-<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y" class="{{$class}}"
+<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y" class="desktop"
 	script="
  		install ToggleContainer
 		install SelectNav">
 
-	{{- if .IsMobile -}}
+	<!-- navigation-desktop emits the skip link, the sidebar <nav>, and beside it the mobile menu, which
+	     replaces the sidebar on screens narrower than 640px (theme-default/stylesheet/04-nav-menu.css) -->
+	{{- template "navigation-desktop" . -}}
 
-		{{- template "navigation-mobile" . -}}
-
-		<main id="main">
-			{{- .GetContent -}}
-		</main>
-
-	{{- else -}}
-	
-		{{- template "navigation-desktop" . -}}
-
-		<main id="main">
-			{{- .GetContent -}}
-		</main>
-		
-	{{- end -}}
+	<main id="main">
+		{{- .GetContent -}}
+	</main>
 	
 	<aside></aside>
 

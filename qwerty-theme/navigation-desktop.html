@@ -1,8 +1,20 @@
-{{- $q := .QueryParam "q" -}}
+{{- /* navigation-desktop is the sidebar <nav>, and beside it the mobile menu from Emissary's theme-minimal, which
+     theme-default also uses: below 640px the sidebar is hidden and a control in the top-right corner opens a
+     full-screen sheet of the same links.  The menu's CSS is theme-default/stylesheet/04-nav-menu.css, which
+     qwertylicious already loads, and the rules behind its markup are in theme-minimal/AGENTS.md. */ -}}
+
+{{- /* Read once: .Navigation runs a database query, and both layouts range over it */ -}}
+{{- $navigation := .Navigation -}}
+
+{{- /* Marks the current section in the sheet only.  The sidebar is marked client-side by SelectNav. */ -}}
+{{- $navigationID := .NavigationID -}}
+
+<!-- RULE: the skip link sits outside both layouts, which are each hidden at some width -->
+<a href="#main" class="hide-visual">Skip navigation</a>
 
 <nav class="desktop collapsed flex-column margin-bottom" hx-push-url="true" hx-swap="transition:true">
 	<div class="top">
-		{{- range .Navigation -}}
+		{{- range $navigation -}}
 			<a href="/{{.Token}}" id="nav-{{.StreamID}}" class="nav-item turboclick" aria-label="{{.Label}}">
 				{{- $icon := .Icon -}}
 				{{- if ne "" $icon -}}
@@ -19,8 +31,8 @@
 				<span class="label">Profile</span>
 			</a>
 			<a href="/@me/newsfeed" id="nav-inbox" class="nav-item turboclick" aria-label="Feed">
-				<span class="icon selected-hide">{{icon "article"}}</span>
-				<span class="icon selected-show">{{icon "article-fill"}}</span>
+				<span class="icon selected-hide">{{icon "inbox"}}</span>
+				<span class="icon selected-show">{{icon "inbox-fill"}}</span>
 				<span class="label">Feed</span>
 			</a>
 			<a href="/@me/settings" id="nav-settings" class="nav-item turboclick" aria-label="Settings">
@@ -53,3 +65,66 @@
 		{{- end -}}
 	</div>
 </nav>
+
+<!-- The mobile menu.  RULE: a div with role=navigation, never a second <nav>, because every nav rule would reach it.
+     RULE: sheet links carry no id and not .nav-item, so SelectNav never finds or unmarks them. -->
+<div class="nav-menu" role="navigation" aria-label="Menu">
+
+	<!-- RULE: a checkbox, not <details>, and it precedes the label and the sheet.  role=button stays here, and the
+	     Escape branch sets aria-expanded itself, because setting .checked fires no change event. -->
+	<input type="checkbox" id="nav-menu-toggle" class="nav-menu-toggle hide-visual" autocomplete="off"
+		role="button" aria-controls="nav-menu-panel" aria-expanded="false" aria-label="Navigation menu"
+		script="on change set @aria-expanded to my.checked end on keydown[key=='Escape'] from window if my.checked set my.checked to false then set @aria-expanded to 'false' then focus me end end">
+
+	<!-- One control, two glyphs: CSS swaps them on :checked, so this is the close button too -->
+	<label for="nav-menu-toggle" class="nav-menu-button">
+		<span class="icon nav-menu-open" aria-hidden="true">{{icon "menu"}}</span>
+		<span class="icon nav-menu-close" aria-hidden="true">{{icon "cancel"}}</span>
+	</label>
+
+	<div id="nav-menu-panel" class="nav-menu-panel">
+		{{- range $navigation -}}
+			{{- $isCurrent := eq $navigationID .StreamID -}}
+			<a href="/{{.Token}}" class="nav-menu-item turboclick{{if $isCurrent}} selected{{end}}" aria-current="{{if $isCurrent}}page{{else}}false{{end}}">
+				{{- if ne "" .Icon -}}
+					<span class="icon">{{icon .Icon}}</span>
+				{{- end -}}
+				<span class="label">{{.Label}}</span>
+			</a>
+		{{- end -}}
+
+		<!-- The sidebar's account links, which the hidden sidebar no longer shows on a phone -->
+		<div class="nav-menu-account">
+			{{- if .IsAuthenticated -}}
+				<a href="/@me" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "user"}}</span>
+					<span class="label">Profile</span>
+				</a>
+				<a href="/@me/newsfeed" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "inbox"}}</span>
+					<span class="label">Feed</span>
+				</a>
+				<a href="/@me/settings" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "settings"}}</span>
+					<span class="label">Settings</span>
+				</a>
+				{{- if .IsOwner -}}
+					<a href="/admin/domain" class="nav-menu-item turboclick">
+						<span class="icon">{{icon "database"}}</span>
+						<span class="label">Server</span>
+					</a>
+				{{- end -}}
+			{{- else if .IsIdentity -}}
+				<a href="/@guest" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "user"}}</span>
+					<span class="label">Profile</span>
+				</a>
+			{{- else -}}
+				<a href="/signin" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "user"}}</span>
+					<span class="label">Sign In</span>
+				</a>
+			{{- end -}}
+		</div>
+	</div>
+</div>
