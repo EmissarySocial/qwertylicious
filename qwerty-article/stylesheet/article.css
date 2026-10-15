@@ -63,3 +63,10 @@
 		max-width:100%;
 	}
 }
+
+/* The collection's name above an Article's title, on the public view and the edit page */
+#article-collection {
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+

@@ -1,39 +1,47 @@
 <div class="page framed editor-none h-entry">
-	<div id="menu-bar">
-		<div class="left">
-			<button class="tertiary" hx-get="/{{.StreamID}}/discard-draft">{{icon "chevron-left margin-right-xs"}}<span>Back</span></button>
-		</div>
-		
-		<div class="center">
-			<a class="button" hx-get="/{{.StreamID}}/properties">Info</a>
-		</div>
-
-		<div class="right">
-			{{- if eq .StateID "published" -}}
-				<button hx-get="/{{.StreamID}}/unpublish" class="button success">{{icon "check"}} Published</button>
-			{{- else -}}
-				<button hx-on:click="publish()" class="button action">Publish</button>
-			{{- end -}}
-			<div class="dropdown">
-				<a class="button icon margin-left-xs">{{icon "three-dots"}}</a>
-				<div class="dropdown-content">
-					<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
-					<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "x"}} Discard</button>
-					{{- if .UserCan "delete" -}}
-						<a class="button dropdown-item text-red" hx-get="/{{.StreamID}}/delete">{{icon "trash"}} Delete</a>
-					{{- end -}}
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<article class="card border padding-none flex-column margin-bottom">
+	<article id="article-editor" class="card border padding-none flex-column margin-bottom">
 		<div class="pos-relative">
 			{{- template "edit-banner" . -}}
 		</div>
 
 		<div class="pos-relative padding">
-			{{- template "head-summary" . -}}
+
+			{{- template "head-collection" . -}}
+
+			<!-- The title, with Publish and the ⋯ menu on its right -->
+			<div class="flex-row flex-align-center">
+				<h1 id="article-name" class="p-name flex-grow">{{.Name}}</h1>
+				<div class="flex-row flex-align-center flex-shrink-0">
+					{{- if eq .StateID "published" -}}
+						<button hx-get="/{{.StreamID}}/unpublish" class="button success">{{icon "check"}} Published</button>
+					{{- else -}}
+						<button hx-on:click="publish()" class="button action">Publish</button>
+					{{- end -}}
+					<div class="dropdown">
+						<a class="button icon" aria-label="Article Menu">{{icon "three-dots"}}</a>
+						<div class="dropdown-content right">
+							<button class="dropdown-item" hx-get="/{{.StreamID}}/properties">{{icon "info"}} Info</button>
+							<!-- The label IS the sharing status, as in Emissary's article menu -->
+							{{- $sharing := .SharingStatus "viewer" -}}
+							<button class="dropdown-item" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+							{{- if .UserCan "feature" -}}
+								{{- if .IsFeatured -}}
+									<button class="dropdown-item" hx-post="/{{.StreamID}}/unfeature">{{icon "pin"}} Un-Feature</button>
+								{{- else -}}
+									<button class="dropdown-item" hx-post="/{{.StreamID}}/feature">{{icon "pin-fill"}} Feature</button>
+								{{- end -}}
+							{{- end -}}
+							<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
+							<button class="dropdown-item" hx-get="/{{.StreamID}}/discard-draft">{{icon "x"}} Discard</button>
+							{{- if .UserCan "delete" -}}
+								<a class="button dropdown-item text-red" hx-get="/{{.StreamID}}/delete">{{icon "trash"}} Delete</a>
+							{{- end -}}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{{- template "head-byline" . -}}
 		</div>
 
 		<div class="padding">
@@ -48,15 +56,6 @@
 			hx-push-url="false">
 		</div>
 	</article>
-
-	<div class="card padding border flex-row flex-align-center flex-justify-between">
-		<span class="medium margin-none">Visibility</span>
-		{{- if .Products.NotEmpty -}}
-			<a class="button" hx-get="/{{.StreamID}}/sharing">{{icon "lock"}} Restricted</a>
-		{{- else -}}
-			<a class="button" hx-get="/{{.StreamID}}/sharing">{{icon "world"}} Public</a>
-		{{- end -}}
-	</div>
 
 </div>
 

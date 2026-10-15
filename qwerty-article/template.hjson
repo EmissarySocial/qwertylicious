@@ -3,7 +3,7 @@
 	category: Content
 	templateRole:"article"
 	socialRole:"Article"
-	containedBy: ["outbox"]
+	containedBy: ["qwerty-collection"]
 	model: Stream
 	extends:["base-intent"]
 	tagPaths:["data.tags"]
@@ -132,10 +132,28 @@
 			steps: [
 				{do:"unpublish", state:"default", outbox:"true"}
 				{do:"delete", title:"Delete '{{.Label}}'?", message:"All content and comments will be lost.  There is NO UNDO."}
-				{do:"forward-to", url:"/@me"}
+				{do:"forward-to", url:"/{{.ParentID}}"}
 			]
 		}
 						
+		feature: {
+			roles: ["author"]
+			steps: [
+				{do:"set-data", values:{"isFeatured":"true"}}
+				{do:"save", comment:"Featured by {{.Author}}"}
+				{do:"refresh-page"}
+			]
+		}
+
+		unfeature: {
+			roles: ["author"]
+			steps: [
+				{do:"set-data", values:{"isFeatured":"false"}}
+				{do:"save", comment:"Un-featured by {{.Author}}"}
+				{do:"refresh-page"}
+			]
+		}
+
 		sharing: {
 			roles: ["author"]
 			steps: [
