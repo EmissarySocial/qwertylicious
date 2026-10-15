@@ -28,3 +28,9 @@
 	margin-bottom: 0;
 }
 
+/* The profile page is wider than other framed pages: up to 1024px, and narrowing smoothly with the
+   window below that, where .framed would otherwise jump from full width to 720px at 1024px. */
+#outbox-page {
+	max-width: 1024px;
+}
+

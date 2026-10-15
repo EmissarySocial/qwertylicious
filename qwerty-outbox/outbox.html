@@ -5,7 +5,7 @@
 {{- if eq .StateID "LIVE" -}}
 
 	<!-- Page content -->
-	<div class="framed page h-card" 
+	<div id="outbox-page" class="framed page h-card" 
 		script="{{- if .IsMyself -}}
 			init send SelectNav(id:'outbox')
 		{{- else -}}
@@ -72,7 +72,7 @@
 			{{- $panelURL = print "/@" .UserID "/about" -}}
 		{{- end -}}
 
-		<div class="max-width-800 margin-top">
+		<div class="margin-top">
 
 			<!-- The loading state.  The tab content's own #profile-tabs carries no hx-trigger, so restoring this
 			     page from history does not load the first tab again over the one that was open. -->
