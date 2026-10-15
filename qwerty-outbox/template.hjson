@@ -30,7 +30,6 @@
 				properties: {
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
-					layout: {type:"string"}
 					layout-highlight-first: {type:"boolean"}
 					stylesheet: {type:"string"}
 					color-button: {type:"string", format:"color"}
@@ -67,39 +66,35 @@
 			{Label:"Cormorant *", Value:"Cormorant *"}
 			{Label:"Source Serif", Value:"Source Serif"}
 		]
-
-		layouts: [
-			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
-			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
-			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
-			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
-			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
-		]
 	}
 
 	tagPaths: ["data.tags"]
 
 	actions: {
 
+		// About is a tab on the profile page, which swaps it in for #profile-tabs.  A direct
+		// visit to /@user/about opens the profile page with the About tab selected instead.
 		about: {
 			roles: ["anonymous"]
 			steps:[
-				{do:"view-html"}
+				{do:"if", condition:"{{.IsPartialRequest}}", then:[
+					{do:"view-html"}
+				], else:[
+					{do:"redirect-to", url:"/@{{.UserID}}?tab=about"}
+				]}
 			]
 		}
 
-		add: {
+		add-collection: {
 			roles: ["self"]
 			steps: [
 				{
 					do: add-stream
 					style: inline
 					location: outbox
-					template: qwerty-article
-					title: + Add an Article
-					set-permissions: {copy:true, editor:["self"]}
+					template: qwerty-collection
+					title: + Add a Collection
 				}
-				{do: "save"}
 			]
 		}
 
@@ -208,27 +203,6 @@
 			] 
 		}
 
-		edit-layout: {
-			roles: ["self"]
-			steps: [
-				{do: "as-modal", background:"view", steps:[
-					{
-						do: "edit"
-						form:{
-							label: Edit Layout
-							type:layout-vertical
-							children: [
-								{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-outbox.layouts"}}
-								//{type:"checkbox", path:"data.layout-highlight-first", label:"Expand the Top Item in the list"}
-							]
-						}
-					}
-					{do:"save"}
-					{do:"refresh-page"}
-				]}
-			]
-		}
-
 		edit-status: {
 			roles: ["self"]
 			steps: [
@@ -248,6 +222,17 @@
 					{do:"refresh-page"}
 				]}
 			] 
+		}
+
+		// The profile header's empty banner posts its image here, when the owner clicks it or drops a file on it
+		upload-banner: {
+			roles: ["self"]
+			steps: [
+				{do:"upload-attachments", category:"image", fieldname:"image", attachment-path:"imageId", accept-type:"image/*", rules:{types:["webp"]}}
+				{do:"save"}
+				{do:"search-index", if:"{{.IsIndexable}}"}
+				{do:"refresh-page"}
+			]
 		}
 
 		edit-banner: {
@@ -286,7 +271,7 @@
 		header: {
 			roles: ["anonymous"]
 			steps: [
-				{do:"view-html", file:"header"}
+				{do:"view-html", file:"profile-header"}
 			]
 		}
 
@@ -307,20 +292,6 @@
 				{do:"save"}
 				{do:"search-index", if:"{{.IsIndexable}}"}
 				{do:"refresh-page"}
-			]
-		}
-
-		replies: {
-			roles: ["anonymous"]
-			steps: [
-				{do:"view-html"}
-			]
-		}
-
-		replies-list: {
-			roles: ["anonymous"]
-			steps: [
-				{do:"view-html"}
 			]
 		}
 

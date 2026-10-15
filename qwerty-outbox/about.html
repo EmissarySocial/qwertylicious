@@ -1,58 +1,56 @@
+{{- /* about is the About tab: the profile's tab bar with About selected, then the status message, hashtags, and
+     follower counts.  The profile page swaps it in for #profile-tabs.  A profile with no collections yet shows
+     the prompt to make one here, because About is then its only tab. */ -}}
 {{- $isMyself := .IsMyself -}}
 
-<div class="framed page">
+<div id="profile-tabs">
 
-	{{- template "header" . -}}
+<!-- The tab bar on the left, and the owner's menu on the right, laid out as on a collection's tab (list.html). -->
+<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+	<div class="flex-grow">
+		{{- template "profile-tabs" (array . "about") -}}
+	</div>
 
-	<div class="max-width-800 margin-top">
-
-		<!-- "Tabs" -->
-		<div role="tablist" class="pills">
-			<a href="/@{{.UserID}}" hx-get="/@{{.UserID}}" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Posts</a>
-			<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
-			<span role="tab" aria-selected="true">About</span>
-		</div>
-
-		<!-- About Me -->
-		<div class="margin-bottom-xl">
-
-			{{- if eq "" .StatusMessage -}}
-				{{- if $isMyself -}}
-					<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes">
-						Your personal message will appear here once you add something.<br>
-						Click the <span hx-get="/@{{.UserID}}/edit" class="link">Edit Profile</span> button to post your "About Me" message
-					</div>
-				{{- else -}}
-					<div id="profile-status" class="margin-vertical">{{.DisplayName}} hasn't added an "About Me" message yet.</div>
-				{{- end -}}
-			{{- else -}}
-				<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
-			{{- end -}}
-
-			<div class="flex-row flex-align-center">
-				<div id="profile-tags">
-					{{- range .Tags -}}
-						<a href="/people?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
-					{{- end -}}
-				</div>
-				<div id="profile-stats">
-					<span xclass="clickable" disabled-because-followers-arent-public-hx-get="/@{{.UserID}}/followers" hx-target="#profile-stats"><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
-					&nbsp;
-					<span xclass="clickable" disabled-because-following-arent-public-hx-get="/@{{.UserID}}/following" hx-target="#profile-stats"><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
-				</div>
+	{{- if $isMyself -}}
+		<span class="dropdown flex-shrink-0">
+			<button aria-label="Profile Menu">{{icon "more-horizontal"}}</button>
+			<div class="dropdown-content right">
+				<div class="text-xs text-gray">PROFILE</div>
+				<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
+				<button class="dropdown-item" hx-get="/@{{.UserID}}/add-collection">{{icon "plus"}} Add a Collection</button>
 			</div>
-		</div>
-
-	</div>
-
-	<div 
-		hx-get="/@{{.UserID}}/about" 
-		hx-trigger="refreshPage from:window" 
-		hx-target="main" 
-		hx-swap="innerHTML"
-		hx-push-url="false">
-	</div>
-
+		</span>
+	{{- end -}}
 </div>
 
-<link rel="stylesheet" href="/.templates/user-outbox/stylesheet" />
+{{- if (.Outbox.Where "templateId" "qwerty-collection").Slice.IsEmpty -}}
+	{{- template "outbox-empty" . -}}
+{{- end -}}
+
+<div class="margin-bottom">
+	{{- if eq "" .StatusMessage -}}
+		{{- if $isMyself -}}
+			<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes">
+				Your personal message will appear here once you add something.<br>
+				<span hx-get="/@{{.UserID}}/edit" class="link">Edit your profile</span> to post your "About Me" message
+			</div>
+		{{- else -}}
+			<div id="profile-status" class="margin-vertical">{{.DisplayName}} hasn't added an "About Me" message yet.</div>
+		{{- end -}}
+	{{- else -}}
+		<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
+	{{- end -}}
+	<div class="flex-row flex-align-center">
+		<div id="profile-tags">
+			{{- range .Tags -}}
+				<a href="/people?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
+			{{- end -}}
+		</div>
+		<div id="profile-stats">
+			<span xclass="clickable" disabled-because-followers-arent-public-hx-get="/@{{.UserID}}/followers" hx-target="#profile-stats"><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
+			&nbsp;
+			<span xclass="clickable" disabled-because-following-arent-public-hx-get="/@{{.UserID}}/following" hx-target="#profile-stats"><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
+		</div>
+	</div>
+</div>
+</div>

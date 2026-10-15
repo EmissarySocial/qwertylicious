@@ -31,6 +31,19 @@
 			{Label:"Magenta", Value: "#de3d82"}
 			{Label:"Gray", Value:"#888888"}
 		]
+		layouts: [
+			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
+			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
+			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
+			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
+			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
+			// Placeholders: these can be chosen now, and show "coming soon" until they are built (qwerty-collection/items.html)
+			{label:"Photo Gallery", value:"gallery", icon:"images", description:"Coming soon"}
+			{label:"Map", value:"map", icon:"map", description:"Coming soon"}
+			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Coming soon"}
+			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Coming soon"}
+		]
+
 		fonts: [
 			{Label:"System Fonts", Group:"Sans Serif", Value:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"}
 			{Label:"Merriweather Sans", Group:"Sans Serif", Value:"Merriweather Sans"}

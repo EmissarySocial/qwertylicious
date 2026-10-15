@@ -1,6 +1,6 @@
 {{- $isMyself := .IsMyself -}}
 {{- $username := .Username -}}
-{{- $layout := .Data "layout" -}}
+{{- $userID := .UserID -}}
 
 {{- if eq .StateID "LIVE" -}}
 
@@ -47,52 +47,50 @@
 			</div>
 		{{- end -}}
 
-		{{- template "header" . -}}
+		{{- template "profile-header" . -}}
 
-			<div class="max-width-800 margin-top">
+		<!-- Tabs: the open tab is ?tab={id} or ?tab=about when that names one of the profile's tabs, and the first
+		     tab otherwise, so a crafted value never reaches the page.  This page draws the tab bar with an empty
+		     panel, then loads the open tab's content, which replaces #profile-tabs whole with its own tab bar. -->
+		{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+		{{- $requested := .QueryParam "tab" -}}
+		{{- $selected := "about" -}}
+		{{- if $collections.NotEmpty -}}
+			{{- $selected = $collections.First.ObjectID.Hex -}}
+		{{- end -}}
+		{{- range $collections -}}
+			{{- if eq $requested .ObjectID.Hex -}}
+				{{- $selected = $requested -}}
+			{{- end -}}
+		{{- end -}}
+		{{- if eq $requested "about" -}}
+			{{- $selected = "about" -}}
+		{{- end -}}
 
-				<!-- "Tabs" -->
-				<div role="tablist" class="pills">
-					<span role="tab" aria-selected="true">Posts</span>
-					<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
-					<a href="/@{{.UserID}}/about" hx-get="/@{{.UserID}}/about" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">About</a>
-				</div>
+		{{- $panelURL := print "/" $selected "/list" -}}
+		{{- if eq $selected "about" -}}
+			{{- $panelURL = print "/@" .UserID "/about" -}}
+		{{- end -}}
 
-				<!-- Layout -->
-				{{- $posts := (.Outbox.Where "templateId" "qwerty-article").ByPublishDate.Reverse.Slice -}}
-				{{- if $posts.IsEmpty -}}
-					{{- template "outbox-empty" . -}}
-				{{- else if eq $layout "column-1" -}}
-					<div class="cols-1">
-						{{template "layout-column" $posts}}
-					</div>
-				{{- else if eq $layout "column-2" -}}
-					<div class="cols-2">
-						{{template "layout-columns" $posts}}
-					</div>
-				{{- else if eq $layout "column-3" -}}
-					<div class="cols-2-3">
-						{{template "layout-columns" $posts}}
-					</div>
-				{{- else if eq $layout "row-reverse" -}}
-					<div class="max-width-800">
-						{{template "layout-row-reverse" $posts}}
-					</div>
-				{{- else -}}
-					<div class="max-width-800">
-						{{template "layout-row" $posts}}
-					</div>
-				{{- end -}}
+		<div class="max-width-800 margin-top">
 
-			</div>		
+			<!-- The loading state.  The tab content's own #profile-tabs carries no hx-trigger, so restoring this
+			     page from history does not load the first tab again over the one that was open. -->
+			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
+				{{- template "profile-tabs" (array . $selected) -}}
+				<!--span class="spin">{{icon "loading"}}</span-->
+			</div>
+		</div>
 
 	</div>
 
 	{{- if $isMyself -}}
 		<div id="outbox-refresh-{{.UserID}}" hx-preserve>
 
+			<!-- Reloads keep the open tab by passing on ?tab= from the address bar -->
 			<div 
 				hx-get="/@{{.UserID}}" 
+				hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ""}'
 				hx-trigger="refreshPage from:window" 
 				hx-target="main" 
 				hx-swap="innerHTML"
@@ -102,6 +100,7 @@
 			<div hx-ext="sse" sse-connect="/@me/sse">
 				<div 
 					hx-get="/@{{.UserID}}" 
+					hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ""}'
 					hx-trigger="sse:{{.UserID}}"  
 					hx-target="main" 
 					hx-swap="innerHTML"
@@ -112,7 +111,7 @@
 		</div>
 	{{- end -}}
 
-	<link rel="stylesheet" href="/.templates/user-outbox/stylesheet" />
+	<link rel="stylesheet" href="/.templates/qwerty-outbox/stylesheet" />
 	<script src="/.themes/global/resources/camperjs/camper.js"></script>
 
 

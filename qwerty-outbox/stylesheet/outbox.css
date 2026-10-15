@@ -15,3 +15,16 @@
 .cols-2-3 {
 	--gap: calc(var(--rhythm) * 2);
 }
+
+/* A collection's tab row: the tab bar, with its owner's menu beside it.  The global theme puts
+   a bottom margin on every tab bar, and the menu would center on the tabs plus that margin, so
+   the row carries the margin instead. */
+
+.profile-tabs-row {
+	margin-bottom: calc(var(--rhythm) * 3);
+}
+
+.profile-tabs-row [role="tablist"] {
+	margin-bottom: 0;
+}
+

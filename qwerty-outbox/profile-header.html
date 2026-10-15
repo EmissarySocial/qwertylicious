@@ -1,3 +1,5 @@
+{{- /* profile-header is the profile card: banner, avatar, name, links, location, and the Follow button.  The owner's
+     menu is not here: it is the ⋯ menu beside the tabs (qwerty-collection/list.html, about.html). */ -}}
 {{- $isMyself := .IsMyself -}}
 {{- $showAlbums := eq "true" (.Data "show-albums") -}}
 {{- $showEvents := eq "true" (.Data "show-events") -}}
@@ -6,17 +8,37 @@
 {{- $hasBannerImage := ne "" .ImageURL -}}
 {{- $hasBannerColor := ne "" (.Data "color-banner") -}}
 {{- $circleCount := .Circles.Featured.Count -}}
-{{- $layout := .Data "layout" -}}
 {{- $isPublic := .IsPublic -}}
 
-{{- $isMobile := .IsMobile -}}
-{{- $isDesktop := not $isMobile -}}
-
-<!--style>{{- template "stylesheet" . -}}</style-->
 
 <div id="profile-card" class="pos-relative">
-	<!-- Banner Image -->
-	{{- if or $hasBannerImage $hasBannerColor $isMyself -}}
+
+	<!-- Banner Image.  An owner with no banner image gets a box to upload one instead, by clicking it or by
+	     dropping a file on it, as on an Article's banner (qwerty-article/edit-banner.html). -->
+	{{- if and $isMyself (not $hasBannerImage) -}}
+		<div class="hide sm:show">
+			<div id="profile-banner-upload" class="pos-relative" script="install DropToUpload">
+				<div class="align-center">
+					<div class="text-lg margin-none">{{icon "picture"}}</div>
+					<div class="text-lg bold margin-none">Banner</div>
+					<div class="text-sm">
+						Click here to <u>upload an image</u><br>
+						or drag a file into this box.
+					</div>
+				</div>
+				<form
+					hx-post="/@{{.UserID}}/upload-banner"
+					hx-encoding="multipart/form-data"
+					hx-swap="none"
+					hx-push-url="false"
+					hx-trigger="change from:#profile-banner-file">
+					<label for="profile-banner-file" class="clickable pos-absolute-four-corners" aria-label="Upload a banner image">
+						<input id="profile-banner-file" type="file" name="image" accept="image/*" hidden>
+					</label>
+				</form>
+			</div>
+		</div>
+	{{- else if or $hasBannerImage $hasBannerColor -}}
 		<div id="profile-banner" class="pos-relative hide sm:show">
 			<img src="{{.ImageURL}}" class="width-100%">
 		</div>
@@ -45,12 +67,17 @@
 				<div class="text-gray nowrap">
 					{{- if ne "" .Location }}
 						<span id="profile-location"> {{icon "map-pin"}} {{.Location}}</span>
+						{{ if .Links.NotEmpty -}}
+							<span aria-hidden="true">&middot;</span>
+						{{ end -}}
 					{{- end -}}
 
 					{{- if .Links.NotEmpty -}}
 						<span id="profile-links">
-							{{- range  $index, $link := .Links }}									
-								<span aria-hidden="true">&middot;</span>
+							{{- range  $index, $link := .Links }}
+								{{- if gt $index 0}}
+									<span aria-hidden="true">&middot;</span>
+								{{ end -}}
 								<a href="{{$link.ProfileURL}}" rel="me" target="_blank">{{$link.Name}}</a>
 							{{- end -}}
 						</span>
@@ -63,29 +90,7 @@
 
 			<div class="nowrap" script="on load trigger storage on window">
 				<div class="flex-row margin-none">
-					{{- if $isMyself -}}
-						<button hx-post="/@{{.UserID}}/add" class="action{{if $isMobile}} icon{{end}}">{{icon "plus"}}{{if $isDesktop}} New Post{{end}}</button>
-						<div class="dropdown">
-							<a class="button icon">{{icon "dots"}}</a>
-							<div class="dropdown-content fixed" style="{{if $isMobile}}right: calc(var(--rhythm) * 4){{end}}">
-								<button class="dropdown-item" hx-get="/@me/edit-layout">
-									{{- if eq $layout "column-1" -}}
-										{{icon "columns-1"}} 1 Column Layout
-									{{- else if eq $layout "column-2" -}}
-										{{icon "columns-2"}} 2 Columns Layout
-									{{- else if eq $layout "column-3" -}}
-										{{icon "columns-3"}} 3 Columns Layout
-									{{- else if eq $layout "row-reverse" -}}
-										{{icon "layout-rows"}} Rows Reversed Layout
-									{{- else -}}
-										{{icon "layout-rows"}} Rows Layout
-									{{- end -}}
-								</button>
-								<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
-								<button class="dropdown-item text-red" hx-post="/signout">{{icon "logout"}} Sign Out</button>
-							</div>
-						</div>
-					{{- else -}}
+					{{- if not $isMyself -}}
 
 						<!--
 						{{- if .IsAuthenticated -}}
