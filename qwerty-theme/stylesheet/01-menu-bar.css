@@ -174,6 +174,32 @@
 	}
 }
 
+/* A line between groups of menu items.  The menu's gap already spaces it, so it drops the
+   page-sized margins that the global theme gives every <hr>.  It is drawn in the menu's own text
+   color, faded, because the global --gray20 is nearly the menu's background color in light mode,
+   and qwerty swaps both its grays and the menu's background in dark mode. */
+.dropdown-content hr, #menu-bar .dropdown-content hr {
+	width: 100%;
+	margin: 0;
+	border-top: 1px solid currentColor;
+	opacity: 0.2;
+}
+
+/* An action item stands out in a menu just as an action button does elsewhere.  It comes after
+   the rules above because they reset every item's background, in light and dark mode. */
+.dropdown-content .dropdown-item.action, #menu-bar .dropdown-content .dropdown-item.action {
+	background-color: var(--button-action-background);
+	color: var(--button-action-color);
+
+	i {
+		color: var(--button-action-color);
+	}
+
+	&:hover {
+		background-color: var(--button-action-background-hover);
+	}
+}
+
 /******************************************
  * Sub-Menu Bar
  ******************************************/
