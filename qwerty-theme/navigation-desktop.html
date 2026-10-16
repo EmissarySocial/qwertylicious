@@ -35,6 +35,19 @@
 				<span class="icon selected-show">{{icon "inbox-fill"}}</span>
 				<span class="label">Feed</span>
 			</a>
+			<a href="/@me/conversations" id="nav-conversations" class="nav-item turboclick" aria-label="Conversations">
+				<span class="icon selected-hide">{{icon "chat"}}</span>
+				<span class="icon selected-show">{{icon "chat-fill"}}</span>
+				<span class="label">Conversations</span>
+			</a>
+			<!-- The badge is a dot that theme-default's #nav-notifications .nav-badge pins to the icon, and that the
+			     listener at the foot of this <nav> refreshes as notifications arrive or are read -->
+			<a href="/@me/notifications/replies" id="nav-notifications" class="nav-item turboclick" aria-label="Notifications">
+				<span class="icon selected-hide">{{icon "bell"}}</span>
+				<span class="icon selected-show">{{icon "bell-fill"}}</span>
+				<span class="label">Notifications</span>
+				<span id="nav-notifications-badge" class="nav-badge text-red text-sm {{if not .HasUnreadNotifications}}hide{{end}}">&#9679;</span>
+			</a>
 			<a href="/@me/settings" id="nav-settings" class="nav-item turboclick" aria-label="Settings">
 				<span class="icon selected-hide">{{icon "settings"}}</span>
 				<span class="icon selected-show">{{icon "settings-fill"}}</span>
@@ -64,6 +77,20 @@
 			{{- end -}}
 		{{- end -}}
 	</div>
+
+	{{- if .IsAuthenticated -}}
+		<!-- Refreshes the Notifications badge, as theme-default's navigation does.  It sits outside .top so that the
+		     nav items there stay adjacent siblings, which their spacing rule needs. -->
+		<div hx-ext="sse" sse-connect="/@me/sse/notifications" style="display:none;">
+			<div
+				hx-get="/@me/notifications/badge"
+				hx-trigger="sse:message, refreshSidebar from:window"
+				hx-target="#nav-notifications-badge"
+				hx-swap="outerHTML"
+				hx-push-url="false">
+			</div>
+		</div>
+	{{- end -}}
 </nav>
 
 <!-- The mobile menu.  RULE: a div with role=navigation, never a second <nav>, because every nav rule would reach it.
@@ -103,6 +130,14 @@
 				<a href="/@me/newsfeed" class="nav-menu-item turboclick">
 					<span class="icon">{{icon "inbox"}}</span>
 					<span class="label">Feed</span>
+				</a>
+				<a href="/@me/conversations" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "chat"}}</span>
+					<span class="label">Conversations</span>
+				</a>
+				<a href="/@me/notifications/replies" class="nav-menu-item turboclick">
+					<span class="icon">{{icon "bell"}}</span>
+					<span class="label">Notifications</span>
 				</a>
 				<a href="/@me/settings" class="nav-menu-item turboclick">
 					<span class="icon">{{icon "settings"}}</span>
