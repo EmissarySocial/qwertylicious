@@ -2,7 +2,8 @@
      It is called as (array $outbox $selected), where $outbox is the profile's Outbox builder and $selected is the
      open tab's ID (a collection ID, or "about").  The profile page draws it while the first tab loads, and every
      tab's content draws it again with its own tab selected, so the server always decides the highlight.
-     Each tab replaces #profile-tabs whole and keeps a stable id, so htmx returns keyboard focus to it. */ -}}
+     Each tab replaces #profile-tabs whole and keeps a stable id, so htmx returns keyboard focus to it.  The swap is a
+     view transition, so the panel cross-fades as htmx page navigations do. */ -}}
 {{- $outbox := index . 0 -}}
 {{- $selected := index . 1 -}}
 {{- $userID := $outbox.UserID -}}
@@ -10,20 +11,20 @@
 <div role="tablist" class="pills">
 	{{- range ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 		{{- $tabID := .ObjectID.Hex -}}
-		<a id="tab-{{$tabID}}"
+		<a class="turboclick" id="tab-{{$tabID}}"
 			href="/@{{$userID}}?tab={{$tabID}}"
 			hx-get="/{{$tabID}}/list"
 			hx-target="#profile-tabs"
-			hx-swap="outerHTML transition:false show:none"
+			hx-swap="outerHTML transition:true show:none"
 			hx-push-url="/@{{$userID}}?tab={{$tabID}}"
 			role="tab"
 			aria-selected="{{if eq $tabID $selected}}true{{else}}false{{end}}">{{.Label}}</a>
 	{{- end -}}
-	<a id="tab-about"
+	<a class="turboclick" id="tab-about"
 		href="/@{{$userID}}?tab=about"
 		hx-get="/@{{$userID}}/about"
 		hx-target="#profile-tabs"
-		hx-swap="outerHTML transition:false show:none"
+		hx-swap="outerHTML transition:true show:none"
 		hx-push-url="/@{{$userID}}?tab=about"
 		role="tab"
 		aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>

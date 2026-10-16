@@ -17,13 +17,13 @@
 			<button aria-label="Collection Menu">{{icon "more-horizontal"}}</button>
 			<div class="dropdown-content right">
 				<div class="text-gray text-xs">PROFILE</div>
-				<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
-				<button class="dropdown-item" hx-get="/@{{.ParentID}}/add-collection">{{icon "plus"}} Add a Collection</button>
+				<button class="dropdown-item turboclick" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
+				<button class="dropdown-item turboclick" hx-get="/@{{.ParentID}}/add-collection">{{icon "plus"}} Add a Collection</button>
 				<hr>
 				<div class="text-gray text-xs">COLLECTION</div>
-				<button class="dropdown-item" hx-get="/{{.StreamID}}/settings">{{icon "edit"}} Edit Collection</button>
+				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/settings">{{icon "edit"}} Edit Collection</button>
 				{{- $sharing := .SharingStatus "viewer" -}}
-				<button class="dropdown-item" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
 				<button class="dropdown-item action" hx-post="/{{.StreamID}}/add">{{icon "plus"}} Add an Article</button>
 			</div>
 		</span>

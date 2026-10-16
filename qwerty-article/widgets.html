@@ -14,33 +14,33 @@
 		<div class="left tabs">
 			<button script="on click saveDraft(false)">&larr; View</button>
 			{{- if .UserCan "edit" -}}
-				<a class="tab" href="/{{.StreamID}}/edit">Edit</a>
+				<a class="tab turboclick" href="/{{.StreamID}}/edit">Edit</a>
 			{{- end -}}
 
 			{{- if .UserCan "widgets" -}}
-				<a class="tab" href="/{{.StreamID}}/widgets" class="bold">Widgets</a>
+				<a class="tab turboclick" href="/{{.StreamID}}/widgets" class="bold">Widgets</a>
 			{{- end -}}
 
 			{{- if .UserCan "children" -}}
-				<a class="tab" href="/{{.StreamID}}/children">Children</a>
+				<a class="tab turboclick" href="/{{.StreamID}}/children">Children</a>
 			{{- end -}}
 
 			{{- if .UserCan "properties" -}}
-				<a class="tab" hx-get="/{{.StreamID}}/properties">Info</a>
+				<a class="tab turboclick" hx-get="/{{.StreamID}}/properties">Info</a>
 			{{- end -}}
 
 			{{- if .UserCan "sharing" -}}
-				<a class="tab" hx-get="/{{.StreamID}}/sharing">Sharing</a>
+				<a class="tab turboclick" hx-get="/{{.StreamID}}/sharing">Sharing</a>
 			{{- end -}}
 
 		</div>
 
 		<div class="right">
 			<button script="on click saveDraft(true)" class="button primary">Promote</button>
-			<button hx-get="/{{.StreamID}}/discard-draft">Discard Draft</button>
+			<button class="turboclick" hx-get="/{{.StreamID}}/discard-draft">Discard Draft</button>
 
 			{{- if .UserCan "delete" -}}
-				<a hx-get="/{{.StreamID}}/delete" class="text-red">Delete</a>
+				<a hx-get="/{{.StreamID}}/delete" class="text-red turboclick">Delete</a>
 			{{- end -}}
 		</div>
 

@@ -6,7 +6,7 @@
 		<button class="camper-intent-button" data-intent="reply" data-inreplyto="{{.Permalink}}">
 			{{icon "message-circle"}} 0
 		</button>
-		<span hx-get="/{{.StreamID}}/intent">
+		<span class="turboclick" hx-get="/{{.StreamID}}/intent">
 			<span class="flex-row flex-align-center clickable">
 				&nbsp;
 				<img class="camper-account-image circle" style="height:1em;"></i>
@@ -15,14 +15,14 @@
 		</span>
 	</div>
 	<div class="flex-grow text-xs camper-hide-if-has-accounts">
-		<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="tertiary">{{icon "heart"}} 0</button>
-		<button hx-get="/{{.StreamID}}/intent?intent=Reply&inReplyTo={{.Permalink}}" class="tertiary">{{icon "message-circle"}} 0</button>
+		<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="tertiary turboclick">{{icon "heart"}} 0</button>
+		<button hx-get="/{{.StreamID}}/intent?intent=Reply&inReplyTo={{.Permalink}}" class="tertiary turboclick">{{icon "message-circle"}} 0</button>
 	</div>
 	<div class="flex-grow align-right">
 		<!--
-		<a hx-get="/{{.StreamID}}/responses" class="text-nocolor text-sm"> {{.ResponseCount}} Likes</a>
+		<a hx-get="/{{.StreamID}}/responses" class="text-nocolor text-sm turboclick"> {{.ResponseCount}} Likes</a>
 		&nbsp;
-		<a hx-get="/{{.StreamID}}/replies" class="text-nocolor text-sm"> {{.ReplyCount}} Replies</a>
+		<a hx-get="/{{.StreamID}}/replies" class="text-nocolor text-sm turboclick"> {{.ReplyCount}} Replies</a>
 	-->
 	</div>
 </div>

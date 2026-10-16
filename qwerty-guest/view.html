@@ -23,7 +23,7 @@
 	<div class="app-content padding transition-main-card">
 		<h1 class="flex-row text-xl margin-none margin-bottom-sm">
 			<!-- {{- if not $isDesktop -}}
-				<a class="button icon" href="/@me/settings/mobile">{{icon "back"}}</a>
+				<a class="button icon turboclick" href="/@me/settings/mobile">{{icon "back"}}</a>
 			{{- end -}} -->
 			<span class="flex-grow bold">Guest Profile</span>
 		</h1>
@@ -36,21 +36,21 @@
 					and receive updates from the people you follow.
 				</div>
 
-				<button hx-get="/@guest/webfinger" class="primary">Add Your Fediverse Username</button>
+				<button hx-get="/@guest/webfinger" class="primary turboclick">Add Your Fediverse Username</button>
 			</div>
 		{{- end -}}
 
 		<div class="rounded card padding flex-row flex-align-start max-width-640" style="overflow-x:hidden;">
 
 			<div class="flex-column flex-align-stretch flex-grow table">
-				<div hx-get="/@guest/edit" class="clickable flex-row flex-align-center">
+				<div hx-get="/@guest/edit" class="clickable flex-row flex-align-center turboclick">
 					<div class="flex-grow bold margin-none margin-right-sm">{{.Name}}</div>
 					{{- if $isDesktop -}}
 						<span class="button text-xs">change</span>
 					{{- end -}}
 				</div>
 
-				<div hx-get="/@guest/webfinger" class="clickable flex-row flex-align-center">
+				<div hx-get="/@guest/webfinger" class="clickable flex-row flex-align-center turboclick">
 					<div class="flex-grow margin-right-sm ellipsis">
 						⁂
 						{{ if $hasWebfingerUsername -}}
@@ -70,7 +70,7 @@
 					{{- end -}}		
 				</div>
 
-				<div hx-get="/@guest/email" class="clickable flex-row flex-align-center">
+				<div hx-get="/@guest/email" class="clickable flex-row flex-align-center turboclick">
 					<div class="flex-grow margin-right-sm ellipsis">
 						{{icon "email"}} 
 						{{ if .HasEmailAddress -}}
@@ -119,9 +119,9 @@
 								<div class="text-sm text-light-gray margin-bottom">{{ $privilege.CreateDate | shortDate }}</div>
 
 								{{- if $privilege.IsRecurring -}}
-									<span class="link" hx-get="/@guest/delete/{{$privilege.ID}}">Cancel Subscription</span>
+									<span class="link turboclick" hx-get="/@guest/delete/{{$privilege.ID}}">Cancel Subscription</span>
 								{{- else -}}
-									<span class="link" hx-get="/@guest/delete/{{$privilege.ID}}">Refund Info</span>
+									<span class="link turboclick" hx-get="/@guest/delete/{{$privilege.ID}}">Refund Info</span>
 								{{- end -}}
 							</td>
 							<td class="padding-vertical width-50%">								
@@ -135,7 +135,7 @@
 											</div>
 										{{- else -}}
 											<div class="text-sm text-light-gray">
-												{{icon "alert-fill"}} Receive updates in your inbox when you connect this subscription to your <span role="link" class="link primary padding-vertical-sm margin-bottom-sm" hx-get="/@guest/webfinger">Fediverse Username</span>.
+												{{icon "alert-fill"}} Receive updates in your inbox when you connect this subscription to your <span role="link" class="link primary padding-vertical-sm margin-bottom-sm turboclick" hx-get="/@guest/webfinger">Fediverse Username</span>.
 											</div>
 										{{- end -}}
 									</div>

@@ -23,7 +23,7 @@
 					<button hx-post="/.searchQuery?types=Article&{{.RawQuery}}&forward=/{{.StreamID}}/intent%3Fintent%3Dfollow%26object=" class="primary">{{icon "fediverse"}} Follow for Updates</button>
 					<a href="/{{.Token}}/feed?{{.QueryString}}" class="button text-gray" target="_blank">{{icon "rss"}} RSS</a>
 				</div>
-				<div hx-get="/{{.StreamID}}/intent" class="clickable text-xs text-light-gray intentMarker-account">&nbsp;</div>
+				<div hx-get="/{{.StreamID}}/intent" class="clickable text-xs text-light-gray intentMarker-account turboclick">&nbsp;</div>
 			</div>
 		</div>
 	{{- end -}}

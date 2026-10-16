@@ -1,6 +1,6 @@
 {{- /* layout-row-reverse renders a slice of StreamSummary passed as ".", and fetches nothing. The caller handles the empty state. */ -}}
 {{- range . -}}
-	<a href="{{.URL}}" hx-boost="true" class="flex-row card qwerty-outbox-item text-plain text-nocolor margin-bottom padding">
+	<a href="{{.URL}}" hx-boost="true" class="flex-row card qwerty-outbox-item text-plain text-nocolor margin-bottom padding turboclick">
 		<div class="flex-grow margin-right-sm">
 			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
 			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>

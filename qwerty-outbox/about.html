@@ -16,8 +16,8 @@
 			<button aria-label="Profile Menu">{{icon "more-horizontal"}}</button>
 			<div class="dropdown-content right">
 				<div class="text-xs text-gray">PROFILE</div>
-				<button class="dropdown-item" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
-				<button class="dropdown-item" hx-get="/@{{.UserID}}/add-collection">{{icon "plus"}} Add a Collection</button>
+				<button class="dropdown-item turboclick" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
+				<button class="dropdown-item action turboclick" hx-get="/@{{.UserID}}/add-collection">{{icon "plus"}} Add a Collection</button>
 			</div>
 		</span>
 	{{- end -}}
@@ -32,7 +32,7 @@
 		{{- if $isMyself -}}
 			<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes">
 				Your personal message will appear here once you add something.<br>
-				<span hx-get="/@{{.UserID}}/edit" class="link">Edit your profile</span> to post your "About Me" message
+				<span hx-get="/@{{.UserID}}/edit" class="link turboclick">Edit your profile</span> to post your "About Me" message
 			</div>
 		{{- else -}}
 			<div id="profile-status" class="margin-vertical">{{.DisplayName}} hasn't added an "About Me" message yet.</div>
@@ -43,7 +43,7 @@
 	<div class="flex-row flex-align-center">
 		<div id="profile-tags">
 			{{- range .Tags -}}
-				<a href="/people?q=%23{{.Name}}" role="link" class="tag">#{{.Name}}</a>
+				<a href="/people?q=%23{{.Name}}" role="link" class="tag turboclick">#{{.Name}}</a>
 			{{- end -}}
 		</div>
 		<div id="profile-stats">

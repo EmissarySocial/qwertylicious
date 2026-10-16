@@ -40,7 +40,7 @@
 		<meta property="profile:username" content="{{.Username}}">
 
 		{{- if not .IsPublic -}}
-			<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none" role="button">
+			<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none turboclick" role="button">
 				{{icon "check-circle"}} 
 				Your profile IS READY TO PUBLISH on the social web.
 				<span class="text-underline">Click here to publish it now</span>

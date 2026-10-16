@@ -1,6 +1,6 @@
 {{- /* layout-column renders a slice of StreamSummary passed as ".", and fetches nothing. The caller handles the empty state. */ -}}
 {{- range . -}}
-	<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor">
+	<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor turboclick">
 		{{- if ne "" .IconURL -}}
 			<div class="width-100%" style="height:300px; overflow:hidden;">
 				<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">

@@ -25,7 +25,7 @@
 			       the message view with ?reveal=true (the one click-to-reveal mechanism). */ -}}
 			<div class="message">
 				<hr class="noselect">
-				<div role="button" class="padding-vertical-sm"
+				<div role="button" class="padding-vertical-sm turboclick"
 					hx-get="/@me/newsfeed/message?messageId={{$message.ID}}&folderId={{$folderID}}&origin.followingId={{$internalID}}&reveal=true"
 					hx-push-url="false">
 					{{- template "hidden-placeholder" $document -}}
@@ -46,7 +46,7 @@
 				
 				<div script="install listItem(messageId:'{{$message.ID}}')">
 
-					<span hx-get="/@me/newsfeed/browse?url={{$document.ID}}" hidden></span>
+					<span class="turboclick" hx-get="/@me/newsfeed/browse?url={{$document.ID}}" hidden></span>
 
 					{{- if eq "NEW-REPLIES" $message.StateID -}}
 						<div class="flex-row">
@@ -157,7 +157,7 @@
 {{- else -}}
 
 	{{- if eq "" (.QueryParam "remote") -}}
-		<p class="text-gray">This inbox is empty. When you <span hx-get="/@me/settings/following-search?folderId={{$folderID}}" class="nowrap link">follow someone</span> then their posts will show up here.</p>
+		<p class="text-gray">This inbox is empty. When you <span hx-get="/@me/settings/following-search?folderId={{$folderID}}" class="nowrap link turboclick">follow someone</span> then their posts will show up here.</p>
 	{{- end -}}
 
 	<div></div>

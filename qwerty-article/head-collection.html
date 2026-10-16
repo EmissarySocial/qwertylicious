@@ -4,5 +4,5 @@
      nothing instead of failing the page. */ -}}
 {{- $collection := .ParentSummary.Slice.First -}}
 {{- if ne "" $collection.Label -}}
-	<div id="article-collection" class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray">{{$collection.Label}}</a></div>
+	<div id="article-collection" class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>
 {{- end -}}

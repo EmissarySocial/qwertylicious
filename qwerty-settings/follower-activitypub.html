@@ -4,13 +4,13 @@
 
 <div id="modal-header" class="flex-row">
 	<div role="tablist" class="pills margin-bottom-none">
-		<button role="tab" hx-get="/@me/newsfeed/browse-actor?url={{$actor.ID}}">{{icon "person"}} Profile</button>
-		<button role="tab" hx-get="/@me/newsfeed/notes?followingId={{$following.ID}}">{{icon "note"}} Notes</button>
+		<button class="turboclick" role="tab" hx-get="/@me/newsfeed/browse-actor?url={{$actor.ID}}">{{icon "person"}} Profile</button>
+		<button class="turboclick" role="tab" hx-get="/@me/newsfeed/notes?followingId={{$following.ID}}">{{icon "note"}} Notes</button>
 
 		{{ if $following.IsNew -}}
-			<button role="tab" hx-get="/@me/settings/following-edit?url={{$actor.ID}}">{{icon "plus"}} Follow</button>
+			<button class="turboclick" role="tab" hx-get="/@me/settings/following-edit?url={{$actor.ID}}">{{icon "plus"}} Follow</button>
 		{{- else -}}
-			<button role="tab" hx-get="/@me/settings/following-edit?url={{$actor.ID}}">{{icon "check"}} Following</button>
+			<button class="turboclick" role="tab" hx-get="/@me/settings/following-edit?url={{$actor.ID}}">{{icon "check"}} Following</button>
 		{{- end }}
 
 		<button role="tab" aria-selected="true">{{icon "fediverse"}} Follows You</button>
@@ -45,7 +45,7 @@
         <button script="on click trigger closeModal">Close Window</button>
 
 		<div class="flex-grow-1 align-right">
-			<button hx-get="/@me/settings/follower-delete?followerId={{.FollowerID.Hex}}" class="text-red">Remove Follower</button>
+			<button hx-get="/@me/settings/follower-delete?followerId={{.FollowerID.Hex}}" class="text-red turboclick">Remove Follower</button>
 		</div>
 	</div>
     

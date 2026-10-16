@@ -54,7 +54,7 @@
 			<div class="flex-grow">
 				<div class="text-xs text-gray">You're signed in to <b>{{.Hostname}}</b> as:</div>
 				<div class="text-sm bold">
-					<a href="/@me">@{{.Username}}@{{.Hostname}}</a>
+					<a class="turboclick" href="/@me">@{{.Username}}@{{.Hostname}}</a>
 				</div>
 			</div>
 		</div>
@@ -131,7 +131,7 @@
 							If you have double-checked your new profile and are ready to move your profile to your new server,
 							use this button to close this account and notify your followers.
 						</div>
-						<button hx-get="/@me/settings/export-finish?oauthUserTokenId={{$oauthUserToken.oauthUserTokenId.Hex}}" class="primary">Move Permanently</button>
+						<button hx-get="/@me/settings/export-finish?oauthUserTokenId={{$oauthUserToken.oauthUserTokenId.Hex}}" class="primary turboclick">Move Permanently</button>
 					</div>
 
 					<hr class="margin-vertical-lg">
@@ -144,7 +144,7 @@
 							from accessing any more data.
 						</div>
 
-						<button hx-get="/@me/settings/oauth-token-delete?oauthUserTokenId={{$oauthUserToken.oauthUserTokenId.Hex}}" class="text-red">Disconnect Client</button>
+						<button hx-get="/@me/settings/oauth-token-delete?oauthUserTokenId={{$oauthUserToken.oauthUserTokenId.Hex}}" class="text-red turboclick">Disconnect Client</button>
 					</div>
 				</div>
 

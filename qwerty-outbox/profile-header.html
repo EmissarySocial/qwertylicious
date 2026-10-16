@@ -41,6 +41,9 @@
 	{{- else if or $hasBannerImage $hasBannerColor -}}
 		<div id="profile-banner" class="pos-relative hide sm:show">
 			<img src="{{.ImageURL}}" class="width-100%">
+			{{- if and $isMyself $hasBannerImage -}}
+				<button id="profile-banner-remove" hx-get="/@{{.UserID}}/delete-banner" class="pos-absolute-top-right button icon action banner-remove turboclick" aria-label="Remove Banner Image">{{icon "delete"}}</button>
+			{{- end -}}
 		</div>
 	{{- end -}}
 
@@ -96,26 +99,26 @@
 						{{- if .IsAuthenticated -}}
 							{{- $following := .AmFollowing .Permalink -}}
 							{{- if $following.IsNew -}}
-								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary">{{icon "fediverse"}} Follow for Updates</button>
+								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary turboclick">{{icon "fediverse"}} Follow for Updates</button>
 							{{- else -}}
-								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary">{{icon "check"}} Following</button>
+								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary turboclick">{{icon "check"}} Following</button>
 							{{- end -}}
 						{{- else -}}
 						{{- end -}}
 						{{- if not .IsAuthenticated -}}
 							<div class="margin-top-sm text-xs text-light-gray">
-								<span hx-get="/@{{.UserID}}/intent" class="clickable intentMarker-account">&nbsp;</span>
+								<span hx-get="/@{{.UserID}}/intent" class="clickable intentMarker-account turboclick">&nbsp;</span>
 							</div>
 						{{- end -}}
 						-->
 
 						<!--button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary"-->
-						<button hx-get="/@{{.UserID}}/follow" class="primary">
+						<button hx-get="/@{{.UserID}}/follow" class="primary turboclick">
 							Follow
 						</button>
 
 						{{- if gt $circleCount 0 -}}
-							<button hx-get="/@{{.UserID}}/subscribe" class="primary">
+							<button hx-get="/@{{.UserID}}/subscribe" class="primary turboclick">
 								Subscribe
 							</button>
 						{{- end -}}

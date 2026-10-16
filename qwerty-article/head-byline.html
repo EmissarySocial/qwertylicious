@@ -1,14 +1,19 @@
 {{- /* head-byline is the Article's description and byline, everything in head-summary below the title.  The edit
-     page draws its own title row, with Publish and the ⋯ menu beside it, and then this. */ -}}
-<div id="article-description" class="p-summary">{{.Description}}</div>
+     page draws its own title row, with Publish and the ⋯ menu beside it, and then this.  The title, the
+     description, and the byline are each 32px apart, and the page draws an <hr> below the byline, before the
+     content.  The spacing is in utility classes because the public view does not load this template's
+     stylesheet. */ -}}
+{{- if ne "" .Description -}}
+	<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
+{{- end -}}
 
-<div id="article-byline" class="flex-row flex-align-center">
+<div id="article-byline" class="flex-row flex-align-center margin-bottom-lg">
 	<div class="width-48 flex-center">
 		<img src="{{.AttributedTo.IconURL}}" id="article-author-icon" class="width-48 circle">
 	</div>
 	<div id="article-author" class="p-author h-card flex-grow">
 		<div class="p-name">
-			<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
+			<a class="turboclick" href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
 		</div>
 		<div class="text-sm">
 			{{- if eq "published" .StateID -}}
@@ -21,7 +26,7 @@
 	{{- if not .IsAuthor -}}
 		<!-- The author does not follow themselves, so the edit page never shows this -->
 		<div>
-			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm">{{icon "plus"}} Follow</button>
+			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
 		</div>
 	{{- end -}}
 </div>

@@ -29,7 +29,7 @@
 					</h1>
 				{{- else -}}
 					<div class="flex-row text-xl bold margin-none">
-						<!-- <a href="/@me/settings/mobile">{{icon "back"}}</a> -->
+						<!-- <a class="turboclick" href="/@me/settings/mobile">{{icon "back"}}</a> -->
 						<div class="bold margin-none flex-grow">Payments Not Available</div>
 					</div>
 				{{- end -}}
@@ -46,7 +46,7 @@
 					</h1>
 				{{- else -}}
 					<h1 class="text-xl bold">
-						<a href="/@me/settings/mobile">{{icon "back"}}</a>
+						<a class="turboclick" href="/@me/settings/mobile">{{icon "back"}}</a>
 						Accept Payments for your Posts
 					</h1>
 				{{- end -}}
@@ -74,7 +74,7 @@
 				</div>
 			{{- else -}}
 				<div class="flex-row flex-align-center text-xl margin-none margin-bottom">
-					<a href="/@me/settings/mobile">{{icon "back"}}</a>
+					<a class="turboclick" href="/@me/settings/mobile">{{icon "back"}}</a>
 					<h1 class="bold flex-grow">Merchant Accounts</h1>
 					<a href="https://emissary.dev/payments" target="_blank">{{icon "help"}}</a>
 				</div>
@@ -84,7 +84,7 @@
 				{{- range  $index, $merchantAccount := $merchantAccounts -}}
 					{{- $type := lowerCase $merchantAccount.Type -}}
 					<div role="button" class="flex-row turboclick">
-						<div hx-get="/@me/settings/merchantAccount-edit-{{$type}}?merchantAccountId={{$merchantAccount.ID}}" class="flex-row flex-grow">
+						<div hx-get="/@me/settings/merchantAccount-edit-{{$type}}?merchantAccountId={{$merchantAccount.ID}}" class="flex-row flex-grow turboclick">
 							<div>{{- icon $merchantAccount.Icon -}}</div>
 							<div class="flex-grow">{{$merchantAccount.Name}}</div>
 							<!--div>

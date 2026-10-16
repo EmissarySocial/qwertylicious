@@ -39,7 +39,7 @@
 	</form>
 
 	{{- if notZero $bannerURL -}}
-		<button id="article-banner-remove" hx-get="/{{.StreamID}}/delete-banner" class="pos-absolute-top-right button icon action" aria-label="Remove Banner Image">{{icon "delete"}}</button>
+		<button id="article-banner-remove" hx-get="/{{.StreamID}}/delete-banner" class="pos-absolute-top-right button icon action banner-remove turboclick" aria-label="Remove Banner Image">{{icon "delete"}}</button>
 	{{- end -}}
 
 </div>
