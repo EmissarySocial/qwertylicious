@@ -1,13 +1,18 @@
 <div class="page framed h-entry">
 
-	{{- template "head-banner" . -}}
+	<!-- One bordered card holds the banner, the heading, and the article, as the edit page's card (edit.html) and the
+	     profile card (qwerty-outbox/profile-header.html) hold theirs.  The card clips the banner to its corners. -->
+	<div class="pos-relative card border padding-none">
 
-	<div class="pos-relative card">
+		{{- template "head-banner" . -}}
 
 		<article id="article" class="content">
 
 			{{- template "head-summary" . -}}
 			{{- template "head-social" . -}}
+
+			<!-- The rule between the heading and the article -->
+			<hr class="margin-vertical-lg">
 
 			{{- if .UserCan "view-premium" -}}
 				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
@@ -17,12 +22,6 @@
 			{{- end -}}
 
 		</article>
-
-		{{- if .UserCan "edit" -}}
-			<div class="pos-absolute-top-right">
-				<a class="button icon" href="/{{.StreamID}}/edit">{{icon "pencil"}}</a>
-			</div>
-		{{- end -}}
 
 	</div>
 

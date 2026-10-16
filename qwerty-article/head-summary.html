@@ -1,3 +1,9 @@
 {{- template "head-collection" . -}}
-<h1 id="article-name" class="p-name">{{.Name}}</h1>
+<!-- The title, with the editor's Edit button on its right, laid out as the edit page's title row (edit.html) -->
+<div class="flex-row flex-align-center margin-top-xs margin-bottom-lg">
+	<h1 id="article-name" class="p-name flex-grow margin-none">{{.Name}}</h1>
+	{{- if .UserCan "edit" -}}
+		<a class="button icon turboclick flex-shrink-0" href="/{{.StreamID}}/edit" aria-label="Edit Article">{{icon "pencil"}}</a>
+	{{- end -}}
+</div>
 {{- template "head-byline" . -}}

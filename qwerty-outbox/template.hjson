@@ -235,6 +235,18 @@
 			]
 		}
 
+		// The X on the profile header's banner removes the image after confirming, as on an Article's banner
+		delete-banner: {
+			roles: ["self"]
+			steps: [
+				{do:"as-confirmation", title:"Remove Banner Image?", message:"This banner will be permanently removed from your profile.  There is NO UNDO.", submit:"Remove"}
+				{do:"delete-attachments", field:"imageId"}
+				{do:"save"}
+				{do:"search-index", if:"{{.IsIndexable}}"}
+				{do:"refresh-page"}
+			]
+		}
+
 		edit-banner: {
 			roles: ["self"]
 			steps: [

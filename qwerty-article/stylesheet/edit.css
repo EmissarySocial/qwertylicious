@@ -53,38 +53,3 @@ align-items: center;
 	}
 }
 
-/* The X that removes the banner image: a solid round button that reads on any photo.
-   - Its size is fixed and its glyph centered with flexbox, because .button.icon sizes itself
-     from padding and aspect-ratio, and Bootstrap Icons nudge every glyph below the baseline
-     (vertical-align: -.125em), which pushed the X off center.
-   - x-lg is a hairline glyph, so it is drawn larger and stroked to thicken it, in the action
-     button's color rather than the light gray that .button.icon gives its glyphs. */
-#article-banner-remove {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	padding: 0;
-	border-radius: 50%;
-	background-color: var(--button-action-background);
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-
-	i {
-		display: block;
-		color: var(--button-action-color);
-		font-size: 20px;
-		line-height: 1;
-		-webkit-text-stroke: 1px currentColor;
-
-		&::before {
-			display: block;
-			vertical-align: 0;
-		}
-	}
-
-	&:hover {
-		background-color: var(--button-action-background-hover);
-	}
-}
-

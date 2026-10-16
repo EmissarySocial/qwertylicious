@@ -29,6 +29,13 @@ article.content {
 	border: 1px solid var(--page-border);
 }
 
+/* Inside a card, as on an Article's page (qwerty-article/view.html), the card is the frame: it holds the banner above
+   this, so the article drops its own border and corners and the two read as one card */
+.card > article.content {
+	border: none;
+	border-radius: 0;
+}
+
 .card.border
 
 /******************************************

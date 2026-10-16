@@ -284,3 +284,40 @@ select,
 	background-color: var(--input-background);
 	border-radius: var(--border-radius);
 }
+
+/* The X that removes a banner image, on an Article (qwerty-article/edit-banner.html) and on the
+   profile card (qwerty-outbox/profile-header.html): a solid round button that reads on any photo.
+   - Its size is fixed and its glyph centered with flexbox, because .button.icon sizes itself
+     from padding and aspect-ratio, and Bootstrap Icons nudge every glyph below the baseline
+     (vertical-align: -.125em), which pushed the X off center.
+   - x-lg is a hairline glyph, so it is stroked to thicken it, in the action button's color rather
+     than the light gray that .button.icon gives its glyphs.
+   - A light ring keeps the black button visible on a dark photo, where its shadow alone vanishes. */
+.button.icon.banner-remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(var(--rhythm) * 4);
+	height: calc(var(--rhythm) * 4);
+	padding: 0;
+	border-radius: 50%;
+	background-color: var(--button-action-background);
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6), 0 1px 4px rgba(0, 0, 0, 0.3);
+
+	i {
+		display: block;
+		color: var(--button-action-color);
+		font-size: calc(var(--rhythm) * 1.75);
+		line-height: 1;
+		-webkit-text-stroke: 1px currentColor;
+
+		&::before {
+			display: block;
+			vertical-align: 0;
+		}
+	}
+
+	&:hover {
+		background-color: var(--button-action-background-hover);
+	}
+}

@@ -2,12 +2,10 @@
  * Menu Bar
  ******************************************/
 
+/* The bar's border, margins, and padding are theme-default's, which #menu-bar-sub's -32px top margin is
+   built against, so a sub-menu sits flush under the bar.  Overflow stays visible for the bars' dropdowns. */
  #menu-bar {
 	position: relative;
-	border-bottom: unset;
-	margin-top: unset;
-	margin-bottom: calc(var(--rhythm) * 1.5);
-	padding: unset;
 	line-height: 100%;
 	display: flex;
 	flex-direction: row;
@@ -23,18 +21,15 @@
 	flex-grow: unset;
 }
 
+/* A bar with only a center section (Emissary's admin tabs) stretches it, so its tabs center */
+#menu-bar > div.center {
+	flex-grow: 1;
+}
+
 #menu-bar > div.left {
 	display: flex;
 	text-align: left;
 	z-index: 1;
-}
-
-#menu-bar > div.center {
-	margin: auto;
-	position: absolute;
-  left: 0;
-  right: 0;
-	text-align: center;
 }
 
 #menu-bar > div.right {
@@ -199,33 +194,6 @@
 		background-color: var(--button-action-background-hover);
 	}
 }
-
-/******************************************
- * Sub-Menu Bar
- ******************************************/
-
-#menu-bar-sub {
-	display:block;
-	background:var(--gray05);
-	border-bottom: solid 1px var(--gray20);
-	padding:4px 8px;
-	margin-top:-32px;
-	margin-bottom:32px;
-	text-align:center;
-}
-
-#menu-bar-sub a {
-	color:var(--gray90);
-	font-size:12px;
-	border-radius:var(--rhythm);
-	padding:4px 8px;
-}
-
-#menu-bar-sub a.selected {
-	background-color:var(--gray20);
-	color:var(--black);
-}
-
 
 /******************************************
  * Breadcrumbs
