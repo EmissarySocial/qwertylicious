@@ -1,0 +1,55 @@
+<!-- One page of the profile's Notes, newest first, called as (array $collectionID $outbox); see AGENTS.md. -->
+{{- $collectionID := index . 0 -}}
+{{- $outbox := index . 1 -}}
+{{- $isMyself := $outbox.IsMyself -}}
+{{- $notes := ($outbox.Outbox.Where "templateId" "outbox-message").Top12.ByPublishDate.Reverse.Slice -}}
+
+{{- if and $notes.IsEmpty (eq "" ($outbox.QueryParam "publishDate")) -}}
+	{{- if not $isMyself -}}
+		<div class="padding-horizontal padding-vertical-xl">
+			Nothing has been posted here yet.  Check back later!
+		</div>
+	{{- end -}}
+{{- end -}}
+
+<div class="h-feed">
+	{{- range $notes -}}
+		{{- $iconURL := .AttributedTo.IconURL -}}
+		<div class="flex-row qwerty-note hover-trigger h-entry">
+			<div hx-get="/{{.StreamID}}/modal" hx-push-url="false" role="button" tabindex="0" class="flex-grow flex-row clickable turboclick">
+				<div class="flex-shrink-0 qwerty-note-avatar">
+					{{- if ne "" $iconURL -}}
+						<img src="{{$iconURL}}" alt="" class="circle width-48" loading="lazy">
+					{{- else -}}
+						<div class="circle width-48 flex-center">{{icon "person"}}</div>
+					{{- end -}}
+				</div>
+				<div class="flex-grow">
+					{{- if ne "" .Label -}}
+						<div class="p-name bold">{{.Label}}</div>
+					{{- end -}}
+					<div class="e-content">{{.ContentHTML | htmlMinimal}}</div>
+					{{- if ne "" .IconURL -}}
+						<img src="{{.IconURL}}" alt="" loading="lazy" class="qwerty-note-image">
+					{{- end -}}
+					<div class="text-sm text-gray dt-published">{{.PublishDate | humanizeTime}}</div>
+				</div>
+			</div>
+			{{- if $isMyself -}}
+				<div class="flex-shrink-0 hover-show">
+					<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
+				</div>
+			{{- end -}}
+		</div>
+	{{- end -}}
+</div>
+
+{{- if $notes.IsLength 12 -}}
+	<div
+		hx-get="/{{$collectionID}}/notes-page?publishDate=LT:{{$notes.Last.PublishDate}}"
+		hx-trigger="revealed"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-push-url="false">
+	</div>
+{{- end -}}

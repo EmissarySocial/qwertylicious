@@ -1,0 +1,51 @@
+{{- /* entry-body is an entry's dates (when it has them), summary, location, and details, shared by its page
+       (view.html) and its modal (modal.html).  A location with coordinates gets a small map beside its address,
+       drawn by qwerty-theme's maps bundle (qwerty-theme/maps/qwerty-maps.js); one with only a name gets a line of text. */ -}}
+{{- $location := .Location -}}
+{{- $hasDates := not .StartDate.IsZero -}}
+
+{{- if $hasDates -}}
+	<div class="text-lg text-gray margin-bottom">{{icon "calendar"}} {{template "event-dates" .}}</div>
+{{- end -}}
+
+{{- if ne "" .Summary -}}
+	<div class="p-summary margin-bottom-lg">{{.Summary}}</div>
+{{- end -}}
+
+{{- if $location.HasGeocode -}}
+	<div class="sm:flex-row margin-bottom-lg p-location" style="gap:calc(var(--rhythm) * 3);">
+		<div class="qwerty-map sm:width-40% margin-bottom" data-static="true" data-tiles="{{.MapTiles.Href}}" data-attribution="{{.MapTiles.Description}}" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}" data-zoom="15">
+			<div class="qwerty-map-canvas rounded" style="width:100%; aspect-ratio:4/3;"></div>
+			<div hidden>
+				<div class="qwerty-map-marker" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}"></div>
+			</div>
+		</div>
+		<div class="h-adr text-gray">
+			{{- if $location.HasAddress -}}
+				{{- if ne "" $location.Street1 -}}<div class="p-street-address">{{$location.Street1}}</div>{{- end -}}
+				{{- if ne "" $location.Street2 -}}<div>{{$location.Street2}}</div>{{- end -}}
+				<div>
+					<span class="p-locality">{{$location.Locality}}</span>
+					{{- if ne "" $location.Region -}}, <span class="p-region">{{$location.Region}}</span>{{- end }}
+					<span class="p-postal-code">{{$location.PostalCode}}</span>
+				</div>
+				<div class="p-country-name">{{$location.Country}}</div>
+			{{- else -}}
+				<div>{{$location.Formatted}}</div>
+			{{- end -}}
+			<div class="margin-top-sm"><a href="https://www.openstreetmap.org/?mlat={{$location.Latitude}}&mlon={{$location.Longitude}}#map=16/{{$location.Latitude}}/{{$location.Longitude}}" target="_blank" rel="noopener noreferrer">Open in a map &rarr;</a></div>
+		</div>
+	</div>
+{{- else if ne "" $location.Formatted -}}
+	<div class="text-gray margin-bottom-lg p-location">{{icon "map-pin"}} {{$location.Formatted}}</div>
+{{- end -}}
+
+<hr class="margin-vertical-lg">
+
+<div id="article-content" class="e-content">{{.ContentHTML}}</div>
+
+{{- if $location.HasGeocode -}}
+	<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
+	<script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
+	<script src="/.themes/qwerty-theme/maps"></script>
+{{- end -}}

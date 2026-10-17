@@ -1,0 +1,48 @@
+<!-- Manage Collections: drag the profile's collections into tab order, edit each one, or add another.  Save posts
+     every key in its new order.  Edit and Add each replace this modal with their own, so an unsaved order is lost. -->
+{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+<form hx-post="/@{{.UserID}}/manage-collections" hx-swap="none" hx-push-url="false">
+
+	<div class="layout layout-vertical">
+		<div class="layout-title">Manage Collections</div>
+		<div class="layout-description">Drag your collections into the order their tabs show on your profile.  A profile holds up to 8.</div>
+	</div>
+
+	<table class="table margin-bottom">
+		<tbody script="install sortContainer">
+			{{- range $collections -}}
+				<tr class="draggable">
+					<td class="drag-handle" style="width:1px;">
+						<input type="hidden" name="keys" value="{{.ObjectID.Hex}}">
+						{{icon "drag-handle"}}
+					</td>
+					<td>{{.Label}}</td>
+					<!-- Edit opens the collection's Edit Collection modal (qwerty-collection's settings action) -->
+					<td class="align-right" style="width:1px;">
+						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">{{icon "edit"}} Edit</button>
+					</td>
+				</tr>
+			{{- end -}}
+		</tbody>
+	</table>
+
+	<!-- The limit is also enforced by the outbox's add-collection action (template.hjson) -->
+	<div class="margin-bottom">
+		{{- if lt (len $collections) 8 -}}
+			<button type="button" class="turboclick" hx-get="/@{{.UserID}}/add-collection">+ Add Collection</button>
+		{{- else -}}
+			<div class="text-sm text-gray">You have 8 collections, the most a profile can hold.</div>
+		{{- end -}}
+	</div>
+
+	<div class="flex-row flex-align-center">
+		<button type="submit" class="primary" script="install SaveButton">Save Order</button>
+		<button type="button" script="on click trigger closeModal">Cancel</button>
+	</div>
+
+</form>
+
+<!-- onload drives sortContainer: htmx loads this script asynchronously, after the behavior installs -->
+<script
+	src="/.themes/global/resources/sortable-1.15.7/Sortable.min.js"
+	onload="window.dispatchEvent(new Event('sortableReady'))"></script>

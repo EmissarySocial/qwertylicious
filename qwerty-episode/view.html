@@ -1,0 +1,55 @@
+{{- /* view is an episode's own page, drawn behind its modal when its podcast cannot be (template.hjson's page
+       action), laid out as an Article's (qwerty-article/view.html): one card, with the podcast's name, the episode's
+       name and date, its player (episode-player.html), and the description, with its Replies as a second tab
+       (qwerty-replies).  Its CSS is in qwerty-outbox/stylesheet/collections.css, which this page links. */ -}}
+{{- $hasAudio := ne "" (.DataString "attachmentId") -}}
+{{- $collection := .ParentSummary.Slice.First -}}
+{{- $image := .IconURL -}}
+{{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
+
+<div class="page framed h-entry">
+	<link rel="stylesheet" href="/.templates/qwerty-outbox/stylesheet">
+
+	<div class="pos-relative card border padding-none">
+		<article class="padding-lg">
+
+			{{- if ne "" $collection.Label -}}
+				<div class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>
+			{{- end -}}
+
+			<div class="flex-row flex-align-center margin-top-xs">
+				<h1 class="p-name flex-grow margin-none">{{.Label}}</h1>
+				{{- if .UserCan "edit" -}}
+					<button class="turboclick flex-shrink-0" hx-get="/{{.StreamID}}/edit">{{icon "settings"}} Edit Episode</button>
+				{{- end -}}
+			</div>
+			<div class="text-gray margin-bottom-lg">
+				<a href="{{.AttributedTo.ProfileURL}}" hx-boost="true" class="p-author text-nocolor turboclick">{{.AttributedTo.Name}}</a>
+				&middot; <time class="dt-published">{{.PublishDate | longDate}}</time>
+			</div>
+
+			{{- if $hasAudio -}}
+				{{- template "episode-player" (array . $collection.Label $image "" "") -}}
+			{{- else -}}
+				<div class="qwerty-episode-player-none card text-gray">This episode has no audio yet.</div>
+			{{- end -}}
+
+			{{- template "replies-tabs" (array . "Show Notes" "page" "count") -}}
+			{{- /* With replies closed there is no Replies tab, so ?tab=replies shows the notes */ -}}
+			{{- if and (eq (.QueryParam "tab") "replies") (not .RepliesClosed) -}}
+				{{- template "replies-panel" . -}}
+			{{- else -}}
+				<div id="article-content" class="e-content">{{.ContentHTML}}</div>
+			{{- end -}}
+		</article>
+	</div>
+
+	<!-- /{id} answers an htmx request with the modal, so the page reloads itself from /{id}/page -->
+	<div
+		hx-get="/{{.StreamID}}/page"
+		hx-trigger="refreshPage from:window"
+		hx-target="main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+</div>

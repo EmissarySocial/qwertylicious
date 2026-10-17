@@ -32,16 +32,61 @@
 			{Label:"Gray", Value:"#888888"}
 		]
 		layouts: [
+			{label:"Notes", value:"notes", icon:"chat-square-text", description:"Short posts, newest first, with a box to write one"}
+			{label:"Articles", value:"column-3", icon:"journal-text", description:"Long-form posts, shown as cards"}
+			{label:"Photos", value:"gallery", icon:"images", description:"A grid of photos, newest first"}
+			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, newest first, with a player on top"}
+			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
+			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
+			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}
+		]
+
+		// Add a Collection offers these once the profile has its one Notes collection.  Keep them in step with layouts.
+		layoutsWithoutNotes: [
+			{label:"Articles", value:"column-3", icon:"journal-text", description:"Long-form posts, shown as cards"}
+			{label:"Photos", value:"gallery", icon:"images", description:"A grid of photos, newest first"}
+			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, newest first, with a player on top"}
+			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
+			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
+			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}
+		]
+
+		// Edit Collection offers these to an Article collection, so its format can change only among the ones that hold Articles
+		articleLayouts: [
 			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
 			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
 			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
 			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
 			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
-			// Placeholders: these can be chosen now, and show "coming soon" until they are built (qwerty-collection/items.html)
-			{label:"Photo Gallery", value:"gallery", icon:"images", description:"Coming soon"}
-			{label:"Map", value:"map", icon:"map", description:"Coming soon"}
-			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Coming soon"}
-			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Coming soon"}
+		]
+
+		timelineOrders: [
+			{label:"Oldest First", value:"asc", icon:"sort-up", description:"Starts at the beginning, like a history"}
+			{label:"Newest First", value:"desc", icon:"sort-down", description:"Starts with the latest, like a feed"}
+		]
+
+		// A Podcast's episode order.  Empty is treated as newest first.
+		episodeOrders: [
+			{label:"Newest First", value:"desc", icon:"sort-down", description:"The latest episode leads, like a feed"}
+			{label:"Oldest First", value:"asc", icon:"sort-up", description:"Starts at episode one, for a series heard in order"}
+		]
+
+		// A Calendar's default view, in the toolbar's order
+		calendarViews: [
+			{label:"List", value:"list", icon:"list-ul", description:"One month's events, one row each"}
+			{label:"Week", value:"week", icon:"calendar-week", description:"Seven days, Sunday first"}
+			{label:"Month", value:"month", icon:"calendar3", description:"A grid of the whole month"}
+		]
+
+		// A new Map's starting zoom, from Leaflet's 0 (the world) to 19 (a building)
+		mapZooms: [
+			{label:"World", value:"2"}
+			{label:"Continent", value:"3"}
+			{label:"Country", value:"5"}
+			{label:"Region", value:"8"}
+			{label:"City", value:"11"}
+			{label:"Neighborhood", value:"14"}
+			{label:"Street", value:"16"}
 		]
 
 		fonts: [

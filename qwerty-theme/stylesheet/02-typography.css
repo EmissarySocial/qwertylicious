@@ -14,14 +14,6 @@ html {
 	--weight: 300;
 }
 
-.bold {
-  font-weight: 600;
-}
-
-.medium {
-  font-weight: 500;
-}
-
 @media (prefers-color-scheme: dark) {
 	:root {
 		--weight: 300;
@@ -108,6 +100,15 @@ input.text-md {
 	line-height: calc(var(--rhythm) * 2);
 	margin-top: calc(var(--rhythm) * 0.5);
 	margin-bottom: calc(var(--rhythm) * 0.5);
+}
+
+/* Weights follow the text sizes, so that a weight class wins over a size's own font-weight */
+.bold {
+  font-weight: 600;
+}
+
+.medium {
+  font-weight: 500;
 }
 
 .icon {

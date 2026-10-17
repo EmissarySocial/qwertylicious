@@ -1,5 +1,6 @@
-{{- /* about is the About tab: the profile's tab bar with About selected, then the status message, hashtags, and
-     follower counts.  The profile page swaps it in for #profile-tabs.  A profile with no collections yet shows
+{{- /* about is the About tab: the profile's tab bar with About selected, then the status message.  The hashtags
+     and follower counts are in the profile header (profile-header.html).  The profile page swaps it in for
+     #profile-tabs.  A profile with no collections yet shows
      the prompt to make one here, because About is then its only tab. */ -}}
 {{- $isMyself := .IsMyself -}}
 
@@ -17,7 +18,9 @@
 			<div class="dropdown-content right">
 				<div class="text-xs text-gray">PROFILE</div>
 				<button class="dropdown-item turboclick" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
-				<button class="dropdown-item action turboclick" hx-get="/@{{.UserID}}/add-collection">{{icon "plus"}} Add a Collection</button>
+				<!-- Collections are added from Manage Collections' own "+ Add Collection" button, so it shows even before there
+				     are any -->
+				<button class="dropdown-item turboclick" hx-get="/@{{.UserID}}/manage-collections">{{icon "drag-handle"}} Manage Collections</button>
 			</div>
 		</span>
 	{{- end -}}
@@ -27,7 +30,7 @@
 	{{- template "outbox-empty" . -}}
 {{- end -}}
 
-<div class="margin-bottom">
+<div class="margin-bottom max-width-640">
 	{{- if eq "" .StatusMessage -}}
 		{{- if $isMyself -}}
 			<div class="margin-vertical padding-vertical-xl padding-horizontal bg-stripes">
@@ -40,17 +43,5 @@
 	{{- else -}}
 		<div id="profile-status" class="margin-vertical">{{.StatusMessage | markdown}}</div>
 	{{- end -}}
-	<div class="flex-row flex-align-center">
-		<div id="profile-tags">
-			{{- range .Tags -}}
-				<a href="/people?q=%23{{.Name}}" role="link" class="tag turboclick">#{{.Name}}</a>
-			{{- end -}}
-		</div>
-		<div id="profile-stats">
-			<span xclass="clickable" disabled-because-followers-arent-public-hx-get="/@{{.UserID}}/followers" hx-target="#profile-stats"><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
-			&nbsp;
-			<span xclass="clickable" disabled-because-following-arent-public-hx-get="/@{{.UserID}}/following" hx-target="#profile-stats"><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
-		</div>
-	</div>
 </div>
 </div>

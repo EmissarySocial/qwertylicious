@@ -1,0 +1,70 @@
+{{- /* items-podcast is a Podcast collection's tab: the feed's link, then the episodes, newest first or oldest first as
+       the author chose (data.episodeOrder).  An episode opens in a modal with its player and its description
+       (qwerty-episode/modal.html), and the keyboard moves from there to the episodes above and below.  The play
+       button beside an episode also starts it, in its own click, so the browser allows the audio (the theme's
+       podcast bundle, qwerty-theme/podcast/qwerty-podcast.js, which marks the row playing with .playing).  An
+       episode without audio is listed, and opens, but has nothing to play.  Its CSS is in
+       qwerty-outbox/stylesheet/collections.css. */ -}}
+{{- /* The author picks the order (data.episodeOrder): newest first unless it is "asc" */ -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByCreateDate -}}
+{{- if ne (.Data "episodeOrder") "asc" -}}
+	{{- $query = $query.Reverse -}}
+{{- end -}}
+{{- $episodes := $query.Top60.Slice -}}
+{{- $collection := . -}}
+{{- /* The collection's author edits its episodes (the same check as list.html's owner menu) */ -}}
+{{- $canEdit := .UserCan "add" -}}
+
+{{- if $episodes.IsEmpty -}}
+	{{- template "items-empty" (array . "mic" "Your Podcast" "Publish audio episodes here, newest first.  Each one can have its own description and photo." "+ Add an Episode") -}}
+{{- else -}}
+	<!-- The feed's link and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
+	<div class="qwerty-podcast reading-column margin-top-xl">
+
+		<div class="qwerty-podcast-header flex-row flex-align-center text-sm">
+			<div class="flex-grow"></div>
+			<a href="/{{.StreamID}}/feed?format=rss" target="_blank" class="nowrap" aria-label="Podcast Feed (RSS)">{{icon "rss"}} Podcast Feed (RSS)</a>
+		</div>
+
+		<!-- The episodes, as a table so the dates and buttons line up.  A click anywhere on a row opens its episode's
+		     modal, through the name's link (qwerty-podcast.js), and the row's own buttons keep their jobs.  Keyboard users
+		     reach the same modal through that link.  The description and photo are in the modal. -->
+		<table class="qwerty-podcast-episodes">
+			<tbody>
+			{{- range $episodes -}}
+				{{- $hasAudio := index .Data "attachmentId" -}}
+				<tr class="qwerty-podcast-episode" data-episode-url="/{{.StreamID}}/audio?format=mp3" data-episode-row>
+					<td class="qwerty-podcast-icon">
+						{{- if $hasAudio -}}
+							<button class="qwerty-podcast-play" aria-label="Play {{.Label}}"
+								data-podcast-play="/{{.StreamID}}/audio?format=mp3"
+								data-track-name="{{.Label}}"
+								data-track-artist="{{$collection.AttributedTo.Name}}"
+								data-track-album="{{$collection.Label}}"
+								data-track-image="{{if ne `` .IconURL}}{{.IconURL}}{{else}}{{$collection.AttributedTo.IconURL}}{{end}}"
+								hx-get="/{{.StreamID}}/modal"
+								hx-push-url="false">
+								<span class="playing-hide">{{icon "play-fill"}}</span>
+								<span class="playing-show">{{icon "volume-up-fill"}}</span>
+							</button>
+						{{- else -}}
+							<span class="qwerty-podcast-play text-light-gray" aria-hidden="true">{{icon "mic"}}</span>
+						{{- end -}}
+					</td>
+					<td class="qwerty-podcast-name"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
+					<td class="qwerty-podcast-date text-sm text-gray">
+						{{- .PublishDate | shortDate -}}
+						{{- if not $hasAudio }}<span class="hide sm:inline"> &middot; No audio</span>{{ end -}}
+					</td>
+					{{- if $canEdit -}}
+						<td class="qwerty-podcast-edit">
+							<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
+						</td>
+					{{- end -}}
+				</tr>
+			{{- end -}}
+			</tbody>
+		</table>
+
+	</div>
+{{- end -}}

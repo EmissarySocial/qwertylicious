@@ -1,0 +1,106 @@
+{{- /* modal is an episode opened from its podcast's list (qwerty-collection/items-podcast.html), or from its own URL,
+       in a modal of the standard width (template.hjson's modal action): its photo, name, and date, its player, and its description,
+       with its Replies as a second tab (qwerty-replies), which re-opens this modal with ?tab=replies.
+
+       The theme's podcast bundle (qwerty-theme/podcast/qwerty-podcast.js) runs the player and the keyboard: Up or
+       Left opens the episode above in the list, Down or Right the one below, and Space plays or pauses.  Those
+       episodes are the hidden links at the foot, in the order the author chose for the list (data.episodeOrder on the
+       podcast: newest first unless it is "asc").  Its CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+{{- $podcast := .Parent "view" -}}
+{{- $hasAudio := ne "" (.DataString "attachmentId") -}}
+{{- $image := .IconURL -}}
+{{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
+
+{{- /* The neighboring episodes.  The list is newest first unless the author chose oldest first. */ -}}
+{{- $episodes := .Siblings.Where "templateId" "qwerty-episode" -}}
+{{- $created := .CreateDate -}}
+{{- $newer := (($episodes.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+{{- $older := (($episodes.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+{{- $above := "" -}}
+{{- $below := "" -}}
+{{- if eq ($podcast.DataString "episodeOrder") "asc" -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $above = $older.StreamID -}}{{- end -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $below = $newer.StreamID -}}{{- end -}}
+{{- else -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $above = $newer.StreamID -}}{{- end -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $below = $older.StreamID -}}{{- end -}}
+{{- end -}}
+
+<div class="qwerty-episode h-entry padding" data-episode-id="{{.StreamID}}">
+
+	<!-- The photo, then the podcast's name, the episode's name, and the date (the author edits from the list).  The text
+	     is aligned to the photo's top, not its middle, so it starts in the same place for every episode: centered, a
+	     title that wraps moved the podcast's name and the title up and down between episodes. -->
+	<div class="qwerty-episode-head flex-row margin-bottom">
+		<img class="qwerty-episode-art" src="{{$image}}" alt="">
+		<div class="flex-grow">
+			{{- if ne "" $podcast.Label -}}
+				<!-- The podcast's name links to its tab on its owner's profile, the page this modal is drawn over -->
+				<div class="text-sm text-uppercase bold"><a href="/@{{$podcast.ParentID}}?tab={{.ParentID}}" class="text-nocolor text-gray turboclick">{{$podcast.Label}}</a></div>
+			{{- end -}}
+			<h2 class="p-name margin-none">{{.Label}}</h2>
+			<div class="text-sm text-gray"><time class="dt-published">{{.PublishDate | longDate}}</time></div>
+		</div>
+	</div>
+
+	<!-- The player, with the arrows to the episodes above and below on either side of its play button.  An episode
+	     without audio keeps the arrows, so the list can still be stepped through. -->
+	{{- if $hasAudio -}}
+		{{- template "episode-player" (array . $podcast.Label $image $above $below) -}}
+	{{- else -}}
+		<div class="qwerty-episode-player-none card flex-row flex-align-center">
+			{{- template "episode-arrow" (array "prev" $above) -}}
+			<div class="flex-grow text-gray">This episode has no audio yet.</div>
+			{{- template "episode-arrow" (array "next" $below) -}}
+		</div>
+	{{- end -}}
+
+	<!-- The Show Notes and Replies tabs, with Share at the right of the same line.  Share is not a tab, so it sits
+	     outside the tab list.  The tabs are left out when the episode neither accepts replies nor has any
+	     (replies-tabs.html), and Share then has the line to itself. -->
+	<div class="qwerty-episode-tabs flex-row flex-align-center margin-bottom-lg">
+		{{- template "replies-tabs" (array . "Show Notes" "modal" "count") -}}
+		<div class="flex-grow"></div>
+		<!-- Share hands the episode's own URL to the device's share sheet, or copies it where there is none -->
+		<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
+			on click
+				if navigator.share
+					call navigator.share({url: my @data-share-url})
+				else
+					call navigator.clipboard.writeText(my @data-share-url)
+					put 'Link Copied' into the first <span/> in me
+				end
+			catch error
+				log error
+			end">{{icon "share"}} <span>Share</span></button>
+	</div>
+	{{- /* With replies closed there is no Replies tab, so ?tab=replies shows the notes */ -}}
+	{{- if and (eq (.QueryParam "tab") "replies") (not .RepliesClosed) -}}
+		{{- template "replies-panel" . -}}
+	{{- else -}}
+		<div class="e-content">{{.ContentHTML}}</div>
+	{{- end -}}
+
+	<!-- Close at the bottom left, as on a photo -->
+	<div class="flex-row flex-align-center margin-top">
+		<button script="on click trigger closeModal">Close</button>
+	</div>
+
+	<!-- The episodes above and below in the list, which the arrows and the keyboard open (qwerty-podcast.js) -->
+	{{- if ne "" $above -}}
+		<a class="qwerty-episode-prev" hidden aria-hidden="true" tabindex="-1"
+			href="/{{$above}}"
+			data-episode-id="{{$above}}"
+			hx-get="/{{$above}}/modal"
+			hx-target="aside"
+			hx-push-url="false">Previous Episode</a>
+	{{- end -}}
+	{{- if ne "" $below -}}
+		<a class="qwerty-episode-next" hidden aria-hidden="true" tabindex="-1"
+			href="/{{$below}}"
+			data-episode-id="{{$below}}"
+			hx-get="/{{$below}}/modal"
+			hx-target="aside"
+			hx-push-url="false">Next Episode</a>
+	{{- end -}}
+</div>

@@ -1,14 +1,22 @@
-{{- /* layout-row-reverse renders a slice of StreamSummary passed as ".", and fetches nothing. The caller handles the empty state. */ -}}
-{{- range . -}}
-	<a href="{{.URL}}" hx-boost="true" class="flex-row card qwerty-outbox-item text-plain text-nocolor margin-bottom padding turboclick">
-		<div class="flex-grow margin-right-sm">
-			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
-			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
-			<div class="text-sm text-gray text-bold qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
-		</div>
+{{- /* layout-row-reverse renders (array $posts $canEdit), and fetches nothing; $canEdit adds an Edit link shown on hover. The caller handles the empty state. */ -}}
+{{- $canEdit := index . 1 -}}
+{{- range index . 0 -}}
+	<div class="pos-relative hover-trigger margin-bottom">
+		<a href="{{.URL}}" hx-boost="true" class="flex-row card qwerty-outbox-item text-plain text-nocolor padding turboclick">
+			<div class="flex-grow margin-right-sm">
+				<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
+				<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
+				<div class="text-sm text-gray text-bold qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
+			</div>
 
-		{{- if ne "" .IconURL -}}
-			<img src="{{.IconURL}}.webp" class="rounded square width-96 sm:width-128 md:width-192 object-fit-cover qwerty-outbox-item-image">
+			{{- if ne "" .IconURL -}}
+				<img src="{{.IconURL}}.webp" class="rounded square width-96 sm:width-128 md:width-192 object-fit-cover qwerty-outbox-item-image">
+			{{- end -}}
+		</a>
+		{{- if $canEdit -}}
+			<div class="hover-show pos-absolute-top-right">
+				<a href="/{{.StreamID}}/edit" hx-boost="true" class="button edit-circle turboclick" aria-label="Edit" title="Edit">{{icon "pencil"}}</a>
+			</div>
 		{{- end -}}
-	</a>
+	</div>
 {{- end -}}

@@ -1,0 +1,158 @@
+{{- /* items-calendar is a Calendar collection's tab: its events in a List, a Week of days, or a Month grid, chosen by
+       ?view= (the author's data.calendarView by default) and moved by ?startDate= (YYYY-MM-DD; the week or month
+       that holds it, or today when it is missing).  Its links reload only this tab and push the profile's URL with
+       both, which outbox.html passes on.  Days are UTC dates, and each event shows on its own clock (inTimezone).
+       An event opens qwerty-entry's modal.  The CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+{{- $collectionID := .StreamID -}}
+{{- $profileTab := print "/@" .ParentID "?tab=" .StreamID -}}
+{{- $view := .QueryParam "view" -}}
+{{- if not (in $view "list" "week" "month") -}}
+	{{- $view = .DataString "calendarView" -}}
+{{- end -}}
+{{- if not (in $view "list" "week" "month") -}}
+	{{- $view = "list" -}}
+{{- end -}}
+{{- /* Today is the server's own date (in the evening, UTC is already tomorrow), as a UTC midnight like the events */ -}}
+{{- $today := (today).UTC -}}
+{{- $localKey := (now).Format "2006-01-02" -}}
+{{- if gt ($today.Format "2006-01-02") $localKey -}}
+	{{- $today = $today.AddDate 0 0 -1 -}}
+{{- else if lt ($today.Format "2006-01-02") $localKey -}}
+	{{- $today = $today.AddDate 0 0 1 -}}
+{{- end -}}
+{{- $todayKey := $today.Format "2006-01-02" -}}
+
+{{- /* The date to show, from ?startDate=.  Only an exact YYYY-MM-DD is kept, and links carry it on to the other views. */ -}}
+{{- $startParam := .QueryParam "startDate" -}}
+{{- $anchor := inTimezone $startParam "" -}}
+{{- if ne ($anchor.Format "2006-01-02") $startParam -}}
+	{{- $anchor = $today -}}
+	{{- $startParam = "" -}}
+{{- end -}}
+{{- $startQuery := "" -}}
+{{- if ne "" $startParam -}}
+	{{- $startQuery = print "&startDate=" $startParam -}}
+{{- end -}}
+
+{{- /* The range of days to show: a whole month (with the days around it that fill its first and last weeks), or one
+       week.  printf turns a time.Weekday into a number that int can read. */ -}}
+{{- $title := "" -}}
+{{- $monthStart := $anchor -}}
+{{- $gridStart := $anchor -}}
+{{- $dayCount := 7 -}}
+{{- $previous := $anchor -}}
+{{- $next := $anchor -}}
+{{- if eq $view "week" -}}
+	{{- $weekday := int (printf "%d" $anchor.Weekday) -}}
+	{{- $gridStart = $anchor.AddDate 0 0 (subtract 0 $weekday) -}}
+	{{- $monthStart = $gridStart -}}
+	{{- $previous = $gridStart.AddDate 0 0 -7 -}}
+	{{- $next = $gridStart.AddDate 0 0 7 -}}
+	{{- $weekEnd := $gridStart.AddDate 0 0 6 -}}
+	{{- $title = print ($gridStart.Format "Jan 2") " – " ($weekEnd.Format "Jan 2, 2006") -}}
+{{- else -}}
+	{{- $monthStart = $anchor.AddDate 0 0 (subtract 1 $anchor.Day) -}}
+	{{- $previous = $monthStart.AddDate 0 -1 0 -}}
+	{{- $next = $monthStart.AddDate 0 1 0 -}}
+	{{- $title = $monthStart.Format "January 2006" -}}
+	{{- if eq $view "month" -}}
+		{{- $weekday := int (printf "%d" $monthStart.Weekday) -}}
+		{{- $daysInMonth := ($monthStart.AddDate 0 1 -1).Day -}}
+		{{- $gridStart = $monthStart.AddDate 0 0 (subtract 0 $weekday) -}}
+		{{- $dayCount = int (multiply (divide (add (add $weekday $daysInMonth) 6) 7) 7) -}}
+	{{- else -}}
+		{{- $gridStart = $monthStart -}}
+		{{- $dayCount = ($monthStart.AddDate 0 1 -1).Day -}}
+	{{- end -}}
+{{- end -}}
+{{- $gridEnd := $gridStart.AddDate 0 0 $dayCount -}}
+{{- $monthKey := $monthStart.Format "2006-01" -}}
+{{- $previousKey := $previous.Format "2006-01-02" -}}
+{{- $nextKey := $next.Format "2006-01-02" -}}
+
+{{- /* The events that touch the range.  An event that starts before the range shows if it ends inside it, so the
+       query reaches back a month for long events; each day below keeps only the events that cover it. */ -}}
+{{- $events := ((((.ChildrenWithDrafts.Where "templateId" "qwerty-entry").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd).ByStartDate.All).Slice -}}
+
+<!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views -->
+<div class="qwerty-calendar-toolbar flex-row flex-wrap flex-align-center margin-bottom">
+	<div class="flex-row flex-align-center flex-grow">
+		{{- if eq $view "month" -}}
+			<h2 class="text-xl bold margin-none margin-right-sm">{{$title}}</h2>
+		{{- end -}}
+		<button type="button" class="turboclick" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}">{{icon "chevron-left"}}</button>
+		<button type="button" class="turboclick" hx-get="/{{$collectionID}}/list?view={{$view}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}">Today</button>
+		<button type="button" class="turboclick" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}">{{icon "chevron-right"}}</button>
+		{{- if ne $view "month" -}}
+			<h2 class="text-xl bold margin-none margin-left-sm">{{$title}}</h2>
+		{{- end -}}
+	</div>
+	<div role="tablist" class="pills margin-none">
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `list`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=list{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=list{{$startQuery}}">List</a>
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `week`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=week{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=week{{$startQuery}}">Week</a>
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `month`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=month{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=month{{$startQuery}}">Month</a>
+	</div>
+</div>
+
+{{- if eq $view "list" -}}
+
+	<!-- List: the month's events, one row each, under the day they start -->
+	{{- $days := groupie -}}
+	{{- $count := 0 -}}
+	<div class="qwerty-calendar-list card">
+		{{- range $events -}}
+			{{- if eq ((inTimezone .StartDate .Location.Timezone).Format "2006-01") $monthKey -}}
+				{{- $count = add $count 1 -}}
+				{{- if $days.Header ((inTimezone .StartDate .Location.Timezone).Format "2006-01-02") -}}
+					<div class="qwerty-calendar-list-day{{if eq ((inTimezone .StartDate .Location.Timezone).Format `2006-01-02`) $todayKey}} today{{end}}">{{(inTimezone .StartDate .Location.Timezone).Format "Monday, January 2"}}</div>
+				{{- end -}}
+				<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-list-event flex-row text-plain text-nocolor turboclick">
+					<div class="qwerty-calendar-time text-sm text-gray">
+						{{- if ne ((inTimezone .StartDate .Location.Timezone).Format "15:04") "00:00" -}}{{(inTimezone .StartDate .Location.Timezone).Format "3:04 PM"}}{{- else -}}All day{{- end -}}
+					</div>
+					<div class="flex-grow">
+						<div class="bold">{{.Label}}</div>
+						{{- if ne "" .Summary -}}<div class="text-sm text-gray">{{.Summary}}</div>{{- end -}}
+					</div>
+				</a>
+			{{- end -}}
+		{{- end -}}
+		{{- if eq $count 0 -}}
+			<div class="padding text-gray align-center">No events in {{$title}}.</div>
+		{{- end -}}
+	</div>
+
+{{- else -}}
+
+	<!-- Month or Week: a grid of days, Sunday first -->
+	<div class="qwerty-calendar-grid qwerty-calendar-{{$view}}">
+		{{- range $index := seq 7 -}}
+			{{- $day := $gridStart.AddDate 0 0 $index -}}
+			<div class="qwerty-calendar-weekday">{{$day.Format "Mon"}}</div>
+		{{- end -}}
+
+		{{- range $index := seq $dayCount -}}
+			{{- $day := $gridStart.AddDate 0 0 $index -}}
+			{{- $dayKey := $day.Format "2006-01-02" -}}
+			<div class="qwerty-calendar-day{{if ne ($day.Format `2006-01`) $monthKey}}{{if eq $view `month`}} outside{{end}}{{end}}{{if eq $dayKey $todayKey}} today{{end}}">
+				<div class="qwerty-calendar-date">{{$day.Day}}</div>
+				{{- range $events -}}
+					{{- $start := (inTimezone .StartDate .Location.Timezone).Format "2006-01-02" -}}
+					{{- $end := $start -}}
+					{{- if not .EndDate.IsZero -}}
+						{{- $end = (inTimezone .EndDate .Location.Timezone).Format "2006-01-02" -}}
+					{{- end -}}
+					{{- if and (le $start $dayKey) (ge $end $dayKey) -}}
+						<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-event turboclick" title="{{.Label}}">
+							{{- if and (eq $start $dayKey) (ne ((inTimezone .StartDate .Location.Timezone).Format "15:04") "00:00") -}}
+								<span class="qwerty-calendar-time">{{(inTimezone .StartDate .Location.Timezone).Format "3:04"}}</span>
+							{{- end -}}
+							{{.Label}}
+						</a>
+					{{- end -}}
+				{{- end -}}
+			</div>
+		{{- end -}}
+	</div>
+
+{{- end -}}

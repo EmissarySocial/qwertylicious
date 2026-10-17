@@ -1,0 +1,38 @@
+{{- /* items-timeline is a Timeline collection's tab: its events in date order down a vertical line, under a heading
+       for each year.  Each event links to its own page.  The line's CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+{{- $tag := .QueryParam "tag" -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByStartDate -}}
+{{- if eq (.Data "timelineOrder") "desc" -}}
+	{{- $query = $query.Reverse -}}
+{{- end -}}
+{{- $allEvents := $query.All.Slice -}}
+{{- $events := $allEvents -}}
+{{- if ne "" $tag -}}
+	{{- $events = ($query.Tags $tag).All.Slice -}}
+{{- end -}}
+
+{{- if $allEvents.IsEmpty -}}
+	{{- template "items-empty" (array . "clock-history" "Your Timeline" "Mark the moments that matter, in order.  Each event can hold dates, a photo, and its whole story." "+ Add an Event") -}}
+{{- else -}}
+	{{- template "items-tags" (array . $allEvents $tag) -}}
+	{{- $years := groupie -}}
+	<ol class="qwerty-timeline">
+		{{- range $events -}}
+			{{- if $years.Header (.StartDate.Format "2006") -}}
+				<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
+			{{- end -}}
+			<li class="qwerty-timeline-event">
+				<a href="/{{.StreamID}}" hx-boost="true" class="card flex-row text-plain text-nocolor padding turboclick">
+					<div class="flex-grow">
+						<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
+						<div class="text-lg bold">{{.Label}}</div>
+						{{- if ne "" .Summary -}}<div class="text-gray">{{.Summary}}</div>{{- end -}}
+					</div>
+					{{- if ne "" .IconURL -}}
+						<img src="{{.IconURL}}.webp?width=192&height=192" alt="" class="rounded square width-96 object-fit-cover flex-shrink-0 margin-left-sm" loading="lazy">
+					{{- end -}}
+				</a>
+			</li>
+		{{- end -}}
+	</ol>
+{{- end -}}

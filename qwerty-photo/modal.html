@@ -1,0 +1,32 @@
+{{- /* modal is a post opened from its gallery (qwerty-collection/items-gallery.html), or from its own URL, in a
+       large modal (template.hjson's modal action).  Its Replies are a second tab (qwerty-replies), which re-opens
+       this modal with ?tab=replies. */ -}}
+<div class="padding">
+	{{- template "replies-tabs" (array . "Photo" "modal") -}}
+
+	{{- if eq (.QueryParam "tab") "replies" -}}
+		{{- template "replies-panel" . -}}
+		<div class="flex-row margin-top">
+			<button script="on click trigger closeModal">Close</button>
+		</div>
+	{{- else -}}
+		{{- template "photo-figure" (array . "modal") -}}
+
+		<!-- Share and Close sit at the bottom left.  The author's Edit and Pin sit across from the byline (photo-figure.html). -->
+		<div class="flex-row flex-align-center margin-top">
+			<!-- Share hands the photo's own URL to the device's share sheet, or copies it where there is none -->
+			<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
+				on click
+					if navigator.share
+						call navigator.share({url: my @data-share-url})
+					else
+						call navigator.clipboard.writeText(my @data-share-url)
+						put 'Link Copied' into the first <span/> in me
+					end
+				catch error
+					log error
+				end">{{icon "share"}} <span>Share</span></button>
+			<button script="on click trigger closeModal">Close</button>
+		</div>
+	{{- end -}}
+</div>

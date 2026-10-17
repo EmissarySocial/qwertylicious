@@ -1,0 +1,18 @@
+{{- /* items-gallery is a Photo Gallery collection's tab: its posts in a square grid, as on Instagram or PixelFed.
+       Pinned posts come first, then the rest, newest first, 30 at a time.  The last tile of each page is a sentinel
+       that loads the next page when it scrolls into view (gallery-page, items-gallery-page.html).  A post opens in
+       a modal (qwerty-photo's modal action).  The grid's CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
+{{- $pinned := (($photos.Where "isFeatured" true).ByCreateDate.Reverse.All).Slice -}}
+{{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
+
+{{- if and $pinned.IsEmpty $page.IsEmpty -}}
+	{{- template "items-empty" (array . "images" "Your Photo Gallery" "Share photos here, newest first.  Each post can hold up to 64, and opens full-size when someone clicks it." "+ Add Photos") -}}
+{{- else -}}
+	<div class="qwerty-gallery">
+		{{- $canEdit := .UserCan "settings" -}}
+		{{- template "gallery-tiles" (array $pinned $canEdit) -}}
+		{{- template "gallery-tiles" (array $page $canEdit) -}}
+		{{- template "gallery-more" (array .StreamID $page) -}}
+	</div>
+{{- end -}}

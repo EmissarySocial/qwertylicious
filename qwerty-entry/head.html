@@ -1,0 +1,16 @@
+{{- /* head is a Place's <head> values, which as-modal puts into the full page when its URL is opened directly, so
+       that a shared link previews the Place and not the profile drawn behind it. */ -}}
+<title>{{.DomainLabel}} - {{.Label}}</title>
+<link rel="canonical" href="{{.Permalink}}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="{{.DomainLabel}}">
+<meta property="og:title" content="{{.Label}}">
+<meta property="og:url" content="{{.Permalink}}">
+{{- if ne "" .IconURL }}
+<meta property="og:image" content="{{.IconURL}}.webp?width=1200">
+<meta name="twitter:card" content="summary_large_image">
+{{- end }}
+{{- if ne "" .Summary }}
+<meta name="description" content="{{.Summary}}">
+<meta property="og:description" content="{{.Summary}}">
+{{- end }}

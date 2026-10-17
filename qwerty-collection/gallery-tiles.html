@@ -1,0 +1,32 @@
+{{- /* gallery-tiles draws a slice of photo posts as grid tiles.  A pinned post, and one holding several photos,
+       get a mark in the corner.  A tile opens its post's modal without pushing the modal's URL (the theme's <body>
+       pushes every hx-get by default): the address bar must keep the profile's ?tab=, which refreshPage reloads.
+       Call it as (array $posts $canEdit); $canEdit adds an Edit button in the top right, shown on hover. */ -}}
+{{- $canEdit := index . 1 -}}
+{{- range index . 0 -}}
+	{{- /* A tile is named by its post's title, else its description (aria-labelledby, the hidden copy below), or
+	       else just "Photo" */ -}}
+	{{- if ne "" .Label -}}
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-label="{{.Label}}">
+	{{- else if ne "" .Content.HTML -}}
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-labelledby="tile-caption-{{.StreamID}}">
+		<div id="tile-caption-{{.StreamID}}" hidden>{{.Content.HTML | htmlMinimal}}</div>
+	{{- else -}}
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-label="Photo">
+	{{- end -}}
+		<img src="{{.IconURL}}.webp?width=480&height=480" alt="" loading="lazy">
+		{{- $count := int (index .Data "photoCount") -}}
+		{{- if or .IsFeatured (gt $count 1) -}}
+			<span class="qwerty-gallery-mark" aria-hidden="true">
+				{{- if .IsFeatured -}}{{icon "pin-fill"}}{{- end -}}
+				{{- if gt $count 1 -}}{{icon "images"}}{{- end -}}
+			</span>
+		{{- end -}}
+		<!-- consume keeps the tile's own hx-get from opening the post as well -->
+		{{- if $canEdit -}}
+			<div class="hover-show pos-absolute-top-right">
+				<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-trigger="click consume" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
+			</div>
+		{{- end -}}
+	</div>
+{{- end -}}

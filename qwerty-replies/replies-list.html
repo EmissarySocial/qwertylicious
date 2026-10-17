@@ -1,0 +1,21 @@
+{{- /* replies-list is one page of replies, oldest first, from this Stream's Replies collection.  The panel
+       draws the first page, and a "revealed" sentinel at its foot loads the next one through the replies-list
+       action (?after= is the last reply's createDate).  Each reply is loaded through .ActivityStream, which
+       stamps the viewer's own rules on it, so one they hide shows as a placeholder (reply-item). */ -}}
+{{- $builder := . -}}
+{{- $pageSize := 20 -}}
+{{- $links := .ReplyLinksAfter (.QueryParam "after") $pageSize -}}
+{{- $after := "" -}}
+
+{{- range $links -}}
+	{{- $after = print .CreateDate -}}
+	{{- template "reply-item" (array $builder (.URI)) -}}
+{{- end -}}
+
+{{- if eq (len $links) $pageSize -}}
+	<div hx-get="/{{.StreamID}}/replies-list?after={{$after}}"
+		hx-trigger="revealed"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-push-url="false"></div>
+{{- end -}}

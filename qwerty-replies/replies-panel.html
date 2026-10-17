@@ -1,0 +1,30 @@
+{{- /* replies-panel is the Replies tab's content: an invitation to reply (or why replies are not open), then the
+       replies.  The Reply button opens base-intent's intent modal with intent=create and inReplyTo set to this
+       item, which sends the visitor to their own Fediverse server to write the reply.  Their server delivers it
+       here, and Emissary records it in this Stream's Replies collection (service.Stream.AddReply). */ -}}
+<div id="replies">
+
+	{{- if .AcceptsReplies -}}
+		<div class="flex-row flex-align-center margin-bottom-lg">
+			<div class="flex-grow">
+				<div class="bold">Join the Conversation</div>
+				<div class="text-sm text-gray">Reply from your own account anywhere on the Fediverse.</div>
+			</div>
+			<button class="primary turboclick" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+		</div>
+	{{- else if .RepliesClosed -}}
+		<div class="text-gray margin-bottom-lg">{{icon "lock"}} Replies are closed.</div>
+	{{- else -}}
+		<div class="text-gray margin-bottom-lg">{{icon "lock"}} Only posts shared with everyone can receive replies.</div>
+	{{- end -}}
+
+	{{- if eq .ReplyCount 0 -}}
+		{{- if .AcceptsReplies -}}
+			<div class="align-center text-gray padding-lg">No replies yet.  Be the first.</div>
+		{{- end -}}
+	{{- else -}}
+		<div class="qwerty-replies">
+			{{- template "replies-list" . -}}
+		</div>
+	{{- end -}}
+</div>

@@ -1,0 +1,14 @@
+{{- /* gallery-more is the sentinel after a full page of photo posts.  Called as (array $collectionID $page).  When it
+       scrolls into view it loads the next 30 posts, older than this page's last, and replaces itself with them
+       (and the next sentinel).  createDate=LT: is a filter the children query applies on its own. */ -}}
+{{- $collectionID := index . 0 -}}
+{{- $page := index . 1 -}}
+{{- if $page.IsLength 30 -}}
+	<div class="qwerty-gallery-more"
+		hx-get="/{{$collectionID}}/gallery-page?createDate=LT:{{$page.Last.CreateDate}}"
+		hx-trigger="revealed"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-push-url="false">
+	</div>
+{{- end -}}

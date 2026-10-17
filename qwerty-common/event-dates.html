@@ -1,0 +1,22 @@
+{{- /* event-dates writes an event's start and end as one phrase, on the clock of the event's own timezone (its
+       location's, through the inTimezone helper), with that zone's abbreviation when it has one.  The dot is a
+       StreamSummary (whose dates are datetime.DateTime) or a Stream builder (whose dates are time.Time); inTimezone
+       accepts both and returns a time.Time.  A time of midnight is a whole-day event, so no time is shown.  An end on
+       the same day shows only its time, and an end on a later day shows its date too. */ -}}
+{{- $zone := .Location.Timezone -}}
+{{- $start := inTimezone .StartDate $zone -}}
+{{- $end := inTimezone .EndDate $zone -}}
+<time class="dt-start" datetime="{{$start.Format `2006-01-02T15:04-07:00`}}">
+	{{- $start.Format "Mon, Jan 2, 2006" -}}
+	{{- if ne ($start.Format "15:04") "00:00" }} at {{ $start.Format "3:04 PM" }}{{- end -}}
+</time>
+{{- if not $end.IsZero -}}
+	{{- if eq ($start.Format "2006-01-02") ($end.Format "2006-01-02") -}}
+		{{- if ne ($end.Format "15:04") "00:00" }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02T15:04-07:00`}}">{{ $end.Format "3:04 PM" }}</time>{{- end -}}
+	{{- else }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02T15:04-07:00`}}">
+		{{- $end.Format "Mon, Jan 2, 2006" -}}
+		{{- if ne ($end.Format "15:04") "00:00" }} at {{ $end.Format "3:04 PM" }}{{- end -}}
+	</time>
+	{{- end -}}
+{{- end -}}
+{{- if and (ne "" $zone) (ne ($start.Format "15:04") "00:00") }} <span class="text-light-gray">{{$start.Format "MST"}}</span>{{- end -}}

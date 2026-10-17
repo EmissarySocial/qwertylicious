@@ -85,9 +85,29 @@
 			]
 		}
 
+		// The Notes tab's composer (qwerty-collection/items-notes.html) saves a Note on the profile, as Emissary's outbox-add does
+		add-note: {
+			roles: ["self"]
+			steps: [
+				{do:"set-args", postTo:"/@me/add-note"}
+				{do:"set-query-param", new-stream-label:"Add a Note"}
+				{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message"}
+				{do:"refresh-page"}
+			]
+		}
+
+		// A profile holds up to 8 collections.  Past that, a GET explains why in a modal, and a POST answers the form
+		// with the same message, so neither creates one.
 		add-collection: {
 			roles: ["self"]
 			steps: [
+				{do:"if", condition:"{{ge (len (.Outbox.Where `templateId` `qwerty-collection`).Slice) 8}}", then:[
+					{do:"inline-error", message:"You have 8 collections, the most a profile can hold."}
+					{do:"as-modal", steps:[
+						{do:"view-html", file:"collections-full"}
+					]}
+					{do:"halt"}
+				]}
 				{
 					do: add-stream
 					style: inline
@@ -235,18 +255,6 @@
 			]
 		}
 
-		// The X on the profile header's banner removes the image after confirming, as on an Article's banner
-		delete-banner: {
-			roles: ["self"]
-			steps: [
-				{do:"as-confirmation", title:"Remove Banner Image?", message:"This banner will be permanently removed from your profile.  There is NO UNDO.", submit:"Remove"}
-				{do:"delete-attachments", field:"imageId"}
-				{do:"save"}
-				{do:"search-index", if:"{{.IsIndexable}}"}
-				{do:"refresh-page"}
-			]
-		}
-
 		edit-banner: {
 			roles: ["self"]
 			steps: [
@@ -303,6 +311,19 @@
 				]}
 				{do:"save"}
 				{do:"search-index", if:"{{.IsIndexable}}"}
+				{do:"refresh-page"}
+			]
+		}
+
+		// Manage Collections reorders the profile's tabs, and links to each one's Edit and to Add: the modal on GET,
+		// then re-rank and reload on POST
+		manage-collections: {
+			roles: ["self"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html", method:"get", file:"manage-collections"}
+				]}
+				{do:"sort", model:"Stream", keys:"_id", values:"rank"}
 				{do:"refresh-page"}
 			]
 		}

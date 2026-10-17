@@ -1,0 +1,20 @@
+{{- /* episode-arrow is one of the round arrows beside the play button, to the episode above ("prev") or below ("next")
+       in the podcast's list, which the theme's podcast bundle opens (qwerty-podcast.js, data-episode-go).  It is called
+       as (array $direction $episodeID).  With no episode that way, it is disabled, which hides it but keeps its place,
+       so the play button does not move.  Each one is drawn whole in each branch, since a template action cannot stand
+       where an attribute name goes (AGENTS.md). */ -}}
+{{- $direction := index . 0 -}}
+{{- $episodeID := index . 1 -}}
+{{- if eq $direction "prev" -}}
+	{{- if ne "" $episodeID -}}
+		<button type="button" class="qwerty-episode-arrow" data-episode-go="prev" aria-label="Previous Episode">{{icon "arrow-left"}}</button>
+	{{- else -}}
+		<button type="button" class="qwerty-episode-arrow" aria-label="Previous Episode" disabled>{{icon "arrow-left"}}</button>
+	{{- end -}}
+{{- else -}}
+	{{- if ne "" $episodeID -}}
+		<button type="button" class="qwerty-episode-arrow" data-episode-go="next" aria-label="Next Episode">{{icon "arrow-right"}}</button>
+	{{- else -}}
+		<button type="button" class="qwerty-episode-arrow" aria-label="Next Episode" disabled>{{icon "arrow-right"}}</button>
+	{{- end -}}
+{{- end -}}

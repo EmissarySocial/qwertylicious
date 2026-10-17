@@ -1,0 +1,46 @@
+{{- /* items-map is a Map collection's tab: one large map with a marker for each place (a qwerty-entry), whose
+       pop-up opens its modal (qwerty-entry's modal action).  The places show only as markers, with no list.  qwerty-theme's maps bundle draws
+       it (qwerty-theme/maps/qwerty-maps.js).  The default view is the collection's own location and data.zoom; with
+       none saved, the map fits its places. */ -}}
+{{- $tag := .QueryParam "tag" -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByLabel -}}
+{{- $allPlaces := $query.All.Slice -}}
+{{- $places := $allPlaces -}}
+{{- if ne "" $tag -}}
+	{{- $places = ($query.Tags $tag).All.Slice -}}
+{{- end -}}
+{{- $location := .Location -}}
+{{- $mapTiles := .MapTiles -}}
+
+{{- template "items-tags" (array . $allPlaces $tag) -}}
+
+<div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}" data-save-url="/{{.StreamID}}/map-view">
+	<div class="qwerty-map-canvas qwerty-map-large rounded"></div>
+
+	{{- if .UserCan "map-view" -}}
+		<div class="align-right margin-top-sm">
+			<button type="button" class="qwerty-map-save text-sm">{{icon "map"}} Set Default View</button>
+		</div>
+	{{- end -}}
+
+	<div hidden>
+		{{- range $places -}}
+			{{- if .Location.HasGeocode -}}
+				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}">
+					{{- if ne "" .IconURL -}}
+						<img src="{{.IconURL}}.webp?width=560" alt="" class="block width-100% rounded margin-bottom-sm">
+					{{- end -}}
+					<div class="bold">{{.Label}}</div>
+					{{- if not .StartDate.IsZero -}}<div class="text-sm text-gray">{{template "event-dates" .}}</div>{{- end -}}
+					{{- if ne "" .Summary -}}<div class="text-sm">{{.Summary}}</div>{{- end -}}
+					<div class="margin-top-sm"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false">Details</a></div>
+				</div>
+			{{- end -}}
+		{{- end -}}
+	</div>
+</div>
+
+
+<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
+<script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
+<script src="/.themes/qwerty-theme/maps"></script>

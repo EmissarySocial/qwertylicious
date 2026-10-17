@@ -1,0 +1,215 @@
+{
+	// A post of 1 to 64 photos (a carousel) in a Photo Gallery collection (qwerty-collection with
+	// data.layout "gallery").  It is created and organized only by its collection: the collection's add
+	// action opens this template's create form.  Publishing is immediate, as on Instagram or PixelFed, and
+	// the gallery opens each post in a modal.  Its first photo is its thumbnail (iconUrl), and
+	// data.photoCount tells the gallery when to mark a post as holding several.
+	templateId: "qwerty-photo"
+	category: Content
+	templateRole: "photo"
+	socialRole: "Note"
+	containedBy: ["qwerty-collection"]
+	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	inheritPermissions: true
+	model: Stream
+	extends: ["base-intent", "qwerty-replies"]
+	label: "Qwertylicious Photo"
+	description: "A photo in a Qwertylicious photo gallery."
+	icon: "image"
+
+	schema: {
+		type: "object"
+		properties: {
+			token: {type:"string"}
+			label: {type:"string", maxLength:128}
+			iconUrl: {type:"string", format:"url"}
+			content: {type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string", maxLength:4096}
+				html: {type:"string", format:"html"}
+			}}
+			isFeatured: {type:"boolean"}
+			data: {type:"object", properties: {
+				photoCount: {type:"integer", minimum:0, maximum:64}
+			}}
+		}
+	}
+
+	states: {
+		default: {
+			label: "Default State"
+			description: "Visible only to Authors and Owners"
+		}
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this photo"
+		}
+	}
+
+	actions: {
+
+		// Opened through the collection's add action (add-stream, inline), so a GET draws this form in a
+		// modal and its POST uploads the photo and publishes it.  refresh-page reloads the profile on the
+		// collection's tab, where the new photo now leads the gallery.
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					{
+						do: "edit"
+						form: {
+							type: "layout-vertical"
+							label: "Add Photos"
+							children: [
+								{type:"upload", path:"iconUrl", label:"Photos", description:"Up to 64.  More than one makes a carousel, in the order you choose them.", options:{accept:"image/*", multiple:true, required:true}}
+								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:3}}
+							]
+						}
+					}
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:64, accept-type:"image/*", rules:{types:["webp"]}}
+					{do:"set-thumbnail", path:"iconUrl"}
+					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// A photo's own URL (/{id}) is the one to share.  Opened directly, it draws the gallery on its owner's
+		// profile, and the photo as a modal over it, with the photo's own title and link-preview tags in
+		// <head> (head.html).  A visitor who cannot see that profile gets the photo's own page behind the
+		// modal instead.  Inside the gallery, a tile opens the same modal, and the address bar shows /{id}
+		// until it closes.  ParentID is the gallery, and the gallery's ParentID is its owner.
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"include", action:"modal"}
+			]
+		}
+
+		modal: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{
+					do: "as-modal"
+					options: ["class:large"]
+					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+					background: "page"
+					replace-url: "/{{.StreamID}}"
+					head: [
+						{do:"view-html", file:"head"}
+					]
+					steps: [
+						{do:"view-html", file:"modal"}
+					]
+				}
+			]
+		}
+
+		// The photo as a page of its own, behind the modal when its gallery cannot be drawn
+		page: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html", file:"view"}
+			]
+		}
+
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					{
+						do: "edit"
+						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+						form: {
+							type: "layout-vertical"
+							label: "Edit Photo"
+							children: [
+								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:3}}
+								{type:"upload", path:"iconUrl", label:"Add More Photos", description:"Added after the ones already here.  A post holds up to 64 photos, and any past that are not added.", options:{accept:"image/*", multiple:true, delete:"{{with index .Data `photoCount`}}{{if gt . 1}}/{{$.StreamID.Hex}}/delete-thumbnail{{end}}{{end}}"}}
+							]
+						}
+					}
+					// "fill" never deletes a photo to make room: past 64, the extra uploads are left out
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:64, action:"fill", accept-type:"image/*", rules:{types:["webp"]}}
+					{do:"set-thumbnail", path:"iconUrl"}
+					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save", comment:"Updated by {{.Author}}"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// The X on the edit form's photo preview (the upload widget's delete option) removes the photo it shows,
+		// which is the post's first one, its thumbnail (iconUrl).  Then the next photo becomes the thumbnail.  It is
+		// offered, and done, only while the post holds more than one, so a post is never left with none.  The form
+		// stays open, and refreshPage redraws the gallery behind it.  It replaces delete-photo, which deleted EVERY
+		// photo when its ?attachmentId= was missing.
+		delete-thumbnail: {
+			roles: ["author"]
+			steps: [
+				{do:"if", condition:"{{gt (len (.AttachmentsByCategory `photo`)) 1}}", then:[
+					{do:"delete-attachments", field:"iconUrl"}
+					{do:"set-thumbnail", path:"iconUrl"}
+					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
+					{do:"save", comment:"Photo removed by {{.Author}}"}
+					{do:"trigger-event", event:"refreshPage", value:"true"}
+				]}
+			]
+		}
+
+		// Pinned posts lead the gallery, before the newest.  The modal's button swaps itself (pin-button.html), and
+		// refreshPage reloads the gallery behind it; refresh-page would also send closeModal.  view-html renders
+		// only on GET unless told otherwise, so its method is post.
+		feature: {
+			roles: ["author"]
+			steps: [
+				{do:"set-data", values:{"isFeatured":"true"}}
+				{do:"save", comment:"Pinned by {{.Author}}"}
+				{do:"trigger-event", event:"refreshPage", value:"true"}
+				{do:"view-html", file:"pin-button", method:"post"}
+			]
+		}
+
+		unfeature: {
+			roles: ["author"]
+			steps: [
+				{do:"set-data", values:{"isFeatured":"false"}}
+				{do:"save", comment:"Unpinned by {{.Author}}"}
+				{do:"trigger-event", event:"refreshPage", value:"true"}
+				{do:"view-html", file:"pin-button", method:"post"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete this Photo?", message:"The photo and its caption will be removed from your gallery.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+
+	}
+}

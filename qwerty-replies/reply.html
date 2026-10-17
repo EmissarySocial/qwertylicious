@@ -1,0 +1,3 @@
+{{- /* reply is one reply (?id=), for the reply action: a hidden reply's placeholder swaps itself for this,
+       loaded with ?reveal=true so .ActivityStream returns the document its rules hide. */ -}}
+{{- template "reply-item" (array . (.QueryParam "id")) -}}

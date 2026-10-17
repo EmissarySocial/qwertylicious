@@ -1,20 +1,28 @@
-{{- /* layout-columns renders a slice of StreamSummary passed as ".", and fetches nothing. The caller handles the empty state. */ -}}
-{{- range . -}}
-	<a href="{{.URL}}" hx-boost="true" class="card qwerty-outbox-item text-plain text-nocolor flex-column turboclick">
-		{{- if ne "" .IconURL -}}
-			<div class="width-100% rectangle" style="height:200px; overflow:hidden;">
-				<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
+{{- /* layout-columns renders (array $posts $canEdit), and fetches nothing; $canEdit adds an Edit link shown on hover. The caller handles the empty state. */ -}}
+{{- $canEdit := index . 1 -}}
+{{- range index . 0 -}}
+	<div class="pos-relative hover-trigger">
+		<a href="{{.URL}}" hx-boost="true" class="height-100% card qwerty-outbox-item text-plain text-nocolor flex-column turboclick">
+			{{- if ne "" .IconURL -}}
+				<div class="width-100% rectangle" style="height:200px; overflow:hidden;">
+					<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
+				</div>
+			{{- end -}}
+			<div class="padding flex-grow">
+				<div>
+					{{- range .Hashtags -}} {{.}} {{- end -}}
+				</div>
+				<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
+				<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
+			</div>
+			<div class="padding">
+				<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
+			</div>
+		</a>
+		{{- if $canEdit -}}
+			<div class="hover-show pos-absolute-top-right">
+				<a href="/{{.StreamID}}/edit" hx-boost="true" class="button edit-circle turboclick" aria-label="Edit" title="Edit">{{icon "pencil"}}</a>
 			</div>
 		{{- end -}}
-		<div class="padding flex-grow">
-			<div>
-				{{- range .Hashtags -}} {{.}} {{- end -}}
-			</div>
-			<div class="text-lg bold qwerty-outbox-item-title">{{.Name}}</div>
-			<div class="text-sm text-gray qwerty-outbox-item-description">{{.Description}}</div>
-		</div>
-		<div class="padding">
-			<div class="text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
-		</div>
-	</a>
+	</div>
 {{- end -}}

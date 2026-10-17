@@ -36,7 +36,18 @@ article.content {
 	border-radius: 0;
 }
 
-.card.border
+/* A wide frame is as wide as the profile page (#outbox-page), as on an Article's page and edit page */
+.framed.wide {
+	max-width: 1024px;
+}
+
+/* A reading column keeps text at a normal frame's width inside a wide frame, centered in its white space */
+.reading-column {
+	width: 100%;
+	max-width: 720px;
+	margin-left: auto;
+	margin-right: auto;
+}
 
 /******************************************
  * Fullscreen

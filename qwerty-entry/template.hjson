@@ -1,0 +1,255 @@
+{
+	// An entry in a Map, Timeline, or Calendar collection (qwerty-collection with data.layout "map", "timeline", or
+	// "calendar").  One type serves all three: an entry has a location (the Stream's own, which puts it on a map),
+	// a startDate and an optional endDate (which put it on a timeline or a calendar), or both.  Its forms follow its
+	// collection: on a Map it is a Place, whose location is required and which has no dates; on a Timeline or Calendar
+	// it is an Event, whose start is required and location optional.  Its own page is laid out as an Article.  It is
+	// created and organized only by its collection: the collection's add action opens this template's create form.
+	// An entry with a location keeps its times in that place's timezone: localize-dates shows them on its clock
+	// before the form, and anchor-dates looks up the timezone and stores the typed times as instants there after it.
+	templateId: "qwerty-entry"
+	category: Content
+	templateRole: "entry"
+	// Not "Event": nothing federates its dates (no social rules map startDate to startTime), and many entries are
+	// places with no dates at all, so every server shows it as a post
+	socialRole: "Note"
+	containedBy: ["qwerty-collection"]
+	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	inheritPermissions: true
+	model: Stream
+	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
+	label: "Qwertylicious Entry"
+	description: "A place on a Qwertylicious map, or an event on a timeline or calendar."
+	icon: "map-pin"
+	tagPaths: ["data.tags"]
+
+	schema: {
+		type: "object"
+		properties: {
+			token: {type:"string"}
+			label: {type:"string", maxLength:128}
+			summary: {type:"string", maxLength:2048}
+			iconUrl: {type:"string", format:"url"}
+			startDate: {type:"string"}
+			endDate: {type:"string"}
+			location: {type:"object", properties: {
+				name: {type:"string"}
+				formatted: {type:"string"}
+				latitude: {type:"number"}
+				longitude: {type:"number"}
+			}}
+			content: {type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string"}
+				html: {type:"string", format:"html"}
+			}}
+			data: {type:"object", properties: {
+				iconDescription: {type:"string", maxLength:2048}
+				tags: {type:"string", maxLength:1024}
+			}}
+		}
+	}
+
+	states: {
+		default: {
+			label: "Default State"
+			description: "Visible only to Authors and Owners"
+		}
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this entry"
+		}
+	}
+
+	actions: {
+
+		// Opened through the collection's add action (add-stream, inline), so a GET draws this form in a
+		// modal and its POST saves and publishes the entry.  add-stream places the new entry in its collection
+		// before these steps run, so the condition can read the collection's format.  refresh-page reloads the
+		// profile on the collection's tab, where the new entry shows on the map, timeline, or calendar.
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"localize-dates"}
+					{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
+						{
+							do: "edit"
+							form: {
+								type: "layout-vertical"
+								label: "Add a Place"
+								children: [
+									{type:"text", path:"label", label:"Name", options:{required:true}}
+									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
+									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows in the map's pop-up and beneath the name.", options:{rows:2}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+								]
+							}
+						}
+					], else:[
+						{
+							do: "edit"
+							form: {
+								type: "layout-vertical"
+								label: "Add an Event"
+								children: [
+									{type:"text", path:"label", label:"Title", options:{required:true}}
+									{type:"datetime", path:"startDate", label:"Starts", options:{required:true, default:"now"}}
+									{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+									{type:"place", path:"location", label:"Location", description:"Optional.  The times above are in this place's time zone.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+								]
+							}
+						}
+					]}
+					{do:"anchor-dates"}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// A Place's own URL (/{id}) opens its modal over its map, as a photo opens over its gallery.  An Event's
+		// URL is its own page.
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
+					{do:"include", action:"modal"}
+				], else:[
+					{do:"view-html"}
+				]}
+			]
+		}
+
+		// The map's pop-up and the calendar open an entry here.  A Place's modal is drawn over its map on its owner's
+		// profile, with the Place's own URL in the address bar and its own <head> (head.html).  A visitor who cannot
+		// see that profile gets the entry's page behind it.  An Event's modal is drawn over its own page.
+		modal: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
+					{
+						do: "as-modal"
+						options: ["class:large"]
+						background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+						background: "page"
+						replace-url: "/{{.StreamID}}"
+						head: [
+							{do:"view-html", file:"head"}
+						]
+						steps: [
+							{do:"view-html", file:"modal"}
+						]
+					}
+				], else:[
+					{do:"as-modal", options:["class:large"], background:"page", steps:[
+						{do:"view-html", file:"modal"}
+					]}
+				]}
+			]
+		}
+
+		// The entry as a page of its own: an Event's view, and the page behind a Place's modal when its map cannot be drawn
+		page: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html", file:"view"}
+			]
+		}
+
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"localize-dates"}
+					{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete This Place"]
+							form: {
+								type: "layout-vertical"
+								label: "Edit Place"
+								children: [
+									{type:"text", path:"label", label:"Name", options:{required:true}}
+									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
+									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows in the map's pop-up and beneath the name.", options:{rows:2}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+								]
+							}
+						}
+					], else:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete This Event"]
+							form: {
+								type: "layout-vertical"
+								label: "Edit Event"
+								children: [
+									{type:"text", path:"label", label:"Title", options:{required:true}}
+									{type:"datetime", path:"startDate", label:"Starts", options:{required:true}}
+									{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+									{type:"place", path:"location", label:"Location", description:"Optional.  The times above are in this place's time zone.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+								]
+							}
+						}
+					]}
+					{do:"anchor-dates"}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save", comment:"Updated by {{.Author}}"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		delete-icon: {
+			roles: ["author"]
+			steps: [
+				{do:"delete-attachments", category:"icon"}
+				{do:"set-data", values:{"iconUrl": ""}}
+				{do:"save"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This will be removed from your collection.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+	}
+}

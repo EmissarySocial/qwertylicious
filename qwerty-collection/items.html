@@ -1,5 +1,24 @@
-{{- /* items lists this collection's Articles in its chosen format, featured Articles first.  ChildrenWithDrafts shows the author their unpublished Articles too, and shows everyone else only the published ones. */ -}}
+{{- /* items lists this collection's contents in its chosen format.  The Photo Gallery, Map, Timeline, Calendar, and
+       Podcast formats each have their own view (items-gallery.html, items-map.html, items-timeline.html,
+       items-calendar.html, items-podcast.html).  Every other format lists Articles, featured Articles first.  ChildrenWithDrafts shows the
+       author their unpublished items too, and shows everyone else only the published ones. */ -}}
 {{- $layout := .Data "layout" -}}
+
+{{- if eq $layout "gallery" -}}
+	{{- template "items-gallery" . -}}
+{{- else if eq $layout "map" -}}
+	{{- template "items-map" . -}}
+{{- else if eq $layout "timeline" -}}
+	{{- template "items-timeline" . -}}
+{{- else if eq $layout "calendar" -}}
+	{{- template "items-calendar" . -}}
+{{- else if eq $layout "podcast" -}}
+	{{- template "items-podcast" . -}}
+{{- else if eq $layout "notes" -}}
+	{{- template "items-notes" . -}}
+{{- else -}}
+
+{{- $canEdit := .UserCan "settings" -}}
 {{- $featured := (.ChildrenWithDrafts.Where "isFeatured" true).Slice -}}
 {{- $articles := (.ChildrenWithDrafts.Where "isFeatured" false).Slice -}}
 
@@ -18,11 +37,6 @@
 		</div>
 	{{- end -}}
 
-{{- else if or (eq $layout "gallery") (eq $layout "map") (eq $layout "timeline") (eq $layout "calendar") -}}
-
-	<!-- Placeholder formats, listed in qwerty-common's layouts dataset before they are built -->
-	<div class="card padding-horizontal padding-vertical-xl align-center text-gray">Coming soon...</div>
-
 {{- else -}}
 
 	{{- if $featured.NotEmpty -}}
@@ -30,12 +44,14 @@
 			<div class="text-sm bold text-gray margin-bottom-sm">{{icon "pin-fill"}} Featured</div>
 		{{- end -}}
 		<div class="margin-bottom">
-			{{- template "layout" (array $layout $featured) -}}
+			{{- template "layout" (array $layout $featured $canEdit) -}}
 		</div>
 	{{- end -}}
 
 	{{- if $articles.NotEmpty -}}
-		{{- template "layout" (array $layout $articles) -}}
+		{{- template "layout" (array $layout $articles $canEdit) -}}
 	{{- end -}}
+
+{{- end -}}
 
 {{- end -}}

@@ -44,7 +44,7 @@ div.table > [role=button]:hover,
 div.table > [role=button]:focus,
 div.table > .clickable:hover,
 div.table > .clickable:focus {
-	background-color: var(--input-border);
+	background-color: var(--page-background);
 }
 
 div.table > .selected {

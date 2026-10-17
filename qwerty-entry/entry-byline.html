@@ -1,0 +1,18 @@
+{{- /* entry-byline is the author's avatar, name, and publish date, with a Follow button for visitors, as an Article
+       draws it (qwerty-article/head-byline.html).  The page (view.html) and the modal (modal.html) both show it. */ -}}
+<div class="flex-row flex-align-center margin-bottom-lg">
+	<div class="width-48 flex-center">
+		<img src="{{.AttributedTo.IconURL}}" alt="" class="width-48 circle">
+	</div>
+	<div class="p-author h-card flex-grow">
+		<div class="p-name">
+			<a class="turboclick" href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
+		</div>
+		<div class="text-sm">{{.PublishDate | longDate}}</div>
+	</div>
+	{{- if not .IsAuthor -}}
+		<div>
+			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
+		</div>
+	{{- end -}}
+</div>

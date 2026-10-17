@@ -1,0 +1,614 @@
+/******************************************
+ * Collection Formats
+ *
+ * The Photo Gallery, Map, Timeline, and Calendar tabs (qwerty-collection/items-*.html), which the profile page
+ * shows inside its own frame.  Colors come from the theme's tokens, so they follow it into dark mode.
+ ******************************************/
+
+/* Photo Gallery: a square grid, three across (two on a small screen), as on Instagram or PixelFed.  Its corners are
+   square, so the tiles at its edges are too. */
+.qwerty-gallery {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 4px;
+}
+
+.qwerty-gallery-item {
+	aspect-ratio: 1 / 1;
+	overflow: hidden;
+	background-color: var(--gray10);
+	cursor: pointer;
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+/* A post's corner marks in the grid: a pin for a pinned post, and a stack for one that holds several photos */
+.qwerty-gallery-item {
+	position: relative;
+}
+
+/* Each mark is a 1em square with its glyph centered in it.  Bootstrap Icons sets vertical-align: -0.125em on
+   each glyph, which sat the stack-of-photos glyph high in its line box beside the pin. */
+/* The marks sit in the lower left, leaving the top right for the author's Edit button (gallery-tiles.html) */
+.qwerty-gallery-mark {
+	position: absolute;
+	bottom: var(--rhythm);
+	left: var(--rhythm);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--white);
+	font-size: calc(var(--rhythm) * 2.5);
+	line-height: 1;
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+	pointer-events: none;
+
+	i {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1em;
+		height: 1em;
+	}
+
+	i::before {
+		display: block;
+		line-height: 1;
+		vertical-align: 0;
+	}
+}
+
+/* Carousel: a post's photos side by side, one in view at a time.  The track slides by transform, moved by the arrows,
+   the arrow keys, or a press-and-drag swipe (qwerty-theme/carousel/qwerty-carousel.js), as the attachment viewer in
+   conversations-mls does.  touch-action leaves vertical scrolling to the browser, while the script takes horizontal
+   drags. */
+.qwerty-carousel-stage {
+	overflow: hidden;
+	touch-action: pan-y;
+	border-radius: var(--border-radius);
+	background-color: var(--gray10);
+}
+
+.qwerty-carousel-track {
+	display: flex;
+	transition: transform 240ms ease;
+
+	/* The track follows the pointer during a drag, with no lag */
+	&.dragging {
+		transition: none;
+	}
+}
+
+.qwerty-carousel-slide {
+	flex: 0 0 100%;
+	min-width: 0;
+	user-select: none;
+
+	img {
+		display: block;
+		width: 100%;
+		max-height: 80vh;
+		object-fit: contain;
+		-webkit-user-drag: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.qwerty-carousel-track {
+		transition: none;
+	}
+}
+
+/* The arrows: circles with the arrow at their exact center */
+.qwerty-carousel-prev,
+.qwerty-carousel-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(var(--rhythm) * 4);
+	height: calc(var(--rhythm) * 4);
+	margin: 0;
+	padding: 0;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.85);
+	color: #000;
+	line-height: 1;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+	/* Bootstrap Icons sit a little below the middle of their line box; this centers the glyph itself */
+	i {
+		display: block;
+		line-height: 1;
+	}
+
+	i::before {
+		display: block;
+		vertical-align: 0;
+	}
+
+	&:disabled {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+.qwerty-carousel-prev {
+	left: var(--rhythm);
+}
+
+.qwerty-carousel-next {
+	right: var(--rhythm);
+}
+
+.qwerty-carousel-count {
+	position: absolute;
+	bottom: var(--rhythm);
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 2px var(--rhythm);
+	border-radius: var(--rhythm);
+	background-color: rgba(0, 0, 0, 0.55);
+	color: #fff;
+	pointer-events: none;
+}
+
+/* Map: the large map on a Map tab.  The small map on a place's own page sets its own size. */
+.qwerty-map-large {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+}
+
+.qwerty-map-canvas {
+	background-color: var(--gray10);
+	z-index: 0;
+}
+
+/* Timeline: a line down the left, a dot for each event, and a heading for each year */
+.qwerty-timeline {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0 calc(var(--rhythm) * 3);
+	border-left: solid 2px var(--gray20);
+}
+
+.qwerty-timeline-year {
+	position: relative;
+	margin: calc(var(--rhythm) * 3) 0 var(--rhythm) 0;
+	font-size: calc(var(--rhythm) * 2.5);
+	font-weight: bold;
+	color: var(--gray60);
+
+	&:first-child {
+		margin-top: 0;
+	}
+}
+
+.qwerty-timeline-event {
+	position: relative;
+	margin-bottom: calc(var(--rhythm) * 2);
+
+	&::before {
+		content: "";
+		position: absolute;
+		left: calc(var(--rhythm) * -3 - 7px);
+		top: calc(var(--rhythm) * 2.5);
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background-color: var(--focus-color);
+		box-shadow: 0 0 0 3px var(--page-background);
+	}
+}
+
+/* Calendar: the toolbar, the Month and Week grids, and the List */
+.qwerty-calendar-toolbar {
+	gap: var(--rhythm);
+}
+
+.qwerty-calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	border: solid 1px var(--gray20);
+	border-radius: var(--border-radius);
+	overflow: hidden;
+	background-color: var(--gray20);
+	gap: 1px;
+}
+
+.qwerty-calendar-weekday {
+	padding: calc(var(--rhythm) * 0.5);
+	background-color: var(--gray05);
+	color: var(--gray60);
+	font-size: calc(var(--rhythm) * 1.5);
+	font-weight: 600;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.qwerty-calendar-day {
+	min-height: calc(var(--rhythm) * 12);
+	padding: calc(var(--rhythm) * 0.5);
+	background-color: var(--white);
+	overflow: hidden;
+
+	&.outside {
+		background-color: var(--gray05);
+
+		.qwerty-calendar-date {
+			color: var(--gray40);
+		}
+	}
+
+	&.today .qwerty-calendar-date {
+		background-color: var(--focus-color);
+		color: var(--white);
+	}
+}
+
+.qwerty-calendar-week .qwerty-calendar-day {
+	min-height: calc(var(--rhythm) * 30);
+}
+
+.qwerty-calendar-date {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: calc(var(--rhythm) * 3);
+	height: calc(var(--rhythm) * 3);
+	margin-bottom: calc(var(--rhythm) * 0.5);
+	border-radius: calc(var(--rhythm) * 1.5);
+	font-size: calc(var(--rhythm) * 1.6);
+	color: var(--gray80);
+}
+
+.qwerty-calendar-event {
+	display: block;
+	margin-bottom: 2px;
+	padding: 2px calc(var(--rhythm) * 0.5);
+	border-radius: calc(var(--rhythm) * 0.5);
+	background-color: color-mix(in srgb, var(--focus-color), transparent 85%);
+	color: var(--gray90);
+	font-size: calc(var(--rhythm) * 1.5);
+	line-height: 1.4;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	&:hover {
+		background-color: color-mix(in srgb, var(--focus-color), transparent 70%);
+	}
+
+	.qwerty-calendar-time {
+		font-weight: 600;
+		margin-right: 4px;
+	}
+}
+
+.qwerty-calendar-list {
+	padding: 0;
+	overflow: hidden;
+}
+
+.qwerty-calendar-list-day {
+	padding: var(--rhythm) calc(var(--rhythm) * 2);
+	background-color: var(--gray05);
+	border-top: solid 1px var(--gray20);
+	color: var(--gray70);
+	font-weight: 600;
+
+	&:first-child {
+		border-top: none;
+	}
+
+	&.today {
+		color: var(--focus-color);
+	}
+}
+
+.qwerty-calendar-list-event {
+	gap: calc(var(--rhythm) * 2);
+	padding: var(--rhythm) calc(var(--rhythm) * 2);
+	border-top: solid 1px var(--gray15);
+
+	&:hover {
+		background-color: var(--gray05);
+	}
+
+	.qwerty-calendar-time {
+		width: calc(var(--rhythm) * 9);
+		flex-shrink: 0;
+	}
+}
+
+/* On a phone, the Photo Gallery shows two across, and the Month grid keeps its shape while its event labels shrink to dots */
+@media (max-width: 640px) {
+	.qwerty-gallery {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 2px;
+	}
+
+	.qwerty-calendar-day {
+		min-height: calc(var(--rhythm) * 7);
+	}
+
+	.qwerty-calendar-month .qwerty-calendar-event {
+		height: 8px;
+		padding: 0;
+		font-size: 0;
+		background-color: var(--focus-color);
+	}
+}
+
+/* A Podcast collection (qwerty-collection/items-podcast.html): the feed's link, then the episodes.  The theme's
+   podcast bundle marks the episode that is playing with .playing. */
+/* Space between the tab bar and the podcast, then the feed's link above the episodes */
+.qwerty-podcast {
+	margin-top: calc(var(--rhythm) * 3);
+}
+
+.qwerty-podcast-header {
+	margin-bottom: var(--rhythm);
+}
+
+.qwerty-podcast-episodes {
+	width: 100%;
+	border-collapse: collapse;
+
+	td {
+		padding: var(--rhythm) calc(var(--rhythm) * 1.5) var(--rhythm) 0;
+		border-top: solid 1px var(--gray15);
+		vertical-align: middle;
+	}
+
+	td:last-child {
+		padding-right: 0;
+	}
+
+	tr:first-child td {
+		border-top: none;
+	}
+}
+
+/* The play button, the date, and Edit take only the width they need, and the name takes the rest */
+.qwerty-podcast-icon,
+.qwerty-podcast-date,
+.qwerty-podcast-edit {
+	width: 1px;
+	white-space: nowrap;
+}
+
+.qwerty-podcast-date,
+.qwerty-podcast-edit {
+	text-align: right;
+}
+
+/* An episode's name is cut short with an ellipsis rather than wrapping.  max-width: 0 lets a table cell shrink
+   below its content, so the ellipsis can work. */
+.qwerty-podcast-name {
+	max-width: 0;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* A whole row opens its episode (qwerty-podcast.js) */
+.qwerty-podcast-episode {
+	cursor: pointer;
+
+	&:hover td {
+		background-color: var(--white);
+	}
+
+	.playing-show {
+		display: none;
+	}
+
+	&.playing {
+		.playing-show {
+			display: inline;
+		}
+
+		.playing-hide {
+			display: none;
+		}
+	}
+}
+
+/* The round play button beside each episode, with its glyph centered (see .qwerty-gallery-mark) */
+.qwerty-podcast-play {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border-radius: 50%;
+	font-size: 16px;
+	line-height: 1;
+
+	i::before {
+		display: block;
+		line-height: 1;
+		vertical-align: 0;
+	}
+}
+
+/* An episode's modal and page (qwerty-episode/modal.html, view.html): its photo beside its name, then its player.
+   The theme's podcast bundle marks a player .playing, and sets --progress on its progress bar. */
+.qwerty-episode-head {
+	align-items: flex-start;
+	gap: calc(var(--rhythm) * 2);
+
+	/* The name may shrink, so a long one wraps instead of pushing Edit off the modal */
+	> .flex-grow {
+		min-width: 0;
+	}
+
+	/* A word wider than the space breaks rather than overflowing */
+	h2 {
+		overflow-wrap: break-word;
+	}
+}
+
+/* The arrows to the episodes above and below, on either side of the play button (qwerty-episode/episode-arrow.html):
+   gray circles, smaller than it.  Disabled at either end of the list, which hides one but keeps its place, so the
+   play button does not move. */
+.qwerty-episode-arrow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: calc(var(--rhythm) * 4);
+	height: calc(var(--rhythm) * 4);
+	margin: 0;
+	padding: 0;
+	border-radius: 50%;
+	background-color: var(--gray20);
+	color: var(--gray80);
+	line-height: 1;
+
+	i {
+		display: block;
+		line-height: 1;
+	}
+
+	i::before {
+		display: block;
+		vertical-align: 0;
+	}
+
+	&:disabled {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+.qwerty-episode-art {
+	width: 96px;
+	height: 96px;
+	flex-shrink: 0;
+	border-radius: 8px;
+	object-fit: cover;
+	background-color: var(--gray10);
+}
+
+/* .card is display: block, which would undo .flex-row, so the row is set here */
+.qwerty-episode-player {
+	display: flex;
+	align-items: center;
+}
+
+.qwerty-episode-player,
+.qwerty-episode-player-none {
+	gap: calc(var(--rhythm) * 1.5);
+	padding: calc(var(--rhythm) * 1.5);
+	margin-bottom: calc(var(--rhythm) * 3);
+}
+
+/* The round play button, with its glyph centered (see .qwerty-gallery-mark) */
+.qwerty-episode-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	padding: 0;
+	margin: 0;
+	border-radius: 50%;
+	font-size: 24px;
+	line-height: 1;
+
+	i::before {
+		display: block;
+		line-height: 1;
+		vertical-align: 0;
+	}
+}
+
+.qwerty-episode-player {
+	.playing-show {
+		display: none;
+	}
+
+	&.playing {
+		.playing-show {
+			display: inline;
+		}
+
+		.playing-hide {
+			display: none;
+		}
+	}
+}
+
+/* The progress bar: a track, filled to --progress.  Its padding makes a taller target than the bar it draws. */
+.qwerty-episode-progress {
+	position: relative;
+	min-width: 0;
+	padding: 10px 0;
+	cursor: pointer;
+	touch-action: none;
+	background-clip: content-box;
+	background-color: var(--gray20);
+	border-radius: 4px;
+	height: 28px;
+}
+
+.qwerty-episode-fill {
+	height: 8px;
+	width: var(--progress, 0%);
+	border-radius: 4px;
+	background-color: var(--button-primary-background);
+}
+
+/* The tabs and Share share a line (qwerty-episode/modal.html), whose margin replaces the tab list's own.  The tab
+   list's is the utility .margin-bottom-lg, which is !important, so this must be too, or Share sits below the tabs'
+   middle. */
+.qwerty-episode-tabs > [role=tablist] {
+	margin-bottom: 0 !important;
+}
+
+@media (max-width: 640px) {
+	.qwerty-episode-art {
+		width: 64px;
+		height: 64px;
+	}
+}
+
+/******************************************
+ * Notes
+ *
+ * The magic Notes tab (qwerty-collection/items-notes.html and notes-list.html): one row per Note, the avatar
+ * in a fixed column beside it, and a rule between rows, as on Emissary's default profile.
+ ******************************************/
+
+.qwerty-note {
+	gap: var(--rhythm);
+	padding: calc(var(--rhythm) * 2) 0;
+	border-top: solid 1px var(--gray20);
+}
+
+.qwerty-note-avatar {
+	width: calc(var(--rhythm) * 8);
+}
+
+/* A Note's first attachment, shown whole rather than cropped */
+.qwerty-note-image {
+	display: block;
+	max-width: 100%;
+	margin-top: var(--rhythm);
+	border: solid 1px var(--gray20);
+	border-radius: var(--border-radius);
+	object-fit: contain;
+}

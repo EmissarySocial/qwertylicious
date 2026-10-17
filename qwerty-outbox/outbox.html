@@ -29,6 +29,9 @@
 		<link rel="alternate" type="application/rss+xml" href="{{.Host}}/@{{.UserID}}/feed?format=rss"/>
 		<link rel="alternate" type="application/atom+xml" href="{{.Host}}/@{{.UserID}}/feed?format=atom"/>
 		<link rel="alternate" type="application/feed+json" href="{{.Host}}/@{{.UserID}}/feed?format=json"/>
+		<!-- Drawn behind a modal (a photo's own URL), the page is the modal's, which brings its own canonical link and
+		     Open Graph tags in <head> (qwerty-photo/head.html) -->
+		{{- if not .IsBackground }}
 		<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
 
 		<!-- Open Graph: https://ogp.me -->
@@ -38,6 +41,7 @@
 		<meta property="og:url" content="{{.Permalink}}">
 		<meta property="og:image" content="{{.IconURL}}">
 		<meta property="profile:username" content="{{.Username}}">
+		{{- end }}
 
 		{{- if not .IsPublic -}}
 			<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none turboclick" role="button">
@@ -63,11 +67,26 @@
 				{{- $selected = $requested -}}
 			{{- end -}}
 		{{- end -}}
+		<!-- ?tab=notes names the magic Notes collection, which a note's modal draws behind itself -->
+		{{- if eq $requested "notes" -}}
+			{{- $notesTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" "notes").Top1.Slice -}}
+			{{- if $notesTab.NotEmpty -}}
+				{{- $selected = $notesTab.First.ObjectID.Hex -}}
+			{{- end -}}
+		{{- end -}}
 		{{- if eq $requested "about" -}}
 			{{- $selected = "about" -}}
 		{{- end -}}
 
-		{{- $panelURL := print "/" $selected "/list" -}}
+		{{- /* A collection's own view of itself rides along: a Calendar's ?view= and ?startDate=, and a Map or Timeline's
+		       ?tag=.  Each is escaped, and the collection's templates check what they read. */ -}}
+		{{- $panelURL := print "/" $selected "/list?tab=" $selected -}}
+		{{- range $name := array "view" "startDate" "tag" -}}
+			{{- $value := $.QueryParam $name -}}
+			{{- if ne "" $value -}}
+				{{- $panelURL = print $panelURL "&" $name "=" (urlquery $value) -}}
+			{{- end -}}
+		{{- end -}}
 		{{- if eq $selected "about" -}}
 			{{- $panelURL = print "/@" .UserID "/about" -}}
 		{{- end -}}
@@ -87,10 +106,11 @@
 	{{- if $isMyself -}}
 		<div id="outbox-refresh-{{.UserID}}" hx-preserve>
 
-			<!-- Reloads keep the open tab by passing on ?tab= from the address bar -->
+			<!-- Reloads keep the open tab, and its calendar view or tag filter, by passing on ?tab=, ?view=, ?startDate=, and ?tag=
+			     from the address bar.  When the address bar names no tab, the tab that is open on screen is kept instead. -->
 			<div 
 				hx-get="/@{{.UserID}}" 
-				hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ""}'
+				hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ((document.querySelector("#profile-tabs [role=tab][aria-selected=true]") || {}).id || "").replace("tab-", ""), view: new URLSearchParams(window.location.search).get("view") || "", startDate: new URLSearchParams(window.location.search).get("startDate") || "", tag: new URLSearchParams(window.location.search).get("tag") || ""}'
 				hx-trigger="refreshPage from:window" 
 				hx-target="main" 
 				hx-swap="innerHTML"
@@ -100,7 +120,7 @@
 			<div hx-ext="sse" sse-connect="/@me/sse">
 				<div 
 					hx-get="/@{{.UserID}}" 
-					hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ""}'
+					hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ((document.querySelector("#profile-tabs [role=tab][aria-selected=true]") || {}).id || "").replace("tab-", ""), view: new URLSearchParams(window.location.search).get("view") || "", startDate: new URLSearchParams(window.location.search).get("startDate") || "", tag: new URLSearchParams(window.location.search).get("tag") || ""}'
 					hx-trigger="sse:{{.UserID}}"  
 					hx-target="main" 
 					hx-swap="innerHTML"

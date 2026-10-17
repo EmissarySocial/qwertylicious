@@ -6,7 +6,7 @@
 	containedBy: ["outbox"]
 	extends: ["qwerty-common"]
 	label: Qwertylicious Collection
-	description: A tab on a Qwertylicious profile that groups the author's Articles
+	description: A tab on a Qwertylicious profile that groups the author's Articles, photos, places, or events
 	icon: collection
 	childSortType: rank
 	childSortDirection: asc
@@ -16,12 +16,32 @@
 		properties: {
 			label: {type:"string", maxLength:128, required:true}
 			summary: {type:"string", maxLength:2048}
+			// Who may reply to the items in this collection, "everyone" or "nobody" (set by set-reply-policy).  Each
+			// item inherits it with its sharing (inheritPermissions), and Emissary enforces it (REPLY-CONTROLS).
+			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
+			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone", FALSE is "nobody"), for the Photo
+			// Gallery's and the Map's edit forms
+			allowReplies: {type:"boolean"}
+			// A Map collection's default view: the center is the collection's own location, picked when it is
+			// created and saved from the map by the author's "Set Default View" button (map-view, below)
+			location: {type:"object", properties: {
+				name: {type:"string"}
+				formatted: {type:"string"}
+				latitude: {type:"number"}
+				longitude: {type:"number"}
+			}}
 			data: {
 				type: object
 				properties: {
-					// contentType is set once, when the collection is created.  Empty means ARTICLE.
-					contentType: {type:"string", enum:["ARTICLE", "NOTES"]}
-					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar"]}
+					// "notes" is the magic Notes collection, which lists the profile's Notes and holds no items (§1.7)
+					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes"]}
+					zoom: {type:"integer", minimum:0, maximum:19}
+					// A Timeline's order, "asc" (oldest first, the default) or "desc"
+					timelineOrder: {type:"string", enum:["", "asc", "desc"]}
+					// A Podcast's episode order, "desc" (newest first, the default when empty) or "asc"
+					episodeOrder: {type:"string", enum:["", "desc", "asc"]}
+					// A Calendar's default view, "list" (the default when empty), "week", or "month"
+					calendarView: {type:"string", enum:["", "list", "week", "month"]}
 				}
 			}
 		}
@@ -45,24 +65,49 @@
 
 		// Add a Collection opens this as a modal, through the outbox's add-collection (add-stream),
 		// and nothing is saved until the form is submitted.  The form posts back to add-collection,
-		// which runs these steps again as a POST.  The format starts as Rows.  Sharing is off by
+		// which runs these steps again as a POST.  The format starts as Articles, in 3x Columns.  Sharing is off by
 		// default, so a new collection is visible only to its author until it is shared.
 		create: {
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"data.layout":"row"}}
+				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "replyPolicy":"everyone"}}
 				{do:"as-modal", steps: [
-					{
-						do: "edit"
-						form: {
-							type: layout-vertical
-							label: Add a Collection
-							children: [
-								{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-								{type:"radio-button-group", path:"data.layout", label:"Format", options:{provider:"qwerty-collection.layouts"}}
-							]
+					// A profile has at most one Notes collection, so Notes is offered only while it has none (§1.7)
+					{do:"if", condition:"{{(((.ParentOutbox `view`).Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice.NotEmpty}}", then:[
+						{
+							do: "edit"
+							form: {
+								type: layout-vertical
+								label: What Will This Collection Hold?
+								children: [
+									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layoutsWithoutNotes"}}
+									// A Map's starting view, shown only when Map is picked
+									{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{show-if:"data.layout is map", placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+									{type:"select", path:"data.zoom", label:"Map Zoom", options:{show-if:"data.layout is map", provider:"qwerty-collection.mapZooms"}}
+								]
+							}
 						}
-					}
+						// A stale form or a crafted POST saves nothing, rather than a second Notes collection
+						{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+							{do:"halt"}
+						]}
+					], else:[
+						{
+							do: "edit"
+							form: {
+								type: layout-vertical
+								label: What Will This Collection Hold?
+								children: [
+									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layouts"}}
+									// A Map's starting view, shown only when Map is picked
+									{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{show-if:"data.layout is map", placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+									{type:"select", path:"data.zoom", label:"Map Zoom", options:{show-if:"data.layout is map", provider:"qwerty-collection.mapZooms"}}
+								]
+							}
+						}
+					]}
+					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
+					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else}}Articles{{end}}{{end}}"}}
 					{do:"save", comment:"Created by {{.Author}}"}
 				]}
 				{do:"forward-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
@@ -85,33 +130,173 @@
 			]
 		}
 
-		feed: {
+		// The next page of a Photo Gallery, loaded as the visitor scrolls (gallery-more.html)
+		gallery-page: {
 			roles: ["author", "viewer"]
 			steps: [
-				{do:"view-feed"}
+				{do:"view-html", file:"items-gallery-page"}
 			]
 		}
 
-		// Edit Collection is a modal, like Sharing, and holds the Delete link.  refresh-page
-		// reloads the profile on the same tab, so a renamed tab shows straight away.
+		// The Notes collection holds no items, so its feed is the profile's (§1.7)
+		feed: {
+			roles: ["author", "viewer"]
+			steps: [
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					{do:"redirect-to", url:"/@{{.ParentID}}/feed?format={{.QueryParam `format` | urlquery}}"}
+				], else:[
+					{do:"view-feed"}
+				]}
+			]
+		}
+
+		// The next page of the Notes tab, loaded as the visitor scrolls (notes-list.html)
+		notes-page: {
+			roles: ["author", "viewer"]
+			steps: [
+				{do:"view-html", file:"items-notes-page"}
+			]
+		}
+
+		// Edit Collection is a modal, like Sharing, and holds the Delete link.  refresh-page reloads the profile on
+		// the same tab, so a renamed tab shows straight away.  A collection keeps the kind of item it was created
+		// for: an Article collection can switch only among the Article layouts, a Timeline can change its order,
+		// and a Photo Gallery, Map, or Calendar has no format to change.  Articles, a Photo Gallery, a Map, and a Podcast set replies here.
 		settings: {
 			roles: ["author"]
 			steps: [
-				{do:"as-modal", steps: [
-					{
-						do: "edit"
-						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete This Collection"]
-						form: {
-							type: layout-vertical
-							label: Edit Collection
-							children: [
-								{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-								{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-								{type:"radio-button-group", path:"data.layout", label:"Format", options:{provider:"qwerty-collection.layouts"}}
-							]
+				// The Notes collection has no format to change, and no items to pass sharing or replies down to
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					{do:"as-modal", steps: [
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-vertical
+								label: Edit Notes
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:3}}
+								]
+							}
 						}
-					}
-					{do:"save", comment:"Settings updated by {{.Author}}"}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+					]}
+					{do:"refresh-page"}
+					{do:"halt"}
+				]}
+				{do:"as-modal", steps: [
+					// A Podcast's replies are a toggle here, as on a Photo Gallery and a Map, and its episodes inherit the
+					// policy through share-children
+					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-vertical
+								label: Edit Podcast
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:3}}
+									{type:"select", path:"data.episodeOrder", label:"Order", options:{provider:"qwerty-collection.episodeOrders"}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
+								]
+							}
+						}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+						{do:"share-children"}
+					], else:[
+					// A Photo Gallery's replies are a toggle here, not a menu item of their own.  Its photos inherit the
+					// policy, so share-children passes a change down to the photos already posted.
+					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-vertical
+								label: Edit Photo Gallery
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Photos in this collection"}}
+								]
+							}
+						}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+						{do:"share-children"}
+					], else:[
+						// A Map's replies are a toggle too, as on a Photo Gallery
+						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
+							{
+								do: "edit"
+								options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+								form: {
+									type: layout-vertical
+									label: Edit Map
+									children: [
+										{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+										{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+										{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+									]
+								}
+							}
+							{do:"save", comment:"Settings updated by {{.Author}}"}
+							{do:"share-children"}
+						], else:[
+							{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
+								{
+									do: "edit"
+									options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+									form: {
+										type: layout-vertical
+										label: Edit Collection
+										children: [
+											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+											{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+											{type:"radio-button-group", path:"data.calendarView", label:"Default View", options:{provider:"qwerty-collection.calendarViews"}}
+										]
+									}
+								}
+								{do:"save", comment:"Settings updated by {{.Author}}"}
+							], else:[
+								{do:"if", condition:"{{eq (.Data `layout`) `timeline`}}", then:[
+									{
+										do: "edit"
+										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+										form: {
+											type: layout-vertical
+											label: Edit Collection
+											children: [
+												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+												{type:"radio-button-group", path:"data.timelineOrder", label:"Order", options:{provider:"qwerty-collection.timelineOrders"}}
+											]
+										}
+									}
+									{do:"save", comment:"Settings updated by {{.Author}}"}
+								], else:[
+									// An Article collection sets its replies here, and share-children passes them to its Articles
+									{
+										do: "edit"
+										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+										form: {
+											type: layout-vertical
+											label: Edit Collection
+											children: [
+												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+												{type:"select", path:"replyPolicy", label:"Who Can Reply", description:"Replies are open only on Articles shared with everyone.", options:{enum:[{value:"everyone", label:"Everyone"}, {value:"nobody", label:"No One (Replies Closed)"}]}}
+												{type:"radio-button-group", path:"data.layout", label:"Layout", options:{provider:"qwerty-collection.articleLayouts"}}
+											]
+										}
+									}
+									{do:"save", comment:"Settings updated by {{.Author}}"}
+									{do:"share-children"}
+								]}
+							]}
+						]}
+					]}
+					]}
 				]}
 				{do:"refresh-page"}
 			]
@@ -121,23 +306,73 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps: [
-					{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see this collection and the Articles in it."}
+					{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see this collection and everything in it."}
 					{do:"save", comment:"Sharing updated by {{.Author}}"}
+					// Every item inherits this sharing (inheritPermissions), so pass the change down to them
+					{do:"share-children"}
 				]}
 				{do:"refresh-page"}
 			]
 		}
 
+		// Who Can Reply is a modal, like Sharing, for a Timeline or a Calendar.  Emissary's set-reply-policy step draws the choices and writes
+		// replyPolicy (emissary-specs REPLY-CONTROLS).  Its items inherit the policy with their sharing, so
+		// share-children passes a change down to the items already here.
+		replies-policy: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps: [
+					{do:"set-reply-policy", message:"For everything in this collection.  Replies are open only on items shared with everyone."}
+					{do:"save", comment:"Replies updated by {{.Author}}"}
+					{do:"share-children"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// The format decides what this collection holds.  A Photo Gallery holds qwerty-photo, a Podcast holds
+		// qwerty-episode, and a Map, Timeline, or Calendar holds qwerty-entry, whose form follows the format (a Place or an Event).  Both are
+		// created through their own modal form (so the menu opens them with hx-get).  Every other format holds
+		// Articles, created at once (hx-post).
 		add: {
 			roles: ["author"]
 			steps: [
+				// The Notes collection never has items; a Note is written on the profile (§1.7)
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					{do:"halt"}
+				]}
+				{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
+					{do:"add-stream", style:"inline", location:"child", template:"qwerty-photo", title:"+ Add a Photo"}
+				], else:[
+					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
+						{do:"add-stream", style:"inline", location:"child", template:"qwerty-episode", title:"+ Add an Episode"}
+					], else:[
+						{do:"if", condition:"{{in (.Data `layout`) `map` `timeline` `calendar`}}", then:[
+							{do:"add-stream", style:"inline", location:"child", template:"qwerty-entry", title:"+ Add an Entry"}
+						], else:[
+							{do:"add-stream", style:"inline", location:"child", template:"qwerty-article", title:"+ Add an Article"}
+						]}
+					]}
+				]}
+			]
+		}
+
+		// The map's "Set Default View" button posts its center and zoom here (qwerty-theme/maps/qwerty-maps.js)
+		map-view: {
+			roles: ["author"]
+			steps: [
 				{
-					do: add-stream
-					style: inline
-					location: child
-					template: qwerty-article
-					title: + Add an Article
+					do: "edit"
+					form: {
+						type: "layout-vertical"
+						children: [
+							{type:"hidden", path:"location.latitude"}
+							{type:"hidden", path:"location.longitude"}
+							{type:"hidden", path:"data.zoom"}
+						]
+					}
 				}
+				{do:"save", comment:"Map view set by {{.Author}}"}
 			]
 		}
 
@@ -151,7 +386,7 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				{do:"delete", title:"Delete '{{.Label}}'?", message:"This deletes the collection and all {{.ChildrenWithDrafts.Count}} Articles in it, drafts included.  There is NO UNDO."}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO."}
 				{do:"forward-to", url:"/@me"}
 			]
 		}

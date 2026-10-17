@@ -1,0 +1,28 @@
+{{- /* items-tags is the row of #hashtag filters above a Map or Timeline.  Called as (array $collection $items $tag),
+       where $items are the collection's items (unfiltered, so every tag stays on offer) and $tag is the one chosen,
+       or "".  Each tag appears once, in the order the items first use it.  A filter reloads only this tab with
+       ?tag=, and pushes the profile's own URL so that a reload or a shared link keeps it (outbox.html passes it
+       on).  Nothing is drawn when no item has a tag. */ -}}
+{{- $collection := index . 0 -}}
+{{- $items := index . 1 -}}
+{{- $selected := index . 2 -}}
+{{- $collectionID := $collection.StreamID -}}
+{{- $profileTab := print "/@" $collection.ParentID "?tab=" $collectionID -}}
+
+{{- $tags := split "" "," -}}
+{{- range $items -}}
+	{{- range .Tags -}}
+		{{- if and (eq .Type "Hashtag") (not ($tags.Contains .Name)) -}}
+			{{- $tags = append $tags (split .Name "\x00") -}}
+		{{- end -}}
+	{{- end -}}
+{{- end -}}
+
+{{- if $tags.NotEmpty -}}
+	<div role="tablist" class="pills margin-bottom" aria-label="Filter by tag">
+		<a role="tab" class="turboclick" aria-selected="{{if eq `` $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}">All</a>
+		{{- range $tags -}}
+			<a role="tab" class="turboclick" aria-selected="{{if eq . $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?tag={{. | urlquery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&tag={{. | urlquery}}">#{{.}}</a>
+		{{- end -}}
+	</div>
+{{- end -}}

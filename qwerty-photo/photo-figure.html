@@ -1,0 +1,133 @@
+{{- /* photo-figure is a post's photos, its byline (the author's avatar, name, and date), and its caption, shared by
+       the full page (view.html) and the gallery's modal (modal.html).  It is called as (array $builder $mode), where $mode is "page" or "modal".
+
+       Several photos make a carousel: a track that slides one photo at a time, by its arrows, the Left and Right arrow
+       keys, or a press-and-drag swipe.  qwerty-theme's carousel bundle runs it (qwerty-theme/carousel/qwerty-carousel.js).
+       Past the first or last photo, or on a post of one photo, the arrow keys go on to the previous or next post in
+       the gallery's order: pinned posts first, then the rest, each newest first (qwerty-collection/items-gallery.html).
+       Those posts are the hidden links at the foot of the carousel, which open as a modal or as a page, as this one did.
+
+       Its CSS is in qwerty-outbox/stylesheet/collections.css, which the profile page loads, and which view.html links. */ -}}
+{{- $builder := index . 0 -}}
+{{- $mode := index . 1 -}}
+{{- $streamID := $builder.StreamID -}}
+{{- $photos := $builder.AttachmentsByCategory "photo" -}}
+{{- $canEdit := $builder.UserCan "edit" -}}
+{{- /* The caption is each photo's accessible name (aria-labelledby), so a post needs no separate alt text */ -}}
+{{- $captionID := print "photo-caption-" $mode "-" $streamID -}}
+{{- $hasCaption := ne "" (print $builder.ContentHTML) -}}
+{{- /* The title, when there is one, names each photo ahead of the caption */ -}}
+{{- $titleID := print "photo-title-" $mode "-" $streamID -}}
+{{- $hasTitle := ne "" $builder.Label -}}
+{{- $labelledBy := "" -}}
+{{- if $hasTitle -}}{{- $labelledBy = $titleID -}}{{- end -}}
+{{- if $hasCaption -}}{{- $labelledBy = trim (print $labelledBy " " $captionID) -}}{{- end -}}
+{{- $several := gt (len $photos) 1 -}}
+
+{{- /* The neighboring posts, in the gallery's order.  Each lookup is one row: the pinned posts, then the rest. */ -}}
+{{- $gallery := $builder.Siblings.Where "templateId" "qwerty-photo" -}}
+{{- $pinned := $gallery.Where "isFeatured" true -}}
+{{- $unpinned := $gallery.Where "isFeatured" false -}}
+{{- $created := $builder.CreateDate -}}
+{{- $prev := "" -}}
+{{- $next := "" -}}
+{{- if $builder.IsFeatured -}}
+	{{- $newer := (($pinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+	{{- $older := (($pinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+	{{- if $older.ObjectID.IsZero -}}
+		{{- $older = ($unpinned.ByCreateDate.Reverse.Top1.Slice).First -}}
+	{{- end -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
+{{- else -}}
+	{{- $newer := (($unpinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+	{{- if $newer.ObjectID.IsZero -}}
+		{{- $newer = ($pinned.ByCreateDate.Top1.Slice).First -}}
+	{{- end -}}
+	{{- $older := (($unpinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
+{{- end -}}
+
+<figure class="margin-none">
+	<div class="qwerty-carousel pos-relative">
+		<div class="qwerty-carousel-stage">
+			<div class="qwerty-carousel-track">
+				{{- range $index, $photo := $photos -}}
+					<div class="qwerty-carousel-slide pos-relative">
+						{{- if ne "" $labelledBy -}}
+							<img src="{{$photo.URL}}.webp?width=1600" aria-labelledby="{{$labelledBy}}" loading="{{if eq $index 0}}eager{{else}}lazy{{end}}" draggable="false">
+						{{- else -}}
+							<img src="{{$photo.URL}}.webp?width=1600" alt="Photo {{add $index 1}} of {{len $photos}}" loading="{{if eq $index 0}}eager{{else}}lazy{{end}}" draggable="false">
+						{{- end -}}
+					</div>
+				{{- end -}}
+			</div>
+		</div>
+		{{- if $several -}}
+			<button type="button" class="qwerty-carousel-prev" data-carousel="prev" aria-label="Previous Photo" disabled>{{icon "arrow-left"}}</button>
+			<button type="button" class="qwerty-carousel-next" data-carousel="next" aria-label="Next Photo">{{icon "arrow-right"}}</button>
+			<div class="qwerty-carousel-count text-xs" aria-live="polite">1 / {{len $photos}}</div>
+		{{- end -}}
+
+		<!-- The neighboring posts, for the arrow keys (qwerty-carousel.js).  A modal opens the next modal, and a page the next
+		     page, from /{id}/page, which pushes the shareable /{id}. -->
+		{{- if ne "" $prev -}}
+			<a class="qwerty-carousel-post-prev" hidden aria-hidden="true" tabindex="-1"
+				href="/{{$prev}}"
+				hx-get="/{{$prev}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
+				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
+				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$prev}}{{end}}">Previous Post</a>
+		{{- end -}}
+		{{- if ne "" $next -}}
+			<a class="qwerty-carousel-post-next" hidden aria-hidden="true" tabindex="-1"
+				href="/{{$next}}"
+				hx-get="/{{$next}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
+				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
+				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$next}}{{end}}">Next Post</a>
+		{{- end -}}
+	</div>
+
+	<figcaption class="margin-top">
+		<!-- The title, then the byline and the caption, as an Article draws them.  In the modal, the author's Pin and
+		     Edit Photo sit across from the title, or at the right on their own when there is no title (the full page
+		     draws its own Edit, in view.html). -->
+		{{- $authorTools := and $canEdit (eq $mode "modal") -}}
+		{{- if or $hasTitle $authorTools -}}
+			<div class="flex-row flex-align-center margin-bottom">
+				<div class="flex-grow">
+					{{- if $hasTitle -}}
+						<h2 id="{{$titleID}}" class="margin-none">{{$builder.Label}}</h2>
+					{{- end -}}
+				</div>
+				{{- if $authorTools -}}
+					<div class="flex-row flex-align-center flex-shrink-0">
+						{{- template "pin-button" $builder -}}
+						<button hx-get="/{{$streamID}}/edit" class="turboclick">{{icon "settings"}} Edit Photo</button>
+					</div>
+				{{- end -}}
+			</div>
+		{{- end -}}
+		<!-- The byline, above the caption, as an Article draws it (qwerty-article/head-byline.html) -->
+		<div class="flex-row flex-align-center margin-bottom">
+			<div class="width-48 flex-center">
+				<img src="{{$builder.AttributedTo.IconURL}}" alt="" class="width-48 circle">
+			</div>
+			<div class="p-author h-card flex-grow">
+				<div class="p-name">
+					<a class="turboclick" href="{{$builder.AttributedTo.ProfileURL}}" hx-boost="true">{{$builder.AttributedTo.Name}}</a>
+				</div>
+				<div class="text-sm">{{$builder.PublishDate | longDate}}</div>
+			</div>
+			<!-- Across from the byline, Follow for everyone but the author -->
+			{{- if not $builder.IsAuthor -}}
+				<div>
+					<button hx-get="/@{{$builder.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
+				</div>
+			{{- end -}}
+		</div>
+		{{- if $hasCaption -}}
+			<div id="{{$captionID}}">{{$builder.ContentHTML}}</div>
+		{{- end -}}
+	</figcaption>
+</figure>

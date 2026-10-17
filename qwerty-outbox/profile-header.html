@@ -1,4 +1,5 @@
-{{- /* profile-header is the profile card: banner, avatar, name, links, location, and the Follow button.  The owner's
+{{- /* profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and
+     the Follow button.  The owner's
      menu is not here: it is the ⋯ menu beside the tabs (qwerty-collection/list.html, about.html). */ -}}
 {{- $isMyself := .IsMyself -}}
 {{- $showAlbums := eq "true" (.Data "show-albums") -}}
@@ -41,9 +42,7 @@
 	{{- else if or $hasBannerImage $hasBannerColor -}}
 		<div id="profile-banner" class="pos-relative hide sm:show">
 			<img src="{{.ImageURL}}" class="width-100%">
-			{{- if and $isMyself $hasBannerImage -}}
-				<button id="profile-banner-remove" hx-get="/@{{.UserID}}/delete-banner" class="pos-absolute-top-right button icon action banner-remove turboclick" aria-label="Remove Banner Image">{{icon "delete"}}</button>
-			{{- end -}}
+			<!-- The banner image is removed only from Edit Profile -->
 		</div>
 	{{- end -}}
 
@@ -86,6 +85,20 @@
 						</span>
 					{{- end -}}
 				</div>
+
+				<!-- Follower counts and hashtags, which were on the About tab until 2026-10-16 -->
+				<div id="profile-stats" class="margin-top-xs align-left">
+					<span><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
+					&nbsp;
+					<span><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
+				</div>
+				{{- if .Tags -}}
+					<div id="profile-tags" class="margin-top-xs align-left">
+						{{- range .Tags -}}
+							<a href="/people?q=%23{{.Name}}" role="link" class="tag turboclick">#{{.Name}}</a>
+						{{- end -}}
+					</div>
+				{{- end -}}
 			</div>
 
 		</div>

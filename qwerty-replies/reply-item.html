@@ -1,0 +1,47 @@
+{{- /* reply-item is one reply in the list, called as (array $builder $url).  A reply the viewer's own rules hide
+       shows base-social's hidden-placeholder, which re-draws this item through the reply action with
+       ?reveal=true.  Links to the reply and its author open on their own servers.  Those URLs come from other
+       servers, so they are never marked safeURL: html/template's own URL filter refuses a javascript: link. */ -}}
+{{- $builder := index . 0 -}}
+{{- $url := index . 1 -}}
+{{- $document := $builder.ActivityStream $url -}}
+
+{{- if and $document.Metadata.IsRuleHidden (ne ($builder.QueryParam "reveal") "true") -}}
+	<div class="qwerty-reply margin-bottom-lg" role="button"
+		hx-get="/{{$builder.StreamID}}/reply?id={{$url | urlquery}}&reveal=true"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-push-url="false">
+		{{- template "hidden-placeholder" $document -}}
+	</div>
+{{- else if $document.NotNil -}}
+	{{- $object := $document.UnwrapActivity -}}
+	{{- /* The author loads through .ActivityStream, not AttributedTo.Load: Load returns an error, which would abort
+	       the whole tab when one author's server is gone, while .ActivityStream reports it and returns an empty one. */ -}}
+	{{- $actor := $object.AttributedTo -}}
+	{{- if ne "" $actor.ID -}}
+		{{- $actor = $builder.ActivityStream $actor.ID -}}
+	{{- end -}}
+	<div class="qwerty-reply flex-row margin-bottom-lg">
+		<a href="{{$actor.URL}}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0">
+			{{- if $actor.Icon.IsNil -}}
+				<div class="circle width-48"></div>
+			{{- else -}}
+				<img class="circle width-48" src="{{$actor.Icon.Href}}" alt="" loading="lazy">
+			{{- end -}}
+		</a>
+		<div class="flex-grow">
+			<div>
+				<a href="{{$actor.URL}}" target="_blank" rel="noopener noreferrer" class="bold text-nocolor">{{$actor.Name}}</a>
+				<span class="text-light-gray text-sm">{{$actor.UsernameOrID}}</span>
+			</div>
+			{{- if ne "" $object.Name -}}
+				<div class="bold margin-top-xs">{{$object.Name}}</div>
+			{{- end -}}
+			<div class="margin-top-xs">{{$object.Content | htmlMinimal}}</div>
+			<div class="text-sm text-light-gray margin-top-xs">
+				<a href="{{if ne `` $object.URL}}{{$object.URL}}{{else}}{{$object.ID}}{{end}}" target="_blank" rel="noopener noreferrer" class="text-nocolor">{{$object.Published | tinyDate}} ago</a>
+			</div>
+		</div>
+	</div>
+{{- end -}}

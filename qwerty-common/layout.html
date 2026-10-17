@@ -1,25 +1,26 @@
-{{- /* layout renders a list of StreamSummary in one of the five formats.  Call it as (array $layout $posts), because a template takes only one value.  The caller handles the empty state. */ -}}
+{{- /* layout renders a list of StreamSummary in one of the five formats.  Call it as (array $layout $posts $canEdit), because a template takes only one value; $canEdit shows each post's Edit link on hover.  The caller handles the empty state. */ -}}
 {{- $layout := index . 0 -}}
 {{- $posts := index . 1 -}}
+{{- $items := array $posts (index . 2) -}}
 
 {{- if eq $layout "column-1" -}}
 	<div class="cols-1">
-		{{template "layout-column" $posts}}
+		{{template "layout-column" $items}}
 	</div>
 {{- else if eq $layout "column-2" -}}
 	<div class="cols-2">
-		{{template "layout-columns" $posts}}
+		{{template "layout-columns" $items}}
 	</div>
 {{- else if eq $layout "column-3" -}}
 	<div class="cols-2-3">
-		{{template "layout-columns" $posts}}
+		{{template "layout-columns" $items}}
 	</div>
 {{- else if eq $layout "row-reverse" -}}
 	<div>
-		{{template "layout-row-reverse" $posts}}
+		{{template "layout-row-reverse" $items}}
 	</div>
 {{- else -}}
 	<div>
-		{{template "layout-row" $posts}}
+		{{template "layout-row" $items}}
 	</div>
 {{- end -}}

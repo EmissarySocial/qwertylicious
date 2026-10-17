@@ -30,6 +30,20 @@
 		stylesheet: {
 			content-type:"text/css"
 		}
+		// The Leaflet maps on Map collections and their places (qwerty-collection/items-map.html, qwerty-entry)
+		maps: {
+			content-type:"text/javascript"
+		}
+		// A photo post's carousel: arrows, arrow keys, and swipes (qwerty-photo/photo-figure.html).  includes-foot.html
+		// loads it on every page, and it listens on the document, so carousels htmx swaps in later need no setup.
+		carousel: {
+			content-type:"text/javascript"
+		}
+		// A Podcast's episode modal: its player, its keyboard, and moving on when an episode ends
+		// (qwerty-episode/modal.html).  includes-foot.html loads it on every page, and it listens on the document.
+		podcast: {
+			content-type:"text/javascript"
+		}
 	}
 	startupStreams: [
 		{templateId:"article-editorjs", token:"home", label:"Home", rank:1}

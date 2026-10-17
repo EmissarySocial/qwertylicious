@@ -1,0 +1,24 @@
+{{- /* head is a photo's <head> values, which as-modal puts into the full page when the photo's URL is opened
+       directly, so that a shared link previews the photo and not the profile drawn behind it.  The caption is
+       HTML, which html/template reduces to plain text inside an attribute. */ -}}
+{{- $hasCaption := ne "" (print .ContentHTML) -}}
+{{- /* The photo's title, when it has one, or else who took it */ -}}
+{{- $title := print "Photo by " .AttributedTo.Name -}}
+{{- if ne "" .Label -}}{{- $title = .Label -}}{{- end -}}
+<title>{{.DomainLabel}} - {{$title}}</title>
+<link rel="canonical" href="{{.Permalink}}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="{{.DomainLabel}}">
+<meta property="og:title" content="{{$title}}">
+<meta property="og:url" content="{{.Permalink}}">
+{{- if ne "" .IconURL }}
+<meta property="og:image" content="{{.IconURL}}.webp?width=1200">
+{{- if $hasCaption }}
+<meta property="og:image:alt" content="{{.ContentHTML}}">
+{{- end }}
+<meta name="twitter:card" content="summary_large_image">
+{{- end }}
+{{- if $hasCaption }}
+<meta name="description" content="{{.ContentHTML}}">
+<meta property="og:description" content="{{.ContentHTML}}">
+{{- end }}
