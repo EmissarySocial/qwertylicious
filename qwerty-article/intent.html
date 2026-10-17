@@ -1,4 +1,11 @@
-<h1>⁂ Interact on the Fediverse</h1>
+<!-- A Reply is a create with inReplyTo; anything else is a Follow.  The reply always points at this article. -->
+{{- $isReply := and (eq "create" (.QueryParam "intent")) (ne "" (.QueryParam "inReplyTo")) -}}
+
+{{- if $isReply -}}
+	<h1>{{icon "reply"}} Reply on the Fediverse</h1>
+{{- else -}}
+	<h1>⁂ Interact on the Fediverse</h1>
+{{- end -}}
 
 
 <div class="card margin-bottom-sm accordion">
@@ -38,15 +45,32 @@
 			</div>
 
 			<div id="fediverse-description" class="camper-hide-if-has-accounts margin-vertical-xs">
-				If you're already on the Fediverse, enter your username and server to get updates in your newsfeed.
+				{{- if $isReply -}}
+					If you're already on the Fediverse, enter your username and server to reply from your own account.
+				{{- else -}}
+					If you're already on the Fediverse, enter your username and server to get updates in your newsfeed.
+				{{- end -}}
 			</div>
 
-			<div 
-				class="margin-bottom camper-accounts" 
-				data-intent="follow" 
-				data-object="{{.Permalink}}" 
-				hx-on:camper-hide="htmx.trigger(window, 'closeModal')">
-			</div>
+			<!-- Camper fills the intent's placeholders from these data attributes; content is the fallback for share-only servers -->
+			{{- if $isReply -}}
+				<div
+					class="margin-bottom camper-accounts"
+					data-intent="create"
+					data-in-reply-to="{{.Permalink}}"
+					data-object="{{.Permalink}}"
+					data-name="{{.Name}}"
+					data-content="{{.Permalink}}"
+					hx-on:camper-hide="htmx.trigger(window, 'closeModal')">
+				</div>
+			{{- else -}}
+				<div
+					class="margin-bottom camper-accounts"
+					data-intent="follow"
+					data-object="{{.Permalink}}"
+					hx-on:camper-hide="htmx.trigger(window, 'closeModal')">
+				</div>
+			{{- end -}}
 
 			<form 
 				method="post" 

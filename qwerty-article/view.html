@@ -1,4 +1,4 @@
-<div class="page framed h-entry">
+<div class="page framed wide h-entry">
 
 	<!-- One bordered card holds the banner, the heading, and the article, as the edit page's card (edit.html) and the
 	     profile card (qwerty-outbox/profile-header.html) hold theirs.  The card clips the banner to its corners. -->
@@ -6,7 +6,7 @@
 
 		{{- template "head-banner" . -}}
 
-		<article id="article" class="content">
+		<article id="article" class="content reading-column">
 
 			{{- template "head-summary" . -}}
 			{{- template "head-social" . -}}
@@ -14,7 +14,13 @@
 			<!-- The rule between the heading and the article -->
 			<hr class="margin-vertical-lg">
 
-			{{- if .UserCan "view-premium" -}}
+			<!-- The article and its Replies, as two tabs (qwerty-replies) -->
+			{{- template "replies-tabs" (array . "Article" "page") -}}
+
+			{{- if eq (.QueryParam "tab") "replies" -}}
+				{{- template "replies-panel" . -}}
+
+			{{- else if .UserCan "view-premium" -}}
 				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
 
 			{{- else -}}

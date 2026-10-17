@@ -4,8 +4,10 @@
 	templateRole:"article"
 	socialRole:"Article"
 	containedBy: ["qwerty-collection"]
+	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	inheritPermissions: true
 	model: Stream
-	extends:["base-intent"]
+	extends:["base-intent", "qwerty-replies"]
 	tagPaths:["data.tags"]
 	label:"Qwertylicious Article"
 	description:"Articles show up on a Qwertylicious user's profile page."
@@ -65,7 +67,7 @@
 		view: {
 			roles: ["author"]
 			stateRoles: {
-				published: ["anonymous"]
+				published: ["viewer"]
 			}
 			steps:[
 				{do:"view-html"}
@@ -76,28 +78,6 @@
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
-			}
-			steps:[
-				{do:"view-html"}
-			]
-		}
-
-		replies: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["anonymous"]
-			}
-			steps:[
-				{do:"as-modal", options:["class:normal"], steps:[
-					{do:"view-html"}
-				]}
-			]
-		}
-
-		replies-list: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["anonymous"]
 			}
 			steps:[
 				{do:"view-html"}
@@ -136,33 +116,6 @@
 			]
 		}
 						
-		feature: {
-			roles: ["author"]
-			steps: [
-				{do:"set-data", values:{"isFeatured":"true"}}
-				{do:"save", comment:"Featured by {{.Author}}"}
-				{do:"refresh-page"}
-			]
-		}
-
-		unfeature: {
-			roles: ["author"]
-			steps: [
-				{do:"set-data", values:{"isFeatured":"false"}}
-				{do:"save", comment:"Un-featured by {{.Author}}"}
-				{do:"refresh-page"}
-			]
-		}
-
-		sharing: {
-			roles: ["author"]
-			steps: [
-				{do:"as-modal", steps: [
-					{do:"set-circle-sharing", role: "viewer", title:"Who Can Read This Article?", message:"Select which people have full access."}
-					{do:"save", message:"Sharing updated by {{.Author}}"}
-				]}
-			]
-		}
 		
 		publish: {
 			states: ["default", "published"]
@@ -191,6 +144,7 @@
 				{do:"as-modal", steps:[
 					{
 						do: edit
+						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 						form: {
 							type: layout-tabs
 							label: Article Properties
@@ -203,6 +157,7 @@
 										{type:"textarea", path:"summary", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
 										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
 										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
+										{type:"toggle", path:"isFeatured", options:{false-text:"Feature?", true-text:"Featured"}}
 									]
 								}
 								{
@@ -273,7 +228,7 @@
 		intent: {
 			roles: ["author"]
 			stateRoles: {
-				published: ["anonymous"]
+				published: ["viewer"]
 			}
 			steps:[
 				{do:"as-modal", steps:[

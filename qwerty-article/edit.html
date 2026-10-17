@@ -1,45 +1,27 @@
-<div class="page framed editor-none h-entry">
+<div class="page framed wide editor-none h-entry">
 	<article id="article-editor" class="card border padding-none flex-column margin-bottom">
 		<div class="pos-relative">
 			{{- template "edit-banner" . -}}
 		</div>
 
-		<div class="pos-relative padding">
+		<!-- Save, Properties, and Publish, above the heading and outside the reading column, so they align with the banner's right edge -->
+		<div class="flex-row flex-align-center flex-justify-end padding">
+			{{- if eq .StateID "published" -}}
+				<button hx-get="/{{.StreamID}}/properties" class="button turboclick">Properties</button>
+				<button hx-get="/{{.StreamID}}/unpublish" class="button turboclick">{{icon "check"}} Published</button>
+				<button class="button success" hx-on:click="save()">{{icon "device-floppy"}} Save Changes</button>
+			{{- else -}}
+				<button class="button" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
+				<button hx-get="/{{.StreamID}}/properties" class="button turboclick">Properties</button>
+				<button hx-on:click="publish()" class="button action">Publish</button>
+			{{- end -}}
+		</div>
 
+		<div class="pos-relative padding-horizontal padding-bottom reading-column">
 			{{- template "head-collection" . -}}
 
-			<!-- The title, with Publish and the ⋯ menu on its right, spaced as on the public view (head-summary.html) -->
-			<div class="flex-row flex-align-center margin-top-xs margin-bottom-lg">
-				<h1 id="article-name" class="p-name flex-grow margin-none">{{.Name}}</h1>
-				<div class="flex-row flex-align-center flex-shrink-0">
-					{{- if eq .StateID "published" -}}
-						<button hx-get="/{{.StreamID}}/unpublish" class="button success turboclick">{{icon "check"}} Published</button>
-					{{- else -}}
-						<button hx-on:click="publish()" class="button action">Publish</button>
-					{{- end -}}
-					<div class="dropdown">
-						<a class="button icon" aria-label="Article Menu">{{icon "three-dots"}}</a>
-						<div class="dropdown-content right">
-							<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/properties">{{icon "info"}} Info</button>
-							<!-- The label IS the sharing status, as in Emissary's article menu -->
-							{{- $sharing := .SharingStatus "viewer" -}}
-							<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
-							{{- if .UserCan "feature" -}}
-								{{- if .IsFeatured -}}
-									<button class="dropdown-item" hx-post="/{{.StreamID}}/unfeature">{{icon "pin"}} Un-Feature</button>
-								{{- else -}}
-									<button class="dropdown-item" hx-post="/{{.StreamID}}/feature">{{icon "pin-fill"}} Feature</button>
-								{{- end -}}
-							{{- end -}}
-							<button class="dropdown-item" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
-							<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/discard-draft">{{icon "arrow-counterclockwise"}} Discard</button>
-							{{- if .UserCan "delete" -}}
-								<a class="button dropdown-item text-red turboclick" hx-get="/{{.StreamID}}/delete">{{icon "delete"}} Delete</a>
-							{{- end -}}
-						</div>
-					</div>
-				</div>
-			</div>
+			<!-- The title, spaced as on the public view (head-summary.html) -->
+			<h1 id="article-name" class="p-name margin-top-xs margin-bottom-lg">{{.Name}}</h1>
 
 			{{- template "head-byline" . -}}
 
@@ -47,7 +29,7 @@
 			<hr class="margin-none">
 		</div>
 
-		<div class="padding">
+		<div class="padding reading-column">
 			{{- template "edit-content" . -}}
 		</div>
 

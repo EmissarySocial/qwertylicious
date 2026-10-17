@@ -1,5 +1,5 @@
 {{- template "head-collection" . -}}
-<!-- The title, with the editor's Edit button on its right, laid out as the edit page's title row (edit.html) -->
+<!-- The title, with the editor's Edit button on its right, spaced as the edit page's title (edit.html) -->
 <div class="flex-row flex-align-center margin-top-xs margin-bottom-lg">
 	<h1 id="article-name" class="p-name flex-grow margin-none">{{.Name}}</h1>
 	{{- if .UserCan "edit" -}}
