@@ -34,13 +34,11 @@
 		maps: {
 			content-type:"text/javascript"
 		}
-		// A photo post's carousel: arrows, arrow keys, and swipes (qwerty-photo/photo-figure.html).  includes-foot.html
-		// loads it on every page, and it listens on the document, so carousels htmx swaps in later need no setup.
+		// A photo post's carousel: arrows, arrow keys, and swipes (qwerty-photo/photo-figure.html)
 		carousel: {
 			content-type:"text/javascript"
 		}
-		// A Podcast's episode modal: its player, its keyboard, and moving on when an episode ends
-		// (qwerty-episode/modal.html).  includes-foot.html loads it on every page, and it listens on the document.
+		// A Podcast episode's player and keyboard (qwerty-episode/modal.html)
 		podcast: {
 			content-type:"text/javascript"
 		}
