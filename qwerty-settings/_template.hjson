@@ -165,9 +165,7 @@
 					}}
 				]}
 
-				// Persist on POST (as-modal halts on GET, so this runs only when the form is submitted). A
-				// chosen action (BLOCK/MUTE/LABEL) saves; "Allow" (empty action) clears an existing rule and
-				// is a no-op for a rule that was never saved.
+				// POST only: an action saves the rule, and "Allow" (no action) deletes a saved one
 				{do:"if", condition:"{{ne `` .Object.Action}}", then:[
 					{do:"save"}
 				], else:[
@@ -814,9 +812,7 @@
 			]
 		}
 
-		// The ONE place to manage notification options: channel toggles + Device Options.
-		// The notifications-push fragment wires the push-device-toggle to the browser's
-		// Web Push subscription.
+		// The only notification options form; notifications-push wires its Device Options toggle
 		notifications-form: {
 			roles:["self"]
 			steps:[

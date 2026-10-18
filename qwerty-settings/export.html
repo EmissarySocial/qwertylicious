@@ -11,9 +11,6 @@
 	<div class="app-content padding transition-main-card flex-justify-center">
 
 		<div id="menu-bar">
-			<!-- {{ if not $isDesktop }}
-				<a href="/@me/settings/mobile" class="turboclick tab" hx-boost="true">{{icon "back"}}</a>
-			{{ end }} -->
 			{{ if $isDesktop }}
 				<div class="left tabs">
 					<a href="/@me/settings/general" class="turboclick tab" hx-boost="true">General</a>
@@ -148,8 +145,6 @@
 					</div>
 				</div>
 
-				<!--pre>{{$oauthUserToken | jsonIndent}}</pre-->
-	
 			{{- end -}}
 
 		{{- end -}}

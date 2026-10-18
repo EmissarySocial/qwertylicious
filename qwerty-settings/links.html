@@ -3,12 +3,6 @@
 <div class="app" script="init send SelectNav(id:'settings')">
 	<title>Profile | Links</title>
 
-	<!-- {{- if $isDesktop -}}
-		<div id="app-sidebar" class="expanded">
-			{{- template "menu" "general" -}}
-		</div>
-	{{- end -}} -->
-
 	<div id="app-sidebar" class="flex-column flex-justify-between expanded">
 		{{- template "menu" "general" -}}
 	</div>
@@ -16,9 +10,6 @@
 	<div class="app-content padding transition-main-card">
 
 		<div id="menu-bar">
-			<!-- {{ if not $isDesktop }}
-				<a href="/@me/settings/mobile" class="turboclick tab" hx-boost="true">{{icon "back"}}</a>
-			{{ end }} -->
 			{{ if $isDesktop }}
 				<div class="left tabs">
 					<a href="/@me/settings/general" class="turboclick tab" hx-boost="true">General</a>

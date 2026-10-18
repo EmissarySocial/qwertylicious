@@ -4,12 +4,6 @@
 
 <div class="app" script="init send SelectNav(id:'settings')">
 	<title>Payments</title>
-	
-	<!-- {{- if $isDesktop -}}
-		<div id="app-sidebar" class="expanded">
-			{{- template "menu" "payments" -}}	
-		</div>
-	{{- end -}} -->
 
 	<div id="app-sidebar" class="flex-column flex-justify-between expanded">
 		{{- template "menu" "payments" -}}
@@ -29,7 +23,6 @@
 					</h1>
 				{{- else -}}
 					<div class="flex-row text-xl bold margin-none">
-						<!-- <a class="turboclick" href="/@me/settings/mobile">{{icon "back"}}</a> -->
 						<div class="bold margin-none flex-grow">Payments Not Available</div>
 					</div>
 				{{- end -}}
@@ -87,13 +80,6 @@
 						<div hx-get="/@me/settings/merchantAccount-edit-{{$type}}?merchantAccountId={{$merchantAccount.ID}}" class="flex-row flex-grow turboclick">
 							<div>{{- icon $merchantAccount.Icon -}}</div>
 							<div class="flex-grow">{{$merchantAccount.Name}}</div>
-							<!--div>
-								{{- if $merchantAccount.LiveMode -}}
-									<span class="text-green">Live</span>
-								{{- else -}}
-									<span class="text-gray">Sandbox</span>
-								{{- end -}}
-							</div-->
 						</div>
 					</div>
 				{{- end -}}

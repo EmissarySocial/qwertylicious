@@ -5,12 +5,6 @@
 <div class="app" script="init send SelectNav(id:'settings')">
 	<title>Security | Public Keys</title>
 
-	<!-- {{- if $isDesktop -}}
-		<div id="app-sidebar" class="expanded">
-			{{- template "menu" "security" -}}
-		</div>
-	{{- end -}} -->
-
 	<div id="app-sidebar" class="flex-column flex-justify-between expanded">
 		{{- template "menu" "security" -}}
 	</div>
@@ -18,9 +12,6 @@
 	<div class="app-content padding transition-main-card">
 
 		<div id="menu-bar">
-			<!-- {{ if not $isDesktop }}
-				<a class="button tertiary turboclick" href="/@me/settings/mobile" hx-boost="true">{{icon "back"}} Back</a>
-			{{ end }} -->
 
 			{{ if $isDesktop }}
 				<div class="left tabs">
