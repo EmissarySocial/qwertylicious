@@ -1,0 +1,22 @@
+<div id="modal" script="install Modal" data-hx-swap="none"><div id="modal-underlay"></div><div id="modal-window">
+<div class="qwerty-episode h-entry padding" data-episode-id="${ID}">
+	<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit Episode"><i class="bi bi-pencil"></i></button>
+	<div class="qwerty-episode-head flex-row margin-bottom">
+		<img class="qwerty-episode-art" src="" alt="">
+		<div class="flex-grow">
+			<div class="text-sm text-uppercase bold"><a href="/@owner?tab=c0ffee" class="text-nocolor text-gray turboclick">The Show</a></div>
+			${H2}${TITLE}</h2>
+			<div class="text-sm text-gray"><time class="dt-published">Thursday, October 9, 2025</time></div>
+		</div>
+	</div>
+	<div class="qwerty-episode-player card flex-row flex-align-center" data-track-url="/${ID}/audio?format=mp3" data-track-name="${TITLE}" data-track-artist="Host" data-track-album="The Show" data-track-image="">
+		${BACK}
+		<button type="button" class="qwerty-episode-toggle primary turboclick" aria-label="Play"><span class="playing-hide"><i class="bi bi-play-fill"></i></span><span class="playing-show"><i class="bi bi-pause-fill"></i></span></button>
+		${NEXT}
+		<div class="qwerty-episode-progress flex-grow" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="qwerty-episode-fill"></div></div>
+		<div class="qwerty-episode-time text-sm text-gray nowrap">0:00</div>
+	</div>
+	<div class="e-content"><p>Show notes for ${TITLE}.</p></div>
+	${LINKS}
+</div>
+</div></div>

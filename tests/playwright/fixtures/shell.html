@@ -1,0 +1,25 @@
+<!doctype html>
+<html data-theme="stone">
+<head>
+<meta charset="utf-8">
+<title>Fixture</title>
+<link rel="stylesheet" href="/icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/css">
+<!-- No real audio in tests: play() and pause() only flip the paused flag and fire their events -->
+<script>
+const paused = new WeakMap()
+Object.defineProperty(HTMLMediaElement.prototype, "paused", { get() { return paused.get(this) !== false } })
+HTMLMediaElement.prototype.play = function () { paused.set(this, false); this.dispatchEvent(new Event("play")); return Promise.resolve() }
+HTMLMediaElement.prototype.pause = function () { if (paused.get(this) === false) { paused.set(this, true); this.dispatchEvent(new Event("pause")) } }
+HTMLMediaElement.prototype.load = function () { paused.set(this, true); this.dispatchEvent(new Event("emptied")) }
+</script>
+<script src="/js/htmx.js"></script>
+<script type="text/hyperscript" src="/hs/global.hs"></script>
+<script src="/js/hyperscript.js"></script>
+<script src="/js/global.js"></script>
+</head>
+<body hx-push-url="true" style="background: var(--body-background)">
+${BODY}
+<script src="/js/podcast.js"></script>
+</body>
+</html>
