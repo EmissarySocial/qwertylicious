@@ -1,7 +1,5 @@
-{{- /* head-collection is the name of the collection this Article is in, above its title on both the public view and
-     the edit page.  It links to the collection, which redirects to its tab on the profile.  ParentSummary applies
-     the reader's permissions, so a collection the reader may not see, or a parent that is not a collection, shows
-     nothing instead of failing the page. */ -}}
+<!-- head-collection links to the Article's collection, above its title.  ParentSummary applies the reader's
+     permissions, so a hidden collection, or a parent that is not a collection, shows nothing. -->
 {{- $collection := .ParentSummary.Slice.First -}}
 {{- if ne "" $collection.Label -}}
 	<div id="article-collection" class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>

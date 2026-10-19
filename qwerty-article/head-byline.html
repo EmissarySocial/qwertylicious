@@ -1,8 +1,5 @@
-{{- /* head-byline is the Article's description and byline, everything in head-summary below the title.  The edit
-     page draws its own title row, with Publish and the ⋯ menu beside it, and then this.  The title, the
-     description, and the byline are each 32px apart, and the page draws an <hr> below the byline, before the
-     content.  The spacing is in utility classes because the public view does not load this template's
-     stylesheet. */ -}}
+<!-- head-byline is the Article's description and byline, below the title on the public view and the edit page.
+     RULE: spacing is in utility classes, because the public view loads no Article stylesheet (see AGENTS.md). -->
 {{- if ne "" .Description -}}
 	<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
 {{- end -}}

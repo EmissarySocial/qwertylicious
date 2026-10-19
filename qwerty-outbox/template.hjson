@@ -72,8 +72,7 @@
 
 	actions: {
 
-		// About is a tab on the profile page, which swaps it in for #profile-tabs.  A direct
-		// visit to /@user/about opens the profile page with the About tab selected instead.
+		// About renders only for htmx; a direct visit redirects to the profile with ?tab=about
 		about: {
 			roles: ["anonymous"]
 			steps:[
@@ -96,8 +95,7 @@
 			]
 		}
 
-		// A profile holds up to 8 collections.  Past that, a GET explains why in a modal, and a POST answers the form
-		// with the same message, so neither creates one.
+		// RULE: a profile holds up to 8 collections; past that, GET and POST both answer with a message
 		add-collection: {
 			roles: ["self"]
 			steps: [
@@ -315,8 +313,7 @@
 			]
 		}
 
-		// Manage Collections reorders the profile's tabs, and links to each one's Edit and to Add: the modal on GET,
-		// then re-rank and reload on POST
+		// Manage Collections: the modal on GET, then re-rank and reload on POST
 		manage-collections: {
 			roles: ["self"]
 			steps: [

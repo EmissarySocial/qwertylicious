@@ -40,9 +40,8 @@ align-items: center;
   padding-bottom: unset !important;
 }
 
-/* The theme's .card clips its contents to its rounded corners, which also clipped the title's ⋯ menu
-   wherever it reached past the card.  So the editor's card lets its contents overflow, and the banner
-   area at its top does the clipping instead, to keep the corners round. */
+/* The editor's card lets its contents overflow so the title's ⋯ menu is not clipped;
+   the banner area clips itself instead, to keep the corners round. */
 #article-editor {
 	overflow: visible;
 

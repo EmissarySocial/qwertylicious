@@ -1,8 +1,5 @@
-{{- /* event-dates writes an event's start and end as one phrase, on the clock of the event's own timezone (its
-       location's, through the inTimezone helper), with that zone's abbreviation when it has one.  The dot is a
-       StreamSummary (whose dates are datetime.DateTime) or a Stream builder (whose dates are time.Time); inTimezone
-       accepts both and returns a time.Time.  A time of midnight is a whole-day event, so no time is shown.  An end on
-       the same day shows only its time, and an end on a later day shows its date too. */ -}}
+<!-- event-dates writes an event's start and end as one phrase, on its location's clock (inTimezone) with the zone's
+     abbreviation.  The dot is a StreamSummary or a Stream builder.  Midnight is a whole-day event, shown with no time. -->
 {{- $zone := .Location.Timezone -}}
 {{- $start := inTimezone .StartDate $zone -}}
 {{- $end := inTimezone .EndDate $zone -}}

@@ -1,7 +1,5 @@
-{{- /* pin-button is the modal's Pin toggle.  feature and unfeature (template.hjson) answer with it, swapped over the
-       old one, so the modal stays open while the gallery behind it reloads (refreshPage, without closeModal).  It
-       sets hx-push-url="false" because the theme's <body> pushes every request's URL, and the address bar must keep
-       the photo's own. */ -}}
+<!-- pin-button: the modal's Pin toggle, which feature and unfeature answer with, swapped over itself.
+     RULE: hx-push-url="false", or the theme's body pushes this URL over the photo's (see AGENTS.md). -->
 {{- if .IsFeatured -}}
 	<button hx-post="/{{.StreamID}}/unfeature" hx-target="this" hx-swap="outerHTML" hx-push-url="false" aria-pressed="true" class="turboclick">{{icon "pin-fill"}} Pinned</button>
 {{- else -}}

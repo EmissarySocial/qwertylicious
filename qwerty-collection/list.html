@@ -1,7 +1,5 @@
-{{- /* list is this collection's tab: the profile's tab bar with this collection selected and its owner's menu
-     beside it, then its description and its Articles.  The profile page swaps it in for #profile-tabs
-     (QWERTY-COLLECTIONS §1.3).  The tab bar reads the profile's own Outbox query, so it lists the same
-     collections the profile page does. */ -}}
+<!-- list is this collection's tab: the profile's tab bar with this tab selected and the owner's menu, then its contents.
+     RULE: the tab bar reads the profile's Outbox query, as outbox.html does (see AGENTS.md). -->
 <div id="profile-tabs">
 
 <!-- The tab bar on the left, and the owner's menu on the right: the edit items, then the add items.  The menu wraps below the

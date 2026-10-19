@@ -14,7 +14,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest" script="on load startArticleEditor()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest" script="on load startArticleEditor()"></script>
 <script src="https://cdn.jsdelivr.net/npm/editorjs-color-picker@latest/dist/index.umd.js" script="on load startArticleEditor()"></script>
-<!-- Under hx-boost the bundles above load async, after this runs, so each retries on load; on a full page load the call below starts it -->
+<!-- Under hx-boost the bundles above load after this script, so each retries on load; a full page load starts it below -->
 <script>
 	window.startArticleEditor = function() {
 
@@ -50,8 +50,8 @@
 					class: ImageTool,
 					config: {
 						endpoints: {
-							byFile: '/{{.StreamID}}/upload-image', // Your backend file uploader endpoint
-							byUrl: '/{{.StreamID}}/upload-image', // Your endpoint that provides uploading by Url
+							byFile: '/{{.StreamID}}/upload-image',
+							byUrl: '/{{.StreamID}}/upload-image',
 						}
 					}
 				},
@@ -66,16 +66,6 @@
 						endpoint: 'http://localhost:8008/uploadFile'
 					}
 				},
-				/* REMOVED FOR NOW
-				table: {
-					class: Table,
-					inlineToolbar: true,
-					config: {
-						rows: 2,
-						cols: 3,
-					},
-				},
-				*/
 				list: {
 					class: EditorjsList,
 					inlineToolbar: true,

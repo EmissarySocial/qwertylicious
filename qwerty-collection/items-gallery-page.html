@@ -1,5 +1,4 @@
-{{- /* items-gallery-page is one more page of a Photo Gallery's posts, for the sentinel in gallery-more.html.  The
-       ?createDate=LT: in its URL narrows the children query to posts older than the last page. */ -}}
+<!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?createDate=LT:). -->
 {{- $page := (((.ChildrenWithDrafts.Where "templateId" "qwerty-photo").Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
 {{- template "gallery-tiles" (array $page (.UserCan "settings")) -}}
 {{- template "gallery-more" (array .StreamID $page) -}}

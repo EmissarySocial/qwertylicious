@@ -1,5 +1,5 @@
-<!-- Manage Collections: drag the profile's collections into tab order, edit each one, or add another.  Save posts
-     every key in its new order.  Edit and Add each replace this modal with their own, so an unsaved order is lost. -->
+<!-- Manage Collections: drag the collections into tab order, edit each one, or add another.
+     Edit and Add replace this modal, so an unsaved order is lost. -->
 {{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 <form hx-post="/@{{.UserID}}/manage-collections" hx-swap="none" hx-push-url="false">
 

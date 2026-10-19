@@ -1,16 +1,11 @@
 {
-	// An episode in a Podcast collection (qwerty-collection with data.layout "podcast"), modeled on Bandwagon's
-	// songs: a name, a description (Markdown), an optional photo, and one audio track.  The collection's tab lists its
-	// episodes (qwerty-collection/items-podcast.html), and each one opens in a modal with its player and its
-	// description (modal.html), as a photo opens over its gallery.  It is created and organized only by its
-	// collection: the collection's add action opens this template's create form.  Every save writes data.enclosureUrl, which Emissary's feeds turn into an RSS
-	// enclosure, so the collection's feed (/{collection}/feed) is the podcast's feed.
+	// An episode in a Podcast collection: a name, a Markdown description, an optional photo, and one audio track.
 	templateId: "qwerty-episode"
 	category: Content
 	templateRole: "episode"
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	// Each save copies the collection's sharing
 	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
@@ -34,7 +29,7 @@
 				attachmentId: {type:"string"}
 				audioUrl: {type:"string", format:"url"}
 				attachmentFilename: {type:"string"}
-				// What the feeds offer as this episode's enclosure (Emissary's tools/convert/enclosure.go)
+				// The feeds' enclosure for this episode (Emissary's tools/convert/enclosure.go)
 				enclosureUrl: {type:"string", format:"url"}
 				enclosureType: {type:"string"}
 			}}
@@ -61,11 +56,7 @@
 
 	actions: {
 
-		// Opened through the collection's add action (add-stream, inline), so a GET draws this form in a modal and
-		// its POST uploads the files and publishes the episode.  refresh-page reloads the profile on the podcast's
-		// tab.  An episode saved without audio is listed but cannot be played, and has no feed enclosure, as a
-		// Bandwagon song without a file.  (An inline-error here would not keep the form open: as-modal's POST
-		// always closes the modal.)
+		// Opened inline by the collection's add; an episode saved without audio is listed but has no enclosure
 		create: {
 			roles: ["author"]
 			steps: [
@@ -94,11 +85,7 @@
 			]
 		}
 
-		// An episode's own URL (/{id}) is the one to share.  Opened directly, it draws its podcast's tab on its owner's
-		// profile, with the episode as a modal over it and the episode's own title and link-preview tags in <head>
-		// (head.html).  A visitor who cannot see that profile gets the episode's own page behind the modal instead.
-		// Inside the podcast, a row opens the same modal, and the address bar shows /{id} until it closes.  ParentID
-		// is the podcast, and the podcast's ParentID is its owner.
+		// The episode's shareable URL: its modal over its podcast's tab, or over its own page if the profile is hidden
 		view: {
 			roles: ["author"]
 			stateRoles: {
@@ -130,7 +117,7 @@
 			]
 		}
 
-		// The episode as a page of its own, behind the modal when its podcast cannot be drawn
+		// The episode's own page, behind the modal when its podcast cannot be drawn
 		page: {
 			roles: ["author"]
 			stateRoles: {
@@ -146,12 +133,14 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps:[
+					// Save and X, top right, in place of the form's own buttons
+					{do:"view-html", file:"edit-pencil"}
 					{
 						do: "edit"
-						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+						options: ["id:edit-episode-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 						form: {
 							type: "layout-vertical"
-							label: "Edit Episode"
+							label: "<i class=\"bi bi-mic\"></i> Edit Episode"
 							children: [
 								{type:"text", path:"label", label:"Name", options:{required:true}}
 								{type:"upload", path:"data.audioUrl", label:"Audio", description:"Choose a file to replace this episode's audio.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
@@ -190,8 +179,7 @@
 			]
 		}
 
-		// The episode's audio, transcoded on request, as the players and the feed enclosure ask for it, with the
-		// episode's name, its podcast's name, and its photo (or its podcast owner's) written into the file's tags
+		// The audio, transcoded on request, with the episode's name, podcast, and photo in its tags
 		audio: {
 			roles: ["author"]
 			stateRoles: {

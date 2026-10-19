@@ -1,20 +1,12 @@
 {
-	// An entry in a Map, Timeline, or Calendar collection (qwerty-collection with data.layout "map", "timeline", or
-	// "calendar").  One type serves all three: an entry has a location (the Stream's own, which puts it on a map),
-	// a startDate and an optional endDate (which put it on a timeline or a calendar), or both.  Its forms follow its
-	// collection: on a Map it is a Place, whose location is required and which has no dates; on a Timeline or Calendar
-	// it is an Event, whose start is required and location optional.  Its own page is laid out as an Article.  It is
-	// created and organized only by its collection: the collection's add action opens this template's create form.
-	// An entry with a location keeps its times in that place's timezone: localize-dates shows them on its clock
-	// before the form, and anchor-dates looks up the timezone and stores the typed times as instants there after it.
+	// An entry in a Map (a Place), Timeline, or Calendar (an Event) collection; its forms follow the collection's format.
 	templateId: "qwerty-entry"
 	category: Content
 	templateRole: "entry"
-	// Not "Event": nothing federates its dates (no social rules map startDate to startTime), and many entries are
-	// places with no dates at all, so every server shows it as a post
+	// Not "Event": nothing federates its dates, and many entries have none
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	// Each save copies the collection's sharing
 	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-common", "qwerty-replies"]

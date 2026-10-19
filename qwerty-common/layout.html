@@ -1,4 +1,4 @@
-{{- /* layout renders a list of StreamSummary in one of the five formats.  Call it as (array $layout $posts $canEdit), because a template takes only one value; $canEdit shows each post's Edit link on hover.  The caller handles the empty state. */ -}}
+<!-- layout renders StreamSummaries in one of five formats, called as (array $layout $posts $canEdit) (see AGENTS.md). -->
 {{- $layout := index . 0 -}}
 {{- $posts := index . 1 -}}
 {{- $items := array $posts (index . 2) -}}

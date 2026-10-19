@@ -1,7 +1,5 @@
-{{- /* replies-panel is the Replies tab's content: an invitation to reply (or why replies are not open), then the
-       replies.  The Reply button opens base-intent's intent modal with intent=create and inReplyTo set to this
-       item, which sends the visitor to their own Fediverse server to write the reply.  Their server delivers it
-       here, and Emissary records it in this Stream's Replies collection (service.Stream.AddReply). */ -}}
+<!-- replies-panel: the Replies tab's content, an invitation to reply (or why replies are closed), then the replies.
+     Signed in, Reply opens the inbox's reply form; otherwise base-intent's intent modal. -->
 <div id="replies">
 
 	{{- if .AcceptsReplies -}}

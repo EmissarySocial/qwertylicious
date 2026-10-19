@@ -1,6 +1,5 @@
-{{- /* profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and
-     the Follow button.  The owner's
-     menu is not here: it is the ⋯ menu beside the tabs (qwerty-collection/list.html, about.html). */ -}}
+<!-- profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and Follow.
+     The owner's menu is the ⋯ beside the tabs, not here. -->
 {{- $isMyself := .IsMyself -}}
 {{- $showAlbums := eq "true" (.Data "show-albums") -}}
 {{- $showEvents := eq "true" (.Data "show-events") -}}
@@ -14,8 +13,7 @@
 
 <div id="profile-card" class="pos-relative">
 
-	<!-- Banner Image.  An owner with no banner image gets a box to upload one instead, by clicking it or by
-	     dropping a file on it, as on an Article's banner (qwerty-article/edit-banner.html). -->
+	<!-- Banner Image; an owner without one gets a box to click or drop an image on, as on an Article's banner -->
 	{{- if and $isMyself (not $hasBannerImage) -}}
 		<div class="hide sm:show">
 			<div id="profile-banner-upload" class="pos-relative" script="install DropToUpload">
@@ -62,7 +60,7 @@
 					</span>
 					<span class="clipboard-copy-feedback" style="display:none;">
 						<span>@{{.Username}}</span>
-						<span class="text-xs text-green">{{icon "check"}} Copied to clipboard</span>
+						<span class="text-xs text-green">{{icon "check"}} Copied</span>
 					</span>
 				</div>
 
@@ -86,7 +84,7 @@
 					{{- end -}}
 				</div>
 
-				<!-- Follower counts and hashtags, which were on the About tab until 2026-10-16 -->
+				<!-- Follower counts and hashtags -->
 				<div id="profile-stats" class="margin-top-xs align-left">
 					<span><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
 					&nbsp;
@@ -108,24 +106,6 @@
 				<div class="flex-row margin-none">
 					{{- if not $isMyself -}}
 
-						<!--
-						{{- if .IsAuthenticated -}}
-							{{- $following := .AmFollowing .Permalink -}}
-							{{- if $following.IsNew -}}
-								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary turboclick">{{icon "fediverse"}} Follow for Updates</button>
-							{{- else -}}
-								<button hx-get="/@me/settings/following-edit?url={{.Permalink}}" class="primary turboclick">{{icon "check"}} Following</button>
-							{{- end -}}
-						{{- else -}}
-						{{- end -}}
-						{{- if not .IsAuthenticated -}}
-							<div class="margin-top-sm text-xs text-light-gray">
-								<span hx-get="/@{{.UserID}}/intent" class="clickable intentMarker-account turboclick">&nbsp;</span>
-							</div>
-						{{- end -}}
-						-->
-
-						<!--button hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}" class="primary"-->
 						<button hx-get="/@{{.UserID}}/follow" class="primary turboclick">
 							Follow
 						</button>

@@ -1,5 +1,4 @@
-{{- /* items-timeline is a Timeline collection's tab: its events in date order down a vertical line, under a heading
-       for each year.  Each event links to its own page.  The line's CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+<!-- items-timeline is a Timeline's tab: its events in date order down a vertical line, under a heading per year. -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByStartDate -}}
 {{- if eq (.Data "timelineOrder") "desc" -}}

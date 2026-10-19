@@ -5,8 +5,7 @@
  * shows inside its own frame.  Colors come from the theme's tokens, so they follow it into dark mode.
  ******************************************/
 
-/* Photo Gallery: a square grid, three across (two on a small screen), as on Instagram or PixelFed.  Its corners are
-   square, so the tiles at its edges are too. */
+/* Photo Gallery: a square grid with square corners, three across (two on a small screen) */
 .qwerty-gallery {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);

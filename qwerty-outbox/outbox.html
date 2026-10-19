@@ -29,8 +29,7 @@
 		<link rel="alternate" type="application/rss+xml" href="{{.Host}}/@{{.UserID}}/feed?format=rss"/>
 		<link rel="alternate" type="application/atom+xml" href="{{.Host}}/@{{.UserID}}/feed?format=atom"/>
 		<link rel="alternate" type="application/feed+json" href="{{.Host}}/@{{.UserID}}/feed?format=json"/>
-		<!-- Drawn behind a modal (a photo's own URL), the page is the modal's, which brings its own canonical link and
-		     Open Graph tags in <head> (qwerty-photo/head.html) -->
+		<!-- RULE: behind a modal (.IsBackground), the modal's own head carries the link-preview tags (see AGENTS.md) -->
 		{{- if not .IsBackground }}
 		<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
 
@@ -53,9 +52,7 @@
 
 		{{- template "profile-header" . -}}
 
-		<!-- Tabs: the open tab is ?tab={id} or ?tab=about when that names one of the profile's tabs, and the first
-		     tab otherwise, so a crafted value never reaches the page.  This page draws the tab bar with an empty
-		     panel, then loads the open tab's content, which replaces #profile-tabs whole with its own tab bar. -->
+		<!-- RULE: ?tab= opens a tab only when it names one of the profile's tabs, else the first (see AGENTS.md) -->
 		{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 		{{- $requested := .QueryParam "tab" -}}
 		{{- $selected := "about" -}}
@@ -78,8 +75,7 @@
 			{{- $selected = "about" -}}
 		{{- end -}}
 
-		{{- /* A collection's own view of itself rides along: a Calendar's ?view= and ?startDate=, and a Map or Timeline's
-		       ?tag=.  Each is escaped, and the collection's templates check what they read. */ -}}
+		<!-- A tab's own ?view=, ?startDate=, and ?tag= ride along, escaped; the collection checks what it reads -->
 		{{- $panelURL := print "/" $selected "/list?tab=" $selected -}}
 		{{- range $name := array "view" "startDate" "tag" -}}
 			{{- $value := $.QueryParam $name -}}
@@ -93,11 +89,9 @@
 
 		<div class="margin-top">
 
-			<!-- The loading state.  The tab content's own #profile-tabs carries no hx-trigger, so restoring this
-			     page from history does not load the first tab again over the one that was open. -->
+			<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
 			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
-				{{- template "profile-tabs" (array . $selected) -}}
-				<!--span class="spin">{{icon "loading"}}</span-->
+				{{- template "profile-tabs" (array . $selected false) -}}
 			</div>
 		</div>
 
@@ -106,8 +100,7 @@
 	{{- if $isMyself -}}
 		<div id="outbox-refresh-{{.UserID}}" hx-preserve>
 
-			<!-- Reloads keep the open tab, and its calendar view or tag filter, by passing on ?tab=, ?view=, ?startDate=, and ?tag=
-			     from the address bar.  When the address bar names no tab, the tab that is open on screen is kept instead. -->
+			<!-- Reloads keep ?tab=, ?view=, ?startDate=, and ?tag= from the address bar, else the tab open on screen -->
 			<div 
 				hx-get="/@{{.UserID}}" 
 				hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ((document.querySelector("#profile-tabs [role=tab][aria-selected=true]") || {}).id || "").replace("tab-", ""), view: new URLSearchParams(window.location.search).get("view") || "", startDate: new URLSearchParams(window.location.search).get("startDate") || "", tag: new URLSearchParams(window.location.search).get("tag") || ""}'

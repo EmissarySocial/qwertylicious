@@ -1,7 +1,5 @@
-{{- /* head-banner is the Article's banner image or video, at the top of the Article's card on the public view and the
-     edit page.  The card clips it to its corners; its own top corners are also rounded inline, to the theme's
-     --border-radius, because the public view does not load the Article stylesheet (view.html links
-     /.templates/user-article/stylesheet, which does not exist). */ -}}
+<!-- head-banner is the Article's banner image or video, atop its card on the public view and the edit page.
+     RULE: its top corners are rounded inline, because the public view loads no Article stylesheet (see AGENTS.md). -->
 {{- $banner := .AttachmentsByCategory "banner" -}}
 {{- $bannerDescription := .Data "bannerDescription" -}}
 

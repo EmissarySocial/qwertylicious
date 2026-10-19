@@ -1,17 +1,11 @@
-{{- /* modal is an episode opened from its podcast's list (qwerty-collection/items-podcast.html), or from its own URL,
-       in a modal of the standard width (template.hjson's modal action): its photo, name, and date, its player, and its description,
-       with its Replies as a second tab (qwerty-replies), which re-opens this modal with ?tab=replies.
-
-       The theme's podcast bundle (qwerty-theme/podcast/qwerty-podcast.js) runs the player and the keyboard: Up or
-       Left opens the episode above in the list, Down or Right the one below, and Space plays or pauses.  Those
-       episodes are the hidden links at the foot, in the order the author chose for the list (data.episodeOrder on the
-       podcast: newest first unless it is "asc").  Its CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+<!-- modal: an episode opened from its podcast's list or its own URL; qwerty-podcast.js runs the player and keys.
+     Its CSS is in qwerty-outbox/stylesheet/collections.css. -->
 {{- $podcast := .Parent "view" -}}
 {{- $hasAudio := ne "" (.DataString "attachmentId") -}}
 {{- $image := .IconURL -}}
 {{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
 
-{{- /* The neighboring episodes.  The list is newest first unless the author chose oldest first. */ -}}
+<!-- The neighboring episodes, in the list's order: newest first unless episodeOrder is "asc" -->
 {{- $episodes := .Siblings.Where "templateId" "qwerty-episode" -}}
 {{- $created := .CreateDate -}}
 {{- $newer := (($episodes.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}

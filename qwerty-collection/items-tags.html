@@ -1,8 +1,5 @@
-{{- /* items-tags is the row of #hashtag filters above a Map or Timeline.  Called as (array $collection $items $tag),
-       where $items are the collection's items (unfiltered, so every tag stays on offer) and $tag is the one chosen,
-       or "".  Each tag appears once, in the order the items first use it.  A filter reloads only this tab with
-       ?tag=, and pushes the profile's own URL so that a reload or a shared link keeps it (outbox.html passes it
-       on).  Nothing is drawn when no item has a tag. */ -}}
+<!-- items-tags is the row of #hashtag filters above a Map or Timeline, called as (array $collection $items $tag).
+     $items is unfiltered so every tag stays on offer; a filter reloads this tab with ?tag= in the profile's URL. -->
 {{- $collection := index . 0 -}}
 {{- $items := index . 1 -}}
 {{- $selected := index . 2 -}}

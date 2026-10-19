@@ -1,9 +1,5 @@
-{{- /* profile-tabs is the tab bar on a profile page: the profile's collections in the owner's order, then About.
-     It is called as (array $outbox $selected), where $outbox is the profile's Outbox builder and $selected is the
-     open tab's ID (a collection ID, or "about").  The profile page draws it while the first tab loads, and every
-     tab's content draws it again with its own tab selected, so the server always decides the highlight.
-     Each tab replaces #profile-tabs whole and keeps a stable id, so htmx returns keyboard focus to it.  The swap is a
-     view transition, so the panel cross-fades as htmx page navigations do. */ -}}
+<!-- profile-tabs: the collections in the owner's order, About, then the owner's ⋯; called as (array $outbox $selected $collection). -->
+<!-- $selected is a collection ID or "about", and $collection the open collection's builder, or false (see AGENTS.md). -->
 {{- $outbox := index . 0 -}}
 {{- $selected := index . 1 -}}
 {{- $userID := $outbox.UserID -}}

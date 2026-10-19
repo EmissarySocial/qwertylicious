@@ -35,7 +35,7 @@
 			{label:"Notes", value:"notes", icon:"chat-square-text", description:"Short posts, newest first, with a box to write one"}
 			{label:"Articles", value:"column-3", icon:"journal-text", description:"Long-form posts, shown as cards"}
 			{label:"Photos", value:"gallery", icon:"images", description:"A grid of photos, newest first"}
-			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, newest first, with a player on top"}
+			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, each opening in its own player"}
 			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
 			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
 			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}
@@ -45,7 +45,7 @@
 		layoutsWithoutNotes: [
 			{label:"Articles", value:"column-3", icon:"journal-text", description:"Long-form posts, shown as cards"}
 			{label:"Photos", value:"gallery", icon:"images", description:"A grid of photos, newest first"}
-			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, newest first, with a player on top"}
+			{label:"Podcast", value:"podcast", icon:"mic", description:"Audio episodes, each opening in its own player"}
 			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
 			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
 			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}

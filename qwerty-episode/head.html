@@ -1,6 +1,5 @@
-{{- /* head is an episode's <head> values, which as-modal puts into the full page when the episode's URL is opened
-       directly, so that a shared link previews the episode and not the profile drawn behind it.  The description is
-       HTML, which html/template reduces to plain text inside an attribute. */ -}}
+<!-- head: the episode's <head> tags, which as-modal puts in the full page so a shared link previews the episode.
+     The HTML description becomes plain text inside an attribute. -->
 {{- $hasDescription := ne "" (print .ContentHTML) -}}
 <title>{{.DomainLabel}} - {{.Label}}</title>
 <link rel="canonical" href="{{.Permalink}}">

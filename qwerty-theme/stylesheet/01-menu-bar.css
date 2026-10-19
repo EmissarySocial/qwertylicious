@@ -169,10 +169,8 @@
 	}
 }
 
-/* A line between groups of menu items.  The menu's gap already spaces it, so it drops the
-   page-sized margins that the global theme gives every <hr>.  It is drawn in the menu's own text
-   color, faded, because the global --gray20 is nearly the menu's background color in light mode,
-   and qwerty swaps both its grays and the menu's background in dark mode. */
+/* A line between groups of menu items, without the global <hr> margins (the menu's gap spaces it).
+   RULE: faded menu text color, not --gray20, which nearly matches the menu's background in light mode. */
 .dropdown-content hr, #menu-bar .dropdown-content hr {
 	width: 100%;
 	margin: 0;

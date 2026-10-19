@@ -1,8 +1,7 @@
-{{- /* head is a photo's <head> values, which as-modal puts into the full page when the photo's URL is opened
-       directly, so that a shared link previews the photo and not the profile drawn behind it.  The caption is
-       HTML, which html/template reduces to plain text inside an attribute. */ -}}
+<!-- head: the photo's <head> tags, which as-modal puts in the full page so a shared link previews the photo.
+     The HTML caption becomes plain text inside an attribute. -->
 {{- $hasCaption := ne "" (print .ContentHTML) -}}
-{{- /* The photo's title, when it has one, or else who took it */ -}}
+<!-- The photo's title, or else who took it -->
 {{- $title := print "Photo by " .AttributedTo.Name -}}
 {{- if ne "" .Label -}}{{- $title = .Label -}}{{- end -}}
 <title>{{.DomainLabel}} - {{$title}}</title>

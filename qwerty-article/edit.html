@@ -1,5 +1,8 @@
 <div class="page framed wide editor-none h-entry">
 	<article id="article-editor" class="card border padding-none flex-column margin-bottom">
+
+		<!-- The selected pencil, top right, returns to the Article, as Cancel did (its pair is in view.html) -->
+		<a class="button primary edit-circle corner-pencil turboclick" href="/{{.StreamID}}" hx-push-url="unset" hx-replace-url="true" aria-pressed="true" aria-label="Done Editing">{{icon "pencil-fill"}}</a>
 		<div class="pos-relative">
 			{{- template "edit-banner" . -}}
 		</div>

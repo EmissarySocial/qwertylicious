@@ -1,7 +1,5 @@
-{{- /* replies-list is one page of replies, oldest first, from this Stream's Replies collection.  The panel
-       draws the first page, and a "revealed" sentinel at its foot loads the next one through the replies-list
-       action (?after= is the last reply's createDate).  Each reply is loaded through .ActivityStream, which
-       stamps the viewer's own rules on it, so one they hide shows as a placeholder (reply-item). */ -}}
+<!-- replies-list: one page of replies, oldest first, with a "revealed" sentinel that loads the next page.
+     RULE: read ReplyLinksAfter, never RepliesAfter (see AGENTS.md). -->
 {{- $builder := . -}}
 {{- $pageSize := 20 -}}
 {{- $links := .ReplyLinksAfter (.QueryParam "after") $pageSize -}}

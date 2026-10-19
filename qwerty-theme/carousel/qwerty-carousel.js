@@ -1,20 +1,6 @@
 /*
- * qwerty-carousel moves through the photos of a qwerty-photo post (qwerty-photo/photo-figure.html), with its on-screen
- * arrows, the Left and Right arrow keys, or a press-and-drag swipe, modelled on the attachment viewer in
- * conversations-mls (user-conversations/resources/app/src/view/modal-attachments.tsx).  Past the first or last photo,
- * the arrow keys go on to the previous or next post in the gallery: the figure carries those as hidden links
- * (.qwerty-carousel-post-prev / -next), which this script clicks so htmx loads them.
- *
- * It is the theme's "carousel" bundle, loaded once by includes-foot.html.  Every listener is delegated from the document,
- * so carousels that htmx swaps in later (the gallery modal, a photo's page) work without setup.  A carousel's place is
- * its data-index attribute, so a new carousel always starts at its first photo.
- *
- * Markup it expects:
- *   .qwerty-carousel                                      the root
- *     .qwerty-carousel-stage > .qwerty-carousel-track > .qwerty-carousel-slide   one slide per photo
- *     [data-carousel="prev"], [data-carousel="next"]      the on-screen arrows
- *     .qwerty-carousel-count                              "2 / 5"
- *     a.qwerty-carousel-post-prev, a.qwerty-carousel-post-next   hidden links to the neighboring posts
+ * qwerty-carousel runs the photo carousel in qwerty-photo/photo-figure.html: arrows, Left and Right keys, and swipes.
+ * Past either end, the keys click the figure's hidden neighbor-post links. Listeners are delegated from the document.
  */
 (function () {
 

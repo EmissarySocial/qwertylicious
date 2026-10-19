@@ -1,18 +1,13 @@
-{{- /* items-podcast is a Podcast collection's tab: the feed's link, then the episodes, newest first or oldest first as
-       the author chose (data.episodeOrder).  An episode opens in a modal with its player and its description
-       (qwerty-episode/modal.html), and the keyboard moves from there to the episodes above and below.  The play
-       button beside an episode also starts it, in its own click, so the browser allows the audio (the theme's
-       podcast bundle, qwerty-theme/podcast/qwerty-podcast.js, which marks the row playing with .playing).  An
-       episode without audio is listed, and opens, but has nothing to play.  Its CSS is in
-       qwerty-outbox/stylesheet/collections.css. */ -}}
-{{- /* The author picks the order (data.episodeOrder): newest first unless it is "asc" */ -}}
+<!-- items-podcast is a Podcast's tab: the feed's link, then a table of episodes that each open their modal.
+     RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
+<!-- Newest first unless data.episodeOrder is "asc" -->
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByCreateDate -}}
 {{- if ne (.Data "episodeOrder") "asc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}
 {{- $episodes := $query.Top60.Slice -}}
 {{- $collection := . -}}
-{{- /* The collection's author edits its episodes (the same check as list.html's owner menu) */ -}}
+<!-- The collection's author edits its episodes (the same check as list.html's owner menu) -->
 {{- $canEdit := .UserCan "add" -}}
 
 {{- if $episodes.IsEmpty -}}

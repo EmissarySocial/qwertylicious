@@ -1,15 +1,11 @@
 {
-	// A post of 1 to 64 photos (a carousel) in a Photo Gallery collection (qwerty-collection with
-	// data.layout "gallery").  It is created and organized only by its collection: the collection's add
-	// action opens this template's create form.  Publishing is immediate, as on Instagram or PixelFed, and
-	// the gallery opens each post in a modal.  Its first photo is its thumbnail (iconUrl), and
-	// data.photoCount tells the gallery when to mark a post as holding several.
+	// A post of 1 to 64 photos in a Photo Gallery; published at once, and opened in a modal.
 	templateId: "qwerty-photo"
 	category: Content
 	templateRole: "photo"
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
+	// Each save copies the collection's sharing
 	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-replies"]
@@ -55,9 +51,7 @@
 
 	actions: {
 
-		// Opened through the collection's add action (add-stream, inline), so a GET draws this form in a
-		// modal and its POST uploads the photo and publishes it.  refresh-page reloads the profile on the
-		// collection's tab, where the new photo now leads the gallery.
+		// Opened inline by the collection's add; the POST uploads the photos and publishes the post
 		create: {
 			roles: ["author"]
 			steps: [
@@ -85,11 +79,7 @@
 			]
 		}
 
-		// A photo's own URL (/{id}) is the one to share.  Opened directly, it draws the gallery on its owner's
-		// profile, and the photo as a modal over it, with the photo's own title and link-preview tags in
-		// <head> (head.html).  A visitor who cannot see that profile gets the photo's own page behind the
-		// modal instead.  Inside the gallery, a tile opens the same modal, and the address bar shows /{id}
-		// until it closes.  ParentID is the gallery, and the gallery's ParentID is its owner.
+		// The photo's shareable URL: its modal over the gallery, or over its own page if the profile is hidden
 		view: {
 			roles: ["author"]
 			stateRoles: {
@@ -161,11 +151,8 @@
 			]
 		}
 
-		// The X on the edit form's photo preview (the upload widget's delete option) removes the photo it shows,
-		// which is the post's first one, its thumbnail (iconUrl).  Then the next photo becomes the thumbnail.  It is
-		// offered, and done, only while the post holds more than one, so a post is never left with none.  The form
-		// stays open, and refreshPage redraws the gallery behind it.  It replaces delete-photo, which deleted EVERY
-		// photo when its ?attachmentId= was missing.
+		// Removes the first photo (the thumbnail), and the next becomes the thumbnail.
+		// RULE: only while the post holds more than one, so it is never left with none.
 		delete-thumbnail: {
 			roles: ["author"]
 			steps: [
@@ -179,9 +166,8 @@
 			]
 		}
 
-		// Pinned posts lead the gallery, before the newest.  The modal's button swaps itself (pin-button.html), and
-		// refreshPage reloads the gallery behind it; refresh-page would also send closeModal.  view-html renders
-		// only on GET unless told otherwise, so its method is post.
+		// Pinned posts lead the gallery. Sends refreshPage, not refresh-page, which would also close the modal.
+		// view-html renders only on GET unless told otherwise, so its method is post.
 		feature: {
 			roles: ["author"]
 			steps: [

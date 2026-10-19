@@ -1,6 +1,4 @@
-{{- /* modal is a post opened from its gallery (qwerty-collection/items-gallery.html), or from its own URL, in a
-       large modal (template.hjson's modal action).  Its Replies are a second tab (qwerty-replies), which re-opens
-       this modal with ?tab=replies. */ -}}
+<!-- modal: a photo post opened from its gallery or its own URL; its Replies tab re-opens it with ?tab=replies. -->
 <div class="padding">
 	{{- template "replies-tabs" (array . "Photo" "modal") -}}
 
@@ -12,9 +10,9 @@
 	{{- else -}}
 		{{- template "photo-figure" (array . "modal") -}}
 
-		<!-- Share and Close sit at the bottom left.  The author's Edit and Pin sit across from the byline (photo-figure.html). -->
+		<!-- Share and Close buttons -->
 		<div class="flex-row flex-align-center margin-top">
-			<!-- Share hands the photo's own URL to the device's share sheet, or copies it where there is none -->
+			<!-- Share opens the device's share sheet, or copies the URL -->
 			<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
 				on click
 					if navigator.share

@@ -1,22 +1,13 @@
-{{- /* photo-figure is a post's photos, its byline (the author's avatar, name, and date), and its caption, shared by
-       the full page (view.html) and the gallery's modal (modal.html).  It is called as (array $builder $mode), where $mode is "page" or "modal".
-
-       Several photos make a carousel: a track that slides one photo at a time, by its arrows, the Left and Right arrow
-       keys, or a press-and-drag swipe.  qwerty-theme's carousel bundle runs it (qwerty-theme/carousel/qwerty-carousel.js).
-       Past the first or last photo, or on a post of one photo, the arrow keys go on to the previous or next post in
-       the gallery's order: pinned posts first, then the rest, each newest first (qwerty-collection/items-gallery.html).
-       Those posts are the hidden links at the foot of the carousel, which open as a modal or as a page, as this one did.
-
-       Its CSS is in qwerty-outbox/stylesheet/collections.css, which the profile page loads, and which view.html links. */ -}}
+<!-- photo-figure: a post's photos (a carousel run by qwerty-carousel.js), byline, and caption; takes (array $builder $mode).
+     $mode is "page" or "modal". Its CSS is in qwerty-outbox/stylesheet/collections.css. -->
 {{- $builder := index . 0 -}}
 {{- $mode := index . 1 -}}
 {{- $streamID := $builder.StreamID -}}
 {{- $photos := $builder.AttachmentsByCategory "photo" -}}
 {{- $canEdit := $builder.UserCan "edit" -}}
-{{- /* The caption is each photo's accessible name (aria-labelledby), so a post needs no separate alt text */ -}}
+<!-- The title and caption are each photo's accessible name (aria-labelledby), so a post needs no alt text -->
 {{- $captionID := print "photo-caption-" $mode "-" $streamID -}}
 {{- $hasCaption := ne "" (print $builder.ContentHTML) -}}
-{{- /* The title, when there is one, names each photo ahead of the caption */ -}}
 {{- $titleID := print "photo-title-" $mode "-" $streamID -}}
 {{- $hasTitle := ne "" $builder.Label -}}
 {{- $labelledBy := "" -}}
@@ -24,7 +15,7 @@
 {{- if $hasCaption -}}{{- $labelledBy = trim (print $labelledBy " " $captionID) -}}{{- end -}}
 {{- $several := gt (len $photos) 1 -}}
 
-{{- /* The neighboring posts, in the gallery's order.  Each lookup is one row: the pinned posts, then the rest. */ -}}
+<!-- The neighboring posts, in the gallery's order: pinned posts, then the rest, each newest first -->
 {{- $gallery := $builder.Siblings.Where "templateId" "qwerty-photo" -}}
 {{- $pinned := $gallery.Where "isFeatured" true -}}
 {{- $unpinned := $gallery.Where "isFeatured" false -}}
@@ -70,8 +61,7 @@
 			<div class="qwerty-carousel-count text-xs" aria-live="polite">1 / {{len $photos}}</div>
 		{{- end -}}
 
-		<!-- The neighboring posts, for the arrow keys (qwerty-carousel.js).  A modal opens the next modal, and a page the next
-		     page, from /{id}/page, which pushes the shareable /{id}. -->
+		<!-- Hidden links to the neighboring posts, for the arrow keys; a modal opens a modal, a page a page -->
 		{{- if ne "" $prev -}}
 			<a class="qwerty-carousel-post-prev" hidden aria-hidden="true" tabindex="-1"
 				href="/{{$prev}}"
@@ -89,9 +79,7 @@
 	</div>
 
 	<figcaption class="margin-top">
-		<!-- The title, then the byline and the caption, as an Article draws them.  In the modal, the author's Pin and
-		     Edit Photo sit across from the title, or at the right on their own when there is no title (the full page
-		     draws its own Edit, in view.html). -->
+		<!-- The title, with the author's Pin in the modal (the pencil is in modal.html, and view.html draws its own Edit) -->
 		{{- $authorTools := and $canEdit (eq $mode "modal") -}}
 		{{- if or $hasTitle $authorTools -}}
 			<div class="flex-row flex-align-center margin-bottom">
@@ -103,12 +91,11 @@
 				{{- if $authorTools -}}
 					<div class="flex-row flex-align-center flex-shrink-0">
 						{{- template "pin-button" $builder -}}
-						<button hx-get="/{{$streamID}}/edit" class="turboclick">{{icon "settings"}} Edit Photo</button>
 					</div>
 				{{- end -}}
 			</div>
 		{{- end -}}
-		<!-- The byline, above the caption, as an Article draws it (qwerty-article/head-byline.html) -->
+		<!-- The byline -->
 		<div class="flex-row flex-align-center margin-bottom">
 			<div class="width-48 flex-center">
 				<img src="{{$builder.AttributedTo.IconURL}}" alt="" class="width-48 circle">

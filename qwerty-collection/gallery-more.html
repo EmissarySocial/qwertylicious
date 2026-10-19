@@ -1,6 +1,5 @@
-{{- /* gallery-more is the sentinel after a full page of photo posts.  Called as (array $collectionID $page).  When it
-       scrolls into view it loads the next 30 posts, older than this page's last, and replaces itself with them
-       (and the next sentinel).  createDate=LT: is a filter the children query applies on its own. */ -}}
+<!-- gallery-more is the sentinel after a full page of photo posts, called as (array $collectionID $page).
+     In view, it replaces itself with the next 30 posts older than this page's last (?createDate=LT:). -->
 {{- $collectionID := index . 0 -}}
 {{- $page := index . 1 -}}
 {{- if $page.IsLength 30 -}}

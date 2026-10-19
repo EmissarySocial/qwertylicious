@@ -1,8 +1,5 @@
-{{- /* items-calendar is a Calendar collection's tab: its events in a List, a Week of days, or a Month grid, chosen by
-       ?view= (the author's data.calendarView by default) and moved by ?startDate= (YYYY-MM-DD; the week or month
-       that holds it, or today when it is missing).  Its links reload only this tab and push the profile's URL with
-       both, which outbox.html passes on.  Days are UTC dates, and each event shows on its own clock (inTimezone).
-       An event opens qwerty-entry's modal.  The CSS is in qwerty-outbox/stylesheet/collections.css. */ -}}
+<!-- items-calendar is a Calendar's tab: its events as a List, Week, or Month (?view=, else data.calendarView),
+     around ?startDate= (YYYY-MM-DD, else today).  Days are UTC dates; each event keeps its own clock (see AGENTS.md). -->
 {{- $collectionID := .StreamID -}}
 {{- $profileTab := print "/@" .ParentID "?tab=" .StreamID -}}
 {{- $view := .QueryParam "view" -}}
@@ -12,7 +9,7 @@
 {{- if not (in $view "list" "week" "month") -}}
 	{{- $view = "list" -}}
 {{- end -}}
-{{- /* Today is the server's own date (in the evening, UTC is already tomorrow), as a UTC midnight like the events */ -}}
+<!-- Today is the server's local date, as a UTC midnight like the grid's days -->
 {{- $today := (today).UTC -}}
 {{- $localKey := (now).Format "2006-01-02" -}}
 {{- if gt ($today.Format "2006-01-02") $localKey -}}
@@ -22,7 +19,7 @@
 {{- end -}}
 {{- $todayKey := $today.Format "2006-01-02" -}}
 
-{{- /* The date to show, from ?startDate=.  Only an exact YYYY-MM-DD is kept, and links carry it on to the other views. */ -}}
+<!-- RULE: ?startDate= is kept only when it is an exact YYYY-MM-DD -->
 {{- $startParam := .QueryParam "startDate" -}}
 {{- $anchor := inTimezone $startParam "" -}}
 {{- if ne ($anchor.Format "2006-01-02") $startParam -}}
@@ -34,8 +31,7 @@
 	{{- $startQuery = print "&startDate=" $startParam -}}
 {{- end -}}
 
-{{- /* The range of days to show: a whole month (with the days around it that fill its first and last weeks), or one
-       week.  printf turns a time.Weekday into a number that int can read. */ -}}
+<!-- The range of days: a month padded to whole weeks, or one week.  printf turns a time.Weekday into an int. -->
 {{- $title := "" -}}
 {{- $monthStart := $anchor -}}
 {{- $gridStart := $anchor -}}
@@ -70,8 +66,7 @@
 {{- $previousKey := $previous.Format "2006-01-02" -}}
 {{- $nextKey := $next.Format "2006-01-02" -}}
 
-{{- /* The events that touch the range.  An event that starts before the range shows if it ends inside it, so the
-       query reaches back a month for long events; each day below keeps only the events that cover it. */ -}}
+<!-- The events that touch the range: the query reaches back a month for long events, and each day keeps its own -->
 {{- $events := ((((.ChildrenWithDrafts.Where "templateId" "qwerty-entry").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd).ByStartDate.All).Slice -}}
 
 <!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views -->

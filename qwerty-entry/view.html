@@ -1,6 +1,5 @@
-{{- /* view is an entry's own page, laid out as an Article's (qwerty-article/view.html): one card, with the
-       photo, the collection's name, the title, the byline (entry-byline.html), and the rest (entry-body.html), which
-       the modal shares.  The page never reads its collection's format, so it shows whatever the entry holds. */ -}}
+<!-- view: an entry's own page, laid out as an Article's. It never reads its collection's format,
+     so it shows whatever the entry holds. -->
 {{- $hasDates := not .StartDate.IsZero -}}
 
 <div class="page framed {{if $hasDates}}h-event{{else}}h-entry{{end}}">
@@ -36,7 +35,7 @@
 		</article>
 	</div>
 
-	<!-- The page reloads itself from /{id}/page, because /{id} answers an htmx request for a Place with its modal -->
+	<!-- RULE: reload from /{id}/page, because /{id} answers an htmx request with the modal. -->
 	<div
 		hx-get="/{{.StreamID}}/page"
 		hx-trigger="refreshPage from:window"

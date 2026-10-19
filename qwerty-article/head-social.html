@@ -19,11 +19,6 @@
 		<button hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies" class="tertiary turboclick">{{icon "message-circle"}} {{.ReplyCount}}</button>
 	</div>
 	<div class="flex-grow align-right">
-		<!--
-		<a hx-get="/{{.StreamID}}/responses" class="text-nocolor text-sm turboclick"> {{.ResponseCount}} Likes</a>
-		&nbsp;
-		<a hx-get="/{{.StreamID}}/replies" class="text-nocolor text-sm turboclick"> {{.ReplyCount}} Replies</a>
-	-->
 	</div>
 </div>
 

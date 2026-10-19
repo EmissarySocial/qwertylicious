@@ -266,8 +266,7 @@
 		}
 
 
-		// Explicit News Feed (all folders) view.  The zero folderId selects the synthetic
-		// "all folders" entry; without it, the folder view defaults to the first folder.
+		// News Feed: the zero folderId selects the "all folders" entry
 		feed: {
 			roles: ["self"]
 			steps:[
@@ -338,8 +337,7 @@
 			]
 		}
 		
-		// Marks every unread message in the folder (from ?folderId=) as read.  Posted by
-		// the folder view on load (Mastodon-style), clearing the folder's unread dot.
+		// Marks every message in ?folderId= as read; index.html posts it on load
 		folder-read:{
 			roles:["self"]
 			steps:[
@@ -357,8 +355,7 @@
 			]
 		}
 		
-		// Explicit folder view: /@me/newsfeed/folder shows the News Feed (all folders);
-		// /@me/newsfeed/folder?folderId=xxx shows one folder.  Renders index.html.
+		// Shows the folder named by ?folderId=
 		folder: {
 			roles: ["self"]
 			steps:[
@@ -369,9 +366,7 @@
 		index: {
 			roles: ["self"]
 			steps:[
-				// Bare /@me/newsfeed lands on the News Feed (all folders); Notifications is
-				// its own top-level nav section now.  Legacy ?folderId= URLs redirect to the
-				// explicit /folder route.
+				// Redirects to the News Feed, or to /folder when ?folderId= is set
 				{do:"if", condition:"{{eq `` (.QueryParam `folderId`)}}", then:[
 					{do:"redirect-to", url:"/@me/newsfeed/feed"}
 				], otherwise:[
@@ -484,9 +479,7 @@
 			]
 		}
 
-		// LEGACY entry point.  Notifications live in their own template/route now
-		// (/@me/notifications — see the user-notifications template); redirect old
-		// /@me/notifications(?type=xxx) URLs to the matching section page.
+		// Redirects old notifications URLs (?type=) to the user-notifications pages
 		notifications: {
 			roles:["self"]
 			steps:[
@@ -550,8 +543,7 @@
 			]
 		}
 
-		// Standalone News Feed sidebar fragment, re-fetched on refreshSidebar
-		// (?folderId= keeps the selected folder).
+		// Folder menu fragment that the sidebar and menu bar re-fetch
 		newsfeed-menu: {
 			roles: ["self"]
 			steps:[

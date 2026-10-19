@@ -1,8 +1,4 @@
-{{- /* newsfeed-menu.html renders the News Feed folder list: the "all folders" entry, the
-	sortable per-folder links, and "Add a Folder".  The dot (".") is a FolderList (via
-	.FoldersWithSelection "FOLDER").  Rendered inside newsfeed-menu.html on desktop,
-	and full-page by mobile.html.  Notifications live in their own template now (see
-	the user-notifications template and the global nav item in theme-default/navigation.html). */ -}}
+<!-- Menu bar folder dropdown: All, then the user's sortable folders. The dot is a FolderList. -->
 
 {{- $selectedID := .SelectedID -}}
 {{- $allFolders := $selectedID.IsZero -}}

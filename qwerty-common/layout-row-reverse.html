@@ -1,4 +1,4 @@
-{{- /* layout-row-reverse renders (array $posts $canEdit), and fetches nothing; $canEdit adds an Edit link shown on hover. The caller handles the empty state. */ -}}
+<!-- layout-row-reverse renders (array $posts $canEdit) and fetches nothing; $canEdit adds a hover Edit link.  The caller handles empty. -->
 {{- $canEdit := index . 1 -}}
 {{- range index . 0 -}}
 	<div class="pos-relative hover-trigger margin-bottom">

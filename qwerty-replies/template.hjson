@@ -1,26 +1,13 @@
 {
-	// qwerty-replies is the Replies widget shared by every collection item (qwerty-article, qwerty-photo,
-	// qwerty-entry), which list it in their "extends".  It adds a Replies tab beside the item's own content,
-	// lists the replies its Stream has accepted, and offers visitors a Reply button that sends them, through an
-	// Activity Intent (base-intent's "intent" action), to reply from their own Fediverse account.
-	//
-	// Whether an item accepts replies is its Stream's replyPolicy, which the item inherits from its collection
-	// with its sharing (inheritPermissions).  Emissary records a reply only when the Stream AcceptsReplies: it is
-	// public, and its policy is not "nobody".  The list reads that record (ReplyLinksAfter), so a reply that
-	// arrived while replies were closed never shows.
-	//
-	// Partials, called from the item's views:
-	//   replies-tabs   (array $builder $label $mode): the tab bar.  $label names the first tab ("Article"), and
-	//                  $mode is "page" for a full page or "modal" for a modal (the photo modal).
-	//   replies-panel  $builder: the Replies tab's content.
+	// The Replies widget for every collection item: a Replies tab, the accepted replies, and a Reply button.
+	// Partials: replies-tabs (array $builder $label $mode ["count"]) and replies-panel $builder.
 	templateId: "qwerty-replies"
 	category: Base
 	model: None
 	// base-social supplies hidden-placeholder, for a reply the viewer's own rules hide
 	extends: ["base-social"]
 
-	// Emissary validates each template's actions on their own, so the state and role its actions name are
-	// defined here too.  Every item template defines both itself, and its own definitions win.
+	// Emissary validates each template's actions alone, so the state and role they name are defined here too
 	states: {
 		published: {
 			label: "Published"

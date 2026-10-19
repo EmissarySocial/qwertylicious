@@ -1,7 +1,5 @@
-{{- /* reply-item is one reply in the list, called as (array $builder $url).  A reply the viewer's own rules hide
-       shows base-social's hidden-placeholder, which re-draws this item through the reply action with
-       ?reveal=true.  Links to the reply and its author open on their own servers.  Those URLs come from other
-       servers, so they are never marked safeURL: html/template's own URL filter refuses a javascript: link. */ -}}
+<!-- reply-item: one reply, called as (array $builder $url); a rule-hidden reply shows hidden-placeholder.
+     RULE: never mark these remote URLs safeURL (see AGENTS.md). -->
 {{- $builder := index . 0 -}}
 {{- $url := index . 1 -}}
 {{- $document := $builder.ActivityStream $url -}}
@@ -16,8 +14,7 @@
 	</div>
 {{- else if $document.NotNil -}}
 	{{- $object := $document.UnwrapActivity -}}
-	{{- /* The author loads through .ActivityStream, not AttributedTo.Load: Load returns an error, which would abort
-	       the whole tab when one author's server is gone, while .ActivityStream reports it and returns an empty one. */ -}}
+	<!-- RULE: load the author through .ActivityStream, never AttributedTo.Load (see AGENTS.md). -->
 	{{- $actor := $object.AttributedTo -}}
 	{{- if ne "" $actor.ID -}}
 		{{- $actor = $builder.ActivityStream $actor.ID -}}

@@ -16,14 +16,11 @@
 		properties: {
 			label: {type:"string", maxLength:128, required:true}
 			summary: {type:"string", maxLength:2048}
-			// Who may reply to the items in this collection, "everyone" or "nobody" (set by set-reply-policy).  Each
-			// item inherits it with its sharing (inheritPermissions), and Emissary enforces it (REPLY-CONTROLS).
+			// "everyone" or "nobody" (set-reply-policy); items inherit it with their sharing
 			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
-			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone", FALSE is "nobody"), for the Photo
-			// Gallery's and the Map's edit forms
+			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone"), for Edit Collection forms
 			allowReplies: {type:"boolean"}
-			// A Map collection's default view: the center is the collection's own location, picked when it is
-			// created and saved from the map by the author's "Set Default View" button (map-view, below)
+			// A Map's default center, set at creation or by the map's "Set Default View" button (map-view)
 			location: {type:"object", properties: {
 				name: {type:"string"}
 				formatted: {type:"string"}
@@ -63,10 +60,7 @@
 
 	actions: {
 
-		// Add a Collection opens this as a modal, through the outbox's add-collection (add-stream),
-		// and nothing is saved until the form is submitted.  The form posts back to add-collection,
-		// which runs these steps again as a POST.  The format starts as Articles, in 3x Columns.  Sharing is off by
-		// default, so a new collection is visible only to its author until it is shared.
+		// Add a Collection: a modal through the outbox's add-collection, which saves nothing until the form posts
 		create: {
 			roles: ["author"]
 			steps: [
@@ -114,8 +108,7 @@
 			]
 		}
 
-		// A collection has no page of its own.  It is a tab on its owner's profile, so its URL
-		// (in breadcrumbs, search results, and links from its Articles) opens that tab.
+		// A collection has no page of its own: its URL opens its tab on the owner's profile
 		view: {
 			roles: ["author", "viewer"]
 			steps: [
@@ -158,10 +151,7 @@
 			]
 		}
 
-		// Edit Collection is a modal, like Sharing, and holds the Delete link.  refresh-page reloads the profile on
-		// the same tab, so a renamed tab shows straight away.  A collection keeps the kind of item it was created
-		// for: an Article collection can switch only among the Article layouts, a Timeline can change its order,
-		// and a Photo Gallery, Map, or Calendar has no format to change.  Articles, a Photo Gallery, a Map, and a Podcast set replies here.
+		// Edit Collection: a modal holding the Delete link; a collection never changes kind (see AGENTS.md)
 		settings: {
 			roles: ["author"]
 			steps: [
@@ -186,8 +176,7 @@
 					{do:"halt"}
 				]}
 				{do:"as-modal", steps: [
-					// A Podcast's replies are a toggle here, as on a Photo Gallery and a Map, and its episodes inherit the
-					// policy through share-children
+					// A Podcast's replies are a toggle here; share-children passes them to its episodes
 					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 						{
 							do: "edit"
@@ -206,8 +195,7 @@
 						{do:"save", comment:"Settings updated by {{.Author}}"}
 						{do:"share-children"}
 					], else:[
-					// A Photo Gallery's replies are a toggle here, not a menu item of their own.  Its photos inherit the
-					// policy, so share-children passes a change down to the photos already posted.
+					// A Photo Gallery's replies are a toggle here; share-children passes them to its photos
 					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
 						{
 							do: "edit"
@@ -218,7 +206,7 @@
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Photos in this collection"}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
 								]
 							}
 						}
@@ -275,7 +263,7 @@
 									}
 									{do:"save", comment:"Settings updated by {{.Author}}"}
 								], else:[
-									// An Article collection sets its replies here, and share-children passes them to its Articles
+									// An Article collection's replies are a toggle too, and share-children passes them to its Articles
 									{
 										do: "edit"
 										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
@@ -285,8 +273,8 @@
 											children: [
 												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-												{type:"select", path:"replyPolicy", label:"Who Can Reply", description:"Replies are open only on Articles shared with everyone.", options:{enum:[{value:"everyone", label:"Everyone"}, {value:"nobody", label:"No One (Replies Closed)"}]}}
 												{type:"radio-button-group", path:"data.layout", label:"Layout", options:{provider:"qwerty-collection.articleLayouts"}}
+												{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
 											]
 										}
 									}
@@ -315,9 +303,7 @@
 			]
 		}
 
-		// Who Can Reply is a modal, like Sharing, for a Timeline or a Calendar.  Emissary's set-reply-policy step draws the choices and writes
-		// replyPolicy (emissary-specs REPLY-CONTROLS).  Its items inherit the policy with their sharing, so
-		// share-children passes a change down to the items already here.
+		// Who Can Reply: a modal for a Timeline or a Calendar; share-children passes the policy to its items
 		replies-policy: {
 			roles: ["author"]
 			steps: [
@@ -330,10 +316,8 @@
 			]
 		}
 
-		// The format decides what this collection holds.  A Photo Gallery holds qwerty-photo, a Podcast holds
-		// qwerty-episode, and a Map, Timeline, or Calendar holds qwerty-entry, whose form follows the format (a Place or an Event).  Both are
-		// created through their own modal form (so the menu opens them with hx-get).  Every other format holds
-		// Articles, created at once (hx-post).
+		// The format picks the item: qwerty-photo, qwerty-episode, or qwerty-entry through a modal form (hx-get),
+		// or else an Article, created at once (hx-post)
 		add: {
 			roles: ["author"]
 			steps: [

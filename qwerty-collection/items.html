@@ -1,7 +1,5 @@
-{{- /* items lists this collection's contents in its chosen format.  The Photo Gallery, Map, Timeline, Calendar, and
-       Podcast formats each have their own view (items-gallery.html, items-map.html, items-timeline.html,
-       items-calendar.html, items-podcast.html).  Every other format lists Articles, featured Articles first.  ChildrenWithDrafts shows the
-       author their unpublished items too, and shows everyone else only the published ones. */ -}}
+<!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, and Notes have
+     their own views; every other format lists Articles, featured first.  ChildrenWithDrafts adds the author's drafts. -->
 {{- $layout := .Data "layout" -}}
 
 {{- if eq $layout "gallery" -}}

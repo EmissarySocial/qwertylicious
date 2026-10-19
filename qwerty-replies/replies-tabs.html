@@ -1,13 +1,6 @@
-{{- /* replies-tabs is the tab bar over a collection item: its own content first, then Replies.  It is called as
-       (array $builder $label $mode).  $label names the first tab, and $mode is "page" (the item's page, whose tabs
-       reload <main> and push ?tab=replies to the address bar) or "modal" (the photo modal, whose tabs re-open the
-       modal through its modal action).  The server picks the selected tab from ?tab=, as on the profile.  There is
-       no bar at all when the item neither accepts replies nor has any, so a private collection's items show none.
-
-       An optional fourth value, "count", is a podcast episode's style.  It labels the second tab with the number of
-       replies on record (.ReplyCount): "0 Replies", "1 Reply", "3 Replies".  And it leaves the bar out whenever
-       replies are closed (.RepliesClosed, which an episode takes from its podcast), even if some arrived before they
-       were closed.  Without it the tab reads "Replies", with the number beside it in gray once there are any. */ -}}
+<!-- replies-tabs: the item's tab bar, its content then Replies; takes (array $builder $label $mode ["count"]).
+     $mode is "page" or "modal". "count" labels the tab with the reply count and hides the bar when replies are closed.
+     No bar when the item neither accepts replies nor has any. -->
 {{- $builder := index . 0 -}}
 {{- $label := index . 1 -}}
 {{- $mode := index . 2 -}}

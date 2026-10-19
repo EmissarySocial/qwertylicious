@@ -1,12 +1,10 @@
-{{- /* navigation-desktop is the sidebar <nav>, and beside it the mobile menu from Emissary's theme-minimal, which
-     theme-default also uses: below 640px the sidebar is hidden and a control in the top-right corner opens a
-     full-screen sheet of the same links.  The menu's CSS is theme-default/stylesheet/04-nav-menu.css, which
-     qwertylicious already loads, and the rules behind its markup are in theme-minimal/AGENTS.md. */ -}}
+<!-- navigation-desktop: the sidebar <nav>, and the mobile menu that replaces it below 640px.
+     The menu's CSS is theme-default/stylesheet/04-nav-menu.css; its rules are in theme-minimal/AGENTS.md. -->
 
-{{- /* Read once: .Navigation runs a database query, and both layouts range over it */ -}}
+<!-- Read once: .Navigation runs a database query, and both layouts range over it -->
 {{- $navigation := .Navigation -}}
 
-{{- /* Marks the current section in the sheet only.  The sidebar is marked client-side by SelectNav. */ -}}
+<!-- Marks the current section in the sheet only; SelectNav marks the sidebar client-side -->
 {{- $navigationID := .NavigationID -}}
 
 <!-- RULE: the skip link sits outside both layouts, which are each hidden at some width -->
@@ -40,8 +38,7 @@
 				<span class="icon selected-show">{{icon "chat-fill"}}</span>
 				<span class="label">Conversations</span>
 			</a>
-			<!-- The badge is a dot that theme-default's #nav-notifications .nav-badge pins to the icon, and that the
-			     listener at the foot of this <nav> refreshes as notifications arrive or are read -->
+			<!-- The unread badge, refreshed by the listener at the foot of this <nav> -->
 			<a href="/@me/notifications/replies" id="nav-notifications" class="nav-item turboclick" aria-label="Notifications">
 				<span class="icon selected-hide">{{icon "bell"}}</span>
 				<span class="icon selected-show">{{icon "bell-fill"}}</span>
@@ -79,8 +76,7 @@
 	</div>
 
 	{{- if .IsAuthenticated -}}
-		<!-- Refreshes the Notifications badge, as theme-default's navigation does.  It sits outside .top so that the
-		     nav items there stay adjacent siblings, which their spacing rule needs. -->
+		<!-- Refreshes the Notifications badge. RULE: outside .top, whose spacing rule needs adjacent nav items. -->
 		<div hx-ext="sse" sse-connect="/@me/sse/notifications" style="display:none;">
 			<div
 				hx-get="/@me/notifications/badge"

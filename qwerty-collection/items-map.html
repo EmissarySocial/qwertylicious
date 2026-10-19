@@ -1,7 +1,5 @@
-{{- /* items-map is a Map collection's tab: one large map with a marker for each place (a qwerty-entry), whose
-       pop-up opens its modal (qwerty-entry's modal action).  The places show only as markers, with no list.  qwerty-theme's maps bundle draws
-       it (qwerty-theme/maps/qwerty-maps.js).  The default view is the collection's own location and data.zoom; with
-       none saved, the map fits its places. */ -}}
+<!-- items-map is a Map's tab: one map with a marker per place, which opens the entry's modal when clicked (see AGENTS.md).
+     The default view is the collection's location and data.zoom; with none saved, the map fits its places. -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByLabel -}}
 {{- $allPlaces := $query.All.Slice -}}

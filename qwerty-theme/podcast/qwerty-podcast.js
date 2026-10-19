@@ -1,37 +1,6 @@
 /*
- * qwerty-podcast plays a Podcast collection's episodes in their modal (qwerty-episode/modal.html), and moves between
- * them with the keyboard: Up or Left opens the episode above in the list, Down or Right the one below, and Space plays
- * or pauses.  When an episode ends, the modal moves on to the next one down and plays it.  Closing the modal stops
- * the audio.
- *
- * It is the theme's "podcast" bundle, loaded once by includes-foot.html.  Every listener is delegated from the
- * document, so modals that htmx swaps in later need no setup.
- *
- * RULE: there is one <audio> element, on <body>, made the first time something plays.  It outlives the modals, so
- * moving to the next episode reuses it.  Browsers (iOS Safari above all) let a page start audio only from a click or
- * a key press, except on an element that has already played; a new <audio> in each modal could not start the next
- * episode on its own when one ends.  The play buttons in the episode list start it in their own click, before htmx
- * opens the modal, for the same reason.
- *
- * Moving to another episode fades from one to the next, through a view transition.  The modal's response carries
- * HX-Reswap, and htmx 1.9 then ignores the link's own hx-swap, transition:true and all; it reads only
- * htmx.config.globalViewTransitions.  So that setting is turned on when htmx starts on the response to an episode link
- * (htmx:beforeOnLoad), and put back in a microtask, which runs once htmx has finished deciding: it reads the setting
- * synchronously, in the same task.  htmx:afterOnLoad cannot put it back, because by then the link has left the page
- * with the old modal, and htmx reports the event from another element.
- *
- * Markup it expects:
- *   .qwerty-episode                                       the modal's root
- *     .qwerty-episode-player[data-track-url]              the player, with data-track-name, -artist, -album, -image
- *       .qwerty-episode-toggle                            play or pause
- *       .qwerty-episode-progress > .qwerty-episode-fill   the progress bar, which seeks when pressed
- *       .qwerty-episode-time                              "1:02 / 34:56"
- *     a.qwerty-episode-prev, a.qwerty-episode-next        hidden links to the episodes above and below
- *     [data-episode-go="prev"], [data-episode-go="next"]  the on-screen arrows, which open them as the keys do
- *   both carry data-episode-id, so a modal that arrives is known to be the one a link asked for
- *   [data-podcast-play]                                   a play button in the episode list, with the same data-track-*
- *   [data-episode-url]                                    a row in the episode list, marked .playing while it plays
- *   [data-episode-row]                                    a row that opens its episode, through its .qwerty-podcast-name link
+ * qwerty-podcast plays a Podcast's episodes in their modal (qwerty-episode/modal.html): player, keys, and autoplay.
+ * RULE: one <audio> element on <body>, reused for every episode, so the next can start without a click (see AGENTS.md).
  */
 (function () {
 
@@ -291,8 +260,7 @@
 		return (target instanceof Element) && (target.closest("button, a, summary, [role=button], [role=tab]") != null)
 	}
 
-	// The arrows and play buttons, in the modal and in the episode list.  A list's play button also opens the modal,
-	// through its own hx-get, which htmx handles separately.
+	// The skip and play buttons, in the modal and the episode list; a list's play button also opens the modal via hx-get
 	document.addEventListener("click", function (event) {
 
 		if (!(event.target instanceof Element)) {

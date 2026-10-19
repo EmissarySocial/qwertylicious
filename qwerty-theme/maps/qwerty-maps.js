@@ -1,20 +1,11 @@
 /*
- * QWERTY MAPS draws every Leaflet map on the page that is not drawn yet.  A map is a .qwerty-map element:
- *
- *   data-tiles, data-attribution   the tile URL template and its credit (the builder's .MapTiles)
- *   data-latitude, data-longitude  the center, when there is one
- *   data-zoom                      the zoom at that center
- *   data-static="true"             a small map of one place: no dragging, zooming, or controls
- *   data-save-url                  where the author's "Set Default View" button posts the current view
- *
- * Its markers are the .qwerty-map-marker elements inside it, each with data-latitude and data-longitude.  A
- * marker's own HTML is its pop-up, written by the server, so nothing here builds HTML from data.  With no center,
- * the map fits its markers, and with no markers either it shows the whole world.
- *
- * Leaflet and this file both load asynchronously when htmx swaps a page in, so whichever arrives last draws the
- * maps: each <script> calls qwertyMaps() on load, and the call does nothing until window.L exists.
+ * QWERTY MAPS draws each undrawn .qwerty-map from its data-tiles, -attribution, -latitude, -longitude, -zoom,
+ * -static, and -save-url attributes; its .qwerty-map-marker children are markers, which open their data-modal-url
+ * on click, or else show their own HTML as a pop-up.
+ * RULE: Leaflet and this file load in either order, so qwertyMaps() waits for window.L (see AGENTS.md).
  */
 
+/** qwertyMaps draws every map on the page that is not drawn yet */
 window.qwertyMaps = function () {
 
 	if (!window.L) {

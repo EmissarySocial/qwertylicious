@@ -1,9 +1,5 @@
-{{- /* episode-player is an episode's player: play or pause, a progress bar that seeks when pressed, and the time.  The
-       theme's podcast bundle (qwerty-theme/podcast/qwerty-podcast.js) runs it, with one <audio> element for the whole
-       page, so it carries the track's URL and names rather than an <audio> of its own.  It is called as
-       (array $builder $podcastLabel $image $above $below), from the modal (modal.html) and the page (view.html).
-       $above and $below are the IDs of the episodes above and below in the list, for the arrows on either side of the
-       play button (episode-arrow.html).  The page passes neither, and draws no arrows. */ -}}
+<!-- episode-player: play/pause, progress, and time; takes (array $builder $podcastLabel $image $above $below).
+     RULE: no <audio> here; qwerty-podcast.js plays the track through one page-wide element (see AGENTS.md). -->
 {{- $builder := index . 0 -}}
 {{- $podcastLabel := index . 1 -}}
 {{- $image := index . 2 -}}
@@ -17,14 +13,14 @@
 	data-track-album="{{$podcastLabel}}"
 	data-track-image="{{$image}}">
 	{{- if $arrows -}}
-		{{- template "episode-arrow" (array "prev" $above) -}}
+		{{- template "episode-arrow-back" $above -}}
 	{{- end -}}
-	<button type="button" class="qwerty-episode-toggle primary" aria-label="Play">
+	<button type="button" class="qwerty-episode-toggle primary turboclick" aria-label="Play">
 		<span class="playing-hide">{{icon "play-fill"}}</span>
 		<span class="playing-show">{{icon "pause-fill"}}</span>
 	</button>
 	{{- if $arrows -}}
-		{{- template "episode-arrow" (array "next" $below) -}}
+		{{- template "episode-arrow-next" $below -}}
 	{{- end -}}
 	<div class="qwerty-episode-progress flex-grow" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
 		<div class="qwerty-episode-fill"></div>

@@ -1,11 +1,8 @@
-{{- /* gallery-tiles draws a slice of photo posts as grid tiles.  A pinned post, and one holding several photos,
-       get a mark in the corner.  A tile opens its post's modal without pushing the modal's URL (the theme's <body>
-       pushes every hx-get by default): the address bar must keep the profile's ?tab=, which refreshPage reloads.
-       Call it as (array $posts $canEdit); $canEdit adds an Edit button in the top right, shown on hover. */ -}}
+<!-- gallery-tiles draws photo posts as grid tiles, called as (array $posts $canEdit); $canEdit adds a hover Edit button.
+     RULE: tiles set hx-push-url="false" so the address bar keeps the profile's ?tab= (see AGENTS.md). -->
 {{- $canEdit := index . 1 -}}
 {{- range index . 0 -}}
-	{{- /* A tile is named by its post's title, else its description (aria-labelledby, the hidden copy below), or
-	       else just "Photo" */ -}}
+	<!-- A tile's accessible name: its title, else its description (the hidden copy below), else "Photo" -->
 	{{- if ne "" .Label -}}
 	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-label="{{.Label}}">
 	{{- else if ne "" .Content.HTML -}}

@@ -4,8 +4,7 @@
 
 {{- if and $document.Metadata.IsRuleHidden (not $reveal) -}}
 
-	{{- /* D2 placeholder: this reply is hidden by the viewer's rules. Selecting it re-fetches
-	       this same card with ?reveal=true and swaps it in place. */ -}}
+	<!-- Placeholder for a reply hidden by the viewer's rules; click to reveal it in place -->
 	<div class="card padding margin-bottom turboclick" role="button"
 		hx-get="/@me/newsfeed/browse-tree-reply?url={{$url}}&reveal=true"
 		hx-target="this"
