@@ -1,26 +1,55 @@
-{{- /* entry-body is an entry's dates (when it has them), summary, location, and details, shared by its page
-       (view.html) and its modal (modal.html).  A location with coordinates gets a small map beside its address,
-       drawn by qwerty-theme's maps bundle (qwerty-theme/maps/qwerty-maps.js); one with only a name gets a line of text. */ -}}
+<!-- entry-body: an entry's dates, summary, details, and location, shared by view.html and modal.html.
+     A geocoded location adds a map and its address below the details (qwerty-theme's maps bundle). -->
 {{- $location := .Location -}}
-{{- $hasDates := not .StartDate.IsZero -}}
+{{- $zone := $location.Timezone -}}
+{{- $start := inTimezone .StartDate $zone -}}
+{{- $end := inTimezone .EndDate $zone -}}
 
-{{- if $hasDates -}}
-	<div class="text-lg text-gray margin-bottom">{{icon "calendar"}} {{template "event-dates" .}}</div>
+<!-- RULE: midnight means a whole day, so its time is left out. -->
+{{- if not $start.IsZero -}}
+	{{- $iso := "2006-01-02T15:04-07:00" -}}
+	{{- $long := "Monday, January 2, 2006" -}}
+	{{- $hasEnd := not $end.IsZero -}}
+	{{- $sameDay := eq ($start.Format "2006-01-02") ($end.Format "2006-01-02") -}}
+	{{- $startTime := ne ($start.Format "15:04") "00:00" -}}
+	{{- $endTime := ne ($end.Format "15:04") "00:00" -}}
+	<div class="margin-bottom">
+		<div class="bold">
+			<time class="dt-start" datetime="{{$start.Format $iso}}">{{$start.Format $long}}</time>
+			{{- if $hasEnd -}}{{- if not $sameDay }} &ndash; <time class="dt-end" datetime="{{$end.Format $iso}}">{{$end.Format $long}}</time>{{- end -}}{{- end -}}
+		</div>
+		{{- if $startTime -}}
+			<div><span class="text-gray">Starts</span> {{$start.Format "3:04 PM"}}{{if ne "" $zone}} <span class="text-light-gray">{{$start.Format "MST"}}</span>{{end}}</div>
+		{{- end -}}
+		{{- if $hasEnd -}}{{- if $endTime -}}
+			<div><span class="text-gray">Ends</span> {{if $sameDay}}<time class="dt-end" datetime="{{$end.Format $iso}}">{{$end.Format "3:04 PM"}}</time>{{else}}{{$end.Format "3:04 PM"}}{{end}}{{if ne "" $zone}} <span class="text-light-gray">{{$end.Format "MST"}}</span>{{end}}</div>
+		{{- end -}}{{- end -}}
+	</div>
+{{- end -}}
+
+{{- if not $location.HasGeocode -}}
+	{{- if ne "" $location.Formatted -}}
+		<div class="text-gray margin-bottom p-location">{{icon "location-fill"}} {{$location.Formatted}}</div>
+	{{- end -}}
 {{- end -}}
 
 {{- if ne "" .Summary -}}
-	<div class="p-summary margin-bottom-lg">{{.Summary}}</div>
+	<div class="p-summary">{{.Summary}}</div>
 {{- end -}}
 
+<hr class="margin-vertical-lg">
+
+<div id="article-content" class="e-content">{{.ContentHTML}}</div>
+
 {{- if $location.HasGeocode -}}
-	<div class="sm:flex-row margin-bottom-lg p-location" style="gap:calc(var(--rhythm) * 3);">
-		<div class="qwerty-map sm:width-40% margin-bottom" data-static="true" data-tiles="{{.MapTiles.Href}}" data-attribution="{{.MapTiles.Description}}" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}" data-zoom="15">
-			<div class="qwerty-map-canvas rounded" style="width:100%; aspect-ratio:4/3;"></div>
+	<div class="p-location margin-top-lg">
+		<div class="qwerty-map" data-static="true" data-tiles="{{.MapTiles.Href}}" data-attribution="{{.MapTiles.Description}}" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}" data-zoom="15">
+			<div class="qwerty-map-canvas" style="width:100%; aspect-ratio:16/9; border-radius:var(--border-radius);"></div>
 			<div hidden>
 				<div class="qwerty-map-marker" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}"></div>
 			</div>
 		</div>
-		<div class="h-adr text-gray">
+		<div class="h-adr text-gray margin-top">
 			{{- if $location.HasAddress -}}
 				{{- if ne "" $location.Street1 -}}<div class="p-street-address">{{$location.Street1}}</div>{{- end -}}
 				{{- if ne "" $location.Street2 -}}<div>{{$location.Street2}}</div>{{- end -}}
@@ -33,18 +62,9 @@
 			{{- else -}}
 				<div>{{$location.Formatted}}</div>
 			{{- end -}}
-			<div class="margin-top-sm"><a href="https://www.openstreetmap.org/?mlat={{$location.Latitude}}&mlon={{$location.Longitude}}#map=16/{{$location.Latitude}}/{{$location.Longitude}}" target="_blank" rel="noopener noreferrer">Open in a map &rarr;</a></div>
 		</div>
 	</div>
-{{- else if ne "" $location.Formatted -}}
-	<div class="text-gray margin-bottom-lg p-location">{{icon "map-pin"}} {{$location.Formatted}}</div>
-{{- end -}}
 
-<hr class="margin-vertical-lg">
-
-<div id="article-content" class="e-content">{{.ContentHTML}}</div>
-
-{{- if $location.HasGeocode -}}
 	<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
 	<script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
 	<script src="/.themes/qwerty-theme/maps"></script>

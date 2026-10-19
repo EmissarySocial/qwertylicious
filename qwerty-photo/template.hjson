@@ -112,7 +112,7 @@
 			]
 		}
 
-		// The photo as a page of its own, behind the modal when its gallery cannot be drawn
+		// The photo's own page, behind the modal when its gallery cannot be drawn
 		page: {
 			roles: ["author"]
 			stateRoles: {
@@ -126,17 +126,31 @@
 		edit: {
 			roles: ["author"]
 			steps: [
-				{do:"as-modal", steps:[
+				{do:"as-modal", options:["class:large"], steps:[
+					// Save and X, top right, in place of the form's own buttons
+					{do:"view-html", file:"edit-pencil"}
 					{
 						do: "edit"
-						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+						options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 						form: {
-							type: "layout-vertical"
+							type: "layout-tabs"
 							label: "Edit Photo"
 							children: [
-								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:3}}
-								{type:"upload", path:"iconUrl", label:"Add More Photos", description:"Added after the ones already here.  A post holds up to 64 photos, and any past that are not added.", options:{accept:"image/*", multiple:true, delete:"{{with index .Data `photoCount`}}{{if gt . 1}}/{{$.StreamID.Hex}}/delete-thumbnail{{end}}{{end}}"}}
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+										{type:"upload", path:"iconUrl", label:"Add More Photos", description:"Added after the ones already here.  A post holds up to 64 photos, and any past that are not added.", options:{accept:"image/*", multiple:true, delete:"{{with index .Data `photoCount`}}{{if gt . 1}}/{{$.StreamID.Hex}}/delete-thumbnail{{end}}{{end}}"}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Description"
+									children: [
+										{type:"textarea", path:"content.raw", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:10}}
+									]
+								}
 							]
 						}
 					}

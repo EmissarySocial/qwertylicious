@@ -62,19 +62,20 @@
 	}
 }
 
-/* Carousel: a post's photos side by side, one in view at a time.  The track slides by transform, moved by the arrows,
-   the arrow keys, or a press-and-drag swipe (qwerty-theme/carousel/qwerty-carousel.js), as the attachment viewer in
-   conversations-mls does.  touch-action leaves vertical scrolling to the browser, while the script takes horizontal
-   drags. */
+/* Carousel: a post's photos side by side, one in view, slid by transform (qwerty-theme/carousel/qwerty-carousel.js).
+   touch-action leaves vertical scrolling to the browser and horizontal drags to the script.  The script sets the
+   stage's height to the photo in view, so the caption below moves up and down to fit each photo. */
 .qwerty-carousel-stage {
 	overflow: hidden;
 	touch-action: pan-y;
+	transition: height 240ms ease;
 	border-radius: var(--border-radius);
 	background-color: var(--gray10);
 }
 
 .qwerty-carousel-track {
 	display: flex;
+	align-items: flex-start;
 	transition: transform 240ms ease;
 
 	/* The track follows the pointer during a drag, with no lag */
@@ -98,6 +99,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.qwerty-carousel-stage,
 	.qwerty-carousel-track {
 		transition: none;
 	}
@@ -215,10 +217,10 @@
 .qwerty-calendar-grid {
 	display: grid;
 	grid-template-columns: repeat(7, minmax(0, 1fr));
-	border: solid 1px var(--gray20);
+	border: solid 1px var(--page-border);
 	border-radius: var(--border-radius);
 	overflow: hidden;
-	background-color: var(--gray20);
+	background-color: var(--page-border);
 	gap: 1px;
 }
 
@@ -238,11 +240,12 @@
 	background-color: var(--white);
 	overflow: hidden;
 
+	/* Days outside the month: a shade between the month's days and the gridlines, in either mode */
 	&.outside {
-		background-color: var(--gray05);
+		background-color: color-mix(in srgb, var(--page-border) 40%, var(--white));
 
 		.qwerty-calendar-date {
-			color: var(--gray40);
+			color: var(--text-color-tertiary);
 		}
 	}
 
@@ -300,7 +303,7 @@
 .qwerty-calendar-list-day {
 	padding: var(--rhythm) calc(var(--rhythm) * 2);
 	background-color: var(--gray05);
-	border-top: solid 1px var(--gray20);
+	border-top: solid 1px var(--page-border);
 	color: var(--gray70);
 	font-weight: 600;
 
@@ -316,7 +319,7 @@
 .qwerty-calendar-list-event {
 	gap: calc(var(--rhythm) * 2);
 	padding: var(--rhythm) calc(var(--rhythm) * 2);
-	border-top: solid 1px var(--gray15);
+	border-top: solid 1px var(--page-border);
 
 	&:hover {
 		background-color: var(--gray05);
@@ -364,7 +367,7 @@
 
 	td {
 		padding: var(--rhythm) calc(var(--rhythm) * 1.5) var(--rhythm) 0;
-		border-top: solid 1px var(--gray15);
+		border-top: solid 1px var(--page-border);
 		vertical-align: middle;
 	}
 
@@ -405,7 +408,7 @@
 	cursor: pointer;
 
 	&:hover td {
-		background-color: var(--white);
+		background-color: color-mix(in srgb, var(--page-border) 40%, var(--page-background));
 	}
 
 	.playing-show {
@@ -459,9 +462,25 @@
 	}
 }
 
-/* The arrows to the episodes above and below, on either side of the play button (qwerty-episode/episode-arrow.html):
-   gray circles, smaller than it.  Disabled at either end of the list, which hides one but keeps its place, so the
-   play button does not move. */
+/* The episode that replaces another fades in, inside the modal (qwerty-podcast.js marks the change).
+   RULE: a CSS fade, not a view transition, which in Safari drops the underlay's blur (see AGENTS.md). */
+@media (prefers-reduced-motion: no-preference) {
+	html.qwerty-episode-arriving #modal .qwerty-episode:not([data-leaving]) {
+		animation: qwerty-episode-arrive var(--motion-base, 200ms) var(--motion-ease, ease-out) both;
+	}
+}
+
+@keyframes qwerty-episode-arrive {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* The skip buttons to the episodes above and below: circles beside the play button, smaller than it.
+   RULE: theme roles, not raw grays, which this theme does not invert evenly in dark mode. */
 .qwerty-episode-arrow {
 	display: flex;
 	align-items: center;
@@ -472,8 +491,8 @@
 	margin: 0;
 	padding: 0;
 	border-radius: 50%;
-	background-color: var(--gray20);
-	color: var(--gray80);
+	background-color: var(--page-border);
+	color: var(--text-color);
 	line-height: 1;
 
 	i {
@@ -486,8 +505,20 @@
 		vertical-align: 0;
 	}
 
-	&:disabled {
-		opacity: 0;
+	/* Hovering mixes toward the text color, so it darkens in light mode and lightens in dark mode.
+	   RULE: !important, over the theme's button hover, whose #menu-bar selector outranks any class. */
+	&:hover {
+		background-color: color-mix(in srgb, var(--page-border), var(--text-color) 15%) !important;
+		color: var(--text-color) !important;
+	}
+
+	/* Grayed out (the disabled attribute): a super-light circle keeps the controls' shape, the icon fades, and
+	   hovering changes nothing, over the theme's own disabled-hover rule */
+	&:disabled,
+	&:disabled:hover {
+		background-color: color-mix(in srgb, var(--page-border) 45%, var(--page-background));
+		color: color-mix(in srgb, var(--text-color) 35%, var(--page-background));
+		cursor: default;
 		pointer-events: none;
 	}
 }
@@ -498,7 +529,7 @@
 	flex-shrink: 0;
 	border-radius: 8px;
 	object-fit: cover;
-	background-color: var(--gray10);
+	background-color: var(--page-border);
 }
 
 /* .card is display: block, which would undo .flex-row, so the row is set here */
@@ -533,6 +564,26 @@
 		line-height: 1;
 		vertical-align: 0;
 	}
+
+	/* Like the skip buttons, hovering mixes toward the text color, over the theme's always-darker primary hover */
+	&:hover {
+		background-color: color-mix(in srgb, var(--button-primary-background), var(--text-color) 15%) !important;
+	}
+}
+
+/* Without audio the play button stays, grayed out on a super-light circle, so the controls keep their space */
+.qwerty-episode-toggle:disabled,
+.qwerty-episode-toggle:disabled:hover {
+	background-color: color-mix(in srgb, var(--page-border) 45%, var(--page-background));
+	color: color-mix(in srgb, var(--text-color) 35%, var(--page-background));
+	cursor: default;
+	pointer-events: none;
+}
+
+/* .card is display: block, which would undo .flex-row, so the no-audio row is set here too */
+.qwerty-episode-player-none {
+	display: flex;
+	align-items: center;
 }
 
 .qwerty-episode-player {
@@ -559,7 +610,7 @@
 	cursor: pointer;
 	touch-action: none;
 	background-clip: content-box;
-	background-color: var(--gray20);
+	background-color: var(--page-border);
 	border-radius: 4px;
 	height: 28px;
 }

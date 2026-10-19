@@ -16,14 +16,12 @@
 	<!-- The feed's link and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
 	<div class="qwerty-podcast reading-column margin-top-xl">
 
-		<div class="qwerty-podcast-header flex-row flex-align-center text-sm">
+		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">
 			<div class="flex-grow"></div>
 			<a href="/{{.StreamID}}/feed?format=rss" target="_blank" class="nowrap" aria-label="Podcast Feed (RSS)">{{icon "rss"}} Podcast Feed (RSS)</a>
 		</div>
 
-		<!-- The episodes, as a table so the dates and buttons line up.  A click anywhere on a row opens its episode's
-		     modal, through the name's link (qwerty-podcast.js), and the row's own buttons keep their jobs.  Keyboard users
-		     reach the same modal through that link.  The description and photo are in the modal. -->
+		<!-- The episodes, as a table so the dates and buttons line up; a click on a row opens its modal (see AGENTS.md) -->
 		<table class="qwerty-podcast-episodes">
 			<tbody>
 			{{- range $episodes -}}
@@ -31,7 +29,7 @@
 				<tr class="qwerty-podcast-episode" data-episode-url="/{{.StreamID}}/audio?format=mp3" data-episode-row>
 					<td class="qwerty-podcast-icon">
 						{{- if $hasAudio -}}
-							<button class="qwerty-podcast-play" aria-label="Play {{.Label}}"
+							<button class="qwerty-podcast-play turboclick" aria-label="Play {{.Label}}"
 								data-podcast-play="/{{.StreamID}}/audio?format=mp3"
 								data-track-name="{{.Label}}"
 								data-track-artist="{{$collection.AttributedTo.Name}}"
@@ -47,10 +45,11 @@
 						{{- end -}}
 					</td>
 					<td class="qwerty-podcast-name"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
-					<td class="qwerty-podcast-date text-sm text-gray">
+					<!-- .text-gray is an opacity, so it goes on the text; on the cell it would fade the row's hover color too -->
+					<td class="qwerty-podcast-date text-sm"><span class="text-gray">
 						{{- .PublishDate | shortDate -}}
 						{{- if not $hasAudio }}<span class="hide sm:inline"> &middot; No audio</span>{{ end -}}
-					</td>
+					</span></td>
 					{{- if $canEdit -}}
 						<td class="qwerty-podcast-edit">
 							<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>

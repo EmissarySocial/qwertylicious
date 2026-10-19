@@ -112,8 +112,23 @@
 		}
 
 		autoplay = keepPlaying ? link.dataset.episodeId : ""
+		markLeaving()
 		link.click()
 		return true
+	}
+
+	// markLeaving marks the episode on screen as leaving, and the page as changing episodes, so the episode that
+	// replaces it fades in (collections.css).  RULE: no view transition here; Safari drops the underlay's blur from its
+	// snapshots (see AGENTS.md).
+	function markLeaving() {
+
+		const episode = document.querySelector("#modal .qwerty-episode")
+
+		if (episode != null) {
+			episode.setAttribute("data-leaving", "true")
+		}
+
+		document.documentElement.classList.add("qwerty-episode-arriving")
 	}
 
 	// onEnded moves on to the next episode down, and plays it
@@ -384,25 +399,11 @@
 	// Closing the modal stops the audio
 	window.addEventListener("closeModal", stop)
 
-	// An episode link's response swaps in through a view transition, which fades from one episode to the next
-	document.addEventListener("htmx:beforeOnLoad", function (event) {
-
-		if (typeof htmx == "undefined") {
-			return
+	// The arriving episode's fade has run, so the page stops changing episodes
+	document.addEventListener("animationend", function (event) {
+		if (event.animationName == "qwerty-episode-arrive") {
+			document.documentElement.classList.remove("qwerty-episode-arriving")
 		}
-
-		const link = event.detail.elt
-
-		if (!(link instanceof Element) || !link.matches("a.qwerty-episode-prev, a.qwerty-episode-next")) {
-			return
-		}
-
-		const was = htmx.config.globalViewTransitions
-		htmx.config.globalViewTransitions = true
-
-		queueMicrotask(function () {
-			htmx.config.globalViewTransitions = was
-		})
 	})
 
 })();

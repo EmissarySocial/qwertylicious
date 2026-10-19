@@ -32,7 +32,7 @@ window.qwertyMaps = function () {
 		map.attributionControl.setPrefix("");
 		L.tileLayer(element.dataset.tiles, {maxZoom: 19, attribution: element.dataset.attribution}).addTo(map);
 
-		// Markers, with their server-written pop-ups
+		// Markers, which open a modal or a server-written pop-up
 		var bounds = [];
 		element.querySelectorAll(".qwerty-map-marker").forEach(function (item) {
 			var latitude = parseFloat(item.dataset.latitude);
@@ -40,16 +40,17 @@ window.qwertyMaps = function () {
 			if (isNaN(latitude) || isNaN(longitude)) {
 				return;
 			}
-			var marker = L.marker([latitude, longitude]).addTo(map);
-			if (item.innerHTML.trim() !== "") {
-				marker.bindPopup(item.innerHTML, {maxWidth: 280});
+			var label = item.dataset.label || "";
+			var marker = L.marker([latitude, longitude], {title: label, alt: label}).addTo(map);
 
-				// Leaflet adds the pop-up after htmx has scanned the page, so htmx must wire up its links itself
-				marker.on("popupopen", function (event) {
-					if (window.htmx) {
-						htmx.process(event.popup.getElement());
-					}
+			// A marker with a modal opens it on click, with no pop-up in between
+			var modalURL = item.dataset.modalUrl;
+			if (modalURL && window.htmx) {
+				marker.on("click", function () {
+					htmx.ajax("GET", modalURL, {target: "aside", swap: "innerHTML"});
 				});
+			} else if (item.innerHTML.trim() !== "") {
+				marker.bindPopup(item.innerHTML, {maxWidth: 280});
 			}
 			bounds.push([latitude, longitude]);
 		});

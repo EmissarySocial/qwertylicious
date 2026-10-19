@@ -46,6 +46,27 @@
 		}
 	}
 
+	// fitHeight sizes the stage to the photo in view, so photos of different heights each show at their own height
+	function fitHeight(carousel) {
+		const stage = carousel.querySelector(".qwerty-carousel-stage")
+		const slide = carousel.querySelectorAll(".qwerty-carousel-slide")[indexOf(carousel)]
+		if (stage == null || slide == null) {
+			return
+		}
+
+		// A photo that has not loaded yet has no height; the stage waits for its load event
+		if (slide.offsetHeight == 0) {
+			return
+		}
+
+		stage.style.height = slide.offsetHeight + "px"
+	}
+
+	// fitAll sizes every carousel on the page and in the modal
+	function fitAll() {
+		document.querySelectorAll(".qwerty-carousel").forEach(fitHeight)
+	}
+
 	// render shows the current photo, and updates the arrows and the count to match
 	function render(carousel) {
 
@@ -53,6 +74,7 @@
 		const count = slideCount(carousel)
 
 		setOffset(carousel, 0)
+		fitHeight(carousel)
 
 		const prev = carousel.querySelector('[data-carousel="prev"]')
 		const next = carousel.querySelector('[data-carousel="next"]')
@@ -250,6 +272,18 @@
 		setOffset(drag.carousel, 0)
 		drag = null
 	})
+
+	// A photo that finishes loading may change its carousel's height.  load does not bubble, so this listens in capture.
+	document.addEventListener("load", function (event) {
+		if (event.target instanceof HTMLImageElement && event.target.closest(".qwerty-carousel-slide") != null) {
+			fitHeight(event.target.closest(".qwerty-carousel"))
+		}
+	}, true)
+
+	// New content from htmx, and a resized window, change which heights the stages need
+	document.addEventListener("htmx:load", fitAll)
+	window.addEventListener("resize", fitAll)
+	fitAll()
 
 	// Photos are dragged by the carousel, not by the browser's image drag-and-drop
 	document.addEventListener("dragstart", function (event) {

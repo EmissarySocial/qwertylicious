@@ -24,15 +24,7 @@
 	<div hidden>
 		{{- range $places -}}
 			{{- if .Location.HasGeocode -}}
-				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}">
-					{{- if ne "" .IconURL -}}
-						<img src="{{.IconURL}}.webp?width=560" alt="" class="block width-100% rounded margin-bottom-sm">
-					{{- end -}}
-					<div class="bold">{{.Label}}</div>
-					{{- if not .StartDate.IsZero -}}<div class="text-sm text-gray">{{template "event-dates" .}}</div>{{- end -}}
-					{{- if ne "" .Summary -}}<div class="text-sm">{{.Summary}}</div>{{- end -}}
-					<div class="margin-top-sm"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false">Details</a></div>
-				</div>
+				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}" data-label="{{.Label}}" data-modal-url="/{{.StreamID}}/modal"></div>
 			{{- end -}}
 		{{- end -}}
 	</div>

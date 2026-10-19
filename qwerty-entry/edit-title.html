@@ -1,0 +1,6 @@
+<!-- edit-title is the edit modal's icon and title, drawn here because a form label is escaped -->
+{{- if eq ((.Parent "view").DataString "layout") "map" -}}
+	<div class="layout-title">{{icon "location-fill"}} Edit Placemark</div>
+{{- else -}}
+	<div class="layout-title">{{icon "calendar"}} Edit Event</div>
+{{- end -}}

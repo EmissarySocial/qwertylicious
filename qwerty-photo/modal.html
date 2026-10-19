@@ -1,5 +1,9 @@
 <!-- modal: a photo post opened from its gallery or its own URL; its Replies tab re-opens it with ?tab=replies. -->
 <div class="padding">
+	<!-- The author's pencil, top right, opens the edit modal in its place (its pair is edit-pencil.html) -->
+	{{- if .UserCan "edit" -}}
+		<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+	{{- end -}}
 	{{- template "replies-tabs" (array . "Photo" "modal") -}}
 
 	{{- if eq (.QueryParam "tab") "replies" -}}

@@ -142,8 +142,8 @@
 		--focus-color: var(--link-color);
 
 		--button-color: var(--black);
-		--button-background: var(--gray02);
-		--button-background-hover: color-mix(in srgb, var(--button-background), black 4%);
+		--button-background: var(--gray04);
+		--button-background-hover: var(--gray05);
 
 		--button-action-color: var(--white);
 		--button-action-background: var(--black);

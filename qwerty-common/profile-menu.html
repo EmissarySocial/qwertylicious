@@ -1,0 +1,53 @@
+<!-- profile-menu is the owner's ⋯ after the tabs, called as (array $outbox $collection); $collection is false on About. -->
+{{- $outbox := index . 0 -}}
+{{- $collection := index . 1 -}}
+
+{{- if $outbox.IsMyself -}}
+	<span class="dropdown flex-shrink-0">
+		<button aria-label="Profile Menu">{{icon "more-horizontal"}}</button>
+		<div class="dropdown-content right">
+			<div class="text-gray text-xs">PROFILE</div>
+			<!-- RULE: Edit Profile names its target, because outbox.html's loading copy of this menu disinherits the body's -->
+			<button class="dropdown-item turboclick" hx-get="/@me/settings" hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true">{{icon "settings"}} Edit Profile</button>
+			<!-- Manage Collections shows even with no collections, since it holds the Add Collection button -->
+			<button class="dropdown-item turboclick" hx-get="/@{{$outbox.UserID}}/manage-collections">{{icon "drag-handle"}} Manage Collections</button>
+
+			{{- with $collection -}}
+			{{- if .UserCan "add" -}}
+				<hr>
+				<div class="text-gray text-xs">COLLECTION</div>
+				{{- $layout := .Data "layout" -}}
+				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/settings">
+					{{icon "pencil"}}
+					Edit {{.Label}}
+				</button>
+				<!-- Sharing reads in the Sharing modal's terms: Everyone, the Circles chosen, or "Only Me" until the author picks -->
+				{{- $sharing := .CircleSharingStatus "viewer" -}}
+				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+				<!-- Only a Timeline and a Calendar set replies here; other formats use Edit Collection, and each Note its composer -->
+				{{- if in $layout "timeline" "calendar" -}}
+					{{- if .RepliesClosed -}}
+						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "lock"}} Replies: Closed</button>
+					{{- else -}}
+						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "reply"}} Replies: Everyone</button>
+					{{- end -}}
+				{{- end -}}
+				<!-- The add item names what this format holds: Articles are created at once (hx-post), the rest open a form (hx-get) -->
+				{{- if eq $layout "gallery" -}}
+					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Photo</button>
+				{{- else if eq $layout "map" -}}
+					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Place</button>
+				{{- else if in $layout "timeline" "calendar" -}}
+					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Event</button>
+				{{- else if eq $layout "podcast" -}}
+					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Episode</button>
+				{{- else if eq $layout "notes" -}}
+					<!-- No add item: the Notes tab's own composer writes a Note on the profile -->
+				{{- else -}}
+					<button class="dropdown-item action" hx-post="/{{.StreamID}}/add">{{icon "plus"}} Add an Article</button>
+				{{- end -}}
+			{{- end -}}
+			{{- end -}}
+		</div>
+	</span>
+{{- end -}}

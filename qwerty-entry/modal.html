@@ -1,23 +1,19 @@
-{{- /* modal is an entry opened from its map's pop-up (qwerty-collection/items-map.html) or its calendar
-       (qwerty-collection/items-calendar.html), in a large modal over its map or its own page (template.hjson's
-       modal action), so its URL also works on its own.  Its Replies are a second tab
-       (qwerty-replies), which re-opens this modal with ?tab=replies. */ -}}
+<!-- modal: an entry opened from its map's marker or its calendar, drawn over its collection or its own page.
+     Its Replies tab re-opens this modal with ?tab=replies. -->
 <div class="{{if .StartDate.IsZero}}h-entry{{else}}h-event{{end}}">
 
+	<!-- The author's pencil, top right, opens the edit modal in its place (its pair is edit-pencil.html) -->
+	{{- if .UserCan "edit" -}}
+		<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+	{{- end -}}
+
 	{{- if ne "" .IconURL -}}
-		<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:320px; object-fit:cover;">
+		<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:320px; object-fit:cover; border-radius:var(--border-radius);">
 	{{- end -}}
 
 	<div class="padding">
-		<!-- The author's Edit sits across from the title, as on a photo or an episode -->
-		<div class="flex-row flex-align-center margin-bottom">
-			<h1 class="p-name flex-grow margin-none">{{.Label}}</h1>
-			{{- if .UserCan "edit" -}}
-				<button hx-get="/{{.StreamID}}/edit" class="turboclick flex-shrink-0">{{icon "settings"}} Edit</button>
-			{{- end -}}
-		</div>
+		<h1 class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
 
-		{{- template "entry-byline" . -}}
 		{{- template "replies-tabs" (array . "Details" "modal") -}}
 
 		{{- if eq (.QueryParam "tab") "replies" -}}
@@ -26,7 +22,7 @@
 			{{- template "entry-body" . -}}
 		{{- end -}}
 
-		<!-- Close sits at the bottom left, as on a photo or an episode -->
+		<!-- Close button -->
 		<div class="flex-row flex-align-center margin-top">
 			<button script="on click trigger closeModal">Close Window</button>
 		</div>

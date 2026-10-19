@@ -3,12 +3,14 @@
 <div id="replies">
 
 	{{- if .AcceptsReplies -}}
-		<div class="flex-row flex-align-center margin-bottom-lg">
-			<div class="flex-grow">
-				<div class="bold">Join the Conversation</div>
-				<div class="text-sm text-gray">Reply from your own account anywhere on the Fediverse.</div>
-			</div>
-			<button class="primary turboclick" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+		<div class="margin-bottom-lg">
+			<div class="bold">Join the Conversation</div>
+			<div class="text-sm text-gray margin-bottom">Reply from your own account anywhere on the Fediverse.</div>
+			{{- if .IsAuthenticated -}}
+				<button class="primary turboclick" hx-target="main" hx-swap="outerHTML" hx-get="/@me/newsfeed/browse-reply?url={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+			{{- else -}}
+				<button class="primary turboclick" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+			{{- end -}}
 		</div>
 	{{- else if .RepliesClosed -}}
 		<div class="text-gray margin-bottom-lg">{{icon "lock"}} Replies are closed.</div>
@@ -16,11 +18,7 @@
 		<div class="text-gray margin-bottom-lg">{{icon "lock"}} Only posts shared with everyone can receive replies.</div>
 	{{- end -}}
 
-	{{- if eq .ReplyCount 0 -}}
-		{{- if .AcceptsReplies -}}
-			<div class="align-center text-gray padding-lg">No replies yet.  Be the first.</div>
-		{{- end -}}
-	{{- else -}}
+	{{- if ne .ReplyCount 0 -}}
 		<div class="qwerty-replies">
 			{{- template "replies-list" . -}}
 		</div>

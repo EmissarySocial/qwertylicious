@@ -2,55 +2,9 @@
      RULE: the tab bar reads the profile's Outbox query, as outbox.html does (see AGENTS.md). -->
 <div id="profile-tabs">
 
-<!-- The tab bar on the left, and the owner's menu on the right: the edit items, then the add items.  The menu wraps below the
-     tabs when the row is too narrow for both.  .profile-tabs-row moves the tab bar's bottom margin onto the row,
-     so the menu centers on the tabs themselves (qwerty-outbox/stylesheet/outbox.css). -->
-<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
-	<div class="flex-grow">
-		{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID) -}}
-	</div>
-
-	{{- if .UserCan "add" -}}
-		<span class="dropdown flex-shrink-0">
-			<button aria-label="Collection Menu">{{icon "more-horizontal"}}</button>
-			<div class="dropdown-content right">
-				<div class="text-gray text-xs">PROFILE</div>
-				<button class="dropdown-item turboclick" hx-get="/@me/settings">{{icon "settings"}} Edit Profile</button>
-				<button class="dropdown-item turboclick" hx-get="/@{{.ParentID}}/manage-collections">{{icon "drag-handle"}} Manage Collections</button>
-				<hr>
-				<div class="text-gray text-xs">COLLECTION</div>
-				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/settings">{{icon "pencil"}} {{with .Data "layout"}}{{if eq . "map"}}Edit Map{{else if eq . "gallery"}}Edit Photo Gallery{{else if eq . "podcast"}}Edit Podcast{{else if eq . "timeline"}}Edit Timeline{{else if eq . "calendar"}}Edit Calendar{{else if eq . "notes"}}Edit Notes{{else}}Edit Articles Collection{{end}}{{else}}Edit Articles Collection{{end}}</button>
-				<!-- Sharing reads in the Sharing modal's own terms (set-circle-sharing): Everyone, or the Circles chosen.  A new
-				     collection is shared with no one until its author picks, and reads "Only Me". -->
-				{{- $sharing := .CircleSharingStatus "viewer" -}}
-				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
-				<!-- Only a Timeline and a Calendar set replies here; other formats use Edit Collection, and each Note its composer -->
-				{{- if in (.Data "layout") "timeline" "calendar" -}}
-					{{- if .RepliesClosed -}}
-						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "lock"}} Replies: Closed</button>
-					{{- else -}}
-						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "reply"}} Replies: Everyone</button>
-					{{- end -}}
-				{{- end -}}
-				<!-- The add item names what this format holds.  Articles are created at once (hx-post); the other kinds open
-				     a form first (hx-get), through the same add action (template.hjson) -->
-				{{- $layout := .Data "layout" -}}
-				{{- if eq $layout "gallery" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Photo</button>
-				{{- else if eq $layout "map" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Place</button>
-				{{- else if in $layout "timeline" "calendar" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Event</button>
-				{{- else if eq $layout "podcast" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Episode</button>
-				{{- else if eq $layout "notes" -}}
-					<!-- No add item: the Notes tab's own composer writes a Note on the profile -->
-				{{- else -}}
-					<button class="dropdown-item action" hx-post="/{{.StreamID}}/add">{{icon "plus"}} Add an Article</button>
-				{{- end -}}
-			</div>
-		</span>
-	{{- end -}}
+<!-- The tab bar, with the owner's ⋯ for this collection after the tabs (qwerty-common/profile-menu.html) -->
+<div class="profile-tabs-row">
+	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID .) -}}
 </div>
 
 {{- if ne "" .Summary -}}

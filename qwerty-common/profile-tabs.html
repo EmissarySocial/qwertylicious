@@ -2,8 +2,10 @@
 <!-- $selected is a collection ID or "about", and $collection the open collection's builder, or false (see AGENTS.md). -->
 {{- $outbox := index . 0 -}}
 {{- $selected := index . 1 -}}
+{{- $collection := index . 2 -}}
 {{- $userID := $outbox.UserID -}}
 
+<div class="flex-row flex-wrap flex-align-center">
 <div role="tablist" class="pills">
 	{{- range ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 		{{- $tabID := .ObjectID.Hex -}}
@@ -24,4 +26,6 @@
 		hx-push-url="/@{{$userID}}?tab=about"
 		role="tab"
 		aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
+</div>
+{{- template "profile-menu" (array $outbox $collection) -}}
 </div>

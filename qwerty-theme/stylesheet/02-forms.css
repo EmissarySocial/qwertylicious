@@ -311,3 +311,20 @@ button.edit-circle,
 		}
 	}
 }
+
+/* The pencil in an item's top right corner, on its modal or page and on its editor, which toggles between them */
+.corner-pencil {
+	position: absolute;
+	top: calc(var(--rhythm) * 2);
+	right: calc(var(--rhythm) * 2);
+	z-index: 1;
+}
+
+/* RULE: a corner's other buttons are the circle's height, so its X sits exactly where the pencil did */
+.corner-pencil > button:not(.edit-circle),
+.corner-pencil > .button:not(.edit-circle) {
+	height: calc(var(--rhythm) * 4);
+	margin: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+}
