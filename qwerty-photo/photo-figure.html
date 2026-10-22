@@ -4,7 +4,6 @@
 {{- $mode := index . 1 -}}
 {{- $streamID := $builder.StreamID -}}
 {{- $photos := $builder.AttachmentsByCategory "photo" -}}
-{{- $canEdit := $builder.UserCan "edit" -}}
 <!-- The title and caption are each photo's accessible name (aria-labelledby), so a post needs no alt text -->
 {{- $captionID := print "photo-caption-" $mode "-" $streamID -}}
 {{- $hasCaption := ne "" (print $builder.ContentHTML) -}}
@@ -79,21 +78,9 @@
 	</div>
 
 	<figcaption class="margin-top">
-		<!-- The title, with the author's Pin in the modal (the pencil is in modal.html, and view.html draws its own Edit) -->
-		{{- $authorTools := and $canEdit (eq $mode "modal") -}}
-		{{- if or $hasTitle $authorTools -}}
-			<div class="flex-row flex-align-center margin-bottom">
-				<div class="flex-grow">
-					{{- if $hasTitle -}}
-						<h2 id="{{$titleID}}" class="margin-none">{{$builder.Label}}</h2>
-					{{- end -}}
-				</div>
-				{{- if $authorTools -}}
-					<div class="flex-row flex-align-center flex-shrink-0">
-						{{- template "pin-button" $builder -}}
-					</div>
-				{{- end -}}
-			</div>
+		<!-- The title (the pencil is in modal.html, and view.html draws its own Edit) -->
+		{{- if $hasTitle -}}
+			<div class="margin-bottom"><h2 id="{{$titleID}}" class="margin-none">{{$builder.Label}}</h2></div>
 		{{- end -}}
 		<!-- The byline -->
 		<div class="flex-row flex-align-center margin-bottom">
@@ -114,7 +101,7 @@
 			{{- end -}}
 		</div>
 		{{- if $hasCaption -}}
-			<div id="{{$captionID}}">{{$builder.ContentHTML}}</div>
+			<div id="{{$captionID}}" class="e-content">{{$builder.ContentHTML}}</div>
 		{{- end -}}
 	</figcaption>
 </figure>

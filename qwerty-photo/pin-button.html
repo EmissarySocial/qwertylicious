@@ -1,7 +1,0 @@
-<!-- pin-button: the modal's Pin toggle, which feature and unfeature answer with, swapped over itself.
-     RULE: hx-push-url="false", or the theme's body pushes this URL over the photo's (see AGENTS.md). -->
-{{- if .IsFeatured -}}
-	<button hx-post="/{{.StreamID}}/unfeature" hx-target="this" hx-swap="outerHTML" hx-push-url="false" aria-pressed="true" class="turboclick">{{icon "pin-fill"}} Pinned</button>
-{{- else -}}
-	<button hx-post="/{{.StreamID}}/feature" hx-target="this" hx-swap="outerHTML" hx-push-url="false" aria-pressed="false" class="turboclick">{{icon "pin"}} Pin</button>
-{{- end -}}

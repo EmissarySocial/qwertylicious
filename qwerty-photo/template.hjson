@@ -62,7 +62,7 @@
 							children: [
 								{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", required:true}}
 								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:3}}
+								{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:3}}
 							]
 						}
 					}
@@ -138,16 +138,16 @@
 									type: "layout-vertical"
 									label: "General"
 									children: [
-										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 										{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
 										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
 									]
 								}
 								{
 									type: "layout-vertical"
-									label: "Description"
+									label: "More Content"
 									children: [
-										{type:"textarea", path:"content.raw", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:10}}
+										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+										{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
 									]
 								}
 							]
@@ -163,28 +163,6 @@
 				// Saving returns to the updated photo in its modal; the 303 makes the browser GET it
 				{do:"remove-event", event:"closeModal"}
 				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
-			]
-		}
-
-		// Pinned posts lead the gallery. Sends refreshPage, not refresh-page, which would also close the modal.
-		// view-html renders only on GET unless told otherwise, so its method is post.
-		feature: {
-			roles: ["author"]
-			steps: [
-				{do:"set-data", values:{"isFeatured":"true"}}
-				{do:"save", comment:"Pinned by {{.Author}}"}
-				{do:"trigger-event", event:"refreshPage", value:"true"}
-				{do:"view-html", file:"pin-button", method:"post"}
-			]
-		}
-
-		unfeature: {
-			roles: ["author"]
-			steps: [
-				{do:"set-data", values:{"isFeatured":"false"}}
-				{do:"save", comment:"Unpinned by {{.Author}}"}
-				{do:"trigger-event", event:"refreshPage", value:"true"}
-				{do:"view-html", file:"pin-button", method:"post"}
 			]
 		}
 
