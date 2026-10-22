@@ -178,7 +178,7 @@
 					{do:"halt"}
 				]}
 				{do:"as-modal", steps: [
-					// A Podcast's replies are a toggle here; share-children passes them to its episodes
+					// A Podcast's replies are a toggle here, and reach its episodes through shareWithChildren
 					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 						{
 							do: "edit"
@@ -195,9 +195,8 @@
 							}
 						}
 						{do:"save", comment:"Settings updated by {{.Author}}"}
-						{do:"share-children"}
 					], else:[
-					// A Photo Gallery's replies are a toggle here; share-children passes them to its photos
+					// A Photo Gallery's replies are a toggle here, and reach its photos through shareWithChildren
 					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
 						{
 							do: "edit"
@@ -213,7 +212,6 @@
 							}
 						}
 						{do:"save", comment:"Settings updated by {{.Author}}"}
-						{do:"share-children"}
 					], else:[
 						// A Map's replies are a toggle too, as on a Photo Gallery
 						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
@@ -231,7 +229,6 @@
 								}
 							}
 							{do:"save", comment:"Settings updated by {{.Author}}"}
-							{do:"share-children"}
 						], else:[
 							{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
 								{
@@ -281,7 +278,6 @@
 										}
 									}
 									{do:"save", comment:"Settings updated by {{.Author}}"}
-									{do:"share-children"}
 								]}
 							]}
 						]}
@@ -298,8 +294,6 @@
 				{do:"as-modal", steps: [
 					{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see this collection and everything in it."}
 					{do:"save", comment:"Sharing updated by {{.Author}}"}
-					// Every item inherits this sharing (inheritPermissions), so pass the change down to them
-					{do:"share-children"}
 				]}
 				{do:"refresh-page"}
 			]
@@ -312,7 +306,6 @@
 				{do:"as-modal", steps: [
 					{do:"set-reply-policy", message:"For everything in this collection.  Replies are open only on items shared with everyone."}
 					{do:"save", comment:"Replies updated by {{.Author}}"}
-					{do:"share-children"}
 				]}
 				{do:"refresh-page"}
 			]
