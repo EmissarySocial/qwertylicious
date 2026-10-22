@@ -91,6 +91,37 @@ test.describe("episode modal", () => {
 		await expect(page.locator("html")).not.toHaveClass(/qwerty-episode-arriving/)
 	})
 
+	test("saving the episode returns to its modal, which stays open", async ({ page }) => {
+		await openEpisode(page)
+
+		// The edit form as Emissary's edit step draws it: hx-post, with hx-swap="none"
+		await page.evaluate(() => {
+			const id = document.querySelector("#modal [data-episode-id]").dataset.episodeId
+			const form = document.createElement("form")
+			form.id = "edit-episode-form"
+			form.setAttribute("hx-post", `/${id}/edit`)
+			form.setAttribute("hx-swap", "none")
+			form.setAttribute("hx-push-url", "false")
+			form.innerHTML = '<input name="label" value="Renamed"><button type="submit">Save</button>'
+			document.querySelector("#modal-window").replaceChildren(form)
+			htmx.process(form)
+		})
+		await page.locator("#edit-episode-form button").click()
+
+		// The view comes back in the modal, and nothing closes it after the swap
+		await expect(page.locator("#modal h2")).toHaveText(/Episode Three/)
+		await page.waitForTimeout(600)
+		await expect(page.locator("#modal.ready")).toBeVisible()
+	})
+
+	test("the X beside the pencil closes the modal", async ({ page }) => {
+		await openEpisode(page)
+		const close = page.locator("#modal .corner-pencil [aria-label=Close]")
+		await expect(close).toBeVisible()
+		await close.click()
+		await expect(page.locator("#modal")).toHaveCount(0)
+	})
+
 	test("the backdrop is a black veil: 60% in light mode, 70% in dark mode", async ({ page }, testInfo) => {
 		const dark = testInfo.project.use.colorScheme == "dark"
 		await openEpisode(page)

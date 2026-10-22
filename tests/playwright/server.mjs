@@ -122,6 +122,14 @@ createServer((request, response) => {
 		}
 	}
 
+	// Saving an episode answers as its edit action does: a 303 to its modal, with no closeModal event
+	const save = path.match(/^\/([0-9a-f]{24})\/edit$/)
+	if (save && request.method == "POST") {
+		request.resume()
+		response.writeHead(303, { "Location": `/${save[1]}/modal` })
+		return response.end()
+	}
+
 	if (routes[path]) {
 		const [type, body] = routes[path]()
 		response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" })

@@ -59,5 +59,7 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 - **Disabled skip buttons.** A disabled one keeps its light circle on hover.
 - **The title's size.** An arriving episode's title keeps one size on every frame. Without `id="modal-title"`, it went from 24px to 32px.
 - **The fade.** Moving between episodes uses a CSS fade, not a view transition, and the underlay keeps its blur on every frame.
+- **Saving.** Submitting the edit form brings the view back into the modal, which stays open.
+- **The X.** The X beside the pencil closes the modal.
 - **The backdrop.** It is a black veil: 60% in light mode, 70% in dark mode.
 - **The hovered row.** A list row is one color from end to end, and no cell is translucent.

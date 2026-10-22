@@ -1,6 +1,9 @@
 <div id="modal" script="install Modal" data-hx-swap="none"><div id="modal-underlay"></div><div id="modal-window">
 <div class="qwerty-episode h-entry padding" data-episode-id="${ID}">
-	<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit Episode"><i class="bi bi-pencil"></i></button>
+	<div class="corner-pencil flex-row flex-align-start">
+		<button type="button" class="edit-circle turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit Episode"><i class="bi bi-pencil"></i></button>
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+	</div>
 	<div class="qwerty-episode-head flex-row margin-bottom">
 		<img class="qwerty-episode-art" src="" alt="">
 		<div class="flex-grow">
