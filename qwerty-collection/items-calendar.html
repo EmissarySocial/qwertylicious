@@ -67,7 +67,7 @@
 {{- $nextKey := $next.Format "2006-01-02" -}}
 
 <!-- The events that touch the range: the query reaches back a month for long events, and each day keeps its own -->
-{{- $events := ((((.ChildrenWithDrafts.Where "templateId" "qwerty-entry").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd).ByStartDate.All).Slice -}}
+{{- $events := ((((.ChildrenWithDrafts.Where "templateId" "qwerty-event").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd).ByStartDate.All).Slice -}}
 
 <!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views -->
 <div class="qwerty-calendar-toolbar flex-row flex-wrap flex-align-center margin-bottom">

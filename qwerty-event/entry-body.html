@@ -1,0 +1,71 @@
+<!-- entry-body: an event's summary, dates, details, and location, shared by view.html and modal.html.
+     A geocoded location adds a map and its address below the details (qwerty-theme's maps bundle). -->
+{{- $location := .Location -}}
+{{- $start := .StartDate -}}
+{{- $end := .EndDate -}}
+
+{{- if ne "" .Summary -}}
+	<!-- The summary is Markdown, through the app's one sanitizing converter (the funcMap's markdown) -->
+	<div class="p-summary margin-bottom">{{markdown .Summary}}</div>
+{{- end -}}
+
+<!-- RULE: times are site-relative, shown as typed with no zone (BUG-283), and midnight means a whole day. -->
+{{- if not $start.IsZero -}}
+	{{- $iso := "2006-01-02T15:04" -}}
+	{{- $long := "Monday, January 2, 2006" -}}
+	{{- $hasEnd := not $end.IsZero -}}
+	{{- $sameDay := eq ($start.Format "2006-01-02") ($end.Format "2006-01-02") -}}
+	{{- $startTime := ne ($start.Format "15:04") "00:00" -}}
+	{{- $endTime := ne ($end.Format "15:04") "00:00" -}}
+	<div class="text-lg margin-bottom">
+		<div class="bold">
+			<time class="dt-start" datetime="{{$start.Format $iso}}">{{$start.Format $long}}</time>
+			{{- if $hasEnd -}}{{- if not $sameDay }} &ndash; <time class="dt-end" datetime="{{$end.Format $iso}}">{{$end.Format $long}}</time>{{- end -}}{{- end -}}
+		</div>
+		{{- if $startTime -}}
+			<div><span class="text-gray">Starts</span> {{$start.Format "3:04 PM"}}</div>
+		{{- end -}}
+		{{- if $hasEnd -}}{{- if $endTime -}}
+			<div><span class="text-gray">Ends</span> {{if $sameDay}}<time class="dt-end" datetime="{{$end.Format $iso}}">{{$end.Format "3:04 PM"}}</time>{{else}}{{$end.Format "3:04 PM"}}{{end}}</div>
+		{{- end -}}{{- end -}}
+	</div>
+{{- end -}}
+
+{{- if not $location.HasGeocode -}}
+	{{- if ne "" $location.Formatted -}}
+		<div class="text-gray margin-bottom p-location">{{icon "location-fill"}} {{$location.Formatted}}</div>
+	{{- end -}}
+{{- end -}}
+
+<hr class="margin-vertical-lg">
+
+<div id="article-content" class="e-content">{{.ContentHTML}}</div>
+
+{{- if $location.HasGeocode -}}
+	<div class="p-location margin-top-lg">
+		<div class="qwerty-map" data-static="true" data-tiles="{{.MapTiles.Href}}" data-attribution="{{.MapTiles.Description}}" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}" data-zoom="15">
+			<div class="qwerty-map-canvas" style="width:100%; aspect-ratio:16/9; border-radius:var(--border-radius);"></div>
+			<div hidden>
+				<div class="qwerty-map-marker" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}"></div>
+			</div>
+		</div>
+		<div class="h-adr text-gray margin-top">
+			{{- if $location.HasAddress -}}
+				{{- if ne "" $location.Street1 -}}<div class="p-street-address">{{$location.Street1}}</div>{{- end -}}
+				{{- if ne "" $location.Street2 -}}<div>{{$location.Street2}}</div>{{- end -}}
+				<div>
+					<span class="p-locality">{{$location.Locality}}</span>
+					{{- if ne "" $location.Region -}}, <span class="p-region">{{$location.Region}}</span>{{- end }}
+					<span class="p-postal-code">{{$location.PostalCode}}</span>
+				</div>
+				<div class="p-country-name">{{$location.Country}}</div>
+			{{- else -}}
+				<div>{{$location.Formatted}}</div>
+			{{- end -}}
+		</div>
+	</div>
+
+	<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
+	<script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
+	<script src="/.themes/qwerty-theme/maps"></script>
+{{- end -}}

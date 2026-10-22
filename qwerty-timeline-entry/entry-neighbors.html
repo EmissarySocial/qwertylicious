@@ -1,0 +1,55 @@
+<!-- entry-neighbors: a Timeline entry's previous and next entries, in its tab's order and ?tag= filter, as the modal's
+     sticky footer. A div, because the theme styles every nav as the site menu.
+     The carousel script's Left and Right keys click these links (data-modal-go). -->
+{{- $timeline := .Parent "view" -}}
+{{- $id := .StreamID -}}
+{{- $tag := .QueryParam "tag" -}}
+{{- $tagQuery := "" -}}
+{{- if ne "" $tag -}}{{- $tagQuery = print "?tag=" (urlquery $tag) -}}{{- end -}}
+
+<!-- The tab's own query (items-timeline.html), walked in full because date-only entries often share a date -->
+{{- $query := (.Siblings.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
+{{- if eq ($timeline.DataString "timelineOrder") "desc" -}}
+	{{- $query = $query.Reverse -}}
+{{- end -}}
+{{- if ne "" $tag -}}
+	{{- $query = $query.Tags $tag -}}
+{{- end -}}
+
+<!-- RULE: positions, not entries, because a template variable keeps the type it was declared with -->
+{{- $entries := $query.All.Slice -}}
+{{- $prevIndex := -1 -}}
+{{- $nextIndex := -1 -}}
+{{- range $index, $entry := $entries -}}
+	{{- if eq $entry.StreamID $id -}}
+		{{- $prevIndex = subtract $index 1 -}}
+		{{- $nextIndex = add $index 1 -}}
+	{{- end -}}
+{{- end -}}
+{{- $hasPrev := ge $prevIndex 0 -}}
+{{- $hasNext := and (gt $nextIndex 0) (lt $nextIndex (len $entries)) -}}
+
+{{- if or $hasPrev $hasNext -}}
+	<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">
+		{{- if $hasPrev -}}
+			{{- $prev := index $entries $prevIndex -}}
+			<a class="qwerty-entry-neighbor turboclick" data-modal-go="prev" href="/{{$prev.StreamID}}" hx-get="/{{$prev.StreamID}}/modal{{$tagQuery}}" hx-target="aside" hx-push-url="false">
+				<span class="qwerty-entry-arrow">{{icon "arrow-left"}}</span>
+				<span class="qwerty-entry-neighbor-text">
+					<span class="text-xs text-gray">{{$prev.StartDate.Format "Jan 2, 2006"}}</span>
+					<span class="qwerty-entry-neighbor-title">{{$prev.Label}}</span>
+				</span>
+			</a>
+		{{- end -}}
+		{{- if $hasNext -}}
+			{{- $next := index $entries $nextIndex -}}
+			<a class="qwerty-entry-neighbor qwerty-entry-neighbor-next turboclick" data-modal-go="next" href="/{{$next.StreamID}}" hx-get="/{{$next.StreamID}}/modal{{$tagQuery}}" hx-target="aside" hx-push-url="false">
+				<span class="qwerty-entry-neighbor-text">
+					<span class="text-xs text-gray">{{$next.StartDate.Format "Jan 2, 2006"}}</span>
+					<span class="qwerty-entry-neighbor-title">{{$next.Label}}</span>
+				</span>
+				<span class="qwerty-entry-arrow">{{icon "arrow-right"}}</span>
+			</a>
+		{{- end -}}
+	</div>
+{{- end -}}

@@ -1,0 +1,17 @@
+<!-- entry-byline: the author's avatar, name, publish date, and a Follow button for visitors. Shared by view.html and modal.html. -->
+<div class="flex-row flex-align-center margin-bottom-lg">
+	<div class="width-48 flex-center">
+		<img src="{{.AttributedTo.IconURL}}" alt="" class="width-48 circle">
+	</div>
+	<div class="p-author h-card flex-grow">
+		<div class="p-name">
+			<a class="turboclick" href="{{.AttributedTo.ProfileURL}}" hx-boost="true">{{.AttributedTo.Name}}</a>
+		</div>
+		<div class="text-sm">{{.PublishDate | longDate}}</div>
+	</div>
+	{{- if not .IsAuthor -}}
+		<div>
+			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
+		</div>
+	{{- end -}}
+</div>

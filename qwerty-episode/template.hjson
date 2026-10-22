@@ -19,7 +19,7 @@
 			iconUrl: {type:"string", format:"url"}
 			content: {type:"object", properties: {
 				format: {type:"string"}
-				raw: {type:"string"}
+				raw: {type:"string", format:"markdown"}
 				html: {type:"string", format:"html"}
 			}}
 			data: {type:"object", properties: {

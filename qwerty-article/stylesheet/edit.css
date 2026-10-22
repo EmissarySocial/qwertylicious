@@ -40,7 +40,7 @@ align-items: center;
   padding-bottom: unset !important;
 }
 
-/* The editor's card lets its contents overflow so the title's ⋯ menu is not clipped;
+/* The editor's card lets its contents overflow so EditorJS's toolbar and popovers are not clipped;
    the banner area clips itself instead, to keep the corners round. */
 #article-editor {
 	overflow: visible;

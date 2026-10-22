@@ -1,6 +1,7 @@
 /*
  * qwerty-carousel runs the photo carousel in qwerty-photo/photo-figure.html: arrows, Left and Right keys, and swipes.
  * Past either end, the keys click the figure's hidden neighbor-post links. Listeners are delegated from the document.
+ * In a modal with no carousel, the keys click its [data-modal-go] links instead (qwerty-timeline-entry/entry-neighbors.html).
  */
 (function () {
 
@@ -113,6 +114,18 @@
 		}
 	}
 
+	// goToModalNeighbor opens the open modal's previous or next item, for a modal that links its neighbors
+	function goToModalNeighbor(event) {
+		const direction = (event.key == "ArrowLeft") ? "prev" : "next"
+		const link = document.querySelector('#modal [data-modal-go="' + direction + '"]')
+		if (link == null) {
+			return
+		}
+
+		event.preventDefault()
+		link.click()
+	}
+
 	// activeCarousel returns the carousel the arrow keys drive: the one in an open modal, or else the page's own
 	function activeCarousel() {
 		return document.querySelector("#modal .qwerty-carousel") || document.querySelector("main .qwerty-carousel")
@@ -123,7 +136,7 @@
 		return (target instanceof Element) && (target.closest("input, textarea, select, [contenteditable]") != null)
 	}
 
-	// Left and Right move through the photos, then on to the neighboring posts
+	// Left and Right move through the photos, then on to the neighboring posts, or a modal's neighboring items
 	document.addEventListener("keydown", function (event) {
 
 		if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
@@ -140,6 +153,7 @@
 
 		const carousel = activeCarousel()
 		if (carousel == null) {
+			goToModalNeighbor(event)
 			return
 		}
 

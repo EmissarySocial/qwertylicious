@@ -1,8 +1,5 @@
-<!-- view: an entry's own page, laid out as an Article's. It never reads its collection's format,
-     so it shows whatever the entry holds. -->
-{{- $hasDates := not .StartDate.IsZero -}}
-
-<div class="page framed {{if $hasDates}}h-event{{else}}h-entry{{end}}">
+<!-- view: an event's own page, laid out as an Article's. -->
+<div class="page framed h-event">
 	<div class="pos-relative card border padding-none">
 
 		{{- if ne "" .IconURL -}}

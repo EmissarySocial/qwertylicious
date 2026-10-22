@@ -1,0 +1,227 @@
+{
+	// An event on a Calendar collection; its start is required, and its location is optional.
+	templateId: "qwerty-event"
+	category: Content
+	templateRole: "event"
+	// Not "Event": nothing federates its dates yet
+	socialRole: "Note"
+	containedBy: ["qwerty-collection"]
+	model: Stream
+	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
+	label: "Qwertylicious Event"
+	description: "An event on a Qwertylicious calendar."
+	icon: "calendar3"
+	tagPaths: ["data.tags"]
+
+	schema: {
+		type: "object"
+		properties: {
+			token: {type:"string"}
+			label: {type:"string", maxLength:128}
+			summary: {type:"string", format:"markdown", maxLength:2048}
+			iconUrl: {type:"string", format:"url"}
+			startDate: {type:"string"}
+			endDate: {type:"string"}
+			location: {type:"object", properties: {
+				name: {type:"string"}
+				formatted: {type:"string"}
+				latitude: {type:"number"}
+				longitude: {type:"number"}
+			}}
+			content: {type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string", format:"markdown"}
+				html: {type:"string", format:"html"}
+			}}
+			data: {type:"object", properties: {
+				iconDescription: {type:"string", maxLength:2048}
+				tags: {type:"string", maxLength:1024}
+			}}
+		}
+	}
+
+	states: {
+		default: {
+			label: "Default State"
+			description: "Visible only to Authors and Owners"
+		}
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this entry"
+		}
+	}
+
+	actions: {
+
+		// Opened inline by a Calendar collection's add
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+						{
+							do: "edit"
+							form: {
+								type: "layout-tabs"
+								label: "Add an Event"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"text", path:"label", label:"Title", options:{required:true}}
+											{type:"datetime", path:"startDate", label:"Starts", options:{required:true, default:"now"}}
+											{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+											{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Description"
+										children: [
+											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the calendar.", options:{rows:2}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Photo"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+										]
+									}
+								]
+							}
+						}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// An entry's URL opens its modal over its collection's tab
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"include", action:"modal"}
+			]
+		}
+
+		// Drawn over its Calendar tab, or over its own page if the profile is hidden
+		modal: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{
+					do: "as-modal"
+					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+					background: "page"
+					replace-url: "/{{.StreamID}}"
+					head: [
+						{do:"view-html", file:"head"}
+					]
+					steps: [
+						{do:"view-html", file:"modal"}
+					]
+				}
+			]
+		}
+
+		// The entry's own page
+		page: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html", file:"view"}
+			]
+		}
+
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					// Save and X, top right, in place of the form's own buttons
+					{do:"view-html", file:"edit-pencil"}
+					{do:"view-html", file:"edit-title"}
+						{
+							do: "edit"
+							options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"text", path:"label", label:"Title", options:{required:true}}
+											{type:"datetime", path:"startDate", label:"Starts", options:{required:true}}
+											{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+											{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Description"
+										children: [
+											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the calendar.", options:{rows:2}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Photo"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+										]
+									}
+								]
+							}
+						}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save", comment:"Updated by {{.Author}}"}
+					{do:"search-index"}
+				]}
+				// Saving returns to the updated entry in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
+			]
+		}
+
+		delete-icon: {
+			roles: ["author"]
+			steps: [
+				{do:"delete-attachments", category:"icon"}
+				{do:"set-data", values:{"iconUrl": ""}}
+				{do:"save"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This will be removed from your collection.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+	}
+}

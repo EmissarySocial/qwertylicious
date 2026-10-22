@@ -30,11 +30,11 @@
 		stylesheet: {
 			content-type:"text/css"
 		}
-		// The Leaflet maps on Map collections and their places (qwerty-collection/items-map.html, qwerty-entry)
+		// The Leaflet maps on Map collections and their places (qwerty-collection/items-map.html, qwerty-placemark)
 		maps: {
 			content-type:"text/javascript"
 		}
-		// A photo post's carousel: arrows, arrow keys, and swipes (qwerty-photo/photo-figure.html)
+		// A photo post's carousel: arrows, arrow keys, and swipes (qwerty-photo/photo-figure.html), and a Timeline entry's keys
 		carousel: {
 			content-type:"text/javascript"
 		}

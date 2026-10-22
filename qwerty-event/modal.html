@@ -1,0 +1,28 @@
+<!-- modal: an event opened from its calendar, drawn over its collection or its own page.
+     Its Replies tab re-opens this modal with ?tab=replies. -->
+<div class="h-event">
+
+	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
+
+	{{- if ne "" .IconURL -}}
+		<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:320px; object-fit:cover; border-radius:var(--border-radius);">
+	{{- end -}}
+
+	<div class="padding">
+		<h1 class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
+
+		{{- template "replies-tabs" (array . "Details" "modal") -}}
+
+		{{- if eq (.QueryParam "tab") "replies" -}}
+			{{- template "replies-panel" . -}}
+		{{- else -}}
+			{{- template "entry-body" . -}}
+		{{- end -}}
+	</div>
+</div>

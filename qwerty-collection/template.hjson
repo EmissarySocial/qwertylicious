@@ -327,7 +327,7 @@
 			]
 		}
 
-		// The format picks the item: qwerty-photo, qwerty-episode, or qwerty-entry through a modal form (hx-get),
+		// The format picks the item: qwerty-photo, qwerty-episode, qwerty-placemark, qwerty-timeline-entry, or qwerty-event through a modal form (hx-get),
 		// or else an Article, created at once (hx-post)
 		add: {
 			roles: ["author"]
@@ -342,10 +342,18 @@
 					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 						{do:"add-stream", style:"inline", location:"child", template:"qwerty-episode", title:"+ Add an Episode"}
 					], else:[
-						{do:"if", condition:"{{in (.Data `layout`) `map` `timeline` `calendar`}}", then:[
-							{do:"add-stream", style:"inline", location:"child", template:"qwerty-entry", title:"+ Add an Entry"}
+						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
+							{do:"add-stream", style:"inline", location:"child", template:"qwerty-placemark", title:"+ Add a Place"}
 						], else:[
-							{do:"add-stream", style:"inline", location:"child", template:"qwerty-article", title:"+ Add an Article"}
+							{do:"if", condition:"{{eq (.Data `layout`) `timeline`}}", then:[
+								{do:"add-stream", style:"inline", location:"child", template:"qwerty-timeline-entry", title:"+ Add an Entry"}
+							], else:[
+								{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
+									{do:"add-stream", style:"inline", location:"child", template:"qwerty-event", title:"+ Add an Event"}
+								], else:[
+									{do:"add-stream", style:"inline", location:"child", template:"qwerty-article", title:"+ Add an Article"}
+								]}
+							]}
 						]}
 					]}
 				]}

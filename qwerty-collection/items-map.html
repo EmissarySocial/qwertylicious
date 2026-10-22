@@ -1,7 +1,7 @@
 <!-- items-map is a Map's tab: one map with a marker per place, which opens the entry's modal when clicked (see AGENTS.md).
      The default view is the collection's location and data.zoom; with none saved, the map fits its places. -->
 {{- $tag := .QueryParam "tag" -}}
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByLabel -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-placemark").ByLabel -}}
 {{- $allPlaces := $query.All.Slice -}}
 {{- $places := $allPlaces -}}
 {{- if ne "" $tag -}}

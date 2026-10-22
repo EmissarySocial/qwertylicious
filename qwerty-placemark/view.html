@@ -1,0 +1,43 @@
+<!-- view: a place's own page, laid out as an Article's. -->
+<div class="page framed h-entry">
+	<div class="pos-relative card border padding-none">
+
+		{{- if ne "" .IconURL -}}
+			<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:480px; object-fit:cover;">
+		{{- end -}}
+
+		<article class="padding-lg">
+
+			{{- $collection := .ParentSummary.Slice.First -}}
+			{{- if ne "" $collection.Label -}}
+				<div class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>
+			{{- end -}}
+
+			<div class="flex-row flex-align-center margin-top-xs margin-bottom">
+				<h1 class="p-name flex-grow margin-none">{{.Label}}</h1>
+				{{- if .UserCan "edit" -}}
+					<button class="button icon turboclick flex-shrink-0" hx-get="/{{.StreamID}}/edit" aria-label="Edit">{{icon "pencil"}}</button>
+				{{- end -}}
+			</div>
+
+			{{- template "entry-byline" . -}}
+
+			<!-- The entry and its Replies, as two tabs (qwerty-replies) -->
+			{{- template "replies-tabs" (array . "Details" "page") -}}
+			{{- if eq (.QueryParam "tab") "replies" -}}
+				{{- template "replies-panel" . -}}
+			{{- else -}}
+				{{- template "entry-body" . -}}
+			{{- end -}}
+		</article>
+	</div>
+
+	<!-- RULE: reload from /{id}/page, because /{id} answers an htmx request with the modal. -->
+	<div
+		hx-get="/{{.StreamID}}/page"
+		hx-trigger="refreshPage from:window"
+		hx-target="main"
+		hx-swap="innerHTML"
+		hx-push-url="false">
+	</div>
+</div>

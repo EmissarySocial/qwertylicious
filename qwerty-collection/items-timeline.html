@@ -1,6 +1,6 @@
 <!-- items-timeline is a Timeline's tab: its events in date order down a vertical line, under a heading per year. -->
 {{- $tag := .QueryParam "tag" -}}
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-entry").ByStartDate -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
 {{- if eq (.Data "timelineOrder") "desc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}
@@ -21,7 +21,7 @@
 				<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
 			{{- end -}}
 			<li class="qwerty-timeline-event">
-				<a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
+				<a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal{{if ne `` $tag}}?tag={{$tag | urlquery}}{{end}}" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
 					<div class="flex-grow">
 						<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
 						<div class="text-lg bold">{{.Label}}</div>
