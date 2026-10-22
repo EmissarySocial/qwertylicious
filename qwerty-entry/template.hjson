@@ -82,43 +82,81 @@
 							}
 						}
 					], else:[
-						{
-							do: "edit"
-							form: {
-								type: "layout-tabs"
-								label: "Add an Event"
-								children: [
-									{
-										type: "layout-vertical"
-										label: "General"
-										children: [
-											{type:"text", path:"label", label:"Title", options:{required:true}}
-											{type:"datetime", path:"startDate", label:"Starts", options:{required:true, default:"now"}}
-											{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
-											{type:"place", path:"location", label:"Location", description:"Optional.  The times above are in this place's time zone.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Description"
-										children: [
-											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
-											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Photo"
-										children: [
-											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
-										]
-									}
-								]
+						// A Timeline's entries are date-only: the date widget posts YYYY-MM-DD, which is stored at midnight
+						{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `timeline`}}", then:[
+							{
+								do: "edit"
+								form: {
+									type: "layout-tabs"
+									label: "Add an Event"
+									children: [
+										{
+											type: "layout-vertical"
+											label: "General"
+											children: [
+												{type:"text", path:"label", label:"Title", options:{required:true}}
+												{type:"date", path:"startDate", label:"Date", options:{required:true, default:"now"}}
+												{type:"date", path:"endDate", label:"End Date", description:"Optional, for an event that lasts several days."}
+												{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Description"
+											children: [
+												{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+												{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+												{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Photo"
+											children: [
+												{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+											]
+										}
+									]
+								}
 							}
-						}
+						], else:[
+							{
+								do: "edit"
+								form: {
+									type: "layout-tabs"
+									label: "Add an Event"
+									children: [
+										{
+											type: "layout-vertical"
+											label: "General"
+											children: [
+												{type:"text", path:"label", label:"Title", options:{required:true}}
+												{type:"datetime", path:"startDate", label:"Starts", options:{required:true, default:"now"}}
+												{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+												{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Description"
+											children: [
+												{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+												{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+												{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Photo"
+											children: [
+												{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+											]
+										}
+									]
+								}
+							}
+						]}
 					]}
-					{do:"anchor-dates"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
@@ -189,7 +227,6 @@
 					// Save and X, top right, in place of the form's own buttons
 					{do:"view-html", file:"edit-pencil"}
 					{do:"view-html", file:"edit-title"}
-					{do:"localize-dates"}
 					{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
 						{
 							do: "edit"
@@ -207,43 +244,81 @@
 							}
 						}
 					], else:[
-						{
-							do: "edit"
-							options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
-								type: "layout-tabs"
-								children: [
-									{
-										type: "layout-vertical"
-										label: "General"
-										children: [
-											{type:"text", path:"label", label:"Title", options:{required:true}}
-											{type:"datetime", path:"startDate", label:"Starts", options:{required:true}}
-											{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
-											{type:"place", path:"location", label:"Location", description:"Optional.  The times above are in this place's time zone.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Description"
-										children: [
-											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
-											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Photo"
-										children: [
-											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
-										]
-									}
-								]
+						// A Timeline's entries are date-only, as in create
+						{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `timeline`}}", then:[
+							{
+								do: "edit"
+								options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+								form: {
+									type: "layout-tabs"
+									children: [
+										{
+											type: "layout-vertical"
+											label: "General"
+											children: [
+												{type:"text", path:"label", label:"Title", options:{required:true}}
+												{type:"date", path:"startDate", label:"Date", options:{required:true}}
+												{type:"date", path:"endDate", label:"End Date", description:"Optional, for an event that lasts several days."}
+												{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Description"
+											children: [
+												{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+												{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+												{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Photo"
+											children: [
+												{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+											]
+										}
+									]
+								}
 							}
-						}
+						], else:[
+							{
+								do: "edit"
+								options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+								form: {
+									type: "layout-tabs"
+									children: [
+										{
+											type: "layout-vertical"
+											label: "General"
+											children: [
+												{type:"text", path:"label", label:"Title", options:{required:true}}
+												{type:"datetime", path:"startDate", label:"Starts", options:{required:true}}
+												{type:"datetime", path:"endDate", label:"Ends", description:"Leave empty for an event that happens at one moment."}
+												{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Description"
+											children: [
+												{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline and calendar.", options:{rows:2}}
+												{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+												{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											]
+										}
+										{
+											type: "layout-vertical"
+											label: "Photo"
+											children: [
+												{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+											]
+										}
+									]
+								}
+							}
+						]}
 					]}
-					{do:"anchor-dates"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save", comment:"Updated by {{.Author}}"}

@@ -18,7 +18,7 @@
 		properties: {
 			label: {type:"string", maxLength:128, required:true}
 			summary: {type:"string", maxLength:2048}
-			// "everyone" or "nobody" (set-reply-policy); items inherit it with their sharing
+			// "everyone" or "nobody", set by the allowReplies toggle; items inherit it with their sharing
 			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
 			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone"), for Edit Collection forms
 			allowReplies: {type:"boolean"}
@@ -230,6 +230,7 @@
 							}
 							{do:"save", comment:"Settings updated by {{.Author}}"}
 						], else:[
+							// A Calendar's replies are a toggle too, and reach its events through shareWithChildren
 							{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
 								{
 									do: "edit"
@@ -241,11 +242,13 @@
 											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 											{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
 											{type:"radio-button-group", path:"data.calendarView", label:"Default View", options:{provider:"qwerty-collection.calendarViews"}}
+											{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
 										]
 									}
 								}
 								{do:"save", comment:"Settings updated by {{.Author}}"}
 							], else:[
+								// A Timeline's replies are a toggle too, and reach its events through shareWithChildren
 								{do:"if", condition:"{{eq (.Data `layout`) `timeline`}}", then:[
 									{
 										do: "edit"
@@ -257,12 +260,13 @@
 												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
 												{type:"radio-button-group", path:"data.timelineOrder", label:"Order", options:{provider:"qwerty-collection.timelineOrders"}}
+												{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
 											]
 										}
 									}
 									{do:"save", comment:"Settings updated by {{.Author}}"}
 								], else:[
-									// An Article collection's replies are a toggle too, and share-children passes them to its Articles
+									// An Article collection's replies are a toggle too, and reach its Articles through shareWithChildren
 									{
 										do: "edit"
 										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
@@ -292,20 +296,29 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps: [
-					{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see this collection and everything in it."}
+					// The subheading names what this format holds, as the reply toggles do
+					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
+						{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the photos in this collection."}
+					], else:[
+						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
+							{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the places in this collection."}
+						], else:[
+							{do:"if", condition:"{{in (.Data `layout`) `timeline` `calendar`}}", then:[
+								{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the events in this collection."}
+							], else:[
+								{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
+									{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the episodes in this collection."}
+								], else:[
+									{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+										{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the notes in this collection."}
+									], else:[
+										{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the articles in this collection."}
+									]}
+								]}
+							]}
+						]}
+					]}
 					{do:"save", comment:"Sharing updated by {{.Author}}"}
-				]}
-				{do:"refresh-page"}
-			]
-		}
-
-		// Who Can Reply: a modal for a Timeline or a Calendar; share-children passes the policy to its items
-		replies-policy: {
-			roles: ["author"]
-			steps: [
-				{do:"as-modal", steps: [
-					{do:"set-reply-policy", message:"For everything in this collection.  Replies are open only on items shared with everyone."}
-					{do:"save", comment:"Replies updated by {{.Author}}"}
 				]}
 				{do:"refresh-page"}
 			]

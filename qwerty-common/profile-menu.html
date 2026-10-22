@@ -21,17 +21,9 @@
 					{{icon "pencil"}}
 					Edit {{.Label}}
 				</button>
-				<!-- Sharing reads in the Sharing modal's terms: Everyone, the Circles chosen, or "Only Me" until the author picks -->
+				<!-- Sharing reads in the Sharing modal's terms: Everyone, Not Shared, or the Circles chosen -->
 				{{- $sharing := .CircleSharingStatus "viewer" -}}
 				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
-				<!-- Only a Timeline and a Calendar set replies here; other formats use Edit Collection, and each Note its composer -->
-				{{- if in $layout "timeline" "calendar" -}}
-					{{- if .RepliesClosed -}}
-						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "lock"}} Replies: Closed</button>
-					{{- else -}}
-						<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/replies-policy">{{icon "reply"}} Replies: Everyone</button>
-					{{- end -}}
-				{{- end -}}
 				<!-- The add item names what this format holds: Articles are created at once (hx-post), the rest open a form (hx-get) -->
 				{{- if eq $layout "gallery" -}}
 					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Photo</button>
