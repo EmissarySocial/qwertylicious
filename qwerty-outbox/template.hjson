@@ -6,7 +6,7 @@
 	label: Qwertylicious Profile
 	description:Profile displays everything about a user, including their inbox and outbox information
 	icon: inbox
-	extends: ["base-social", "base-intent", "qwerty-common"]
+	extends: ["base-social", "base-intent", "qwerty-common", "base-outbox"]
     containedBy: []
     tagPaths: ["statusMessage"]
 	tagUrl:"/search?q="
@@ -90,7 +90,10 @@
 			steps: [
 				{do:"set-args", postTo:"/@me/add-note"}
 				{do:"set-query-param", new-stream-label:"Add a Note"}
-				{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message"}
+				// A new note takes the Notes collection's reply policy (empty, which is "everyone", when there is none)
+				{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message", with-data:{
+					replyPolicy:"{{range ((.Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice}}{{.ReplyPolicy}}{{end}}"
+				}}
 				{do:"refresh-page"}
 			]
 		}

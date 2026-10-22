@@ -1,0 +1,27 @@
+<div id="menu-bar">
+	{{- if .IsDesktop -}}
+		<div class="left tabs">
+			<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-general`}}selected{{end}}">General</a>
+			<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
+			<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
+		</div>
+	{{- else -}}
+		<div class="dropdown">
+			<a class="button">
+				{{- if .IsAction "settings-images" -}}Images{{- else if .IsAction "settings-links" -}}Links{{- else -}}General{{- end }}
+				{{icon "chevron-down"}}
+			</a>
+			<div class="dropdown-content left">
+				<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-general`}}selected{{end}}">General</a>
+				<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
+				<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
+			</div>
+		</div>
+	{{- end -}}
+	<div class="right">
+		<a href="https://emissary.dev/user-profile" target="_blank" rel="noopener noreferrer" class="button secondary">
+			{{icon "help"}}
+			{{ if .IsDesktop }} Help {{ end }}
+		</a>
+	</div>
+</div>
