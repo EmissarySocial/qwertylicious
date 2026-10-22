@@ -38,7 +38,7 @@
 
 		</div>
 		<div class="margin-top-lg text-xs">
-			{{template "reply-button" $document.ID }}
+			{{template "reply-button" (array $builder $document.ID) }}
 			<span 
 				hx-get="/@me/newsfeed/like-button?url={{$document.ID}}" 
 				hx-trigger="intersect once"
