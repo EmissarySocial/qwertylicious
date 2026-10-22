@@ -21,7 +21,7 @@
 				<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
 			{{- end -}}
 			<li class="qwerty-timeline-event">
-				<a href="/{{.StreamID}}" hx-boost="true" class="card flex-row text-plain text-nocolor padding turboclick">
+				<a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
 					<div class="flex-grow">
 						<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
 						<div class="text-lg bold">{{.Label}}</div>

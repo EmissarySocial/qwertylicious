@@ -1,8 +1,13 @@
-<!-- entry-body: an entry's dates, summary, details, and location, shared by view.html and modal.html.
+<!-- entry-body: an entry's summary, dates, details, and location, shared by view.html and modal.html.
      A geocoded location adds a map and its address below the details (qwerty-theme's maps bundle). -->
 {{- $location := .Location -}}
 {{- $start := .StartDate -}}
 {{- $end := .EndDate -}}
+
+{{- if ne "" .Summary -}}
+	<!-- The summary is Markdown, through the app's one sanitizing converter (the funcMap's markdown) -->
+	<div class="p-summary margin-bottom">{{markdown .Summary}}</div>
+{{- end -}}
 
 <!-- RULE: times are site-relative, shown as typed with no zone (BUG-283), and midnight means a whole day. -->
 {{- if not $start.IsZero -}}
@@ -12,7 +17,7 @@
 	{{- $sameDay := eq ($start.Format "2006-01-02") ($end.Format "2006-01-02") -}}
 	{{- $startTime := ne ($start.Format "15:04") "00:00" -}}
 	{{- $endTime := ne ($end.Format "15:04") "00:00" -}}
-	<div class="margin-bottom">
+	<div class="text-lg margin-bottom">
 		<div class="bold">
 			<time class="dt-start" datetime="{{$start.Format $iso}}">{{$start.Format $long}}</time>
 			{{- if $hasEnd -}}{{- if not $sameDay }} &ndash; <time class="dt-end" datetime="{{$end.Format $iso}}">{{$end.Format $long}}</time>{{- end -}}{{- end -}}
@@ -30,10 +35,6 @@
 	{{- if ne "" $location.Formatted -}}
 		<div class="text-gray margin-bottom p-location">{{icon "location-fill"}} {{$location.Formatted}}</div>
 	{{- end -}}
-{{- end -}}
-
-{{- if ne "" .Summary -}}
-	<div class="p-summary">{{.Summary}}</div>
 {{- end -}}
 
 <hr class="margin-vertical-lg">

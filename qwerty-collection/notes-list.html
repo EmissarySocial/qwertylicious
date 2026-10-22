@@ -1,10 +1,17 @@
-<!-- One page of the profile's Notes, newest first, called as (array $collectionID $outbox); see AGENTS.md. -->
+<!-- One page of the profile's Notes, pinned first, then newest first, called as (array $collectionID $outbox); see AGENTS.md. -->
 {{- $collectionID := index . 0 -}}
 {{- $outbox := index . 1 -}}
 {{- $isMyself := $outbox.IsMyself -}}
-{{- $notes := ($outbox.Outbox.Where "templateId" "outbox-message").Top12.ByPublishDate.Reverse.Slice -}}
+{{- $isFirstPage := eq "" ($outbox.QueryParam "publishDate") -}}
+{{- $notes := (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" false).Top12.ByPublishDate.Reverse.Slice -}}
 
-{{- if and $notes.IsEmpty (eq "" ($outbox.QueryParam "publishDate")) -}}
+<!-- Pinned notes lead the first page only, as pinned photos lead a gallery; later pages leave them out -->
+{{- $pinned := array -}}
+{{- if $isFirstPage -}}
+	{{- $pinned = (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" true).ByPublishDate.Reverse.All.Slice -}}
+{{- end -}}
+
+{{- if and $isFirstPage (and $notes.IsEmpty (eq 0 (len $pinned))) -}}
 	{{- if not $isMyself -}}
 		<div class="padding-horizontal padding-vertical-xl">
 			Nothing has been posted here yet.  Check back later!
@@ -16,13 +23,14 @@
 {{- $browse := and $outbox.IsAuthenticated (not $isMyself) -}}
 
 <div class="h-feed">
-	{{- range $notes -}}
+	{{- range $group := array $pinned $notes -}}
+	{{- range $group -}}
 		{{- $iconURL := .AttributedTo.IconURL -}}
 		{{- $openURL := print "/" .StreamID "/modal" -}}
 		{{- if $browse -}}
 			{{- $openURL = print "/@me/newsfeed/browse?url=" (urlquery .URL) -}}
 		{{- end -}}
-		<div class="flex-row qwerty-note hover-trigger h-entry">
+		<div class="flex-row qwerty-note pos-relative hover-trigger h-entry">
 			<div hx-get="{{$openURL}}" hx-push-url="false" role="button" tabindex="0" class="flex-grow flex-row clickable turboclick">
 				<div class="flex-shrink-0 qwerty-note-avatar">
 					{{- if ne "" $iconURL -}}
@@ -39,15 +47,19 @@
 					{{- if ne "" .IconURL -}}
 						<img src="{{.IconURL}}" alt="" loading="lazy" class="qwerty-note-image">
 					{{- end -}}
-					<div class="text-sm text-gray dt-published">{{.PublishDate | humanizeTime}}</div>
+					<div class="text-sm text-gray">
+						{{- if .IsFeatured -}}<span class="margin-right-xs">{{icon "pin-fill"}} Pinned &middot;</span>{{- end -}}
+						<span class="dt-published">{{.PublishDate | humanizeTime}}</span>
+					</div>
 				</div>
 			</div>
 			{{- if $isMyself -}}
-				<div class="flex-shrink-0 hover-show">
+				<div class="hover-show pos-absolute-top-right">
 					<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
 				</div>
 			{{- end -}}
 		</div>
+	{{- end -}}
 	{{- end -}}
 </div>
 

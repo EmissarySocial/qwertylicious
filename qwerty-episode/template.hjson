@@ -154,7 +154,9 @@
 					{do:"save", comment:"Updated by {{.Author}}"}
 					{do:"search-index"}
 				]}
-				{do:"refresh-page"}
+				// Saving returns to the updated episode in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
 			]
 		}
 

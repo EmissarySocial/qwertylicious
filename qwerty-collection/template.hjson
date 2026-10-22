@@ -157,7 +157,7 @@
 		settings: {
 			roles: ["author"]
 			steps: [
-				// The Notes collection has no format to change, and no items to pass sharing or replies down to
+				// The Notes collection has no format to change, and no children; share-reply-policy carries its replies
 				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
 					{do:"as-modal", steps: [
 						{
@@ -169,10 +169,13 @@
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:3}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
 								]
 							}
 						}
 						{do:"save", comment:"Settings updated by {{.Author}}"}
+						// Notes are not this collection's children, so its reply policy is copied onto them here
+						{do:"share-reply-policy", template:"outbox-message"}
 					]}
 					{do:"refresh-page"}
 					{do:"halt"}

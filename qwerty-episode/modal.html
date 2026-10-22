@@ -22,10 +22,13 @@
 
 <div class="qwerty-episode h-entry padding" data-episode-id="{{.StreamID}}">
 
-	<!-- The author's pencil, top right, opens Edit Episode in its place (its pair is edit-pencil.html) -->
-	{{- if .UserCan "edit" -}}
-		<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit Episode">{{icon "pencil"}}</button>
-	{{- end -}}
+	<!-- Top right: the author's pencil opens Edit Episode in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit Episode">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
 
 	<!-- The photo, podcast name, episode name, and date; text is top-aligned (see AGENTS.md) -->
 	<div class="qwerty-episode-head flex-row margin-bottom">

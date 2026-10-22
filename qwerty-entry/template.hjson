@@ -74,7 +74,7 @@
 								children: [
 									{type:"text", path:"label", label:"Name", options:{required:true}}
 									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
-									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.", options:{rows:2}}
+									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
 									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
 									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
 									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
@@ -166,46 +166,36 @@
 			]
 		}
 
-		// A Place's URL opens its modal over its map; an Event's URL is its own page
+		// An entry's URL opens its modal over its collection's tab
 		view: {
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
 			}
 			steps: [
-				{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
-					{do:"include", action:"modal"}
-				], else:[
-					{do:"view-html"}
-				]}
+				{do:"include", action:"modal"}
 			]
 		}
 
-		// A Place's modal is drawn over its map (or its page, if the profile is hidden); an Event's over its own page
+		// Drawn over its Map, Timeline, or Calendar tab, or over its own page if the profile is hidden
 		modal: {
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
 			}
 			steps: [
-				{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
-					{
-						do: "as-modal"
-						background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
-						background: "page"
-						replace-url: "/{{.StreamID}}"
-						head: [
-							{do:"view-html", file:"head"}
-						]
-						steps: [
-							{do:"view-html", file:"modal"}
-						]
-					}
-				], else:[
-					{do:"as-modal", background:"page", steps:[
+				{
+					do: "as-modal"
+					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+					background: "page"
+					replace-url: "/{{.StreamID}}"
+					head: [
+						{do:"view-html", file:"head"}
+					]
+					steps: [
 						{do:"view-html", file:"modal"}
-					]}
-				]}
+					]
+				}
 			]
 		}
 
@@ -232,14 +222,26 @@
 							do: "edit"
 							options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 							form: {
-								type: "layout-vertical"
+								type: "layout-tabs"
 								children: [
-									{type:"text", path:"label", label:"Name", options:{required:true}}
-									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
-									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.", options:{rows:2}}
-									{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
-									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
-									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"text", path:"label", label:"Name", options:{required:true}}
+											{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
+											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Description"
+										children: [
+											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										]
+									}
 								]
 							}
 						}
@@ -324,7 +326,9 @@
 					{do:"save", comment:"Updated by {{.Author}}"}
 					{do:"search-index"}
 				]}
-				{do:"refresh-page"}
+				// Saving returns to the updated entry in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
 			]
 		}
 

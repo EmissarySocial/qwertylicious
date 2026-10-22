@@ -1,11 +1,14 @@
-<!-- modal: an entry opened from its map's marker or its calendar, drawn over its collection or its own page.
+<!-- modal: an entry opened from its map's marker, its timeline, or its calendar, drawn over its collection or its own page.
      Its Replies tab re-opens this modal with ?tab=replies. -->
 <div class="{{if .StartDate.IsZero}}h-entry{{else}}h-event{{end}}">
 
-	<!-- The author's pencil, top right, opens the edit modal in its place (its pair is edit-pencil.html) -->
-	{{- if .UserCan "edit" -}}
-		<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
-	{{- end -}}
+	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
 
 	{{- if ne "" .IconURL -}}
 		<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:320px; object-fit:cover; border-radius:var(--border-radius);">
@@ -21,10 +24,5 @@
 		{{- else -}}
 			{{- template "entry-body" . -}}
 		{{- end -}}
-
-		<!-- Close button -->
-		<div class="flex-row flex-align-center margin-top">
-			<button script="on click trigger closeModal">Close Window</button>
-		</div>
 	</div>
 </div>
