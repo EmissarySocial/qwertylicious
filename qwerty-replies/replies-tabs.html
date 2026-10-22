@@ -1,6 +1,6 @@
-<!-- replies-tabs: the item's tab bar, its content then Replies; takes (array $builder $label $mode ["count"]).
-     $mode is "page" or "modal". "count" labels the tab with the reply count and hides the bar when replies are closed.
-     No bar when the item neither accepts replies nor has any. -->
+<!-- replies-tabs: the item's tab bar, its content then "3 Replies", "1 Reply", or "Replies"; takes (array $builder $label
+     $mode ["count"]). $mode is "page" or "modal". "count" also shows "0 Replies" and hides the bar when replies are
+     closed. No bar when the item neither accepts replies nor has any. -->
 {{- $builder := index . 0 -}}
 {{- $label := index . 1 -}}
 {{- $mode := index . 2 -}}
@@ -35,10 +35,10 @@
 			hx-swap="innerHTML transition:true show:none"
 			hx-push-url="{{if eq $mode `page`}}{{$repliesURL}}{{else}}false{{end}}"
 			aria-selected="{{if $repliesSelected}}true{{else}}false{{end}}">
-			{{- if eq $style "count" -}}
+			{{- if or (eq $style "count") (gt $builder.ReplyCount 0) -}}
 				{{- $builder.ReplyCount }} {{ if eq $builder.ReplyCount 1 }}Reply{{ else }}Replies{{ end -}}
 			{{- else -}}
-				Replies{{if gt $builder.ReplyCount 0}} <span class="text-gray">{{$builder.ReplyCount}}</span>{{end}}
+				Replies
 			{{- end -}}
 			</a>
 	</div>
