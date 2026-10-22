@@ -1,12 +1,10 @@
 {
-	// A post of 1 to 64 photos in a Photo Gallery; published at once, and opened in a modal.
+	// One photo in a Photo Gallery; published at once, and opened in a modal.
 	templateId: "qwerty-photo"
 	category: Content
 	templateRole: "photo"
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Each save copies the collection's sharing
-	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-replies"]
 	label: "Qwertylicious Photo"
@@ -51,7 +49,7 @@
 
 	actions: {
 
-		// Opened inline by the collection's add; the POST uploads the photos and publishes the post
+		// Opened inline by the collection's add; the POST uploads the photo and publishes the post
 		create: {
 			roles: ["author"]
 			steps: [
@@ -60,15 +58,15 @@
 						do: "edit"
 						form: {
 							type: "layout-vertical"
-							label: "Add Photos"
+							label: "Add a Photo"
 							children: [
-								{type:"upload", path:"iconUrl", label:"Photos", description:"Up to 64.  More than one makes a carousel, in the order you choose them.", options:{accept:"image/*", multiple:true, required:true}}
+								{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", required:true}}
 								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Shows beneath the photo.  Markdown is okay.", options:{rows:3}}
 							]
 						}
 					}
-					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:64, accept-type:"image/*", rules:{types:["webp"]}}
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:1, accept-type:"image/*", rules:{types:["webp"]}}
 					{do:"set-thumbnail", path:"iconUrl"}
 					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
 					{do:"process-content", format:"MARKDOWN"}
@@ -141,7 +139,8 @@
 									label: "General"
 									children: [
 										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-										{type:"upload", path:"iconUrl", label:"Add More Photos", description:"Added after the ones already here.  A post holds up to 64 photos, and any past that are not added.", options:{accept:"image/*", multiple:true, delete:"{{with index .Data `photoCount`}}{{if gt . 1}}/{{$.StreamID.Hex}}/delete-thumbnail{{end}}{{end}}"}}
+										{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
+										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
 									]
 								}
 								{
@@ -154,29 +153,16 @@
 							]
 						}
 					}
-					// "fill" never deletes a photo to make room: past 64, the extra uploads are left out
-					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:64, action:"fill", accept-type:"image/*", rules:{types:["webp"]}}
+					// A new photo replaces the old one; saving without one keeps it
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{types:["webp"]}}
 					{do:"set-thumbnail", path:"iconUrl"}
 					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save", comment:"Updated by {{.Author}}"}
 				]}
-				{do:"refresh-page"}
-			]
-		}
-
-		// Removes the first photo (the thumbnail), and the next becomes the thumbnail.
-		// RULE: only while the post holds more than one, so it is never left with none.
-		delete-thumbnail: {
-			roles: ["author"]
-			steps: [
-				{do:"if", condition:"{{gt (len (.AttachmentsByCategory `photo`)) 1}}", then:[
-					{do:"delete-attachments", field:"iconUrl"}
-					{do:"set-thumbnail", path:"iconUrl"}
-					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
-					{do:"save", comment:"Photo removed by {{.Author}}"}
-					{do:"trigger-event", event:"refreshPage", value:"true"}
-				]}
+				// Saving returns to the updated photo in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
 			]
 		}
 
