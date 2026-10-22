@@ -4,8 +4,6 @@
 	templateRole:"article"
 	socialRole:"Article"
 	containedBy: ["qwerty-collection"]
-	// Its collection decides who can see it: each save copies the collection's sharing (QWERTY-COLLECTIONS)
-	inheritPermissions: true
 	model: Stream
 	extends:["base-intent", "qwerty-replies"]
 	tagPaths:["data.tags"]

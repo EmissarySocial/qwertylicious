@@ -5,8 +5,6 @@
 	templateRole: "episode"
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Each save copies the collection's sharing
-	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
 	label: "Qwertylicious Podcast Episode"

@@ -10,6 +10,8 @@
 	icon: collection
 	childSortType: rank
 	childSortDirection: asc
+	// Every item takes this collection's sharing and reply policy, and a change reaches the items on save
+	shareWithChildren: true
 
 	schema: {
 		type: object

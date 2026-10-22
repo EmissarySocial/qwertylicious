@@ -6,8 +6,6 @@
 	// Not "Event": nothing federates its dates, and many entries have none
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
-	// Each save copies the collection's sharing
-	inheritPermissions: true
 	model: Stream
 	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
 	label: "Qwertylicious Entry"
