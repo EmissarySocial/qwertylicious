@@ -1,20 +1,20 @@
 <!-- modal: a photo post opened from its gallery or its own URL; its Replies tab re-opens it with ?tab=replies. -->
 <div class="padding">
-	<!-- The author's pencil, top right, opens the edit modal in its place (its pair is edit-pencil.html) -->
-	{{- if .UserCan "edit" -}}
-		<button type="button" class="edit-circle corner-pencil turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
-	{{- end -}}
+	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
 	{{- template "replies-tabs" (array . "Photo" "modal") -}}
 
 	{{- if eq (.QueryParam "tab") "replies" -}}
 		{{- template "replies-panel" . -}}
-		<div class="flex-row margin-top">
-			<button script="on click trigger closeModal">Close</button>
-		</div>
 	{{- else -}}
 		{{- template "photo-figure" (array . "modal") -}}
 
-		<!-- Share and Close buttons -->
+		<!-- The Share button -->
 		<div class="flex-row flex-align-center margin-top">
 			<!-- Share opens the device's share sheet, or copies the URL -->
 			<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
@@ -28,7 +28,6 @@
 				catch error
 					log error
 				end">{{icon "share"}} <span>Share</span></button>
-			<button script="on click trigger closeModal">Close</button>
 		</div>
 	{{- end -}}
 </div>
