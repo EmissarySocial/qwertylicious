@@ -1,19 +1,7 @@
-<!-- event-dates writes an event's start and end as one phrase, on its location's clock (inTimezone) with the zone's
-     abbreviation.  The dot is a StreamSummary or a Stream builder.  Midnight is a whole-day event, shown with no time. -->
-{{- $zone := .Location.Timezone -}}
-{{- $start := inTimezone .StartDate $zone -}}
-{{- $end := inTimezone .EndDate $zone -}}
-<time class="dt-start" datetime="{{$start.Format `2006-01-02T15:04-07:00`}}">
-	{{- $start.Format "Mon, Jan 2, 2006" -}}
-	{{- if ne ($start.Format "15:04") "00:00" }} at {{ $start.Format "3:04 PM" }}{{- end -}}
-</time>
+<!-- event-dates: a Timeline entry's dates as one phrase, date-only (BUG-283); the dot is a StreamSummary or a Stream. -->
+{{- $start := .StartDate -}}
+{{- $end := .EndDate -}}
+<time class="dt-start" datetime="{{$start.Format `2006-01-02`}}">{{$start.Format "Mon, Jan 2, 2006"}}</time>
 {{- if not $end.IsZero -}}
-	{{- if eq ($start.Format "2006-01-02") ($end.Format "2006-01-02") -}}
-		{{- if ne ($end.Format "15:04") "00:00" }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02T15:04-07:00`}}">{{ $end.Format "3:04 PM" }}</time>{{- end -}}
-	{{- else }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02T15:04-07:00`}}">
-		{{- $end.Format "Mon, Jan 2, 2006" -}}
-		{{- if ne ($end.Format "15:04") "00:00" }} at {{ $end.Format "3:04 PM" }}{{- end -}}
-	</time>
-	{{- end -}}
+	{{- if ne ($start.Format "2006-01-02") ($end.Format "2006-01-02") }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02`}}">{{$end.Format "Mon, Jan 2, 2006"}}</time>{{- end -}}
 {{- end -}}
-{{- if and (ne "" $zone) (ne ($start.Format "15:04") "00:00") }} <span class="text-light-gray">{{$start.Format "MST"}}</span>{{- end -}}

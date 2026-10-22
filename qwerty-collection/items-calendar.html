@@ -1,5 +1,5 @@
 <!-- items-calendar is a Calendar's tab: its events as a List, Week, or Month (?view=, else data.calendarView),
-     around ?startDate= (YYYY-MM-DD, else today).  Days are UTC dates; each event keeps its own clock (see AGENTS.md). -->
+     around ?startDate= (YYYY-MM-DD, else today).  Times are site-relative, as typed, with no zone (BUG-283). -->
 {{- $collectionID := .StreamID -}}
 {{- $profileTab := print "/@" .ParentID "?tab=" .StreamID -}}
 {{- $view := .QueryParam "view" -}}
@@ -21,7 +21,7 @@
 
 <!-- RULE: ?startDate= is kept only when it is an exact YYYY-MM-DD -->
 {{- $startParam := .QueryParam "startDate" -}}
-{{- $anchor := inTimezone $startParam "" -}}
+{{- $anchor := toTime $startParam -}}
 {{- if ne ($anchor.Format "2006-01-02") $startParam -}}
 	{{- $anchor = $today -}}
 	{{- $startParam = "" -}}
@@ -96,14 +96,14 @@
 	{{- $count := 0 -}}
 	<div class="qwerty-calendar-list card">
 		{{- range $events -}}
-			{{- if eq ((inTimezone .StartDate .Location.Timezone).Format "2006-01") $monthKey -}}
+			{{- if eq (.StartDate.Format "2006-01") $monthKey -}}
 				{{- $count = add $count 1 -}}
-				{{- if $days.Header ((inTimezone .StartDate .Location.Timezone).Format "2006-01-02") -}}
-					<div class="qwerty-calendar-list-day{{if eq ((inTimezone .StartDate .Location.Timezone).Format `2006-01-02`) $todayKey}} today{{end}}">{{(inTimezone .StartDate .Location.Timezone).Format "Monday, January 2"}}</div>
+				{{- if $days.Header (.StartDate.Format "2006-01-02") -}}
+					<div class="qwerty-calendar-list-day{{if eq (.StartDate.Format `2006-01-02`) $todayKey}} today{{end}}">{{.StartDate.Format "Monday, January 2"}}</div>
 				{{- end -}}
 				<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-list-event flex-row text-plain text-nocolor turboclick">
 					<div class="qwerty-calendar-time text-sm text-gray">
-						{{- if ne ((inTimezone .StartDate .Location.Timezone).Format "15:04") "00:00" -}}{{(inTimezone .StartDate .Location.Timezone).Format "3:04 PM"}}{{- else -}}All day{{- end -}}
+						{{- if ne (.StartDate.Format "15:04") "00:00" -}}{{.StartDate.Format "3:04 PM"}}{{- else -}}All day{{- end -}}
 					</div>
 					<div class="flex-grow">
 						<div class="bold">{{.Label}}</div>
@@ -132,15 +132,15 @@
 			<div class="qwerty-calendar-day{{if ne ($day.Format `2006-01`) $monthKey}}{{if eq $view `month`}} outside{{end}}{{end}}{{if eq $dayKey $todayKey}} today{{end}}">
 				<div class="qwerty-calendar-date">{{$day.Day}}</div>
 				{{- range $events -}}
-					{{- $start := (inTimezone .StartDate .Location.Timezone).Format "2006-01-02" -}}
+					{{- $start := .StartDate.Format "2006-01-02" -}}
 					{{- $end := $start -}}
 					{{- if not .EndDate.IsZero -}}
-						{{- $end = (inTimezone .EndDate .Location.Timezone).Format "2006-01-02" -}}
+						{{- $end = .EndDate.Format "2006-01-02" -}}
 					{{- end -}}
 					{{- if and (le $start $dayKey) (ge $end $dayKey) -}}
 						<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-event turboclick" title="{{.Label}}">
-							{{- if and (eq $start $dayKey) (ne ((inTimezone .StartDate .Location.Timezone).Format "15:04") "00:00") -}}
-								<span class="qwerty-calendar-time">{{(inTimezone .StartDate .Location.Timezone).Format "3:04"}}</span>
+							{{- if and (eq $start $dayKey) (ne (.StartDate.Format "15:04") "00:00") -}}
+								<span class="qwerty-calendar-time">{{.StartDate.Format "3:04"}}</span>
 							{{- end -}}
 							{{.Label}}
 						</a>

@@ -65,7 +65,6 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps:[
-					{do:"localize-dates"}
 					{do:"if", condition:"{{eq ((.Parent `view`).DataString `layout`) `map`}}", then:[
 						{
 							do: "edit"
