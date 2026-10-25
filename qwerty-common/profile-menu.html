@@ -9,8 +9,6 @@
 			<div class="text-gray text-xs">PROFILE</div>
 			<!-- RULE: Edit Profile names its target, because outbox.html's loading copy of this menu disinherits the body's -->
 			<button class="dropdown-item turboclick" hx-get="/@me/settings" hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true">{{icon "settings"}} Edit Profile</button>
-			<!-- Manage Collections shows even with no collections, since it holds the Add Collection button -->
-			<button class="dropdown-item turboclick" hx-get="/@{{$outbox.UserID}}/manage-collections">{{icon "drag-handle"}} Manage Collections</button>
 
 			{{- with $collection -}}
 			{{- if .UserCan "add" -}}
@@ -21,9 +19,11 @@
 					{{icon "pencil"}}
 					Edit {{.Label}}
 				</button>
-				<!-- Sharing reads in the Sharing modal's terms: Everyone, Not Shared, or the Circles chosen -->
-				{{- $sharing := .CircleSharingStatus "viewer" -}}
-				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+				<!-- Sharing reads in the Sharing modal's terms; Notes are always public, so Notes has none -->
+				{{- if ne $layout "notes" -}}
+					{{- $sharing := .CircleSharingStatus "viewer" -}}
+					<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
+				{{- end -}}
 				<!-- The add item names what this format holds: Articles are created at once (hx-post), the rest open a form (hx-get) -->
 				{{- if eq $layout "gallery" -}}
 					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Photo</button>
