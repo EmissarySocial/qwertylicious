@@ -316,15 +316,20 @@
 			]
 		}
 
-		// Manage Collections: the modal on GET, then re-rank and reload on POST
-		manage-collections: {
+		// The Collections tab of Settings → Profile, after base-outbox's Links tab
+		settings-collections: {
 			roles: ["self"]
 			steps: [
-				{do:"as-modal", steps:[
-					{do:"view-html", method:"get", file:"manage-collections"}
-				]}
+				{do:"view-html"}
+			]
+		}
+
+		// The tab's form: re-ranks the collections on POST, then answers with the form again
+		settings-collections-form: {
+			roles: ["self"]
+			steps: [
 				{do:"sort", model:"Stream", keys:"_id", values:"rank"}
-				{do:"refresh-page"}
+				{do:"view-html", method:"both"}
 			]
 		}
 

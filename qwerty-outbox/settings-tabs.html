@@ -4,17 +4,19 @@
 			<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-general`}}selected{{end}}">General</a>
 			<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
 			<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
+			<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-collections`}}selected{{end}}">Collections</a>
 		</div>
 	{{- else -}}
 		<div class="dropdown">
 			<a class="button">
-				{{- if .IsAction "settings-images" -}}Images{{- else if .IsAction "settings-links" -}}Links{{- else -}}General{{- end }}
+				{{- if .IsAction "settings-images" -}}Images{{- else if .IsAction "settings-links" -}}Links{{- else if .IsAction "settings-collections" -}}Collections{{- else -}}General{{- end }}
 				{{icon "chevron-down"}}
 			</a>
 			<div class="dropdown-content left">
 				<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-general`}}selected{{end}}">General</a>
 				<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
 				<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
+				<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-collections`}}selected{{end}}">Collections</a>
 			</div>
 		</div>
 	{{- end -}}

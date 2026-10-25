@@ -1,0 +1,8 @@
+{{- template "settings-tabs" . -}}
+
+<div class="card border padding transition-main-card">
+	{{- .View "settings-collections-form" -}}
+</div>
+
+<!-- RULE: Edit Collection ends with refresh-page, so reload this tab rather than the settings page (see AGENTS.md) -->
+<div hx-get="/@me/settings-collections" hx-trigger="refreshPage from:window" hx-target="#profile-settings" hx-push-url="false"></div>
