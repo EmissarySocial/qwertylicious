@@ -1,10 +1,15 @@
-<!-- The Collections tab's form: drag the collections into tab order, edit each one, or add another. -->
-<!-- Edit and Add open modals over the settings page, so an unsaved order is lost. -->
+<!-- The Collections tab's form: add a collection, drag the collections into tab order, or edit each one. -->
+<!-- RULE: a drop that changes the order saves it at once, on Sortable's update event; a drop in place sends nothing -->
 {{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
-<form hx-post="/@me/settings-collections-form" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
+<form hx-post="/@me/settings-collections-form" hx-trigger="update" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
 
-	<div class="layout layout-vertical">
-		<div class="layout-description">Drag your collections into the order their tabs show on your profile.  A profile holds up to 8.</div>
+	<!-- The limit is also enforced by the outbox's add-collection action (template.hjson) -->
+	<div class="margin-bottom-lg">
+		{{- if lt (len $collections) 8 -}}
+			<button type="button" class="primary turboclick" hx-get="/@{{.UserID}}/add-collection">+ Add a Collection</button>
+		{{- else -}}
+			<div class="text-sm text-gray">You have 8 collections, the most a profile can hold.</div>
+		{{- end -}}
 	</div>
 
 	<table class="table margin-bottom">
@@ -18,24 +23,12 @@
 					<td>{{.Label}}</td>
 					<!-- Edit opens the collection's Edit Collection modal (qwerty-collection's settings action) -->
 					<td class="align-right" style="width:1px;">
-						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">{{icon "edit"}} Edit</button>
+						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">Edit</button>
 					</td>
 				</tr>
 			{{- end -}}
 		</tbody>
 	</table>
-
-	<!-- The limit is also enforced by the outbox's add-collection action (template.hjson) -->
-	<div class="margin-bottom">
-		{{- if lt (len $collections) 8 -}}
-			<button type="button" class="turboclick" hx-get="/@{{.UserID}}/add-collection">+ Add Collection</button>
-		{{- else -}}
-			<div class="text-sm text-gray">You have 8 collections, the most a profile can hold.</div>
-		{{- end -}}
-	</div>
-
-	<!-- A POST answers with this form again, and "success" makes SaveButton show Saved -->
-	<button type="submit" class="primary {{if eq `POST` .Method}}success{{end}}" script="install SaveButton">Save Order</button>
 
 </form>
 

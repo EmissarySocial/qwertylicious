@@ -74,7 +74,7 @@
 							do: "edit"
 							form: {
 								type: layout-vertical
-								label: What Will This Collection Hold?
+								label: "+ Add a Collection"
 								children: [
 									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layoutsWithoutNotes"}}
 									// A Map's starting view, shown only when Map is picked
@@ -92,7 +92,7 @@
 							do: "edit"
 							form: {
 								type: layout-vertical
-								label: What Will This Collection Hold?
+								label: "+ Add a Collection"
 								children: [
 									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layouts"}}
 									// A Map's starting view, shown only when Map is picked
