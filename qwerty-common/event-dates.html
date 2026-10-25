@@ -1,7 +1,7 @@
 <!-- event-dates: a Timeline entry's dates as one phrase, date-only (BUG-283); the dot is a StreamSummary or a Stream. -->
 {{- $start := .StartDate -}}
 {{- $end := .EndDate -}}
-<time class="dt-start" datetime="{{$start.Format `2006-01-02`}}">{{$start.Format "Mon, Jan 2, 2006"}}</time>
+<time class="dt-start" datetime="{{$start.Format `2006-01-02`}}">{{$start.Format "January 2, 2006"}}</time>
 {{- if not $end.IsZero -}}
-	{{- if ne ($start.Format "2006-01-02") ($end.Format "2006-01-02") }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02`}}">{{$end.Format "Mon, Jan 2, 2006"}}</time>{{- end -}}
+	{{- if ne ($start.Format "2006-01-02") ($end.Format "2006-01-02") }} &ndash; <time class="dt-end" datetime="{{$end.Format `2006-01-02`}}">{{$end.Format "January 2, 2006"}}</time>{{- end -}}
 {{- end -}}
