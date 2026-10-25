@@ -1,4 +1,4 @@
-<!-- The Collections tab's form: add a collection, drag the collections into tab order, or edit each one. -->
+<!-- The Collections tab's form: add a collection, drag the collections into tab order, or view or edit each one. -->
 <!-- RULE: a drop that changes the order saves it at once, on Sortable's update event; a drop in place sends nothing -->
 {{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 <form hx-post="/@me/settings-collections-form" hx-trigger="update" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
@@ -21,8 +21,9 @@
 						{{icon "drag-handle"}}
 					</td>
 					<td>{{.Label}}</td>
-					<!-- Edit opens the collection's Edit Collection modal (qwerty-collection's settings action) -->
-					<td class="align-right" style="width:1px;">
+					<!-- View opens the collection's tab on the profile; Edit opens its Edit Collection modal (qwerty-collection's settings action) -->
+					<td class="align-right" style="width:1px; white-space:nowrap;">
+						<a href="/@{{$.UserID}}?tab={{.ObjectID.Hex}}" class="button text-sm turboclick">View</a>
 						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">Edit</button>
 					</td>
 				</tr>
