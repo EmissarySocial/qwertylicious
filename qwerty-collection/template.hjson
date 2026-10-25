@@ -102,6 +102,10 @@
 							}
 						}
 					]}
+					// RULE: Notes are always public, so the Notes tab is shared with everyone and has no Sharing item
+					{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+						{do:"set-sharing", role:"viewer", group:"anonymous"}
+					]}
 					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
 					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else}}Articles{{end}}{{end}}"}}
 					{do:"save", comment:"Created by {{.Author}}"}
@@ -149,6 +153,10 @@
 		notes-page: {
 			roles: ["author", "viewer"]
 			steps: [
+				// RULE: only the Notes collection lists the profile's Notes
+				{do:"if", condition:"{{ne (.Data `layout`) `notes`}}", then:[
+					{do:"halt"}
+				]}
 				{do:"view-html", file:"items-notes-page"}
 			]
 		}
@@ -173,6 +181,8 @@
 								]
 							}
 						}
+						// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
+						{do:"set-sharing", role:"viewer", group:"anonymous"}
 						{do:"save", comment:"Settings updated by {{.Author}}"}
 						// Notes are not this collection's children, so its reply policy is copied onto them here
 						{do:"share-reply-policy", template:"outbox-message"}
@@ -298,6 +308,10 @@
 		sharing: {
 			roles: ["author"]
 			steps: [
+				// RULE: Notes are always public, so the Notes collection has no sharing to set
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					{do:"halt"}
+				]}
 				{do:"as-modal", steps: [
 					// The subheading names what this format holds, as the reply toggles do
 					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
@@ -312,11 +326,7 @@
 								{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 									{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the episodes in this collection."}
 								], else:[
-									{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
-										{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the notes in this collection."}
-									], else:[
-										{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the articles in this collection."}
-									]}
+									{do:"set-circle-sharing", role:"viewer", title:"Who Can See This Collection?", message:"Select which people can see the articles in this collection."}
 								]}
 							]}
 						]}
@@ -389,7 +399,8 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				{do:"delete", title:"Delete '{{.Label}}'?", message:"This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO."}
+				// The Notes collection holds no Notes, so deleting it only hides them (§1.7)
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
 				{do:"forward-to", url:"/@me"}
 			]
 		}

@@ -5,10 +5,10 @@
 {{- $isFirstPage := eq "" ($outbox.QueryParam "publishDate") -}}
 {{- $notes := (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" false).Top12.ByPublishDate.Reverse.Slice -}}
 
-<!-- Pinned notes lead the first page only, as pinned photos lead a gallery; later pages leave them out -->
+<!-- Up to 60 pinned notes lead the first page only, as pinned photos lead a gallery; later pages leave them out -->
 {{- $pinned := array -}}
 {{- if $isFirstPage -}}
-	{{- $pinned = (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" true).ByPublishDate.Reverse.All.Slice -}}
+	{{- $pinned = (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" true).Top60.ByPublishDate.Reverse.Slice -}}
 {{- end -}}
 
 {{- if and $isFirstPage (and $notes.IsEmpty (eq 0 (len $pinned))) -}}
@@ -43,7 +43,8 @@
 					{{- if ne "" .Label -}}
 						<div class="p-name bold">{{.Label}}</div>
 					{{- end -}}
-					<div class="e-content">{{.ContentHTML | htmlMinimal}}</div>
+					<!-- RULE: a note's links open in a new tab, and their clicks and keys stop here so the row's modal stays shut -->
+					<div class="e-content" script="init add [@target='_blank'] to <a/> in me then add [@rel='nofollow noopener noreferrer'] to <a/> in me end on click or keyup if event.target.closest('a') halt the event's bubbling end">{{.ContentHTML | htmlMinimal}}</div>
 					{{- if ne "" .IconURL -}}
 						<img src="{{.IconURL}}" alt="" loading="lazy" class="qwerty-note-image">
 					{{- end -}}
