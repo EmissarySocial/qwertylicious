@@ -1,45 +1,42 @@
-<!-- profile-menu is the owner's ⋯ after the tabs, called as (array $outbox $collection); $collection is false on About. -->
+<!-- profile-menu is the owner's buttons for the open collection, after the tabs, called as (array $outbox $collection).
+     $collection is false on About and the loading copy, which draw none; Edit Profile is on the profile card. -->
 {{- $outbox := index . 0 -}}
 {{- $collection := index . 1 -}}
 
 {{- if $outbox.IsMyself -}}
-	<span class="dropdown flex-shrink-0">
-		<button aria-label="Profile Menu">{{icon "more-horizontal"}}</button>
-		<div class="dropdown-content right">
-			<div class="text-gray text-xs">PROFILE</div>
-			<!-- RULE: Edit Profile names its target, because outbox.html's loading copy of this menu disinherits the body's -->
-			<button class="dropdown-item turboclick" hx-get="/@me/settings" hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true">{{icon "settings"}} Edit Profile</button>
+{{- with $collection -}}
+{{- if .UserCan "add" -}}
+	{{- $layout := .Data "layout" -}}
+	{{- $editLabel := print "Edit " .Label -}}
 
-			{{- with $collection -}}
-			{{- if .UserCan "add" -}}
-				<hr>
-				<div class="text-gray text-xs">COLLECTION</div>
-				{{- $layout := .Data "layout" -}}
-				<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/settings">
-					{{icon "pencil"}}
-					Edit {{.Label}}
-				</button>
-				<!-- Sharing reads in the Sharing modal's terms; Notes are always public, so Notes has none -->
-				{{- if ne $layout "notes" -}}
-					{{- $sharing := .CircleSharingStatus "viewer" -}}
-					<button class="dropdown-item turboclick" hx-get="/{{.StreamID}}/sharing">{{icon $sharing.Icon}} {{$sharing.Label}}</button>
-				{{- end -}}
-				<!-- The add item names what this format holds: Articles are created at once (hx-post), the rest open a form (hx-get) -->
-				{{- if eq $layout "gallery" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Photo</button>
-				{{- else if eq $layout "map" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add a Place</button>
-				{{- else if in $layout "timeline" "calendar" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Event</button>
-				{{- else if eq $layout "podcast" -}}
-					<button class="dropdown-item action turboclick" hx-get="/{{.StreamID}}/add">{{icon "plus"}} Add an Episode</button>
-				{{- else if eq $layout "notes" -}}
-					<!-- No add item: the Notes tab's own composer writes a Note on the profile -->
-				{{- else -}}
-					<button class="dropdown-item action" hx-post="/{{.StreamID}}/add">{{icon "plus"}} Add an Article</button>
-				{{- end -}}
-			{{- end -}}
-			{{- end -}}
-		</div>
-	</span>
+	<!-- Icon-only circles; each names itself in its title and aria-label -->
+	<div class="flex-row flex-shrink-0 margin-none">
+		<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/settings" title="{{$editLabel}}" aria-label="{{$editLabel}}">{{icon "pencil"}}</button>
+
+		<!-- Sharing shows the status in the Sharing modal's terms; Notes are always public, so Notes has none -->
+		{{- if ne $layout "notes" -}}
+			{{- $sharing := .CircleSharingStatus "viewer" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/sharing" title="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
+		{{- end -}}
+
+		<!-- Add names what this format holds: Articles are created at once (hx-post), the rest open a form (hx-get) -->
+		{{- $addLabel := "" -}}
+		{{- if eq $layout "gallery" -}}
+			{{- $addLabel = "Add a Photo" -}}
+		{{- else if eq $layout "map" -}}
+			{{- $addLabel = "Add a Place" -}}
+		{{- else if in $layout "timeline" "calendar" -}}
+			{{- $addLabel = "Add an Event" -}}
+		{{- else if eq $layout "podcast" -}}
+			{{- $addLabel = "Add an Episode" -}}
+		{{- end -}}
+		{{- if ne "" $addLabel -}}
+			<button type="button" class="edit-circle primary turboclick" hx-get="/{{.StreamID}}/add" title="{{$addLabel}}" aria-label="{{$addLabel}}">{{icon "plus"}}</button>
+		{{- else if ne $layout "notes" -}}
+			<button type="button" class="edit-circle primary" hx-post="/{{.StreamID}}/add" title="Add an Article" aria-label="Add an Article">{{icon "plus"}}</button>
+		{{- end -}}
+		<!-- Notes has no add button: the Notes tab's own composer writes a Note on the profile -->
+	</div>
+{{- end -}}
+{{- end -}}
 {{- end -}}

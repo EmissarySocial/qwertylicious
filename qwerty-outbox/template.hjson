@@ -52,6 +52,28 @@
 		}
 	}
 
+	// Every new profile starts with Articles and Notes, set up as qwerty-collection's create would (see AGENTS.md)
+	defaultChildren: [
+		{
+			templateId: "qwerty-collection"
+			label: "Articles"
+			"data.layout": "column-3"
+			"data.zoom": "11"
+			"data.calendarView": "list"
+			replyPolicy: "everyone"
+			"groups.viewer.0": "000000000000000000000000"
+		}
+		{
+			templateId: "qwerty-collection"
+			label: "Notes"
+			"data.layout": "notes"
+			"data.zoom": "11"
+			"data.calendarView": "list"
+			replyPolicy: "everyone"
+			"groups.viewer.0": "000000000000000000000000"
+		}
+	]
+
 	datasets: {
 		fonts: [
 			{Label:"System Fonts", Value:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"}

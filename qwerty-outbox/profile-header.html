@@ -1,5 +1,5 @@
-<!-- profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and Follow.
-     The owner's menu is the ⋯ beside the tabs, not here. -->
+<!-- profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and Follow,
+     or the owner's Edit Profile. The owner's collection buttons are beside the tabs, not here. -->
 {{- $isMyself := .IsMyself -}}
 {{- $showAlbums := eq "true" (.Data "show-albums") -}}
 {{- $showEvents := eq "true" (.Data "show-events") -}}
@@ -104,7 +104,12 @@
 
 			<div class="nowrap" script="on load trigger storage on window">
 				<div class="flex-row margin-none">
-					{{- if not $isMyself -}}
+					{{- if $isMyself -}}
+
+						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
+						<button hx-get="/@me/settings" class="text-sm turboclick">{{icon "settings"}} Edit Profile</button>
+
+					{{- else -}}
 
 						<button hx-get="/@{{.UserID}}/follow" class="primary turboclick">
 							Follow

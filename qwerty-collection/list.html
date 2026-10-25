@@ -2,7 +2,7 @@
      RULE: the tab bar reads the profile's Outbox query, as outbox.html does (see AGENTS.md). -->
 <div id="profile-tabs">
 
-<!-- The tab bar, with the owner's ⋯ for this collection after the tabs (qwerty-common/profile-menu.html) -->
+<!-- The tab bar, with the owner's buttons for this collection after the tabs (qwerty-common/profile-menu.html) -->
 <div class="profile-tabs-row">
 	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID .) -}}
 </div>
