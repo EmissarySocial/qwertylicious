@@ -328,3 +328,19 @@ button.edit-circle,
 	padding-top: 0;
 	padding-bottom: 0;
 }
+
+/* A modal's tab bar on the corner buttons' line: a band the circle's height, at the corner's top.
+   RULE: its top margin cancels #modal-window's padding, so place it first inside one .padding wrapper. */
+.corner-tabs {
+	display: flex;
+	align-items: center;
+	height: calc(var(--rhythm) * 4);
+	margin-top: calc(var(--border-radius) * -1.8);
+	margin-bottom: calc(var(--rhythm) * 4);
+}
+
+/* The taller tab bar overflows the band evenly, so its center stays on the circles'.
+   RULE: !important, to beat the margin-bottom-lg utility that replies-tabs puts on the bar */
+.corner-tabs > [role="tablist"] {
+	margin: 0 !important;
+}

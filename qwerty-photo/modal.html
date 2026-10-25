@@ -7,7 +7,10 @@
 		{{- end -}}
 		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
 	</div>
-	{{- template "replies-tabs" (array . "Photo" "modal") -}}
+	<!-- Top left: the Photo and Replies tabs, on the pencil's line (.corner-tabs) -->
+	<div class="corner-tabs">
+		{{- template "replies-tabs" (array . "Photo" "modal") -}}
+	</div>
 
 	{{- if eq (.QueryParam "tab") "replies" -}}
 		{{- template "replies-panel" . -}}
