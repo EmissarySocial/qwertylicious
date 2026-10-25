@@ -312,12 +312,12 @@
 .qwerty-calendar-day {
 	min-height: calc(var(--rhythm) * 12);
 	padding: calc(var(--rhythm) * 0.5);
-	background-color: var(--white);
+	background-color: var(--gray00);
 	overflow: hidden;
 
 	/* Days outside the month: a shade between the month's days and the gridlines, in either mode */
 	&.outside {
-		background-color: color-mix(in srgb, var(--page-border) 40%, var(--white));
+		background-color: color-mix(in srgb, var(--page-border) 40%, var(--gray00));
 
 		.qwerty-calendar-date {
 			color: var(--text-color-tertiary);
@@ -326,7 +326,7 @@
 
 	&.today .qwerty-calendar-date {
 		background-color: var(--focus-color);
-		color: var(--white);
+		color: var(--gray00);
 	}
 }
 

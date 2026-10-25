@@ -49,14 +49,14 @@ div.table > .clickable:focus {
 
 div.table > .selected {
 	background-color:var(--input-background);
-	color:var(--white);
+	color:var(--gray100);
 }
 
 /** EDITABLE GRIDS ***********************/
 
 table.grid {
 	width:100%;
-	background-color:var(--white);
+	background-color:var(--gray00);
 	border-top: solid 1px var(--input-border);
 	border-collapse: collapse;
 	border-spacing: 0px;

@@ -7,15 +7,15 @@
 
   .ce-toolbar__actions {
     right: 0;
-    color: var(--black);
+    color: var(--gray100);
 
     .ce-toolbar__plus {
-      color: var(--black);
+      color: var(--gray100);
       background-color: var(--page-background);
     }
 
     .ce-toolbar__settings-btn {
-      color: var(--black);
+      color: var(--gray100);
       background-color: var(--page-background);
     }
   }
@@ -28,7 +28,7 @@
 
 .ctx-notifies {
 .ctx-notify {
-  background-color: var(--white);
+  background-color: var(--gray00);
 }
 }
 

@@ -15,28 +15,28 @@
 	--link-color-hover: color-mix(in srgb, var(--link-color), black 4%);
 	--focus-color:var(--link-color);
 
-	--button-color: var(--black);
+	--button-color: var(--gray100);
 	--button-background: var(--gray05);
 	--button-background-hover: color-mix(in srgb, var(--gray10), black 4%);
 
-	--button-action-color: var(--white);
-	--button-action-background: var(--black);
-	--button-action-background-hover: color-mix(in srgb, var(--button-action-background), white 20%);
+	--button-action-color: var(--gray00);
+	--button-action-background: var(--gray100);
+	--button-action-background-hover: color-mix(in srgb, var(--button-action-background), var(--gray00) 20%);
 	
 	--button-primary-color: var(--white);
 	--button-primary-color-hover: var(--white);
 	--button-primary-background: var(--blue50);
 	--button-primary-background-hover: color-mix(in srgb, var(--button-primary-background), black 4%);
 
-	--button-secondary-color: var(--black);
+	--button-secondary-color: var(--gray100);
 	--button-secondary-background: var(--gray-01);
 	--button-secondary-background-hover: color-mix(in srgb, var(---button-secondary-background), black 4%);
 
-	--button-tertiary-color: var(--black);
+	--button-tertiary-color: var(--gray100);
 	--button-tertiary-background: unset;
 	--button-tertiary-background-hover: var(--gray10);
 	
-	--heading-color: var(--black);
+	--heading-color: var(--gray100);
 	--text-color: var(--gray80);
 	--text-color-secondary: var(--gray60);
 	--text-color-tertiary: var(--gray50);
@@ -71,7 +71,7 @@
 	--gray80: #1e293b;
 	--gray90: #0f172a;
 	--gray100: #020617;
-	--black: #020617;
+	--black: #000000;
 }
 
 /* Neutral Colors */
@@ -95,7 +95,7 @@
 	--gray80: #262626;
 	--gray90: #171717;
 	--gray100: #0a0a0a;
-	--black: #0a0a0a;
+	--black: #000000;
 }
 
 /* Warm Colors */
@@ -119,117 +119,81 @@
 	--gray80: #292524;
 	--gray90: #1c1917;
 	--gray100: #0c0a09;
-	--black: #0c0a09;
+	--black: #000000;
 }
 
 /* Dark Mode */
 
 @media (prefers-color-scheme: dark) {
 
+	/* Only the tokens whose dark value differs from light; the dark grays flip the rest (see AGENTS.md) */
 	:root {
-		--body-background: var(--gray01);
-		--page-background: var(--gray02);
-		--page-border: var(--gray03);
-
-		--input-border: var(--gray03);
-
-		--input-border-invalid: var(--red40);
-		--input-background-invalid: var(--red20);
-		--input-color-invalid: var(--red50);
-
 		--link-color: var(--blue80);
-		--link-color-hover: color-mix(in srgb, var(--link-color), black 4%);
-		--focus-color: var(--link-color);
 
-		--button-color: var(--black);
-		--button-background: var(--gray04);
-		--button-background-hover: var(--gray05);
-
-		--button-action-color: var(--white);
-		--button-action-background: var(--black);
-		--button-action-background-hover: color-mix(in srgb, var(--button-action-background), white 4%);
-		
-		--button-primary-color: var(--black);
-		--button-primary-color-hover: var(--black);
 		--button-primary-background: var(--blue60);
-		--button-primary-background-hover: color-mix(in srgb, var(--button-primary-background), black 4%);
 
-		--button-secondary-color: var(--black);
 		--button-secondary-background: var(--gray01);
 		--button-secondary-background-hover: color-mix(in srgb, var(---button-primary-background), black 4%);
-
-		--button-tertiary-color: var(--black);
-		--button-tertiary-background: unset;
-		--button-tertiary-background-hover: var(--gray01);
-
-		--text-color: var(--gray90);
-		--text-color-secondary: var(--gray20);
-		--text-color-tertiary: var(--gray10);
 	}
 
+	/* Each dark gray flips its light gray's lightness, from #161616 up to white (see AGENTS.md) */
 	:root[data-theme="slate"] {
-		--white: #020617;
-		--gray00: #020617;
-		--gray01: #0f172a;
-		--gray02: #1e293b;
-		--gray03: #334155;
-		--gray04: #475569;
-		--gray05: #64748b;
-		--gray10: #94a3b8;
-		--gray15: #cbd5e1;
-		--gray20: #e2e8f0;
-		--gray30: #eff0f0;
-		--gray40: #f2f5f8;
-		--gray50: #fafafa;
-		--gray60: #fbfbfb;
-		--gray70: #fcfcfc;
-		--gray80: #fdfdfd;
-		--gray90: #fefefe;
+		--gray00: #161616;
+		--gray01: #181818;
+		--gray02: #1a1a1a;
+		--gray03: #1c1c1c;
+		--gray04: #1e1e1e;
+		--gray05: #202020;
+		--gray10: #26292b;
+		--gray15: #2d3135;
+		--gray20: #33383e;
+		--gray30: #444c56;
+		--gray40: #6a798c;
+		--gray50: #91a0b5;
+		--gray60: #adb9cb;
+		--gray70: #c0cad9;
+		--gray80: #d8dfe9;
+		--gray90: #ebeef4;
 		--gray100: #ffffff;
-		--black: #ffffff;
 	}
 
 	:root[data-theme="neutral"] {
-		--white: #0a0a0a;
-		--gray00: #0a0a0a;
-		--gray01: #171717;
-		--gray02: #262626;
-		--gray03: #404040;
-		--gray04: #525252;
-		--gray05: #737373;
-		--gray10: #a3a3a3;
-		--gray15: #d4d4d4;
-		--gray20: #e5e5e5;
-		--gray30: #eaeaea;
-		--gray40: #f5f5f4;
-		--gray50: #fafafa;
-		--gray60: #fbfbfb;
-		--gray70: #fcfcfc;
-		--gray80: #fdfdfd;
-		--gray90: #fefefe;
+		--gray00: #161616;
+		--gray01: #181818;
+		--gray02: #1a1a1a;
+		--gray03: #1c1c1c;
+		--gray04: #1e1e1e;
+		--gray05: #202020;
+		--gray10: #282828;
+		--gray15: #313131;
+		--gray20: #3a3a3a;
+		--gray30: #4b4b4b;
+		--gray40: #777777;
+		--gray50: #a0a0a0;
+		--gray60: #bcbcbc;
+		--gray70: #cccccc;
+		--gray80: #e3e3e3;
+		--gray90: #f2f2f2;
 		--gray100: #ffffff;
-		--black: #ffffff;
 	}
 
 	:root[data-theme="stone"] {
-		--white: #0c0a09;
-		--gray00: #0c0a09;
-		--gray01: #1c1917;
-		--gray02: #292524;
-		--gray03: #44403c;
-		--gray04: #57534e;
-		--gray05: #78716c;
-		--gray10: #a8a29e;
-		--gray15: #d6d3d1;
-		--gray20: #e7e5e4;
-		--gray30: #eaeaea;
-		--gray40: #f5f5f4;
-		--gray50: #fafafa;
-		--gray60: #fbfbfb;
-		--gray70: #fcfcfc;
-		--gray80: #fdfdfd;
-		--gray90: #fefefe;
+		--gray00: #161616;
+		--gray01: #181818;
+		--gray02: #1a1a1a;
+		--gray03: #1c1c1c;
+		--gray04: #1e1e1e;
+		--gray05: #202020;
+		--gray10: #282827;
+		--gray15: #323130;
+		--gray20: #3b3a39;
+		--gray30: #4e4b4a;
+		--gray40: #7c7672;
+		--gray50: #a6a09c;
+		--gray60: #bebbb7;
+		--gray70: #cecbc8;
+		--gray80: #e6e3e3;
+		--gray90: #f1efef;
 		--gray100: #ffffff;
-		--black: #ffffff;
 	}
 }

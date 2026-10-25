@@ -55,7 +55,7 @@
 		}
 
 		&.selected {
-			background-color: var(--white);
+			background-color: var(--gray00);
 		}
 
 		i.ti {
@@ -87,8 +87,8 @@
 #menu-bar .button.selected,
 #menu-bar .button.selected:hover,
 #menu-bar .button.selected:hover {
-	background-color: var(--white);
-	color: var(--black);
+	background-color: var(--gray00);
+	color: var(--gray100);
 }
 
 /* Dropdowns */
@@ -150,21 +150,21 @@
 
 @media (prefers-color-scheme: dark) {
 	.dropdown-content, #menu-bar .dropdown-content {
-		background-color: var(--black);
-		color: var(--white);
+		background-color: var(--gray100);
+		color: var(--gray00);
 	}
 
 	.dropdown-content .dropdown-item, #menu-bar .dropdown-content .dropdown-item {
 		&:not(.text-red) {
-			color: var(--white);
+			color: var(--gray00);
 
 			i {
-				color: var(--gray05);
+				color: var(--gray40);
 			}
 		}
 
 		&:hover {
-			background-color: var(--gray20);
+			background-color: var(--gray80);
 		}
 	}
 }

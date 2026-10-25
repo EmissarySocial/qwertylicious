@@ -23,7 +23,7 @@
 
 article.content {
 	width: 100%;
-	background-color: var(--white);
+	background-color: var(--gray00);
 	padding: calc(var(--rhythm) * 3);
 	border-radius: calc(var(--rhythm) * 2);
 	border: 1px solid var(--page-border);

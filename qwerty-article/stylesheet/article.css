@@ -47,7 +47,7 @@
 		font-size:16px;
 
 		& h1, & h2, & h3, & h4, & h5, & h6 {
-			color: var(--black);
+			color: var(--gray100);
 			font-weight:normal;
 			margin-top: 1.5em;
 			margin-bottom: 0em;
