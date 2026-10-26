@@ -8,22 +8,21 @@
 <!-- RULE: a plain link, because the loading copy of the tab bar disinherits the body's htmx settings -->
 {{- if eq $selected "about" -}}
 	<div class="flex-row flex-shrink-0 margin-none">
-		<a href="/@me/settings/general" class="button edit-circle turboclick" title="Edit Profile" aria-label="Edit Profile">{{icon "pencil"}}</a>
+		<a href="/@me/settings/general" class="button edit-circle turboclick" data-tooltip="Edit Profile" aria-label="Edit Profile">{{icon "pencil"}}</a>
 	</div>
 {{- end -}}
 {{- with $collection -}}
 {{- if .UserCan "add" -}}
 	{{- $layout := .Data "layout" -}}
-	{{- $editLabel := print "Edit " .Label -}}
 
-	<!-- Icon-only circles; each names itself in its title and aria-label -->
+	<!-- Icon-only circles; each names itself in an instant tooltip (data-tooltip) and its aria-label, never a title -->
 	<div class="flex-row flex-shrink-0 margin-none">
-		<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/settings" title="{{$editLabel}}" aria-label="{{$editLabel}}">{{icon "pencil"}}</button>
+		<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/settings" data-tooltip="Edit Collection" aria-label="Edit Collection">{{icon "pencil"}}</button>
 
 		<!-- Sharing shows the status in the Sharing modal's terms, red (.warning) when Not Shared; Notes are always public, so Notes has none -->
 		{{- if ne $layout "notes" -}}
 			{{- $sharing := .CircleSharingStatus "viewer" -}}
-			<button type="button" class="edit-circle turboclick{{if eq $sharing.Value `OWNERS`}} warning{{end}}" hx-get="/{{.StreamID}}/sharing" title="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
+			<button type="button" class="edit-circle turboclick{{if eq $sharing.Value `OWNERS`}} warning{{end}}" hx-get="/{{.StreamID}}/sharing" data-tooltip="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
 		{{- end -}}
 
 		<!-- Add names what this format holds: Articles are created at once (hx-post), the rest open a form in a modal (hx-get).
@@ -43,9 +42,9 @@
 			{{- $addLabel = "Add an Episode" -}}
 		{{- end -}}
 		{{- if ne "" $addLabel -}}
-			<button type="button" class="edit-circle primary turboclick" hx-get="{{$addURL}}" title="{{$addLabel}}" aria-label="{{$addLabel}}">{{icon "plus"}}</button>
+			<button type="button" class="edit-circle primary turboclick" hx-get="{{$addURL}}" data-tooltip="{{$addLabel}}" aria-label="{{$addLabel}}">{{icon "plus"}}</button>
 		{{- else -}}
-			<button type="button" class="edit-circle primary" hx-post="{{$addURL}}" title="Add an Article" aria-label="Add an Article">{{icon "plus"}}</button>
+			<button type="button" class="edit-circle primary" hx-post="{{$addURL}}" data-tooltip="Add an Article" aria-label="Add an Article">{{icon "plus"}}</button>
 		{{- end -}}
 	</div>
 {{- end -}}

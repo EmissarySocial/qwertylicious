@@ -1,0 +1,69 @@
+/******************************************
+ * Tooltips
+ *
+ * An element with data-tooltip shows that text above itself at once, on hover and on
+ * keyboard focus, where a title attribute waits a second or more.
+ * RULE: give it an aria-label with the same text, and no title, or the browser's shows too.
+ ******************************************/
+
+[data-tooltip] {
+	position: relative;
+}
+
+/* ::after is the label and ::before its arrow, hidden until shown below */
+[data-tooltip]::after,
+[data-tooltip]::before {
+	position: absolute;
+	left: 50%;
+	z-index: 10;
+	transform: translateX(-50%);
+	pointer-events: none;
+	visibility: hidden;
+}
+
+[data-tooltip]::after {
+	content: attr(data-tooltip);
+	bottom: calc(100% + var(--rhythm));
+	padding: calc(var(--rhythm) * 0.75) calc(var(--rhythm) * 1.25);
+	border-radius: var(--rhythm);
+	background-color: var(--gray90);
+	color: var(--gray00);
+	font-size: calc(var(--rhythm) * 1.75);
+	font-weight: normal;
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+/* RULE: the first of a row opens rightward and the last leftward, so a row's ends never push a label off the page.
+   A lone element counts as first, because a wrapped row puts it at the left edge. */
+[data-tooltip]:first-child::after {
+	left: 0;
+	transform: none;
+}
+
+[data-tooltip]:last-child:not(:first-child)::after {
+	left: auto;
+	right: 0;
+	transform: none;
+}
+
+/* The arrow's box straddles the gap; only its top border, the triangle, shows */
+[data-tooltip]::before {
+	content: "";
+	bottom: calc(100% + var(--rhythm) - 10px);
+	border: 5px solid transparent;
+	border-top-color: var(--gray90);
+}
+
+/* RULE: hover only where there is a pointer, or a tap leaves the label stuck on a phone */
+@media (hover: hover) {
+	[data-tooltip]:hover::after,
+	[data-tooltip]:hover::before {
+		visibility: visible;
+	}
+}
+
+[data-tooltip]:focus-visible::after,
+[data-tooltip]:focus-visible::before {
+	visibility: visible;
+}
