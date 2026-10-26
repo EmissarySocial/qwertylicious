@@ -103,7 +103,8 @@
 		<div>
 
 			<div class="nowrap" script="on load trigger storage on window">
-				<div class="flex-row margin-none">
+				<!-- The buttons stack on a phone, where two side by side would run past the card -->
+				<div class="flex-row flex-wrap flex-justify-end margin-none">
 					{{- if $isMyself -}}
 
 						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
