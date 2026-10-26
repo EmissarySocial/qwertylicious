@@ -55,3 +55,7 @@ Both cast a string to trusted CSS, but they earn it differently. `css` is a raw,
 ## A new funcmap helper couples this repo to a minimum Emissary version
 
 Go's `html/template` resolves function names at **parse** time, so calling a helper that the running server's template funcmap does not define does not degrade that one expression — the entire template fails to parse and the page dies. Helpers like `cssValue` arrive in Emissary through its pinned `benpate/rosetta` dependency, so a template edit that adopts a newly added helper cannot deploy until Emissary itself ships a build carrying it. Check that the helper exists in the target server's build before using it in a template here.
+
+## Every `type: array` in a schema needs a `maxLength`
+
+Rosetta bounds a list's length only through the schema, never in its accessors (decided 2026-10-05; see rosetta's AGENTS.md). An array with no `maxLength` lets one form field such as `feeds.5000000` build a list of 5,000,001 items. Give every array in a template's `schema` or `socialSchema` a `maxLength` sized to its real use.
