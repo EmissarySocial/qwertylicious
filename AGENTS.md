@@ -66,7 +66,7 @@ A browser shows a `title` only after a second or more, so the owner's circles be
 - **Put the same text in `aria-label`.** A screen reader reads the `aria-label`, and what is shown and what is read must agree, so a spoken "click Edit Collection" finds the button.
 - **The element's own `::before` and `::after` are taken,** and it becomes `position: relative`. An icon inside it is a separate element, so Bootstrap Icons' `i::before` is unaffected.
 - **Hover shows it only where there is a pointer** (`@media (hover: hover)`), so a tap on a phone opens the modal without leaving a label behind. Keyboard focus (`:focus-visible`) shows it everywhere, and a mouse click does not.
-- **The first element in its row opens rightward and the last leftward,** so the label of a circle at the page's edge stays on screen when the tab row wraps; `main` clips anything past its sides. A lone element counts as first.
+- **Every label is centered over its element** (Ben, 2026-10-25). In a narrow window the tab row wraps and the circles drop to the page's left edge, where `main` clips past its sides, so the first circle's label loses its start. Opening the first label rightward and the last leftward fixed that but looked off-center everywhere else, so it was removed.
 
 ## Maps load Leaflet and the theme's `maps` bundle asynchronously
 

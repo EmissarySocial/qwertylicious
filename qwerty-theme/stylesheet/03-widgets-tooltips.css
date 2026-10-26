@@ -34,19 +34,6 @@
 	white-space: nowrap;
 }
 
-/* RULE: the first of a row opens rightward and the last leftward, so a row's ends never push a label off the page.
-   A lone element counts as first, because a wrapped row puts it at the left edge. */
-[data-tooltip]:first-child::after {
-	left: 0;
-	transform: none;
-}
-
-[data-tooltip]:last-child:not(:first-child)::after {
-	left: auto;
-	right: 0;
-	transform: none;
-}
-
 /* The arrow's box straddles the gap; only its top border, the triangle, shows */
 [data-tooltip]::before {
 	content: "";
