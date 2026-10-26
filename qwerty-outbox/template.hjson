@@ -354,19 +354,35 @@
 		wizard-1: {
 			roles: ["self"]
 			steps: [
-				{
-					do:edit
-					form: {
-						type:layout-vertical
-						children: [
-							{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
-							{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
-							{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
-							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
-						]
+				// RULE: ask for a password only when the account has none; set-password never replaces one without the current one
+				{do:"if", condition:"{{.HasPassword}}", then:[
+					{
+						do:edit
+						form: {
+							type:layout-vertical
+							children: [
+								{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
+								{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
+								{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
+							]
+						}
+						options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
 					}
-					options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
-				},
+				], else:[
+					{
+						do:edit
+						form: {
+							type:layout-vertical
+							children: [
+								{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
+								{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
+								{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
+								{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
+							]
+						}
+						options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
+					}
+				]}
 				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
 				{do:"set-state", state:"LIVE"}
 				{do:"set-password"}
