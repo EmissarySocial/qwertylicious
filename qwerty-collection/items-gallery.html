@@ -5,7 +5,7 @@
 {{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
 
 {{- if and $pinned.IsEmpty $page.IsEmpty -}}
-	{{- template "items-empty" (array . "images" "Your Photo Gallery" "Share photos here, newest first.  Each one opens full-size when someone clicks it." "+ Add a Photo") -}}
+	{{- template "items-empty" (array . "images" "Your Photo Gallery" "This gallery shows off your photos, newest first.  Add your first one now." "+ Add a Photo") -}}
 {{- else -}}
 	<div class="qwerty-gallery">
 		{{- $canEdit := .UserCan "settings" -}}

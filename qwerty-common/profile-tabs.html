@@ -27,5 +27,5 @@
 		role="tab"
 		aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
 </div>
-{{- template "profile-menu" (array $outbox $collection) -}}
+{{- template "profile-menu" (array $outbox $collection $selected) -}}
 </div>

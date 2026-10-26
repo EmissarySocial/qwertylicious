@@ -11,7 +11,7 @@
 {{- $canEdit := .UserCan "add" -}}
 
 {{- if $episodes.IsEmpty -}}
-	{{- template "items-empty" (array . "mic" "Your Podcast" "Publish audio episodes here, newest first.  Each one can have its own description and photo." "+ Add an Episode") -}}
+	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
 {{- else -}}
 	<!-- The feed's link and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
 	<div class="qwerty-podcast reading-column margin-top-xl">

@@ -1,0 +1,20 @@
+<div id="modal" script="install Modal" data-hx-swap="none"><div id="modal-underlay"></div><div id="modal-window">
+<div class="h-event">
+	<div class="corner-pencil flex-row flex-align-start">
+		<button type="button" class="edit-circle turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit"><i class="bi bi-pencil"></i></button>
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+	</div>
+	<div class="padding">
+		${H1}${TITLE}</h1>
+		<div role="tablist" class="pills margin-bottom-lg">
+			<a role="tab" class="turboclick" href="/${ID}/modal" aria-selected="true">Details</a>
+			<a role="tab" class="turboclick" href="/${ID}/modal?tab=replies" aria-selected="false">Replies</a>
+		</div>
+		<div class="p-summary margin-bottom"><p>The summary of ${TITLE}.</p></div>
+		<div class="text-lg margin-bottom"><div class="bold"><time class="dt-start">${DATE}</time></div></div>
+		<hr class="margin-vertical-lg">
+		<div id="article-content" class="e-content"><p>The details of ${TITLE}.</p></div>
+	</div>
+</div>
+${NEIGHBORS}
+</div></div>

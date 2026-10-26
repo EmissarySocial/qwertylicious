@@ -1,5 +1,5 @@
 <!-- profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and Follow,
-     or the owner's Edit Profile. The owner's collection buttons are beside the tabs, not here. -->
+     or the owner's Edit Profile and Publish. The owner's collection buttons are beside the tabs, not here. -->
 {{- $isMyself := .IsMyself -}}
 {{- $showAlbums := eq "true" (.Data "show-albums") -}}
 {{- $showEvents := eq "true" (.Data "show-events") -}}
@@ -108,6 +108,13 @@
 
 						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
 						<button hx-get="/@me/settings" class="text-sm turboclick">{{icon "settings"}} Edit Profile</button>
+
+						<!-- Both open the publish modal: green until the profile is public, then gray, to unpublish -->
+						{{- if $isPublic -}}
+							<button hx-get="/@me/publish" class="text-sm turboclick">{{icon "check"}} Published</button>
+						{{- else -}}
+							<button hx-get="/@me/publish" class="success text-sm turboclick">Publish Profile</button>
+						{{- end -}}
 
 					{{- else -}}
 

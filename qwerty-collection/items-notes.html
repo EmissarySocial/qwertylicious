@@ -1,24 +1,13 @@
-<!-- The magic Notes tab (§1.7): the owner's composer, then the profile's Notes; it holds no items of its own. -->
+<!-- The magic Notes tab (§1.7): the profile's Notes, or a welcome when it has none; it holds no items of its own.
+     The owner writes a Note in a modal, from the + beside the tabs (the outbox's add-note action). -->
 {{- $outbox := .ParentOutbox "view" -}}
+{{- $hasNotes := ($outbox.Outbox.Where "templateId" "outbox-message").Top1.Slice.NotEmpty -}}
 
-<!-- The composer and the Notes share one centered card, up to 720px, as an Article's text does (.reading-column) -->
-<div class="reading-column margin-top-xl card border padding">
-
-	{{- if $outbox.IsMyself -}}
-		<div class="flex-row margin-bottom">
-			<div class="flex-shrink-0 qwerty-note-avatar">
-				{{- if eq "" $outbox.IconURL -}}
-					<div class="circle width-48 flex-center">{{icon "person"}}</div>
-				{{- else -}}
-					<img src="{{$outbox.ActivityPubIconURL}}" alt="" class="circle width-48">
-				{{- end -}}
-			</div>
-			<div class="flex-grow">
-				{{- $outbox.View "add-note" -}}
-			</div>
-		</div>
-	{{- end -}}
-
-	{{- template "notes-list" (array .StreamID $outbox) -}}
-
-</div>
+{{- if $hasNotes -}}
+	<!-- The Notes share one centered card, up to 720px, as an Article's text does (.reading-column) -->
+	<div class="reading-column margin-top-xl card border padding">
+		{{- template "notes-list" (array .StreamID $outbox) -}}
+	</div>
+{{- else -}}
+	{{- template "items-empty" (array . "notes" "Your Notes" "Notes are short posts that your followers see in their feeds.  Write your first one now." "+ Add a Note") -}}
+{{- end -}}

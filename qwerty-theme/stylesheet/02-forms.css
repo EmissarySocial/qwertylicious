@@ -285,6 +285,13 @@ select,
 	border-radius: var(--border-radius);
 }
 
+/* The selected button's border reads 2px, but stays 1px wide: the second pixel is an inset shadow, which
+   takes no space, so selecting never resizes the button. currentColor follows the global theme's blue. */
+.radiobutton:has(input[type="radio"]:checked) {
+	border-width: 1px;
+	box-shadow: inset 0 0 0 1px currentColor;
+}
+
 /* The pencil that .hover-show reveals on an item card (Article layouts, gallery tiles, Notes): a
    circle at any glyph size, because a fixed square, not padding, sets its shape. The glyph is
    centered with flexbox and Bootstrap Icons' baseline nudge is undone. */

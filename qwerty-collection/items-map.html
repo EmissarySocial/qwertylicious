@@ -12,14 +12,8 @@
 
 {{- template "items-tags" (array . $allPlaces $tag) -}}
 
-<div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}" data-save-url="/{{.StreamID}}/map-view">
+<div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}">
 	<div class="qwerty-map-canvas qwerty-map-large rounded"></div>
-
-	{{- if .UserCan "map-view" -}}
-		<div class="align-right margin-top-sm">
-			<button type="button" class="qwerty-map-save text-sm">{{icon "map"}} Set Default View</button>
-		</div>
-	{{- end -}}
 
 	<div hidden>
 		{{- range $places -}}

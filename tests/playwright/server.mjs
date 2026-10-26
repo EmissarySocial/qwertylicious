@@ -24,6 +24,13 @@ const episodes = [
 	{ id: "6ad24ab9c00dfca0c02cd452", title: "Episode One" },
 ]
 
+// The Timeline entries, in the tab's order
+const entries = [
+	{ id: "6ad6445b9d33845fe83e2a01", title: "Declaration of Independence", date: "Thursday, July 4, 1776", short: "Jul 4, 1776" },
+	{ id: "6ad6445b9d33845fe83e2a02", title: "Constitution Signed", date: "Monday, September 17, 1787", short: "Sep 17, 1787" },
+	{ id: "6ad6445b9d33845fe83e2a03", title: "Constitution Ratified", date: "Saturday, June 21, 1788", short: "Jun 21, 1788" },
+]
+
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
 	return readdirSync(folder).filter((name) => !name.startsWith(".")).sort()
@@ -52,9 +59,9 @@ function arrow(file, neighbor) {
 	return icons(chosen.replace(/\{\{-? ?(if|end)[^}]*\}\}/g, "")).trim()
 }
 
-// heading is the episode title's opening tag, exactly as qwerty-episode/modal.html writes it
-function heading() {
-	const match = stripComments(read(join(qwerty, "qwerty-episode/modal.html"))).match(/<h2[^>]*>/)
+// heading is a title's opening tag, exactly as a modal.html writes it
+function heading(file, tag) {
+	const match = stripComments(read(join(qwerty, file))).match(new RegExp(`<${tag}[^>]*>`))
 	return match[0]
 }
 
@@ -71,12 +78,33 @@ function episodeModal(index) {
 	const below = episodes[index + 1]
 	const link = (kind, neighbor) => neighbor ? `<a class="qwerty-episode-${kind}" hidden aria-hidden="true" tabindex="-1" href="/${neighbor.id}" data-episode-id="${neighbor.id}" hx-get="/${neighbor.id}/modal" hx-target="aside" hx-push-url="false">${kind}</a>` : ""
 	return read(join(here, "fixtures/episode-modal.html"))
-		.replaceAll("${H2}", heading())
+		.replaceAll("${H2}", heading("qwerty-episode/modal.html", "h2"))
 		.replaceAll("${ID}", episode.id)
 		.replaceAll("${TITLE}", episode.title)
 		.replaceAll("${BACK}", arrow("episode-arrow-back.html", above))
 		.replaceAll("${NEXT}", arrow("episode-arrow-next.html", below))
 		.replaceAll("${LINKS}", link("prev", above) + link("next", below))
+}
+
+// entryNeighbor is one link of qwerty-timeline-entry/entry-neighbors.html, the modal's previous and next entries
+function entryNeighbor(direction, entry) {
+	const arrow = `<span class="qwerty-entry-arrow"><i class="bi bi-arrow-${direction == "prev" ? "left" : "right"}"></i></span>`
+	const text = `<span class="qwerty-entry-neighbor-text"><span class="text-xs text-gray">${entry.short}</span><span class="qwerty-entry-neighbor-title">${entry.title}</span></span>`
+	const next = direction == "next" ? " qwerty-entry-neighbor-next" : ""
+	return `<a class="qwerty-entry-neighbor${next} turboclick" data-modal-go="${direction}" href="/${entry.id}" hx-get="/${entry.id}/modal" hx-target="aside" hx-push-url="false">${direction == "prev" ? arrow + text : text + arrow}</a>`
+}
+
+function entryModal(index) {
+	const entry = entries[index]
+	const prev = entries[index - 1]
+	const next = entries[index + 1]
+	const links = (prev ? entryNeighbor("prev", prev) : "") + (next ? entryNeighbor("next", next) : "")
+	return read(join(here, "fixtures/entry-modal.html"))
+		.replaceAll("${H1}", heading("qwerty-timeline-entry/modal.html", "h1"))
+		.replaceAll("${ID}", entry.id)
+		.replaceAll("${TITLE}", entry.title)
+		.replaceAll("${DATE}", entry.date)
+		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div>`)
 }
 
 function page(body) {
@@ -97,6 +125,7 @@ const routes = {
 	"/hs/global.hs": () => ["text/hyperscript", concat(join(templates, "theme-global/hyperscript"))],
 	"/js/podcast.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
+	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
 }
 
@@ -112,13 +141,19 @@ createServer((request, response) => {
 		}
 	}
 
-	// An episode's modal, with the headers Emissary's as-modal sends
+	// An episode's or an entry's modal, with the headers Emissary's as-modal sends
 	const modal = path.match(/^\/([0-9a-f]{24})\/modal$/)
 	if (modal) {
+		const headers = { "Content-Type": "text/html", "HX-Retarget": "aside", "HX-Reswap": "innerHTML", "HX-Push-Url": "false" }
 		const index = episodes.findIndex((episode) => episode.id == modal[1])
 		if (index >= 0) {
-			response.writeHead(200, { "Content-Type": "text/html", "HX-Retarget": "aside", "HX-Reswap": "innerHTML", "HX-Push-Url": "false" })
+			response.writeHead(200, headers)
 			return response.end(episodeModal(index))
+		}
+		const entryIndex = entries.findIndex((entry) => entry.id == modal[1])
+		if (entryIndex >= 0) {
+			response.writeHead(200, headers)
+			return response.end(entryModal(entryIndex))
 		}
 	}
 

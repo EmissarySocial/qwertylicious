@@ -22,7 +22,7 @@
 			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
 			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone"), for Edit Collection forms
 			allowReplies: {type:"boolean"}
-			// A Map's default center, set at creation or by the map's "Set Default View" button (map-view)
+			// A Map's default center: Los Angeles at creation, then set in Edit Map
 			location: {type:"object", properties: {
 				name: {type:"string"}
 				formatted: {type:"string"}
@@ -66,7 +66,7 @@
 		create: {
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "replyPolicy":"everyone"}}
+				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "data.timelineOrder":"asc", "data.episodeOrder":"desc", "replyPolicy":"everyone"}}
 				{do:"as-modal", steps: [
 					// A profile has at most one Notes collection, so Notes is offered only while it has none (§1.7)
 					{do:"if", condition:"{{(((.ParentOutbox `view`).Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice.NotEmpty}}", then:[
@@ -77,9 +77,6 @@
 								label: "+ Add a Collection"
 								children: [
 									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layoutsWithoutNotes"}}
-									// A Map's starting view, shown only when Map is picked
-									{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{show-if:"data.layout is map", placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-									{type:"select", path:"data.zoom", label:"Map Zoom", options:{show-if:"data.layout is map", provider:"qwerty-collection.mapZooms"}}
 								]
 							}
 						}
@@ -95,9 +92,6 @@
 								label: "+ Add a Collection"
 								children: [
 									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.layouts"}}
-									// A Map's starting view, shown only when Map is picked
-									{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{show-if:"data.layout is map", placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-									{type:"select", path:"data.zoom", label:"Map Zoom", options:{show-if:"data.layout is map", provider:"qwerty-collection.mapZooms"}}
 								]
 							}
 						}
@@ -105,6 +99,12 @@
 					// RULE: Notes are always public, so the Notes tab is shared with everyone and has no Sharing item
 					{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
 						{do:"set-sharing", role:"viewer", group:"anonymous"}
+					]}
+					// A new Map starts over Los Angeles at the City zoom (data.zoom 11, above); Edit Map changes both
+					{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
+						// RULE: formatted goes first, in its own step, because changing it clears the coordinates
+						{do:"set-data", values:{"location.formatted":"Los Angeles, CA"}}
+						{do:"set-data", values:{"location.latitude":"34.0522", "location.longitude":"-118.2437"}}
 					]}
 					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
 					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else}}Articles{{end}}{{end}}"}}
@@ -173,7 +173,7 @@
 							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 							form: {
 								type: layout-vertical
-								label: Edit Notes
+								label: Edit Notes Collection
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:3}}
@@ -197,13 +197,25 @@
 							do: "edit"
 							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 							form: {
-								type: layout-vertical
+								type: layout-tabs
 								label: Edit Podcast
 								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:3}}
-									{type:"select", path:"data.episodeOrder", label:"Order", options:{provider:"qwerty-collection.episodeOrders"}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
+									{
+										type: layout-vertical
+										label: General
+										children: [
+											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+											{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:3}}
+											{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
+										]
+									}
+									{
+										type: layout-vertical
+										label: Sort
+										children: [
+											{type:"radio-button-group", path:"data.episodeOrder", options:{provider:"qwerty-collection.episodeOrders"}}
+										]
+									}
 								]
 							}
 						}
@@ -232,12 +244,27 @@
 								do: "edit"
 								options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 								form: {
-									type: layout-vertical
+									type: layout-tabs
 									label: Edit Map
 									children: [
-										{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-										{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-										{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+										{
+											type: layout-vertical
+											label: General
+											children: [
+												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+												{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+											]
+										}
+										{
+											type: layout-vertical
+											label: Location
+											children: [
+												// The map's starting view, the only place it is set
+												{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+												{type:"select", path:"data.zoom", label:"Map Zoom", options:{provider:"qwerty-collection.mapZooms"}}
+											]
+										}
 									]
 								}
 							}
@@ -249,13 +276,25 @@
 									do: "edit"
 									options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 									form: {
-										type: layout-vertical
-										label: Edit Collection
+										type: layout-tabs
+										label: Edit Calendar
 										children: [
-											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-											{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-											{type:"radio-button-group", path:"data.calendarView", label:"Default View", options:{provider:"qwerty-collection.calendarViews"}}
-											{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+											{
+												type: layout-vertical
+												label: General
+												children: [
+													{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+													{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+													{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+												]
+											}
+											{
+												type: layout-vertical
+												label: Layout
+												children: [
+													{type:"radio-button-group", path:"data.calendarView", options:{provider:"qwerty-collection.calendarViews"}}
+												]
+											}
 										]
 									}
 								}
@@ -267,13 +306,25 @@
 										do: "edit"
 										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 										form: {
-											type: layout-vertical
-											label: Edit Collection
+											type: layout-tabs
+											label: Edit Timeline
 											children: [
-												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-												{type:"radio-button-group", path:"data.timelineOrder", label:"Order", options:{provider:"qwerty-collection.timelineOrders"}}
-												{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+												{
+													type: layout-vertical
+													label: General
+													children: [
+														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+													]
+												}
+												{
+													type: layout-vertical
+													label: Sort
+													children: [
+														{type:"radio-button-group", path:"data.timelineOrder", options:{provider:"qwerty-collection.timelineOrders"}}
+													]
+												}
 											]
 										}
 									}
@@ -284,13 +335,25 @@
 										do: "edit"
 										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 										form: {
-											type: layout-vertical
-											label: Edit Collection
+											type: layout-tabs
+											label: Edit Articles Collection
 											children: [
-												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
-												{type:"radio-button-group", path:"data.layout", label:"Layout", options:{provider:"qwerty-collection.articleLayouts"}}
-												{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
+												{
+													type: layout-vertical
+													label: General
+													children: [
+														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
+													]
+												}
+												{
+													type: layout-vertical
+													label: Layout
+													children: [
+														{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.articleLayouts"}}
+													]
+												}
 											]
 										}
 									}
@@ -367,25 +430,6 @@
 						]}
 					]}
 				]}
-			]
-		}
-
-		// The map's "Set Default View" button posts its center and zoom here (qwerty-theme/maps/qwerty-maps.js)
-		map-view: {
-			roles: ["author"]
-			steps: [
-				{
-					do: "edit"
-					form: {
-						type: "layout-vertical"
-						children: [
-							{type:"hidden", path:"location.latitude"}
-							{type:"hidden", path:"location.longitude"}
-							{type:"hidden", path:"data.zoom"}
-						]
-					}
-				}
-				{do:"save", comment:"Map view set by {{.Author}}"}
 			]
 		}
 

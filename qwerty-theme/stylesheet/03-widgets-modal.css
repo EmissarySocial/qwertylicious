@@ -4,6 +4,15 @@
   padding: calc(var(--border-radius) * 1.8);
 }
 
+/* A dialog's title starts at the padding's edge, as its buttons end at the bottom one.
+   text-box trims the leading and the space above the capitals, whatever the font.
+   RULE: not an item's name (.p-name), which lines up with the corner buttons instead. */
+#modal .layout-title,
+#modal #modal-title:not(.p-name) {
+	margin-top: 0;
+	text-box: trim-start cap alphabetic;
+}
+
 /* The dark-mode backdrop is a black veil, at 70%.
    RULE: not the global rule's --gray10, which qwerty inverts to a light gray in dark mode. */
 @media (prefers-color-scheme: dark) {

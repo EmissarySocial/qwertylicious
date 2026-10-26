@@ -11,14 +11,6 @@
 	{{- $pinned = (($outbox.Outbox.Where "templateId" "outbox-message").Where "isFeatured" true).Top60.ByPublishDate.Reverse.Slice -}}
 {{- end -}}
 
-{{- if and $isFirstPage (and $notes.IsEmpty (eq 0 (len $pinned))) -}}
-	{{- if not $isMyself -}}
-		<div class="padding-horizontal padding-vertical-xl">
-			Nothing has been posted here yet.  Check back later!
-		</div>
-	{{- end -}}
-{{- end -}}
-
 <!-- A signed-in visitor opens a note in their own inbox's document browser; the owner and guests get its modal -->
 {{- $browse := and $outbox.IsAuthenticated (not $isMyself) -}}
 

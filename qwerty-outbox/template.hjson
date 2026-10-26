@@ -60,6 +60,8 @@
 			"data.layout": "column-3"
 			"data.zoom": "11"
 			"data.calendarView": "list"
+			"data.timelineOrder": "asc"
+			"data.episodeOrder": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}
@@ -69,6 +71,8 @@
 			"data.layout": "notes"
 			"data.zoom": "11"
 			"data.calendarView": "list"
+			"data.timelineOrder": "asc"
+			"data.episodeOrder": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}
@@ -106,16 +110,19 @@
 			]
 		}
 
-		// The Notes tab's composer (qwerty-collection/items-notes.html) saves a Note on the profile, as Emissary's outbox-add does
+		// The Notes tab's + button opens this composer in a modal, which saves a Note on the profile, as Emissary's outbox-add does
 		add-note: {
 			roles: ["self"]
 			steps: [
 				{do:"set-args", postTo:"/@me/add-note"}
-				{do:"set-query-param", new-stream-label:"Add a Note"}
-				// A new note takes the Notes collection's reply policy (empty, which is "everyone", when there is none)
-				{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message", with-data:{
-					replyPolicy:"{{range ((.Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice}}{{.ReplyPolicy}}{{end}}"
-				}}
+				{do:"set-query-param", new-stream-label:"Post"}
+				{do:"as-modal", steps:[
+					{do:"view-html", file:"add-note-title"}
+					// A new note takes the Notes collection's reply policy (empty, which is "everyone", when there is none)
+					{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message", with-data:{
+						replyPolicy:"{{range ((.Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice}}{{.ReplyPolicy}}{{end}}"
+					}}
+				]}
 				{do:"refresh-page"}
 			]
 		}
@@ -195,55 +202,6 @@
 				{do:"delete-attachments", category:"body-background"}
 				{do:"save"}
 			]
-		}
-
-		edit: {
-			roles: ["self"]
-			steps: [
-				{do: "as-modal", background:"view", steps:[
-					{
-						do: "edit"
-						form:{
-							label: Edit Profile
-							type:layout-tabs
-							children: [
-								{
-									type: layout-vertical
-									label: Basics
-									children: [
-										{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)", options:{autocomplete:"off"}}
-										{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-									]
-								}
-								{
-									type: layout-vertical
-									label: About
-									children: [
-										{type:"textarea", path:"statusMessage", description:"Displayed on your 'About' page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
-										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
-									]
-								}
-								{
-									label: Images
-									type: layout-vertical
-									children: [
-										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
-										{type:"upload", path:"imageUrl", label:"Banner Image", description:"Displays at the top of your profile page. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-image"}}
-										{type:"html"}
-									]
-								}
-							]
-						}
-					}
-					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
-					{do:"upload-attachments", category:"image", fieldname:"imageUrl", attachment-path:"imageId", rules:{types:["webp"]}}
-					{do:"upload-attachments", category:"body-background", fieldname:"data.background-body", download-path:"data.background-body", rules:{types:["webp"]}}
-					{do:"save"}
-					{do:"set-password"}
-					{do:"search-index"}
-					{do:"refresh-page"}
-				]}
-			] 
 		}
 
 		edit-status: {

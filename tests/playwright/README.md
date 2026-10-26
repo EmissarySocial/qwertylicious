@@ -26,7 +26,8 @@ npx playwright show-report        # the HTML report of the last run
 | `/js/global.js`, `/hs/global.hs` | Emissary's `theme-global` JavaScript and hyperscript bundles, including the `Modal` behavior |
 | `/js/podcast.js` | `qwerty-theme/podcast` |
 | `/episode` | A page with the first of three episodes open in its modal |
-| `/{id}/modal` | An episode's modal, with the headers Emissary's `as-modal` sends |
+| `/entry` | A page with the first of three Timeline entries open in its modal |
+| `/{id}/modal` | An episode's or an entry's modal, with the headers Emissary's `as-modal` sends |
 | `/podcast-list` | One row of a podcast's episode list |
 
 It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout.
@@ -39,6 +40,7 @@ The pieces a test is about come from the template files themselves:
 
 - the skip buttons, from `qwerty-episode/episode-arrow-back.html` and `episode-arrow-next.html`;
 - the episode title's `<h2>` tag, from `qwerty-episode/modal.html`;
+- the entry title's `<h1>` tag, from `qwerty-timeline-entry/modal.html`;
 - the date cell, from `qwerty-collection/items-podcast.html`.
 
 ## Checking that a test catches its bug
@@ -63,3 +65,7 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 - **The X.** The X beside the pencil closes the modal.
 - **The backdrop.** It is a black veil: 60% in light mode, 70% in dark mode.
 - **The hovered row.** A list row is one color from end to end, and no cell is translucent.
+
+`timeline.spec.mjs` checks the following:
+
+- **The layout between entries.** While the next entry arrives, its title keeps one size and one position, and the body below it stays put. Without `id="modal-title"`, the title went from 40px to 32px and the body moved up 8px.

@@ -11,7 +11,7 @@
 {{- end -}}
 
 {{- if $allEvents.IsEmpty -}}
-	{{- template "items-empty" (array . "clock-history" "Your Timeline" "Mark the moments that matter, in order.  Each event can hold dates, a photo, and its whole story." "+ Add an Event") -}}
+	{{- template "items-empty" (array . "clock-history" "Your Timeline" "This timeline tells your story as dated events, in order.  Add your first one now." "+ Add an Event") -}}
 {{- else -}}
 	{{- template "items-tags" (array . $allEvents $tag) -}}
 	{{- $years := groupie -}}

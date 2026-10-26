@@ -15,7 +15,8 @@
 	{{- end -}}
 
 	<div class="padding">
-		<h1 class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
+		<!-- RULE: the title carries its modal-title id from the start, so it never shrinks after the first paint (see AGENTS.md) -->
+		<h1 id="modal-title" class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
 
 		{{- template "replies-tabs" (array . "Details" "modal") -}}
 

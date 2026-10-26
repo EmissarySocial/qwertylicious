@@ -22,18 +22,7 @@
 
 {{- if and $featured.IsEmpty $articles.IsEmpty -}}
 
-	{{- if .UserCan "add" -}}
-		<div class="bg-stripes padding-horizontal padding-vertical-xl">
-			<div class="text-lg bold margin-top-none margin-bottom">Let's Write Your First Article!</div>
-			<div>
-				<span class="link" hx-post="/{{.StreamID}}/add">+ Add an Article</span> to this collection, or use the + button beside the tabs.
-			</div>
-		</div>
-	{{- else -}}
-		<div class="card padding-horizontal padding-vertical-xl">
-			Nothing has been published here yet.  Check back later!
-		</div>
-	{{- end -}}
+	{{- template "items-empty" (array . "article" "Your Articles" "This collection holds your articles, each one on its own page.  Write your first one now." "+ Add an Article") -}}
 
 {{- else -}}
 
