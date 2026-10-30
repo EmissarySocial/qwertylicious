@@ -1,4 +1,5 @@
 <div id="modal" script="install Modal" data-hx-swap="none"><div id="modal-underlay"></div><div id="modal-window">
+${NEIGHBORS}
 <div class="h-event">
 	<div class="corner-pencil flex-row flex-align-start">
 		<button type="button" class="edit-circle turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit"><i class="bi bi-pencil"></i></button>
@@ -6,15 +7,25 @@
 	</div>
 	<div class="padding">
 		${H1}${TITLE}</h1>
-		<div role="tablist" class="pills margin-bottom-lg">
-			<a role="tab" class="turboclick" href="/${ID}/modal" aria-selected="true">Details</a>
-			<a role="tab" class="turboclick" href="/${ID}/modal?tab=replies" aria-selected="false">Replies</a>
-		</div>
 		<div class="p-summary margin-bottom"><p>The summary of ${TITLE}.</p></div>
 		<div class="text-lg margin-bottom"><div class="bold"><time class="dt-start">${DATE}</time></div></div>
 		<hr class="margin-vertical-lg">
 		<div id="article-content" class="e-content"><p>The details of ${TITLE}.</p></div>
+		<div class="qwerty-responses margin-top" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
+			<div class="qwerty-responses-row flex-row flex-align-center flex-wrap margin-bottom-lg">
+				<div class="text-sm margin-none flex-row flex-align-center">
+					<button type="button" class="turboclick" aria-label="Like"><i class="bi bi-heart"></i><span class="mobile-hide"> Like</span></button>
+					<button type="button" class="turboclick" aria-label="Share"><i class="bi bi-share"></i><span class="mobile-hide"> Share</span></button>
+				</div>
+				<div class="flex-grow"></div>
+				<div role="tablist" class="pills margin-bottom-none">
+					<a role="tab" class="turboclick" href="/${ID}?tab=replies" aria-selected="true">0 Replies</a>
+					<a role="tab" class="turboclick" href="/${ID}?tab=likes" aria-selected="false">0 Likes</a>
+					<a role="tab" class="turboclick" href="/${ID}?tab=shares" aria-selected="false">0 Shares</a>
+				</div>
+			</div>
+			<div class="text-gray">No replies yet.</div>
+		</div>
 	</div>
 </div>
-${NEIGHBORS}
 </div></div>
