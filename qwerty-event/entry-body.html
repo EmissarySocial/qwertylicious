@@ -1,5 +1,4 @@
-<!-- entry-body: an event's summary, dates, details, and location, shared by view.html and modal.html.
-     A geocoded location adds a map and its address below the details (qwerty-theme's maps bundle). -->
+<!-- entry-body: an event's summary, dates, location, and details, shared by view.html and modal.html. -->
 {{- $location := .Location -}}
 {{- $start := .StartDate -}}
 {{- $end := .EndDate -}}
@@ -31,41 +30,25 @@
 	</div>
 {{- end -}}
 
-{{- if not $location.HasGeocode -}}
-	{{- if ne "" $location.Formatted -}}
-		<div class="text-gray margin-bottom p-location">{{icon "location-fill"}} {{$location.Formatted}}</div>
-	{{- end -}}
+<!-- The location, beneath the dates and with no map: its street address when it has one, otherwise its text -->
+{{- if $location.HasAddress -}}
+	<div class="p-location h-adr flex-row text-gray margin-bottom">
+		<div>{{icon "location-fill"}}</div>
+		<div>
+			{{- if ne "" $location.Street1 -}}<div class="p-street-address">{{$location.Street1}}</div>{{- end -}}
+			{{- if ne "" $location.Street2 -}}<div>{{$location.Street2}}</div>{{- end -}}
+			<div>
+				<span class="p-locality">{{$location.Locality}}</span>
+				{{- if ne "" $location.Region -}}, <span class="p-region">{{$location.Region}}</span>{{- end }}
+				<span class="p-postal-code">{{$location.PostalCode}}</span>
+			</div>
+			<div class="p-country-name">{{$location.Country}}</div>
+		</div>
+	</div>
+{{- else if ne "" $location.Formatted -}}
+	<div class="p-location text-gray margin-bottom">{{icon "location-fill"}} {{$location.Formatted}}</div>
 {{- end -}}
 
 <hr class="margin-vertical-lg">
 
 <div id="article-content" class="e-content">{{.ContentHTML}}</div>
-
-{{- if $location.HasGeocode -}}
-	<div class="p-location margin-top-lg">
-		<div class="qwerty-map" data-static="true" data-tiles="{{.MapTiles.Href}}" data-attribution="{{.MapTiles.Description}}" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}" data-zoom="15">
-			<div class="qwerty-map-canvas" style="width:100%; aspect-ratio:16/9; border-radius:var(--border-radius);"></div>
-			<div hidden>
-				<div class="qwerty-map-marker" data-latitude="{{$location.Latitude}}" data-longitude="{{$location.Longitude}}"></div>
-			</div>
-		</div>
-		<div class="h-adr text-gray margin-top">
-			{{- if $location.HasAddress -}}
-				{{- if ne "" $location.Street1 -}}<div class="p-street-address">{{$location.Street1}}</div>{{- end -}}
-				{{- if ne "" $location.Street2 -}}<div>{{$location.Street2}}</div>{{- end -}}
-				<div>
-					<span class="p-locality">{{$location.Locality}}</span>
-					{{- if ne "" $location.Region -}}, <span class="p-region">{{$location.Region}}</span>{{- end }}
-					<span class="p-postal-code">{{$location.PostalCode}}</span>
-				</div>
-				<div class="p-country-name">{{$location.Country}}</div>
-			{{- else -}}
-				<div>{{$location.Formatted}}</div>
-			{{- end -}}
-		</div>
-	</div>
-
-	<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
-	<script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
-	<script src="/.themes/qwerty-theme/maps"></script>
-{{- end -}}

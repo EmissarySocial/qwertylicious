@@ -210,21 +210,24 @@
 	}
 }
 
-/* A Timeline entry's modal footer: its previous and next entries, stuck to the modal's bottom edge.
-   RULE: its margins and bottom cancel #modal-window's padding (qwerty-theme's 03-widgets-modal.css). A sticky
-   element stops at the scroller's padding, so bottom: 0 would float it above the edge. */
+/* A Timeline entry's modal header: its previous and next entries, stuck to the modal's top edge.
+   RULE: its margins and top cancel #modal-window's padding (qwerty-theme's 03-widgets-modal.css). A sticky
+   element stops at the scroller's padding, so top: 0 would float it below the edge. */
 .qwerty-entry-neighbors {
 	--window-padding: calc(var(--border-radius) * 1.8);
 	position: sticky;
-	bottom: calc(var(--window-padding) * -1);
+	top: calc(var(--window-padding) * -1);
 	z-index: 1;
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--rhythm);
-	margin: var(--window-padding) calc(var(--window-padding) * -1) calc(var(--window-padding) * -1);
+	margin: calc(var(--window-padding) * -1) calc(var(--window-padding) * -1) var(--window-padding);
 	padding: var(--rhythm) calc(var(--window-padding) - var(--rhythm));
-	border-top: solid 1px var(--page-border);
+	border-bottom: solid 1px var(--page-border);
 	background-color: var(--page-background);
+
+	/* RULE: room at the right for the corner's pencil and X (.corner-pencil), which paint over this bar */
+	padding-right: calc(var(--rhythm) * 11);
 }
 
 .qwerty-entry-neighbor {
@@ -698,14 +701,6 @@
 	border-radius: 4px;
 	background-color: var(--button-primary-background);
 }
-
-/* The event modal's tabs and buttons share a line, whose margin replaces the tab list's own.  A tab list's margin may
-   be the utility .margin-bottom-lg, which is !important, so this must be too, or the buttons sit below the tabs' middle.
-   responses-tabs.html drops its own margin with .margin-bottom-none, so the pages that never load this file match. */
-.qwerty-entry-tabs>[role=tablist] {
-	margin-bottom: 0 !important;
-}
-
 
 /******************************************
  * Notes

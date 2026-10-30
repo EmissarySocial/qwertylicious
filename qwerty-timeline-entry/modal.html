@@ -1,5 +1,9 @@
 <!-- modal: an entry opened from its timeline, drawn over its collection or its own page.
      ?tab=likes or ?tab=shares opens that tab under the entry, and the timeline passes on its ?tag= filter. -->
+
+<!-- The previous and next entries, first so the corner buttons paint over them, and outside the h-event so their dates stay out of its microformats -->
+{{- template "entry-neighbors" . -}}
+
 <div class="h-event">
 
 	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
@@ -23,6 +27,3 @@
 		{{- template "responses" . -}}
 	</div>
 </div>
-
-<!-- The previous and next entries, outside the h-event so their dates stay out of its microformats -->
-{{- template "entry-neighbors" . -}}

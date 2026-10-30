@@ -209,3 +209,10 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 	background-color: var(--gray00);
 	color: inherit;
 }
+
+/* An item's responses bar (each item's responses.html): its buttons and its tabs share text-sm's font size.
+   RULE: each selector outranks the rule it replaces, .text-sm button (1.6 rhythm) and [role=tab] (0.9rem). */
+.qwerty-responses-row .text-sm button,
+.qwerty-responses-row [role="tablist"] > [role="tab"] {
+	font-size: calc(var(--rhythm) * 1.75);
+}
