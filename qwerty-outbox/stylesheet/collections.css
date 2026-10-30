@@ -99,6 +99,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
 	.qwerty-carousel-stage,
 	.qwerty-carousel-track {
 		transition: none;
@@ -527,7 +528,7 @@
 	gap: calc(var(--rhythm) * 2);
 
 	/* The name may shrink, so a long one wraps instead of pushing Edit off the modal */
-	> .flex-grow {
+	>.flex-grow {
 		min-width: 0;
 	}
 
@@ -549,6 +550,7 @@
 	from {
 		opacity: 0;
 	}
+
 	to {
 		opacity: 1;
 	}
@@ -697,19 +699,13 @@
 	background-color: var(--button-primary-background);
 }
 
-/* The tabs and Share share a line (qwerty-episode/modal.html), whose margin replaces the tab list's own.  The tab
-   list's is the utility .margin-bottom-lg, which is !important, so this must be too, or Share sits below the tabs'
-   middle. */
-.qwerty-episode-tabs > [role=tablist] {
+/* The event modal's tabs and buttons share a line, whose margin replaces the tab list's own.  A tab list's margin may
+   be the utility .margin-bottom-lg, which is !important, so this must be too, or the buttons sit below the tabs' middle.
+   responses-tabs.html drops its own margin with .margin-bottom-none, so the pages that never load this file match. */
+.qwerty-entry-tabs>[role=tablist] {
 	margin-bottom: 0 !important;
 }
 
-@media (max-width: 640px) {
-	.qwerty-episode-art {
-		width: 64px;
-		height: 64px;
-	}
-}
 
 /******************************************
  * Notes

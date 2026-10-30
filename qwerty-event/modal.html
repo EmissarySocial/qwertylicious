@@ -17,7 +17,25 @@
 	<div class="padding">
 		<h1 class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
 
-		{{- template "replies-tabs" (array . "Details" "modal") -}}
+		<!-- The Details and Replies tabs, with Like, Share, and "..." (not tabs) at the right, as on an episode; see AGENTS.md -->
+		<div class="qwerty-entry-tabs flex-row flex-align-center margin-bottom-lg">
+			{{- template "replies-tabs" (array . "Details" "modal") -}}
+			<div class="flex-grow"></div>
+			{{- if .UserCan "like-button" -}}
+				{{.View "like-button"}}
+			{{- else -}}
+				<span data-camper-intent="like" data-camper-object="{{.Permalink}}">
+					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false">{{icon "heart"}} Like</button>
+					<button type="button" class="camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} Like</button>
+				</span>
+				<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
+					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false">{{icon "share"}} Share</button>
+					<button type="button" class="camper-show-if-ready" data-camper-action="intent" hidden>{{icon "share"}} Share</button>
+				</span>
+				<button type="button" class="turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>{{icon "more-horizontal"}}</button>
+				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
+			{{- end -}}
+		</div>
 
 		{{- if eq (.QueryParam "tab") "replies" -}}
 			{{- template "replies-panel" . -}}

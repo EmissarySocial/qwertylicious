@@ -1,0 +1,38 @@
+<!-- responses-list: the open tab's replies, likes, or shares (?tab=), drawn beneath responses-tabs -->
+{{- $builder := . -}}
+{{- $tab := .QueryParam "tab" -}}
+{{- if and (ne "likes" $tab) (ne "shares" $tab) -}}{{- $tab = "replies" -}}{{- end -}}
+
+{{- if eq "likes" $tab -}}
+
+	{{- $links := .LikeLinksAfter "" 60 -}}
+	{{- if eq 0 (len $links) -}}
+		<div class="text-gray">No likes yet.</div>
+	{{- end -}}
+	{{- range $links -}}
+		{{- template "responses-actor" (array $builder .URI) -}}
+	{{- end -}}
+
+{{- else if eq "shares" $tab -}}
+
+	{{- $links := .ShareLinksAfter "" 60 -}}
+	{{- if eq 0 (len $links) -}}
+		<div class="text-gray">No shares yet.</div>
+	{{- end -}}
+	{{- range $links -}}
+		{{- template "responses-actor" (array $builder .URI) -}}
+	{{- end -}}
+
+{{- else if ne 0 .ReplyCount -}}
+
+	<div class="qwerty-replies">
+		{{- template "replies-list" . -}}
+	</div>
+
+{{- else if .AcceptsReplies -}}
+	<div class="text-gray">No replies yet.</div>
+{{- else if .RepliesClosed -}}
+	<div class="text-gray">{{icon "lock"}} Replies are closed.</div>
+{{- else -}}
+	<div class="text-gray">{{icon "lock"}} Only posts shared with everyone can receive replies.</div>
+{{- end -}}

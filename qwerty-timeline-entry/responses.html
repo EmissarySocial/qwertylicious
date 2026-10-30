@@ -1,0 +1,41 @@
+<!-- responses: under the entry, its Reply, Like, Share, and "..." buttons, its Replies, Likes, and Shares tabs, and the open tab's list -->
+<div class="qwerty-responses margin-top" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
+	<div class="qwerty-responses-row flex-row flex-align-center flex-wrap margin-bottom-lg">
+
+		<!-- RULE: text-sm sizes the buttons to the pill tabs beside them, and margin-none keeps it from shifting the row -->
+		<!-- RULE: mobile-hide drops each label in a window under 640px, so every button carries its name in aria-label -->
+		<div class="text-sm margin-none flex-row flex-align-center">
+			<!-- Signed in, Reply opens the visitor's own inbox at this entry with its reply form; otherwise an Activity Intent -->
+			{{- if .AcceptsReplies -}}
+				{{- if .IsAuthenticated -}}
+					<button type="button" class="turboclick" hx-target="main" hx-swap="outerHTML" hx-get="/@me/newsfeed/browse-reply?url={{.Permalink | urlquery}}" aria-label="Reply">{{icon "reply"}}<span class="mobile-hide"> Reply</span></button>
+				{{- else -}}
+					<span data-camper-intent="reply" data-camper-inreplyto="{{.Permalink}}" data-camper-object="{{.Permalink}}">
+						<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}" hx-push-url="false" aria-label="Reply">{{icon "reply"}}<span class="mobile-hide"> Reply</span></button>
+						<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Reply" hidden>{{icon "reply"}}<span class="mobile-hide"> Reply</span></button>
+					</span>
+				{{- end -}}
+			{{- end -}}
+			<!-- Like and Share open base-intent's modal, or act in one click once CamperJS finds a saved account that can; "..." manages it -->
+			{{- if .UserCan "like-button" -}}
+				{{.View "like-button"}}
+			{{- else -}}
+				<span data-camper-intent="like" data-camper-object="{{.Permalink}}">
+					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false" aria-label="Like">{{icon "heart"}}<span class="mobile-hide"> Like</span></button>
+					<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Like" hidden>{{icon "heart"}}<span class="mobile-hide"> Like</span></button>
+				</span>
+				<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
+					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false" aria-label="Share">{{icon "share"}}<span class="mobile-hide"> Share</span></button>
+					<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Share" hidden>{{icon "share"}}<span class="mobile-hide"> Share</span></button>
+				</span>
+				<button type="button" class="turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>{{icon "more-horizontal"}}</button>
+				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
+			{{- end -}}
+		</div>
+
+		<div class="flex-grow"></div>
+		{{- template "responses-tabs" . -}}
+	</div>
+
+	{{- template "responses-list" . -}}
+</div>

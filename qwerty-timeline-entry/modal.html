@@ -1,5 +1,5 @@
 <!-- modal: an entry opened from its timeline, drawn over its collection or its own page.
-     Its Replies tab re-opens this modal with ?tab=replies, and the timeline passes on its ?tag= filter. -->
+     ?tab=likes or ?tab=shares opens that tab under the entry, and the timeline passes on its ?tag= filter. -->
 <div class="h-event">
 
 	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
@@ -18,13 +18,9 @@
 		<!-- RULE: the title carries its modal-title id from the start, so it never shrinks after the first paint (see AGENTS.md) -->
 		<h1 id="modal-title" class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
 
-		{{- template "replies-tabs" (array . "Details" "modal") -}}
-
-		{{- if eq (.QueryParam "tab") "replies" -}}
-			{{- template "replies-panel" . -}}
-		{{- else -}}
-			{{- template "entry-body" . -}}
-		{{- end -}}
+		<!-- The entry's details stay on every tab, and its Replies, Likes, and Shares tabs sit beneath them, as on a Note -->
+		{{- template "entry-body" . -}}
+		{{- template "responses" . -}}
 	</div>
 </div>
 

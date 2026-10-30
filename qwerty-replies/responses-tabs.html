@@ -1,0 +1,16 @@
+<!-- responses-tabs: an item's "N Replies", "N Likes", and "N Shares" tabs, each redrawing its responses action in place (?tab=) -->
+{{- $tab := .QueryParam "tab" -}}
+{{- if and (ne "likes" $tab) (ne "shares" $tab) -}}{{- $tab = "replies" -}}{{- end -}}
+
+<!-- RULE: margin-bottom-none drops the pills' own margin, so the tabs center on the buttons beside them on any page -->
+<div role="tablist" class="pills margin-bottom-none">
+	<a role="tab" class="turboclick" href="/{{.StreamID}}?tab=replies" hx-get="/{{.StreamID}}/responses?tab=replies" aria-selected="{{if eq `replies` $tab}}true{{else}}false{{end}}">
+		{{- .ReplyCount }} {{ pluralize .ReplyCount "Reply" "Replies" -}}
+	</a>
+	<a role="tab" class="turboclick" href="/{{.StreamID}}?tab=likes" hx-get="/{{.StreamID}}/responses?tab=likes" aria-selected="{{if eq `likes` $tab}}true{{else}}false{{end}}">
+		{{- .LikeCount }} {{ pluralize .LikeCount "Like" "Likes" -}}
+	</a>
+	<a role="tab" class="turboclick" href="/{{.StreamID}}?tab=shares" hx-get="/{{.StreamID}}/responses?tab=shares" aria-selected="{{if eq `shares` $tab}}true{{else}}false{{end}}">
+		{{- .ShareCount }} {{ pluralize .ShareCount "Share" "Shares" -}}
+	</a>
+</div>

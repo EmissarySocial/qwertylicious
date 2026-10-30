@@ -176,7 +176,7 @@
 								label: Edit Notes Collection
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:3}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:12}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
 								]
 							}
@@ -205,7 +205,7 @@
 										label: General
 										children: [
 											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-											{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:3}}
+											{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:12}}
 											{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
 										]
 									}
@@ -231,7 +231,7 @@
 								label: Edit Photo Gallery
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
 								]
 							}
@@ -252,7 +252,7 @@
 											label: General
 											children: [
 												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 												{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
 											]
 										}
@@ -284,7 +284,7 @@
 												label: General
 												children: [
 													{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-													{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+													{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 													{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
 												]
 											}
@@ -314,7 +314,7 @@
 													label: General
 													children: [
 														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
 													]
 												}
@@ -343,7 +343,7 @@
 													label: General
 													children: [
 														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
 													]
 												}

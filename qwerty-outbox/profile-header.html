@@ -103,8 +103,8 @@
 		<div>
 
 			<div class="nowrap" script="on load trigger storage on window">
-				<!-- The buttons stack on a phone, where two side by side would run past the card -->
-				<div class="flex-row flex-wrap flex-justify-end margin-none">
+				<!-- The buttons stack on a phone, where two side by side would run past the card, and align to the top, under which Follow may name its account -->
+				<div class="flex-row flex-wrap flex-justify-end flex-align-start margin-none">
 					{{- if $isMyself -}}
 
 						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
@@ -119,9 +119,8 @@
 
 					{{- else -}}
 
-						<button hx-get="/@{{.UserID}}/follow" class="primary turboclick">
-							Follow
-						</button>
+						<!-- Emissary's base-outbox: follows in one click as the visitor's saved account, or opens the Follow modal -->
+						{{- template "follow-button" . -}}
 
 						{{- if gt $circleCount 0 -}}
 							<button hx-get="/@{{.UserID}}/subscribe" class="primary turboclick">

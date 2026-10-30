@@ -1,25 +1,26 @@
+<!-- head-social: the Article's Like, Reply, Share, and "..." buttons, between its byline and its text -->
 <div id="article-social" class="flex-row flex-align-center">
-	<div class="flex-grow text-xs camper-show-if-has-accounts flex-row flex-align-center" style="gap:0px;" hidden>
-		<button class="camper-intent-button" data-intent="like" data-object="{{.Permalink}}">
-			{{icon "heart"}} 0
-		</button>
-		<button class="camper-intent-button" data-intent="reply" data-inreplyto="{{.Permalink}}">
-			{{icon "message-circle"}} 0
-		</button>
-		<span class="turboclick" hx-get="/{{.StreamID}}/intent">
-			<span class="flex-row flex-align-center clickable">
-				&nbsp;
-				<img class="camper-account-image circle" style="height:1em;"></i>
-				<span class="camper-account-name text-underlined text-gray"></span>
-			</span>
+	<!-- Each button acts in one click once CamperJS finds a saved account that can (see AGENTS.md); "..." manages it -->
+	<div class="flex-grow text-xs">
+		<span data-camper-intent="like" data-camper-object="{{.Permalink}}">
+			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false">{{icon "heart"}} {{.LikeCount}}</button>
+			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} {{.LikeCount}}</button>
 		</span>
-	</div>
-	<div class="flex-grow text-xs camper-hide-if-has-accounts">
-		<button hx-get="/{{.StreamID}}/intent?intent=Like&object={{.Permalink}}" class="tertiary turboclick">{{icon "heart"}} 0</button>
-		<button hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies" class="tertiary turboclick">{{icon "message-circle"}} {{.ReplyCount}}</button>
-	</div>
-	<div class="flex-grow align-right">
+		<!-- Reply opens the Replies tab until a saved account can reply, and only the tab while replies are closed -->
+		{{- if .AcceptsReplies -}}
+			<span data-camper-intent="reply" data-camper-inreplyto="{{.Permalink}}" data-camper-object="{{.Permalink}}">
+				<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies">{{icon "message-circle"}} {{.ReplyCount}}</button>
+				<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "message-circle"}} {{.ReplyCount}}</button>
+			</span>
+		{{- else -}}
+			<button type="button" class="tertiary turboclick" hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies">{{icon "message-circle"}} {{.ReplyCount}}</button>
+		{{- end -}}
+		<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
+			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false">{{icon "share"}} {{.ShareCount}}</button>
+			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "share"}} {{.ShareCount}}</button>
+		</span>
+		<button type="button" class="tertiary turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>{{icon "more-horizontal"}}</button>
 	</div>
 </div>
 
-<script src="/.themes/global/resources/camperjs/camper.js" defer></script>
+<script src="/.themes/global/resources/camperjs-0.2.0/camper.js" defer></script>

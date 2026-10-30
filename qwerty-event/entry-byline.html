@@ -10,8 +10,11 @@
 		<div class="text-sm">{{.PublishDate | longDate}}</div>
 	</div>
 	{{- if not .IsAuthor -}}
-		<div>
-			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
+		<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can -->
+		<div data-camper-intent="follow" data-camper-object="{{.AttributedTo.ProfileURL}}">
+			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick camper-hide-if-ready">{{icon "plus"}} Follow</button>
+			<button type="button" class="primary text-sm camper-show-if-ready" data-camper-action="intent" hidden>{{icon "plus"}} Follow</button>
 		</div>
+		<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 	{{- end -}}
 </div>

@@ -7,8 +7,9 @@
 	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID .) -}}
 </div>
 
-{{- if ne "" .Summary -}}
-	<div class="text-gray margin-bottom">{{.Summary}}</div>
+<!-- The description, no wider than a post; a Calendar draws its own beneath its toolbar (items-calendar.html) -->
+{{- if and (ne "" .Summary) (ne "calendar" (.DataString "layout")) -}}
+	<div class="text-gray margin-bottom max-width-640">{{.Summary}}</div>
 {{- end -}}
 
 {{- template "items" . -}}

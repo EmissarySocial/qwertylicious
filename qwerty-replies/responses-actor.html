@@ -1,0 +1,21 @@
+<!-- responses-actor: who liked or shared an item, and when; called as (array $builder $activityURL) -->
+{{- $builder := index . 0 -}}
+{{- $activity := $builder.ActivityStream (index . 1) -}}
+
+<!-- RULE: load the actor by its ID through .ActivityStream (see AGENTS.md); an activity that names none draws nothing -->
+{{- $actorID := $activity.ActorID -}}
+{{- if ne "" $actorID -}}
+	{{- $actor := $builder.ActivityStream $actorID -}}
+	<a href="{{$actorID}}" target="_blank" rel="noopener noreferrer nofollow" class="flex-row flex-align-center margin-bottom-sm text-nocolor">
+		{{- if $actor.Icon.IsNil -}}
+			<div class="circle width-24"></div>
+		{{- else -}}
+			<img src="{{$actor.Icon.Href}}" alt="" class="circle width-24" loading="lazy">
+		{{- end -}}
+		<span>
+			<span class="bold">{{$actor.Name}}</span>
+			&middot;
+			<span class="text-gray">{{$activity.Published | shortDate}}</span>
+		</span>
+	</a>
+{{- end -}}

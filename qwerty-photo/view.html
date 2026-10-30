@@ -6,20 +6,16 @@
 			<div class="text-sm text-uppercase margin-bottom"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>
 		{{- end -}}
 
-		<!-- The photos and their Replies, as two tabs (qwerty-replies) -->
-		{{- template "replies-tabs" (array . "Photo" "page") -}}
+		<!-- The photos, then their Replies, Likes, and Shares tabs, as in the modal -->
+		{{- template "photo-figure" (array . "page") -}}
 
-		{{- if eq (.QueryParam "tab") "replies" -}}
-			{{- template "replies-panel" . -}}
-		{{- else -}}
-			{{- template "photo-figure" (array . "page") -}}
-
-			{{- if .UserCan "edit" -}}
-				<div class="margin-top">
-					<button hx-get="/{{.StreamID}}/edit" class="turboclick">{{icon "edit"}} Edit</button>
-				</div>
-			{{- end -}}
+		{{- if .UserCan "edit" -}}
+			<div class="margin-top">
+				<button hx-get="/{{.StreamID}}/edit" class="turboclick">{{icon "edit"}} Edit</button>
+			</div>
 		{{- end -}}
+
+		{{- template "responses" . -}}
 	</div>
 
 	<!-- The carousel's CSS lives with the profile's, which this page does not otherwise load -->

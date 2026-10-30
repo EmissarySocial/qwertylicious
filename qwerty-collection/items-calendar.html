@@ -89,6 +89,11 @@
 	</div>
 </div>
 
+<!-- The description, between the toolbar and the events (list.html leaves it to this view) -->
+{{- if ne "" .Summary -}}
+	<div class="text-gray margin-vertical max-width-640">{{.Summary}}</div>
+{{- end -}}
+
 {{- if eq $view "list" -}}
 
 	<!-- List: the month's events, one row each, under the day they start -->

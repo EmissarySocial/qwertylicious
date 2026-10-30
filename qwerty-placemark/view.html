@@ -22,13 +22,9 @@
 
 			{{- template "entry-byline" . -}}
 
-			<!-- The entry and its Replies, as two tabs (qwerty-replies) -->
-			{{- template "replies-tabs" (array . "Details" "page") -}}
-			{{- if eq (.QueryParam "tab") "replies" -}}
-				{{- template "replies-panel" . -}}
-			{{- else -}}
-				{{- template "entry-body" . -}}
-			{{- end -}}
+			<!-- The place's details, then its Replies, Likes, and Shares tabs, as in the modal -->
+			{{- template "entry-body" . -}}
+			{{- template "responses" . -}}
 		</article>
 	</div>
 

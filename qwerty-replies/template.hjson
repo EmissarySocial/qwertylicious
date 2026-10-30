@@ -1,6 +1,6 @@
 {
 	// The Replies widget for every collection item: a Replies tab, the accepted replies, and a Reply button.
-	// Partials: replies-tabs (array $builder $label $mode ["count"]) and replies-panel $builder.
+	// Partials: replies-tabs (array $builder $label $mode ["count"]), replies-panel, responses-tabs, and responses-list, each but the first taking $builder.
 	templateId: "qwerty-replies"
 	category: Base
 	model: None
