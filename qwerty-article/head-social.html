@@ -6,14 +6,16 @@
 			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false">{{icon "heart"}} {{.LikeCount}}</button>
 			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} {{.LikeCount}}</button>
 		</span>
-		<!-- Reply opens the Replies tab until a saved account can reply, and only the tab while replies are closed -->
+		<!-- Signed in, Reply opens the visitor's own inbox at this article with its reply form; otherwise an Activity Intent, as in each responses.html -->
 		{{- if .AcceptsReplies -}}
-			<span data-camper-intent="reply" data-camper-inreplyto="{{.Permalink}}" data-camper-object="{{.Permalink}}">
-				<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies">{{icon "message-circle"}} {{.ReplyCount}}</button>
-				<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "message-circle"}} {{.ReplyCount}}</button>
-			</span>
-		{{- else -}}
-			<button type="button" class="tertiary turboclick" hx-get="/{{.StreamID}}?tab=replies" hx-target="main" hx-push-url="/{{.StreamID}}?tab=replies">{{icon "message-circle"}} {{.ReplyCount}}</button>
+			{{- if .IsAuthenticated -}}
+				<button type="button" class="tertiary turboclick" hx-target="main" hx-swap="outerHTML" hx-get="/@me/newsfeed/browse-reply?url={{.Permalink | urlquery}}">{{icon "reply"}} {{.ReplyCount}}</button>
+			{{- else -}}
+				<span data-camper-intent="reply" data-camper-inreplyto="{{.Permalink}}" data-camper-object="{{.Permalink}}">
+					<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}" hx-push-url="false">{{icon "reply"}} {{.ReplyCount}}</button>
+					<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "reply"}} {{.ReplyCount}}</button>
+				</span>
+			{{- end -}}
 		{{- end -}}
 		<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
 			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false">{{icon "share"}} {{.ShareCount}}</button>

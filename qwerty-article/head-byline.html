@@ -1,5 +1,5 @@
-<!-- head-byline is the Article's description and byline, below the title on the public view and the edit page.
-     RULE: spacing is in utility classes, because the public view loads no Article stylesheet (see AGENTS.md). -->
+<!-- head-byline is the Article's description and byline, below the title on the public view and the edit page -->
+<!-- RULE: spacing is in utility classes, because the stylesheet's #article rules reach only the public view (see AGENTS.md) -->
 {{- if ne "" .Description -}}
 	<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
 {{- end -}}
