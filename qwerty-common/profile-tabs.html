@@ -11,6 +11,7 @@
 
 <div class="flex-row flex-wrap flex-align-center">
 <div role="tablist" class="pills">
+	<!-- RULE: a tab replaces the address instead of pushing it, so Back skips tab switches (see AGENTS.md) -->
 	{{- range $collections -}}
 		{{- $tabID := .ObjectID.Hex -}}
 		<a class="turboclick" id="tab-{{$tabID}}"
@@ -18,7 +19,8 @@
 			hx-get="/{{$tabID}}/list"
 			hx-target="#profile-tabs"
 			hx-swap="outerHTML transition:true show:none"
-			hx-push-url="/@{{$userID}}?tab={{$tabID}}"
+			hx-push-url="unset"
+			hx-replace-url="/@{{$userID}}?tab={{$tabID}}"
 			role="tab"
 			aria-selected="{{if eq $tabID $selected}}true{{else}}false{{end}}">{{.Label}}</a>
 	{{- end -}}
@@ -28,7 +30,8 @@
 			hx-get="/@{{$userID}}/about"
 			hx-target="#profile-tabs"
 			hx-swap="outerHTML transition:true show:none"
-			hx-push-url="/@{{$userID}}?tab=about"
+			hx-push-url="unset"
+			hx-replace-url="/@{{$userID}}?tab=about"
 			role="tab"
 			aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
 	{{- end -}}
