@@ -21,11 +21,8 @@
 			token: {type:"string", required:true}
 			name: {type:"string"}
 			summary: {type:"string"}
-			content:{type:"object", properties: {
-				format: {type:"string"}
-				raw: {type:"string"}
-				html: {type:"string", format:"html"}
-			},
+			// RULE: content restates no property, so raw and html keep Emissary's definitions (see AGENTS.md)
+			content:{type:"object", properties: {},
 			data: {type:"object", properties: {
 				tags: {type:"string"}
 				iconDescription: {type:"string", maxlength:2048}
@@ -96,10 +93,14 @@
 			]
 		}
 
+		// RULE: the stored format picks the editor's save step; edit-content.html and properties name the same three (see AGENTS.md)
 		edit-content: {
 			roles: ["author"]
 			steps: [
-				{do:"edit-content", file:"editor", format:"EDITORJS"}
+				{do:"switch", expression:"{{.ContentFormat}}", cases:{
+					MARKDOWN: {do:"edit-content", format:"MARKDOWN"}
+					HTML: {do:"edit-content", format:"HTML"}
+				}, default:{do:"edit-content", format:"EDITORJS"}}
 				{do:"process-content", add-links:false, remote-html:false}
 				{do:"save"}
 			]
@@ -140,6 +141,8 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps:[
+					// The format before the form applies, counting anything but MARKDOWN and HTML as EDITORJS, as edit-content does
+					{do:"set-args", previousFormat:"{{if in .ContentFormat `MARKDOWN` `HTML`}}{{.ContentFormat}}{{else}}EDITORJS{{end}}"}
 					{
 						do: edit
 						options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
@@ -149,11 +152,16 @@
 							children: [
 								{
 									type:"layout-vertical"
-									label:"Properties"
+									label:"General"
 									children: [
 										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
-										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
 										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
+										{type:"select", path:"content.format", label:"Format", description:"Changing the format will erase this article's text.", options:{required:true, enum:[
+											{value:"EDITORJS", label:"Visual Editor"}
+											{value:"MARKDOWN", label:"Markdown"}
+											{value:"HTML", label:"HTML"}
+										]}}
+										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
 										{type:"toggle", path:"isFeatured", options:{false-text:"Feature?", true-text:"Featured"}}
 									]
 								}
@@ -183,6 +191,15 @@
 							]
 						}
 					}
+					// RULE: a new format starts empty, except HTML, which starts from the rendered text (see AGENTS.md)
+					{do:"if", condition:"{{$format := `EDITORJS`}}{{if in .ContentFormat `MARKDOWN` `HTML`}}{{$format = .ContentFormat}}{{end}}{{ne $format (.GetString `previousFormat`)}}", then:[
+						{do:"if", condition:"{{eq .ContentFormat `HTML`}}", then:[
+							{do:"set-data", values:{"content.raw":"{{.ContentHTML}}"}}
+						], else:[
+							{do:"set-data", values:{"content.raw":"", "content.html":""}}
+						]}
+						{do:"refresh-page"}
+					]}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
 					{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
 					{do:"save", comment:"Properties updated by {{.Author}}"}

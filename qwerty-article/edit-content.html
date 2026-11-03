@@ -1,95 +1,13 @@
-{{- $postTo := .GetString "postTo" -}}
+<!-- RULE: the editor follows the stored format, as the edit-content action's switch does; both name the same three (see AGENTS.md) -->
+{{- if eq .ContentFormat "MARKDOWN" -}}
+	{{- template "edit-content-markdown" . -}}
+{{- else if eq .ContentFormat "HTML" -}}
+	{{- template "edit-content-html" . -}}
+{{- else -}}
+	{{- template "edit-content-editorjs" . -}}
+{{- end -}}
 
-<article id="content-editor" data-content="{{.ContentRaw}}"></article>
-
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest" script="on load startArticleEditor()"></script>
-<script src="https://cdn.jsdelivr.net/npm/editorjs-color-picker@latest/dist/index.umd.js" script="on load startArticleEditor()"></script>
-<!-- Under hx-boost the bundles above load after this script, so each retries on load; a full page load starts it below -->
-<script>
-	window.startArticleEditor = function() {
-
-		// Wait for the holder and every bundle, and start only once per page
-		var holder = document.getElementById("content-editor")
-		if (!holder || holder.dataset.started) return
-		var bundles = ["EditorJS", "Paragraph", "Header", "LinkTool", "ImageTool", "Embed", "AttachesTool", "EditorjsList", "Quote", "CodeTool", "ColorPicker"]
-		if (!bundles.every(function(name) { return window[name] !== undefined })) return
-		holder.dataset.started = "true"
-
-		window.editor = new EditorJS({
-			holder: "content-editor",
-			data: JSON.parse(holder.getAttribute("data-content")),
-			tools: {
-				paragraph: {
-					class: Paragraph,
-					inlineToolbar: true,
-				},
-				header: {
-					class: Header,
-					inlineToolbar: ['link'],
-					config: {
-						placeholder: 'Header',
-						levels: [1, 2, 3],
-						defaultLevel: 2,
-					},
-				},
-				linkTool: {
-					class: LinkTool,
-					config: {}
-				},
-				image: {
-					class: ImageTool,
-					config: {
-						endpoints: {
-							byFile: '/{{.StreamID}}/upload-image',
-							byUrl: '/{{.StreamID}}/upload-image',
-						}
-					}
-				},
-				embed: {
-					class: Embed,
-					config: {
-					}
-				},
-				attaches: {
-					class: AttachesTool,
-					config: {
-						endpoint: 'http://localhost:8008/uploadFile'
-					}
-				},
-				list: {
-					class: EditorjsList,
-					inlineToolbar: true,
-					config: {
-						defaultStyle: 'unordered',
-					},
-				},
-				quote: {
-					class: Quote,
-					inlineToolbar: true,
-				},
-				code: {
-					class: CodeTool,
-				},
-				ColorPicker: {
-	      			class: window.ColorPicker.default,
-	    		}
-			},
-		})
-	}
-
-	startArticleEditor()
-</script>
-
+<!-- Save and Publish call the editor's own _save(), which posts its content in that format's shape -->
 <script type="text/hyperscript">
 
 	def save()
@@ -101,17 +19,5 @@
 		_save()
 		htmx.ajax("GET", "/{{.StreamID}}/publish")
 	end
-
-	def _save()
-		set content to the editor.save()
-
-		fetch "/{{.StreamID}}/edit-content" 
-		with {
-			method: "POST", 
-			body: JSON.stringify(content),
-			headers: {"Content-Type": "application/json"}
-		}
-	end
-
 
 </script>
