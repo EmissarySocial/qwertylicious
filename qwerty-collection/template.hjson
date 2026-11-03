@@ -17,7 +17,7 @@
 		type: object
 		properties: {
 			label: {type:"string", maxLength:128, required:true}
-			summary: {type:"string", maxLength:2048}
+			summary: {type:"string", format:"markdown", maxLength:2048}
 			// "everyone" or "nobody", set by the allowReplies toggle; items inherit it with their sharing
 			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
 			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone"), for Edit Collection forms
@@ -193,7 +193,7 @@
 						type: layout-vertical
 						children: [
 							{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-							{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:12}}
+							{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 							{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
 						]
 					}
@@ -232,7 +232,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown above the player, and in the podcast's feed.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 						]
@@ -267,7 +267,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 						]
@@ -301,7 +301,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
@@ -344,7 +344,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
@@ -385,7 +385,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 						]
@@ -420,7 +420,7 @@
 								type: layout-vertical
 								label: Description
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{

@@ -91,7 +91,7 @@
 
 <!-- The description, between the toolbar and the events (list.html leaves it to this view) -->
 {{- if ne "" .Summary -}}
-	<div class="text-gray margin-vertical max-width-640">{{.Summary}}</div>
+	<div class="text-gray margin-vertical max-width-640">{{.Summary | markdown}}</div>
 {{- end -}}
 
 {{- if eq $view "list" -}}

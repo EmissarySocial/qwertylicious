@@ -9,7 +9,7 @@
 
 <!-- The description, no wider than a post; a Calendar and a Podcast draw their own (items-calendar.html, items-podcast.html) -->
 {{- if and (ne "" .Summary) (ne "calendar" (.DataString "layout")) (ne "podcast" (.DataString "layout")) -}}
-	<div class="text-gray margin-bottom max-width-640">{{.Summary}}</div>
+	<div class="text-gray margin-bottom max-width-640">{{.Summary | markdown}}</div>
 {{- end -}}
 
 {{- template "items" . -}}

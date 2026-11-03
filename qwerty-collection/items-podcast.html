@@ -13,7 +13,7 @@
 {{- if $episodes.IsEmpty -}}
 	<!-- An empty Podcast keeps its description, centered above the welcome (list.html leaves it to this view) -->
 	{{- if ne "" .Summary -}}
-		<div class="reading-column text-gray">{{.Summary}}</div>
+		<div class="reading-column text-gray">{{.Summary | markdown}}</div>
 	{{- end -}}
 	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
 {{- else -}}
@@ -21,7 +21,7 @@
 	<div class="qwerty-podcast reading-column margin-top-xl">
 
 		{{- if ne "" .Summary -}}
-			<div class="text-gray">{{.Summary}}</div>
+			<div class="text-gray">{{.Summary | markdown}}</div>
 		{{- end -}}
 
 		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">
@@ -43,7 +43,7 @@
 								data-track-artist="{{$collection.AttributedTo.Name}}"
 								data-track-album="{{$collection.Label}}"
 								data-track-image="{{if ne `` .IconURL}}{{.IconURL}}{{else}}{{$collection.AttributedTo.IconURL}}{{end}}"
-								hx-get="/{{.StreamID}}/modal"
+								hx-get="/{{.Token}}/modal"
 								hx-push-url="false">
 								<span class="playing-hide">{{icon "play-fill"}}</span>
 								<span class="playing-show">{{icon "volume-up-fill"}}</span>
@@ -52,7 +52,7 @@
 							<span class="qwerty-podcast-play text-light-gray" aria-hidden="true">{{icon "mic"}}</span>
 						{{- end -}}
 					</td>
-					<td class="qwerty-podcast-name"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
+					<td class="qwerty-podcast-name"><a href="/{{.Token}}" hx-get="/{{.Token}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
 					<!-- .text-gray is an opacity, so it goes on the text; on the cell it would fade the row's hover color too -->
 					<td class="qwerty-podcast-date text-sm"><span class="text-gray">
 						{{- .PublishDate | shortDate -}}
@@ -60,7 +60,7 @@
 					</span></td>
 					{{- if $canEdit -}}
 						<td class="qwerty-podcast-edit">
-							<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
+							<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
 						</td>
 					{{- end -}}
 				</tr>
