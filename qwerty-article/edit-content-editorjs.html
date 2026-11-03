@@ -27,6 +27,13 @@
 		// An Article just switched to this format has no content yet, and EditorJS starts empty without data
 		var raw = holder.getAttribute("data-content")
 
+		// RULE: paste keeps only the inline tools' tags, so the color picker carries <br> for every block (see AGENTS.md)
+		class ColorPickerKeepingBreaks extends window.ColorPicker.default {
+			static get sanitize() {
+				return { br: {}, ...super.sanitize }
+			}
+		}
+
 		window.editor = new EditorJS({
 			holder: "content-editor",
 			data: raw ? JSON.parse(raw) : undefined,
@@ -83,8 +90,8 @@
 					class: CodeTool,
 				},
 				ColorPicker: {
-	      			class: window.ColorPicker.default,
-	    		}
+					class: ColorPickerKeepingBreaks,
+				}
 			},
 		})
 	}
