@@ -32,13 +32,9 @@
 				<div class="qwerty-episode-player-none card text-gray">This episode has no audio yet.</div>
 			{{- end -}}
 
-			{{- template "replies-tabs" (array . "Show Notes" "page" "count") -}}
-			<!-- With replies closed there is no Replies tab, so ?tab=replies shows the notes -->
-			{{- if and (eq (.QueryParam "tab") "replies") (not .RepliesClosed) -}}
-				{{- template "replies-panel" . -}}
-			{{- else -}}
-				<div id="article-content" class="e-content">{{.ContentHTML}}</div>
-			{{- end -}}
+			<!-- The notes, then the Replies, Likes, and Shares tabs, as in the modal -->
+			<div id="article-content" class="e-content">{{.ContentHTML}}</div>
+			{{- template "responses" . -}}
 		</article>
 	</div>
 

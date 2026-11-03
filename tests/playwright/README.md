@@ -27,7 +27,8 @@ npx playwright show-report        # the HTML report of the last run
 | `/js/podcast.js` | `qwerty-theme/podcast` |
 | `/episode` | A page with the first of three episodes open in its modal |
 | `/entry` | A page with the first of three Timeline entries open in its modal |
-| `/{id}/modal` | An episode's or an entry's modal, with the headers Emissary's `as-modal` sends |
+| `/calendar` | A page with one button that opens a Calendar event's modal |
+| `/{id}/modal` | An episode's, an entry's, or the event's modal, with the headers Emissary's `as-modal` sends |
 | `/podcast-list` | One row of a podcast's episode list |
 
 It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout.
@@ -41,6 +42,7 @@ The pieces a test is about come from the template files themselves:
 - the skip buttons, from `qwerty-episode/episode-arrow-back.html` and `episode-arrow-next.html`;
 - the episode title's `<h2>` tag, from `qwerty-episode/modal.html`;
 - the entry title's `<h1>` tag, from `qwerty-timeline-entry/modal.html`;
+- the event title's `<h1>` tag, from `qwerty-event/modal.html`;
 - the date cell, from `qwerty-collection/items-podcast.html`.
 
 ## Checking that a test catches its bug
@@ -69,3 +71,9 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 `timeline.spec.mjs` checks the following:
 
 - **The layout between entries.** While the next entry arrives, its title keeps one size and one position, and the body below it stays put. Without `id="modal-title"`, the title went from 40px to 32px and the body moved up 8px.
+- **The previous and next entries.** Their bar starts at the modal's top edge, ends before the pencil and X, and keeps its place while a long entry scrolls under it.
+
+`event.spec.mjs` checks the following:
+
+- **The title's size.** The event's title keeps one size on every frame while its modal opens. Without `id="modal-title"`, it went from 40px to 32px.
+- **One font size in the responses bar.** The Reply, Like, and Share buttons match the Replies, Likes, and Shares tabs. The bar's markup is copied into `fixtures/event-modal.html`, so this checks qwerty-theme's stylesheet, not the template. Without the rule in `03-app.css`, the buttons were 12.8px and the tabs 14.4px.

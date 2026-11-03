@@ -57,29 +57,9 @@
 		</div>
 	{{- end -}}
 
-	<!-- The Show Notes and Replies tabs, with Share (not a tab) at the right -->
-	<div class="qwerty-episode-tabs flex-row flex-align-center margin-bottom-lg">
-		{{- template "replies-tabs" (array . "Show Notes" "modal" "count") -}}
-		<div class="flex-grow"></div>
-		<!-- Share opens the device's share sheet, or copies the URL -->
-		<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
-			on click
-				if navigator.share
-					call navigator.share({url: my @data-share-url})
-				else
-					call navigator.clipboard.writeText(my @data-share-url)
-					put 'Link Copied' into the first <span/> in me
-				end
-			catch error
-				log error
-			end">{{icon "share"}} <span>Share</span></button>
-	</div>
-	<!-- With replies closed there is no Replies tab, so ?tab=replies shows the notes -->
-	{{- if and (eq (.QueryParam "tab") "replies") (not .RepliesClosed) -}}
-		{{- template "replies-panel" . -}}
-	{{- else -}}
-		<div class="e-content">{{.ContentHTML}}</div>
-	{{- end -}}
+	<!-- The notes stay on every tab, and the Replies, Likes, and Shares tabs sit beneath them, as on a Note -->
+	<div class="e-content">{{.ContentHTML}}</div>
+	{{- template "responses" . -}}
 
 	<!-- Hidden links to the neighboring episodes, clicked by the skip buttons and keys -->
 	{{- if ne "" $above -}}

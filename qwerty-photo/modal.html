@@ -1,4 +1,4 @@
-<!-- modal: a photo post opened from its gallery or its own URL; its Replies tab re-opens it with ?tab=replies. -->
+<!-- modal: a photo post opened from its gallery or its own URL; ?tab=likes or ?tab=shares opens that tab under the photo. -->
 <div class="padding">
 	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
 	<div class="corner-pencil flex-row flex-align-start">
@@ -7,30 +7,8 @@
 		{{- end -}}
 		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
 	</div>
-	<!-- Top left: the Photo and Replies tabs, on the pencil's line (.corner-tabs) -->
-	<div class="corner-tabs">
-		{{- template "replies-tabs" (array . "Photo" "modal") -}}
-	</div>
 
-	{{- if eq (.QueryParam "tab") "replies" -}}
-		{{- template "replies-panel" . -}}
-	{{- else -}}
-		{{- template "photo-figure" (array . "modal") -}}
-
-		<!-- The Share button -->
-		<div class="flex-row flex-align-center margin-top">
-			<!-- Share opens the device's share sheet, or copies the URL -->
-			<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
-				on click
-					if navigator.share
-						call navigator.share({url: my @data-share-url})
-					else
-						call navigator.clipboard.writeText(my @data-share-url)
-						put 'Link Copied' into the first <span/> in me
-					end
-				catch error
-					log error
-				end">{{icon "share"}} <span>Share</span></button>
-		</div>
-	{{- end -}}
+	<!-- The photo stays on every tab, and its Replies, Likes, and Shares tabs sit beneath it, as on a Note -->
+	{{- template "photo-figure" (array . "modal") -}}
+	{{- template "responses" . -}}
 </div>

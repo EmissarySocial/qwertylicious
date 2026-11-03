@@ -93,11 +93,14 @@
 				</div>
 				<div class="text-sm">{{$builder.PublishDate | longDate}}</div>
 			</div>
-			<!-- Across from the byline, Follow for everyone but the author -->
+			<!-- Across from the byline, Follow for everyone but the author, worded as the profile's follow-button -->
 			{{- if not $builder.IsAuthor -}}
-				<div>
-					<button hx-get="/@{{$builder.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
+				<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can -->
+				<div data-camper-intent="follow" data-camper-object="{{$builder.AttributedTo.ProfileURL}}">
+					<button type="button" class="primary text-sm turboclick camper-hide-if-ready" hx-get="/@{{$builder.AttributedTo.UserID.Hex}}/follow" hx-push-url="false">⁂ Follow {{$builder.AttributedTo.Name}}</button>
+					<button type="button" class="primary text-sm camper-show-if-ready" data-camper-action="intent" hidden>⁂ Follow {{$builder.AttributedTo.Name}}</button>
 				</div>
+				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 			{{- end -}}
 		</div>
 		{{- if $hasCaption -}}

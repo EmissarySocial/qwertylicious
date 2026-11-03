@@ -31,6 +31,9 @@ const entries = [
 	{ id: "6ad6445b9d33845fe83e2a03", title: "Constitution Ratified", date: "Saturday, June 21, 1788", short: "Jun 21, 1788" },
 ]
 
+// The Calendar event, opened from its calendar
+const calendarEvent = { id: "6ad7aa00094d4ab2cbcc8701", title: "Concert in the Park", date: "Saturday, July 18, 2026" }
+
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
 	return readdirSync(folder).filter((name) => !name.startsWith(".")).sort()
@@ -107,6 +110,30 @@ function entryModal(index) {
 		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div>`)
 }
 
+function eventModal() {
+	return read(join(here, "fixtures/event-modal.html"))
+		.replaceAll("${H1}", heading("qwerty-event/modal.html", "h1"))
+		.replaceAll("${ID}", calendarEvent.id)
+		.replaceAll("${TITLE}", calendarEvent.title)
+		.replaceAll("${DATE}", calendarEvent.date)
+}
+
+// modalFor renders the modal of the episode, entry, or event with this id, or "" when there is none
+function modalFor(id) {
+	const index = episodes.findIndex((episode) => episode.id == id)
+	if (index >= 0) {
+		return episodeModal(index)
+	}
+	const entryIndex = entries.findIndex((entry) => entry.id == id)
+	if (entryIndex >= 0) {
+		return entryModal(entryIndex)
+	}
+	if (calendarEvent.id == id) {
+		return eventModal()
+	}
+	return ""
+}
+
 function page(body) {
 	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
 }
@@ -126,6 +153,7 @@ const routes = {
 	"/js/podcast.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
+	"/calendar": () => ["text/html", page(`<button id="open-event" hx-get="/${calendarEvent.id}/modal" hx-push-url="false">${calendarEvent.title}</button><aside></aside>`)],
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
 }
 
@@ -141,20 +169,12 @@ createServer((request, response) => {
 		}
 	}
 
-	// An episode's or an entry's modal, with the headers Emissary's as-modal sends
+	// An episode's, an entry's, or the event's modal, with the headers Emissary's as-modal sends
 	const modal = path.match(/^\/([0-9a-f]{24})\/modal$/)
-	if (modal) {
-		const headers = { "Content-Type": "text/html", "HX-Retarget": "aside", "HX-Reswap": "innerHTML", "HX-Push-Url": "false" }
-		const index = episodes.findIndex((episode) => episode.id == modal[1])
-		if (index >= 0) {
-			response.writeHead(200, headers)
-			return response.end(episodeModal(index))
-		}
-		const entryIndex = entries.findIndex((entry) => entry.id == modal[1])
-		if (entryIndex >= 0) {
-			response.writeHead(200, headers)
-			return response.end(entryModal(entryIndex))
-		}
+	const modalBody = modal ? modalFor(modal[1]) : ""
+	if (modalBody != "") {
+		response.writeHead(200, { "Content-Type": "text/html", "HX-Retarget": "aside", "HX-Reswap": "innerHTML", "HX-Push-Url": "false" })
+		return response.end(modalBody)
 	}
 
 	// Saving an episode answers as its edit action does: a 303 to its modal, with no closeModal event

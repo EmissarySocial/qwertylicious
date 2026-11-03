@@ -129,6 +129,7 @@
 			steps: [
 				{
 					do: "as-modal"
+					options: ["class:medium"]
 					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
 					background: "page"
 					replace-url: "/{{.StreamID}}"
@@ -139,6 +140,17 @@
 						{do:"view-html", file:"modal"}
 					]
 				}
+			]
+		}
+
+		// The Replies, Likes, and Shares tabs under the item, redrawn in place when a tab is clicked (?tab=)
+		responses: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html"}
 			]
 		}
 

@@ -16,20 +16,21 @@
 			{{- template "head-summary" . -}}
 			{{- template "head-social" . -}}
 
-			<!-- The rule between the heading and the article -->
-			<hr class="margin-vertical-lg">
-
 			<!-- The article and its Replies, as two tabs (qwerty-replies) -->
-			{{- template "replies-tabs" (array . "Article" "page") -}}
+			{{- if .AcceptsReplies -}}
+				{{- template "replies-tabs" (array . "Article" "page") -}}
 
-			{{- if eq (.QueryParam "tab") "replies" -}}
-				{{- template "replies-panel" . -}}
+				{{- if eq (.QueryParam "tab") "replies" -}}
+					{{- template "replies-panel" . -}}
 
-			{{- else if .UserCan "view-premium" -}}
-				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
+				{{- else if .UserCan "view-premium" -}}
+					<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
 
+				{{- else -}}
+					{{- template "view-subscribe" . -}}
+				{{- end -}}
 			{{- else -}}
-				{{- template "view-subscribe" . -}}
+				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
 			{{- end -}}
 
 		</article>
@@ -44,6 +45,6 @@
 		hx-push-url="false">
 	</div>
 	
-	<link rel="stylesheet" href="/.templates/user-article/stylesheet" />
+	<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet" />
 
 </div>

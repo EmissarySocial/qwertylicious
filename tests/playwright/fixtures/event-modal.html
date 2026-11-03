@@ -1,0 +1,39 @@
+<div id="modal" script="install Modal" data-hx-swap="none"><div id="modal-underlay"></div><div id="modal-window" class="medium">
+<div class="h-event">
+	<div class="corner-pencil flex-row flex-align-start">
+		<button type="button" class="edit-circle turboclick" hx-get="/${ID}/edit" hx-push-url="false" aria-label="Edit"><i class="bi bi-pencil"></i></button>
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+	</div>
+	<div class="padding">
+		${H1}${TITLE}</h1>
+		<div class="p-summary margin-bottom"><p>The summary of ${TITLE}.</p></div>
+		<div class="text-lg margin-bottom"><div class="bold"><time class="dt-start">${DATE}</time></div><div><span class="text-gray">Starts</span> 7:30 PM</div></div>
+		<div class="p-location h-adr flex-row text-gray margin-bottom">
+			<div><i class="bi bi-geo-alt-fill"></i></div>
+			<div>
+				<div class="p-street-address">2301 N Highland Ave</div>
+				<div><span class="p-locality">Los Angeles</span>, <span class="p-region">CA</span> <span class="p-postal-code">90068</span></div>
+				<div class="p-country-name">United States</div>
+			</div>
+		</div>
+		<hr class="margin-vertical-lg">
+		<div id="article-content" class="e-content"><p>The details of ${TITLE}.</p></div>
+		<div class="qwerty-responses margin-top" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
+			<div class="qwerty-responses-row flex-row flex-align-center flex-wrap margin-bottom-lg">
+				<div class="text-sm margin-none flex-row flex-align-center">
+					<button type="button" class="turboclick" aria-label="Reply"><i class="bi bi-reply"></i><span class="mobile-hide"> Reply</span></button>
+					<button type="button" class="turboclick" aria-label="Like"><i class="bi bi-heart"></i><span class="mobile-hide"> Like</span></button>
+					<button type="button" class="turboclick" aria-label="Share"><i class="bi bi-share"></i><span class="mobile-hide"> Share</span></button>
+				</div>
+				<div class="flex-grow"></div>
+				<div role="tablist" class="pills margin-bottom-none">
+					<a role="tab" class="turboclick" href="/${ID}?tab=replies" aria-selected="true">0 Replies</a>
+					<a role="tab" class="turboclick" href="/${ID}?tab=likes" aria-selected="false">0 Likes</a>
+					<a role="tab" class="turboclick" href="/${ID}?tab=shares" aria-selected="false">0 Shares</a>
+				</div>
+			</div>
+			<div class="text-gray">No replies yet.</div>
+		</div>
+	</div>
+</div>
+</div></div>

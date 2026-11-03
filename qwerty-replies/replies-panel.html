@@ -1,5 +1,5 @@
 <!-- replies-panel: the Replies tab's content, an invitation to reply (or why replies are closed), then the replies.
-     Signed in, Reply opens the inbox's reply form; otherwise base-intent's intent modal. -->
+     Signed in, Reply opens the inbox's reply form; otherwise base-intent's intent modal, or the saved account's own Reply intent. -->
 <div id="replies">
 
 	{{- if .AcceptsReplies -}}
@@ -9,7 +9,12 @@
 			{{- if .IsAuthenticated -}}
 				<button class="primary turboclick" hx-target="main" hx-swap="outerHTML" hx-get="/@me/newsfeed/browse-reply?url={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
 			{{- else -}}
-				<button class="primary turboclick" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+				<!-- Reply goes straight to the saved account's own Reply intent once CamperJS finds one that can, as in each responses.html -->
+				<span data-camper-intent="reply" data-camper-inreplyto="{{.Permalink}}" data-camper-object="{{.Permalink}}">
+					<button class="primary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=create&inReplyTo={{.Permalink | urlquery}}">{{icon "reply"}} Reply</button>
+					<button type="button" class="primary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "reply"}} Reply</button>
+				</span>
+				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 			{{- end -}}
 		</div>
 	{{- else if .RepliesClosed -}}
