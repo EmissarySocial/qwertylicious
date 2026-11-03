@@ -296,6 +296,18 @@
 			]
 		}
 
+		// base-outbox's ?tab= switch plus Collections; an override replaces the whole action, so keep its cases
+		settings-general: {
+			roles: ["self"]
+			steps: [
+				{do:"switch", expression:"{{.QueryParam `tab`}}", cases:{
+					images: {do:"view-html", file:"settings-images"}
+					links: {do:"view-html", file:"settings-links"}
+					collections: {do:"view-html", file:"settings-collections"}
+				}, default:{do:"view-html"}}
+			]
+		}
+
 		// The Collections tab of Settings → Profile, after base-outbox's Links tab
 		settings-collections: {
 			roles: ["self"]

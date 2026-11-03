@@ -1,22 +1,36 @@
+<!-- RULE: settings-general draws the tab ?tab= names, so match its switch cases here (see AGENTS.md) -->
+{{- $tab := "general" -}}
+{{- if .IsAction "settings-general" -}}
+	{{- $query := trim (.QueryParam "tab") -}}
+	{{- if in $query "images" "links" "collections" -}}
+		{{- $tab = $query -}}
+	{{- end -}}
+{{- else if .IsAction "settings-images" -}}
+	{{- $tab = "images" -}}
+{{- else if .IsAction "settings-links" -}}
+	{{- $tab = "links" -}}
+{{- else if .IsAction "settings-collections" -}}
+	{{- $tab = "collections" -}}
+{{- end -}}
 <div id="menu-bar">
 	{{- if .IsDesktop -}}
 		<div class="left tabs">
-			<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-general`}}selected{{end}}">General</a>
-			<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
-			<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
-			<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-collections`}}selected{{end}}">Collections</a>
+			<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `general`}}selected{{end}}">General</a>
+			<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `images`}}selected{{end}}">Images</a>
+			<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `links`}}selected{{end}}">Links</a>
+			<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `collections`}}selected{{end}}">Collections</a>
 		</div>
 	{{- else -}}
 		<div class="dropdown">
 			<a class="button">
-				{{- if .IsAction "settings-images" -}}Images{{- else if .IsAction "settings-links" -}}Links{{- else if .IsAction "settings-collections" -}}Collections{{- else -}}General{{- end }}
+				{{- if eq $tab "images" -}}Images{{- else if eq $tab "links" -}}Links{{- else if eq $tab "collections" -}}Collections{{- else -}}General{{- end }}
 				{{icon "chevron-down"}}
 			</a>
 			<div class="dropdown-content left">
-				<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-general`}}selected{{end}}">General</a>
-				<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
-				<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
-				<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if .IsAction `settings-collections`}}selected{{end}}">Collections</a>
+				<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `general`}}selected{{end}}">General</a>
+				<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `images`}}selected{{end}}">Images</a>
+				<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `links`}}selected{{end}}">Links</a>
+				<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `collections`}}selected{{end}}">Collections</a>
 			</div>
 		</div>
 	{{- end -}}
