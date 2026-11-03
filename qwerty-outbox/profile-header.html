@@ -45,7 +45,7 @@
 	{{- end -}}
 
 	<!-- Author Name -->
-	<div class="padding flex-row flex-align-start pos-relative">
+	<div class="padding md:flex-row flex-align-middle md:flex-align-start pos-relative">
 		<div class="width-128 height-100 margin-right-sm">
 			<img id="profile-icon" src="{{.IconURL}}" class="width-100%" aria-hidden="true">
 		</div>
@@ -104,7 +104,7 @@
 
 			<div class="nowrap" script="on load trigger storage on window">
 				<!-- The buttons stack on a phone, where two side by side would run past the card, and align to the top, under which Follow may name its account -->
-				<div class="flex-row flex-wrap flex-justify-end flex-align-start margin-none">
+				<div class="flex-row flex-wrap md:flex-justify-end flex-align-start margin-none">
 					{{- if $isMyself -}}
 
 						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
