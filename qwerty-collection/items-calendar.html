@@ -106,7 +106,7 @@
 				{{- if $days.Header (.StartDate.Format "2006-01-02") -}}
 					<div class="qwerty-calendar-list-day{{if eq (.StartDate.Format `2006-01-02`) $todayKey}} today{{end}}">{{.StartDate.Format "Monday, January 2"}}</div>
 				{{- end -}}
-				<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-list-event flex-row text-plain text-nocolor turboclick">
+				<a href="/{{.Token}}/modal" hx-get="/{{.Token}}/modal" hx-push-url="false" class="qwerty-calendar-list-event flex-row text-plain text-nocolor turboclick">
 					<div class="qwerty-calendar-time text-sm text-gray">
 						{{- if ne (.StartDate.Format "15:04") "00:00" -}}{{.StartDate.Format "3:04 PM"}}{{- else -}}All day{{- end -}}
 					</div>
@@ -143,7 +143,7 @@
 						{{- $end = .EndDate.Format "2006-01-02" -}}
 					{{- end -}}
 					{{- if and (le $start $dayKey) (ge $end $dayKey) -}}
-						<a href="/{{.StreamID}}/modal" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="qwerty-calendar-event turboclick" title="{{.Label}}">
+						<a href="/{{.Token}}/modal" hx-get="/{{.Token}}/modal" hx-push-url="false" class="qwerty-calendar-event turboclick" title="{{.Label}}">
 							{{- if and (eq $start $dayKey) (ne (.StartDate.Format "15:04") "00:00") -}}
 								<span class="qwerty-calendar-time">{{.StartDate.Format "3:04"}}</span>
 							{{- end -}}

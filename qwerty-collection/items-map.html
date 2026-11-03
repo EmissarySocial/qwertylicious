@@ -18,7 +18,7 @@
 	<div hidden>
 		{{- range $places -}}
 			{{- if .Location.HasGeocode -}}
-				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}" data-label="{{.Label}}" data-modal-url="/{{.StreamID}}/modal"></div>
+				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}" data-label="{{.Label}}" data-modal-url="/{{.Token}}/modal"></div>
 			{{- end -}}
 		{{- end -}}
 	</div>

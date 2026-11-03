@@ -18,7 +18,7 @@
 	{{- range $group := array $pinned $notes -}}
 	{{- range $group -}}
 		{{- $iconURL := .AttributedTo.IconURL -}}
-		{{- $openURL := print "/" .StreamID "/modal" -}}
+		{{- $openURL := print "/" .Token "/modal" -}}
 		{{- if $browse -}}
 			{{- $openURL = print "/@me/newsfeed/browse?url=" (urlquery .URL) -}}
 		{{- end -}}
@@ -48,7 +48,7 @@
 			</div>
 			{{- if $isMyself -}}
 				<div class="hover-show pos-absolute-top-right">
-					<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
+					<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
 				</div>
 			{{- end -}}
 		</div>

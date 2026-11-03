@@ -6,12 +6,12 @@
 {{- range index . 0 -}}
 	<!-- A tile's accessible name: its title, else its description (the hidden copy below), else "Photo" -->
 	{{- if ne "" .Label -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-label="{{.Label}}">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-label="{{.Label}}">
 	{{- else if ne "" .Content.HTML -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-labelledby="tile-caption-{{.StreamID}}">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-labelledby="tile-caption-{{.StreamID}}">
 		<div id="tile-caption-{{.StreamID}}" hidden>{{.Content.HTML | htmlMinimal}}</div>
 	{{- else -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.StreamID}}/modal" hx-push-url="false" aria-label="Photo">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-label="Photo">
 	{{- end -}}
 		<img src="{{.IconURL}}.webp?width=480&height=480" alt="" loading="lazy">
 		{{- $count := int (index .Data "photoCount") -}}
@@ -32,7 +32,7 @@
 		<!-- consume keeps the tile's own hx-get from opening the post as well -->
 		{{- if $canEdit -}}
 			<div class="hover-show pos-absolute-top-right">
-				<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-trigger="click consume" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
+				<button type="button" class="edit-circle turboclick" hx-get="/{{.Token}}/edit" hx-trigger="click consume" hx-push-url="false" aria-label="Edit" title="Edit">{{icon "pencil"}}</button>
 			</div>
 		{{- end -}}
 	</div>
