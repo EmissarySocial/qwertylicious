@@ -29,6 +29,8 @@
 				wildcard: string
 				properties: {
 					tags: {type:"string"}
+					// "false" hides the About tab while the profile has a collection; empty shows it (see AGENTS.md)
+					show-about: {type:"string", enum:["true", "false"]}
 					background-body: {type:"string", format:"uri"}
 					layout-highlight-first: {type:"boolean"}
 					stylesheet: {type:"string"}
@@ -102,10 +104,15 @@
 		about: {
 			roles: ["anonymous"]
 			steps:[
-				{do:"if", condition:"{{.IsPartialRequest}}", then:[
-					{do:"view-html"}
+				// RULE: a hidden About sends visitors to the profile, unless the profile has no collections (see AGENTS.md)
+				{do:"if", condition:"{{if eq `false` (.Data `show-about`)}}{{(.Outbox.Where `templateId` `qwerty-collection`).Top1.Slice.NotEmpty}}{{end}}", then:[
+					{do:"forward-to", url:"/@{{.UserID}}", method:"get"}
 				], else:[
-					{do:"redirect-to", url:"/@{{.UserID}}?tab=about"}
+					{do:"if", condition:"{{.IsPartialRequest}}", then:[
+						{do:"view-html"}
+					], else:[
+						{do:"redirect-to", url:"/@{{.UserID}}?tab=about"}
+					]}
 				]}
 			]
 		}
@@ -313,6 +320,15 @@
 			steps: [
 				{do:"sort", model:"Stream", keys:"_id", values:"rank"}
 				{do:"view-html", method:"both"}
+			]
+		}
+
+		// The Collections tab's Show "About" page toggle, which saves as soon as it flips
+		settings-about: {
+			roles: ["self"]
+			steps: [
+				{do:"set-data", from-form:["data.show-about"]}
+				{do:"save", comment:"About page shown or hidden"}
 			]
 		}
 

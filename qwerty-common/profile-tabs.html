@@ -4,10 +4,14 @@
 {{- $selected := index . 1 -}}
 {{- $collection := index . 2 -}}
 {{- $userID := $outbox.UserID -}}
+{{- $collections := ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+
+<!-- RULE: About can be hidden only while the profile has a collection, as outbox.html decides it (see AGENTS.md) -->
+{{- $showAbout := or (ne "false" ($outbox.Data "show-about")) $collections.IsEmpty -}}
 
 <div class="flex-row flex-wrap flex-align-center">
 <div role="tablist" class="pills">
-	{{- range ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+	{{- range $collections -}}
 		{{- $tabID := .ObjectID.Hex -}}
 		<a class="turboclick" id="tab-{{$tabID}}"
 			href="/@{{$userID}}?tab={{$tabID}}"
@@ -18,14 +22,16 @@
 			role="tab"
 			aria-selected="{{if eq $tabID $selected}}true{{else}}false{{end}}">{{.Label}}</a>
 	{{- end -}}
-	<a class="turboclick" id="tab-about"
-		href="/@{{$userID}}?tab=about"
-		hx-get="/@{{$userID}}/about"
-		hx-target="#profile-tabs"
-		hx-swap="outerHTML transition:true show:none"
-		hx-push-url="/@{{$userID}}?tab=about"
-		role="tab"
-		aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
+	{{- if $showAbout -}}
+		<a class="turboclick" id="tab-about"
+			href="/@{{$userID}}?tab=about"
+			hx-get="/@{{$userID}}/about"
+			hx-target="#profile-tabs"
+			hx-swap="outerHTML transition:true show:none"
+			hx-push-url="/@{{$userID}}?tab=about"
+			role="tab"
+			aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
+	{{- end -}}
 </div>
 {{- template "profile-menu" (array $outbox $collection $selected) -}}
 </div>

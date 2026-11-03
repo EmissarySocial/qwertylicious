@@ -64,7 +64,9 @@
 				{{- $selected = $notesTab.First.ObjectID.Hex -}}
 			{{- end -}}
 		{{- end -}}
-		{{- if eq $requested "about" -}}
+		<!-- RULE: About can be hidden only while the profile has a collection; profile-tabs and the about action agree (see AGENTS.md) -->
+		{{- $showAbout := or (ne "false" (.Data "show-about")) $collections.IsEmpty -}}
+		{{- if and (eq $requested "about") $showAbout -}}
 			{{- $selected = "about" -}}
 		{{- end -}}
 
