@@ -1,6 +1,8 @@
-<!-- gallery-tiles draws photo posts as grid tiles, called as (array $posts $canEdit); $canEdit adds a hover Edit button.
+<!-- gallery-tiles draws photo posts as grid tiles, called as (array $posts $canEdit $isCustom $canSort) (see AGENTS.md).
      RULE: tiles set hx-push-url="false" so the address bar keeps the profile's ?tab= (see AGENTS.md). -->
 {{- $canEdit := index . 1 -}}
+{{- $isCustom := index . 2 -}}
+{{- $canSort := index . 3 -}}
 {{- range index . 0 -}}
 	<!-- A tile's accessible name: its title, else its description (the hidden copy below), else "Photo" -->
 	{{- if ne "" .Label -}}
@@ -13,11 +15,19 @@
 	{{- end -}}
 		<img src="{{.IconURL}}.webp?width=480&height=480" alt="" loading="lazy">
 		{{- $count := int (index .Data "photoCount") -}}
-		{{- if or .IsFeatured (gt $count 1) -}}
+		{{- $showPin := and .IsFeatured (not $isCustom) -}}
+		{{- if or $showPin (gt $count 1) -}}
 			<span class="qwerty-gallery-mark" aria-hidden="true">
-				{{- if .IsFeatured -}}{{icon "pin-fill"}}{{- end -}}
+				{{- if $showPin -}}{{icon "pin-fill"}}{{- end -}}
 				{{- if gt $count 1 -}}{{icon "images"}}{{- end -}}
 			</span>
+		{{- end -}}
+		<!-- The handle starts a drag (Sortable's handle option); a click on it must not open the post -->
+		{{- if $canSort -}}
+			<input type="hidden" name="keys" value="{{.StreamID}}">
+			<div class="hover-show pos-absolute-top-left">
+				<span class="button edit-circle drag-handle" aria-hidden="true" script="on click halt the event">{{icon "drag-handle"}}</span>
+			</div>
 		{{- end -}}
 		<!-- consume keeps the tile's own hx-get from opening the post as well -->
 		{{- if $canEdit -}}

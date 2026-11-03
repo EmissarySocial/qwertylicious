@@ -1,9 +1,6 @@
-<!-- items-timeline is a Timeline's tab: its events in date order down a vertical line, under a heading per year. -->
+<!-- items-timeline is a Timeline's tab: its events in date order, oldest first, down a vertical line, under a heading per year. -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
-{{- if eq (.Data "timelineOrder") "desc" -}}
-	{{- $query = $query.Reverse -}}
-{{- end -}}
 {{- $allEvents := $query.All.Slice -}}
 {{- $events := $allEvents -}}
 {{- if ne "" $tag -}}

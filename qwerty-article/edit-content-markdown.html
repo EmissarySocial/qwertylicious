@@ -64,7 +64,7 @@
 		})
 	}
 
-	// Markdown posts as a form field named "content".  RULE: the exact Content-Type, because Emissary refuses fetch's own "...;charset=UTF-8"
+	// Markdown posts as a form field named "content".  RULE: the bare Content-Type, because older Emissary builds refuse fetch's own "...;charset=UTF-8"
 	window._save = async function() {
 		var response = await fetch("/{{.StreamID}}/edit-content", {
 			method: "POST",

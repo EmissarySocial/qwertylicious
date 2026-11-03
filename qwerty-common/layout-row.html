@@ -1,5 +1,6 @@
-<!-- layout-row renders (array $posts $canEdit) and fetches nothing; $canEdit adds a hover Edit link.  The caller handles empty. -->
+<!-- layout-row renders (array $posts $canEdit $canSort) and fetches nothing: an Edit link and a drag handle.  The caller handles empty. -->
 {{- $canEdit := index . 1 -}}
+{{- $canSort := index . 2 -}}
 {{- range index . 0 -}}
 	<div class="pos-relative hover-trigger margin-bottom">
 		<a href="{{.URL}}" hx-boost="true" class="flex-row card qwerty-outbox-item text-plain text-nocolor padding turboclick">
@@ -13,6 +14,13 @@
 				<div class="text-sm text-gray bold qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
 			</div>
 		</a>
+		<!-- The handle starts a drag (Sortable's handle option); a click on it must not open the article -->
+		{{- if $canSort -}}
+			<input type="hidden" name="keys" value="{{.StreamID}}">
+			<div class="hover-show pos-absolute-top-left">
+				<span class="button edit-circle drag-handle" aria-hidden="true" script="on click halt the event">{{icon "drag-handle"}}</span>
+			</div>
+		{{- end -}}
 		{{- if $canEdit -}}
 			<div class="hover-show pos-absolute-top-right">
 				<a href="/{{.StreamID}}/edit" hx-boost="true" class="button edit-circle turboclick" aria-label="Edit" title="Edit">{{icon "pencil"}}</a>

@@ -62,6 +62,11 @@
 	}
 }
 
+/* The author's drag handle in a Custom collection, top left, opposite the Edit button (gallery-tiles.html, qwerty-common/layout-*.html) */
+.drag-handle {
+	cursor: grab;
+}
+
 /* Carousel: a post's photos side by side, one in view, slid by transform (qwerty-theme/carousel/qwerty-carousel.js).
    touch-action leaves vertical scrolling to the browser and horizontal drags to the script.  The script sets the
    stage's height to the photo in view, so the caption below moves up and down to fit each photo. */
@@ -429,7 +434,7 @@
 	}
 }
 
-/* A Podcast collection (qwerty-collection/items-podcast.html): the feed's link, then the episodes.  The theme's
+/* A Podcast collection (qwerty-collection/items-podcast.html): its description and the feed's link, then the episodes.  The theme's
    podcast bundle marks the episode that is playing with .playing. */
 /* Space between the tab bar and the podcast, then the feed's link above the episodes */
 .qwerty-podcast {

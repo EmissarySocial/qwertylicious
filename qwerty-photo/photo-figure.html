@@ -14,27 +14,33 @@
 {{- if $hasCaption -}}{{- $labelledBy = trim (print $labelledBy " " $captionID) -}}{{- end -}}
 {{- $several := gt (len $photos) 1 -}}
 
-<!-- The neighboring posts, in the gallery's order: pinned posts, then the rest, each newest first -->
+<!-- The neighboring posts, in the gallery's order: by rank when Custom, else pinned posts and then the rest, each newest first -->
 {{- $gallery := $builder.Siblings.Where "templateId" "qwerty-photo" -}}
 {{- $pinned := $gallery.Where "isFeatured" true -}}
 {{- $unpinned := $gallery.Where "isFeatured" false -}}
-{{- $created := $builder.CreateDate -}}
+{{- $published := $builder.PublishDate -}}
 {{- $prev := "" -}}
 {{- $next := "" -}}
-{{- if $builder.IsFeatured -}}
-	{{- $newer := (($pinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
-	{{- $older := (($pinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+{{- if eq (($builder.Parent "view").DataString "sortType") "rank" -}}
+	{{- $rank := $builder.Rank -}}
+	{{- $higher := (($gallery.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
+	{{- $lower := (($gallery.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
+	{{- if not $higher.ObjectID.IsZero -}}{{- $prev = $higher.StreamID -}}{{- end -}}
+	{{- if not $lower.ObjectID.IsZero -}}{{- $next = $lower.StreamID -}}{{- end -}}
+{{- else if $builder.IsFeatured -}}
+	{{- $newer := (($pinned.WhereGT "publishDate" $published).ByPublishDate.Top1.Slice).First -}}
+	{{- $older := (($pinned.WhereLT "publishDate" $published).ByPublishDate.Reverse.Top1.Slice).First -}}
 	{{- if $older.ObjectID.IsZero -}}
-		{{- $older = ($unpinned.ByCreateDate.Reverse.Top1.Slice).First -}}
+		{{- $older = ($unpinned.ByPublishDate.Reverse.Top1.Slice).First -}}
 	{{- end -}}
 	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
 	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
 {{- else -}}
-	{{- $newer := (($unpinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+	{{- $newer := (($unpinned.WhereGT "publishDate" $published).ByPublishDate.Top1.Slice).First -}}
 	{{- if $newer.ObjectID.IsZero -}}
-		{{- $newer = ($pinned.ByCreateDate.Top1.Slice).First -}}
+		{{- $newer = ($pinned.ByPublishDate.Top1.Slice).First -}}
 	{{- end -}}
-	{{- $older := (($unpinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+	{{- $older := (($unpinned.WhereLT "publishDate" $published).ByPublishDate.Reverse.Top1.Slice).First -}}
 	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
 	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
 {{- end -}}

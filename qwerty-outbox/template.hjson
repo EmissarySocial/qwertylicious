@@ -62,8 +62,8 @@
 			"data.layout": "column-3"
 			"data.zoom": "11"
 			"data.calendarView": "list"
-			"data.timelineOrder": "asc"
-			"data.episodeOrder": "desc"
+			"data.sortType": "publishDate"
+			"data.sortDirection": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}
@@ -73,8 +73,8 @@
 			"data.layout": "notes"
 			"data.zoom": "11"
 			"data.calendarView": "list"
-			"data.timelineOrder": "asc"
-			"data.episodeOrder": "desc"
+			"data.sortType": "publishDate"
+			"data.sortDirection": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}

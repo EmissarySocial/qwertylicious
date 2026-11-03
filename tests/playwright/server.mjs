@@ -138,6 +138,13 @@ function page(body) {
 	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
 }
 
+// visualEditor renders an EditorJS editor template for a new Article, whose content.raw is empty
+function visualEditor(file) {
+	return stripComments(read(file))
+		.replaceAll("{{.ContentRaw}}", "")
+		.replaceAll("{{.StreamID}}", "6ad24ab9c00dfca0c02cd460")
+}
+
 const routes = {
 	"/healthz": () => ["text/plain", "ok"],
 	"/css": () => ["text/css", [
@@ -155,6 +162,8 @@ const routes = {
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
 	"/calendar": () => ["text/html", page(`<button id="open-event" hx-get="/${calendarEvent.id}/modal" hx-push-url="false">${calendarEvent.title}</button><aside></aside>`)],
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
+	"/editorjs": () => ["text/html", page(visualEditor(join(qwerty, "qwerty-article/edit-content-editorjs.html")))],
+	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
 }
 
 createServer((request, response) => {

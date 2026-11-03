@@ -30,8 +30,10 @@ npx playwright show-report        # the HTML report of the last run
 | `/calendar` | A page with one button that opens a Calendar event's modal |
 | `/{id}/modal` | An episode's, an entry's, or the event's modal, with the headers Emissary's `as-modal` sends |
 | `/podcast-list` | One row of a podcast's episode list |
+| `/editorjs` | `qwerty-article/edit-content-editorjs.html` for a new Article, read from the template itself |
+| `/editorjs-emissary` | Emissary's `stream-article-editorjs/editor.html`, the same way |
 
-It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout.
+It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout. The two editor pages load EditorJS from jsdelivr, as the real editors do, so `editorjs.spec.mjs` needs network access.
 
 ## The fixtures copy rendered markup
 
@@ -77,3 +79,8 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 
 - **The title's size.** The event's title keeps one size on every frame while its modal opens. Without `id="modal-title"`, it went from 40px to 32px.
 - **One font size in the responses bar.** The Reply, Like, and Share buttons match the Replies, Likes, and Shares tabs. The bar's markup is copied into `fixtures/event-modal.html`, so this checks qwerty-theme's stylesheet, not the template. Without the rule in `03-app.css`, the buttons were 12.8px and the tabs 14.4px.
+
+`editorjs.spec.mjs` checks the following, in qwertylicious's editor and in Emissary's:
+
+- **A line break pasted into a paragraph.** Pasting `one<br>two` saves `one<br>two`. Without `ColorPickerKeepingBreaks`, EditorJS saved `onetwo`.
+- **A line break inside pasted paragraphs.** Pasting two `<p>` elements saves two blocks, and the first keeps its `<br>`.

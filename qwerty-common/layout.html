@@ -1,26 +1,25 @@
-<!-- layout renders StreamSummaries in one of five formats, called as (array $layout $posts $canEdit) (see AGENTS.md). -->
+<!-- layout renders StreamSummaries in one of five formats, called as (array $layout $posts $canEdit $sortURL) (see AGENTS.md). -->
 {{- $layout := index . 0 -}}
-{{- $posts := index . 1 -}}
-{{- $items := array $posts (index . 2) -}}
-
+{{- $sortURL := index . 3 -}}
+{{- $cards := array $layout (array (index . 1) (index . 2) (ne "" $sortURL)) -}}
+{{- $class := "" -}}
 {{- if eq $layout "column-1" -}}
-	<div class="cols-1">
-		{{template "layout-column" $items}}
-	</div>
+	{{- $class = "cols-1" -}}
 {{- else if eq $layout "column-2" -}}
-	<div class="cols-2">
-		{{template "layout-columns" $items}}
-	</div>
+	{{- $class = "cols-2" -}}
 {{- else if eq $layout "column-3" -}}
-	<div class="cols-2-3">
-		{{template "layout-columns" $items}}
-	</div>
-{{- else if eq $layout "row-reverse" -}}
-	<div>
-		{{template "layout-row-reverse" $items}}
+	{{- $class = "cols-2-3" -}}
+{{- end -}}
+
+{{- if eq "" $sortURL -}}
+	<div class="{{$class}}">
+		{{- template "layout-cards" $cards -}}
 	</div>
 {{- else -}}
-	<div>
-		{{template "layout-row" $items}}
-	</div>
+	<!-- The author drags cards by their handles, and Sortable's update event posts the new order to $sortURL -->
+	<script src="/.themes/global/resources/sortable-1.15.7/Sortable.min.js" onload="window.dispatchEvent(new Event('sortableReady'))"></script>
+	<form class="{{$class}}" hx-post="{{$sortURL}}" hx-trigger="update" hx-push-url="false"
+		script="on load or sortableReady from window if Sortable is null then exit end if :sortableInstalled is true then exit end set :sortableInstalled to true make a Sortable from me, {handle:'.drag-handle', draggable:'>div', animation:150, ghostClass:'draggable-whisper'} end">
+		{{- template "layout-cards" $cards -}}
+	</form>
 {{- end -}}

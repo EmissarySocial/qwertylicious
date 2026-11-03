@@ -1,16 +1,38 @@
-<!-- items-gallery is a Photo Gallery's tab: a square grid of posts, pinned first, then newest first, 30 at a time.
+<!-- items-gallery is a Photo Gallery's tab: a square grid of posts, 30 at a time, newest first or in its Custom order.
      Each page ends in a sentinel that loads the next (gallery-more.html); a post opens qwerty-photo's modal. -->
 {{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
-{{- $pinned := (($photos.Where "isFeatured" true).ByCreateDate.Reverse.All).Slice -}}
-{{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
+{{- $canEdit := .UserCan "settings" -}}
+{{- $empty := "This gallery shows off your photos, newest first.  Add your first one now." -}}
 
-{{- if and $pinned.IsEmpty $page.IsEmpty -}}
-	{{- template "items-empty" (array . "images" "Your Photo Gallery" "This gallery shows off your photos, newest first.  Add your first one now." "+ Add a Photo") -}}
+{{- if eq (.DataString "sortType") "rank" -}}
+	<!-- RULE: Custom order is rank, highest first, and ignores pins (see AGENTS.md) -->
+	{{- $page := ($photos.ByRank.Reverse.Top30).Slice -}}
+	{{- if $page.IsEmpty -}}
+		{{- template "items-empty" (array . "images" "Your Photo Gallery" $empty "+ Add a Photo") -}}
+	{{- else if .UserCan "sort" -}}
+		<!-- The author drags tiles by their handles, and Sortable's update event posts the new order -->
+		<script src="/.themes/global/resources/sortable-1.15.7/Sortable.min.js" onload="window.dispatchEvent(new Event('sortableReady'))"></script>
+		<form class="qwerty-gallery" hx-post="/{{.StreamID}}/sort" hx-trigger="update" hx-push-url="false"
+			script="on load or sortableReady from window if Sortable is null then exit end if :sortableInstalled is true then exit end set :sortableInstalled to true make a Sortable from me, {handle:'.drag-handle', draggable:'.qwerty-gallery-item', animation:150, ghostClass:'draggable-whisper'} end">
+			{{- template "gallery-tiles" (array $page $canEdit true true) -}}
+			{{- template "gallery-more" (array .StreamID $page true) -}}
+		</form>
+	{{- else -}}
+		<div class="qwerty-gallery">
+			{{- template "gallery-tiles" (array $page $canEdit true false) -}}
+			{{- template "gallery-more" (array .StreamID $page true) -}}
+		</div>
+	{{- end -}}
 {{- else -}}
-	<div class="qwerty-gallery">
-		{{- $canEdit := .UserCan "settings" -}}
-		{{- template "gallery-tiles" (array $pinned $canEdit) -}}
-		{{- template "gallery-tiles" (array $page $canEdit) -}}
-		{{- template "gallery-more" (array .StreamID $page) -}}
-	</div>
+	{{- $pinned := (($photos.Where "isFeatured" true).ByPublishDate.Reverse.All).Slice -}}
+	{{- $page := (($photos.Where "isFeatured" false).ByPublishDate.Reverse.Top30).Slice -}}
+	{{- if and $pinned.IsEmpty $page.IsEmpty -}}
+		{{- template "items-empty" (array . "images" "Your Photo Gallery" $empty "+ Add a Photo") -}}
+	{{- else -}}
+		<div class="qwerty-gallery">
+			{{- template "gallery-tiles" (array $pinned $canEdit false false) -}}
+			{{- template "gallery-tiles" (array $page $canEdit false false) -}}
+			{{- template "gallery-more" (array .StreamID $page false) -}}
+		</div>
+	{{- end -}}
 {{- end -}}

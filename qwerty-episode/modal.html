@@ -5,19 +5,19 @@
 {{- $image := .IconURL -}}
 {{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
 
-<!-- The neighboring episodes, in the list's order: newest first unless episodeOrder is "asc" -->
+<!-- The neighboring episodes, in the list's order: highest rank first unless sortDirection is "asc" -->
 {{- $episodes := .Siblings.Where "templateId" "qwerty-episode" -}}
-{{- $created := .CreateDate -}}
-{{- $newer := (($episodes.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
-{{- $older := (($episodes.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
+{{- $rank := .Rank -}}
+{{- $higher := (($episodes.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
+{{- $lower := (($episodes.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
 {{- $above := "" -}}
 {{- $below := "" -}}
-{{- if eq ($podcast.DataString "episodeOrder") "asc" -}}
-	{{- if not $older.ObjectID.IsZero -}}{{- $above = $older.StreamID -}}{{- end -}}
-	{{- if not $newer.ObjectID.IsZero -}}{{- $below = $newer.StreamID -}}{{- end -}}
+{{- if eq ($podcast.DataString "sortDirection") "asc" -}}
+	{{- if not $lower.ObjectID.IsZero -}}{{- $above = $lower.StreamID -}}{{- end -}}
+	{{- if not $higher.ObjectID.IsZero -}}{{- $below = $higher.StreamID -}}{{- end -}}
 {{- else -}}
-	{{- if not $newer.ObjectID.IsZero -}}{{- $above = $newer.StreamID -}}{{- end -}}
-	{{- if not $older.ObjectID.IsZero -}}{{- $below = $older.StreamID -}}{{- end -}}
+	{{- if not $higher.ObjectID.IsZero -}}{{- $above = $higher.StreamID -}}{{- end -}}
+	{{- if not $lower.ObjectID.IsZero -}}{{- $below = $lower.StreamID -}}{{- end -}}
 {{- end -}}
 
 <div class="qwerty-episode h-entry padding" data-episode-id="{{.StreamID}}">

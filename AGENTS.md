@@ -23,7 +23,9 @@ Notes go in this file, never inside a template folder (see "A bundle folder hold
 | `qwerty-theme` | — | The site theme (a `themeId`), extending Emissary's `global` |
 | `qwerty-search` | Stream | **Parked** (see "A `z-` filename prefix parks a template") |
 
-**A collection never changes format.** Edit Collection offers an Article collection only the Article layouts, and every other format only its own settings (a Timeline's or Podcast's order, a Calendar's view). A collection has no page of its own: `view` redirects to its tab, and `list` is the tab's content.
+**A collection never changes format.** Edit Collection offers an Article collection only the Article layouts, and every other format only its own settings (a Photo Gallery's or Podcast's order, a Calendar's view). A collection has no page of its own: `view` redirects to its tab, and `list` is the tab's content.
+
+**Every `settings-*` action begins with a `require` that refuses any other format, because every action is also its own URL.** Edit Collection (`settings`) holds the modal, `settings-title`, and `refresh-page`, and its `switch` on `data.layout` includes one `settings-*` action per format. Reached directly, `settings-notes` would share a private collection with everyone and copy its reply policy onto every Note, and `settings-articles` would give any collection an Article layout. `settings-articles` is the switch's default, so its guard lists the switch's other cases, and the two lists must agree.
 
 **The three entry templates duplicate their views on purpose,** because they are expected to diverge. Each has the Stream's own `location` (the `place` widget) and `data.tags`, which filter its collection. The page and the modal share `entry-body.html`, which draws the static map. `entry-byline.html` is on the page only.
 
@@ -82,7 +84,23 @@ A photo, place, timeline entry, event, and episode share one pattern. Its `view`
 - **No `<input>` in a modal that uses the keyboard.** The `Modal` behavior focuses the first `<input>`, which swallows the keys. That is why the podcast progress bar is a `div`.
 - **A timeline entry's modal starts with a sticky bar** (`entry-neighbors.html`) linking the previous and next entries in the tab's order and `?tag=` filter. It walks the whole list rather than using `WhereGT`, because date-only entries often share a date. Its arrows and the Left and Right keys go through the carousel bundle's `[data-modal-go]` handler. The bar comes before the `h-event`, so the corner pencil and X paint over its right end, and it keeps room for them.
 
-**A photo** publishes on upload and is its own thumbnail (`set-thumbnail`). Edit replaces it through `upload-attachments`' `replace` action, and saving without a file keeps it. Older posts may hold several photos and show as a carousel (marked by `data.photoCount`). Pinned photos (`isFeatured`) lead the gallery.
+**A photo** publishes on upload and is its own thumbnail (`set-thumbnail`). Edit replaces it through `upload-attachments`' `replace` action, and saving without a file keeps it. Older posts may hold several photos and show as a carousel (marked by `data.photoCount`). Pinned photos (`isFeatured`) lead a Chronological gallery.
+
+## A Photo Gallery or Article collection sorts by date or by rank
+
+`data.sortType` is `publishDate` (Chronological, newest published first, which `create` sets) or `rank` (Custom). Every view reads anything but `rank` as Chronological, so a collection saved before the field existed has none, and the older `createDate` still validates. These places read it and must agree:
+
+- **A Photo Gallery:** `items-gallery.html`, `items-gallery-page.html`, `qwerty-photo/photo-figure.html` (the modal's neighbors), and `qwerty-photo`'s `edit` action.
+- **An Article collection:** `items.html`, and `qwerty-article`'s `properties` action.
+
+The rules:
+
+- **Custom is rank, highest first, and ignores pins and Featured.** Emissary ranks a new child one above its highest sibling, so a new item lands on top, and a collection switched to Custom keeps its creation order. The photo's Edit form and the Article's Properties form leave out their toggles, so `isFeatured` survives a switch back.
+- **The `sort` step must match the list's own direction,** which is `desc` everywhere except a Podcast set to `asc`. The gallery's tiles post only the pages loaded so far, which hold the highest ranks. A descending sort numbers them down from the highest rank among them, so the photos not yet loaded keep their places; an ascending sort numbers them from 1 and collides with those photos.
+- **A drag starts only from the handle** (Sortable's `handle` option). Emissary's turboclick skips `.drag-handle`, and the gallery's handle halts its own click, or pressing it would open the photo instead.
+- **`gallery-tiles` takes `(array $posts $canEdit $isCustom $canSort)`.** `$isCustom` hides the pin mark, and `$canSort` adds the handle and the hidden `keys` input that the form posts.
+- **An Article collection's Sortable lives in `qwerty-common/layout.html`.** A non-empty `$sortURL` draws the list as a form that posts the new order there, and each card template adds its handle and key. Sortable drags `>div`, the card's outer wrapper, so nothing else may sit directly inside that form.
+- **Ranks can tie.** `MaxRank` is a read-then-write, so two items created at once on two servers can share a rank, and `?rank=LT:` paging then skips one of them at a page boundary.
 
 ## The corner pencil toggles between an item and its editor
 
@@ -104,7 +122,7 @@ Every item modal (photo, episode, place, timeline entry, event, and Emissary's N
 
 ## Podcast episodes play from one delegated script
 
-A Podcast's tab (`items-podcast.html`) is the feed's link and a table of episodes, in `data.episodeOrder`. An episode uploads one track (category `Audio`, ID in `data.attachmentId`, URL in `data.audioUrl`), and its `audio` action serves it transcoded (`/{id}/audio?format=mp3`). Every save writes `data.enclosureUrl`, which Emissary's feeds turn into an RSS enclosure and a JSON Feed attachment, so the collection's `feed` is the podcast. The player is `qwerty-theme/podcast/qwerty-podcast.js` (the `podcast` bundle), not Emissary's `MediaPlayer`.
+A Podcast's tab (`items-podcast.html`) is the feed's link and a table of episodes by rank, highest first unless `data.sortDirection` is `asc`; the modal's neighbors and play-next follow the same order. An episode's date is its `publishDate`, edited through Emissary's virtual `publishDateTime`: UTC, like every date display, and a save within the same minute keeps the stored seconds. A Timeline is always in date order, oldest first. An episode uploads one track (category `Audio`, ID in `data.attachmentId`, URL in `data.audioUrl`), and its `audio` action serves it transcoded (`/{id}/audio?format=mp3`). Every save writes `data.enclosureUrl`, which Emissary's feeds turn into an RSS enclosure and a JSON Feed attachment, so the collection's `feed` is the podcast. The player is `qwerty-theme/podcast/qwerty-podcast.js` (the `podcast` bundle), not Emissary's `MediaPlayer`.
 
 - **One `<audio>` element, on `<body>`.** It outlives the modals, because browsers (iOS Safari above all) start audio without a gesture only on an element that has already played. A new `<audio>` per modal breaks autoplay of the next episode.
 - **The list's play button starts the audio in its own click,** before its `hx-get` opens the modal. Play, pause, and skip carry `turboclick`, which fires on mouse-down (still a user gesture) and swallows the click that follows.
@@ -134,7 +152,7 @@ A Map's default view is its own `location` and `data.zoom`, set only in Edit Map
 
 ## A tab's own query parameters ride along in the profile's URL
 
-A Calendar's `?view=` and `?startDate=`, and a Map or Timeline's `?tag=`, are the tab's state. Its links reload `#profile-tabs` and push `/@user?tab={id}&…`, and `outbox.html` passes them to the tab's `/list` URL, so reloads and shared links keep the view. **Never name a new parameter `createDate`, `publishDate`, `updateDate`, `expirationDate`, `rank`, or `label`:** a Stream's children query applies those as filters. A Photo Gallery's infinite scroll relies on exactly that (`?createDate=LT:{last}`).
+A Calendar's `?view=` and `?startDate=`, and a Map or Timeline's `?tag=`, are the tab's state. Its links reload `#profile-tabs` and push `/@user?tab={id}&…`, and `outbox.html` passes them to the tab's `/list` URL, so reloads and shared links keep the view. **Never name a new parameter `createDate`, `publishDate`, `updateDate`, `expirationDate`, `rank`, or `label`:** a Stream's children query applies those as filters. A Photo Gallery's infinite scroll relies on exactly that (`?publishDate=LT:{last}`, or `?rank=LT:{last}` when Custom).
 
 ## A `z-` filename prefix parks a template
 
@@ -161,7 +179,7 @@ Emissary minifies each view before Go parses it, and the minifier lowercases att
 
 A template inherits actions, states, roles, schema, datasets, and views from each entry in `extends`, and a local definition wins. The bases `base-social`, `base-intent`, and `base-outbox` ship in Emissary's `_embed/templates`, so an unexplained action or role usually comes from there.
 
-**A local view shadows an inherited one with the same name.** That is why `qwerty-common`'s shared layouts are named `layout-row`, `layout-row-reverse`, `layout-column`, and `layout-columns`. Each takes `(array $posts $canEdit)` and fetches nothing. Call the chooser as `{{template "layout" (array $layout $posts $canEdit)}}`: `{{template}}` takes one value, and the funcmap has `array` but no `dict`. The caller handles the empty state.
+**A local view shadows an inherited one with the same name.** That is why `qwerty-common`'s shared layouts are named `layout-row`, `layout-row-reverse`, `layout-column`, and `layout-columns`. Each takes `(array $posts $canEdit $canSort)` and fetches nothing. Call the chooser as `{{template "layout" (array $layout $posts $canEdit $sortURL)}}`, with `""` for a list that cannot be dragged: `{{template}}` takes one value, and the funcmap has `array` but no `dict`. The caller handles the empty state.
 
 ## Option providers are `{templateId}.{datasetName}`
 
@@ -173,7 +191,7 @@ A template inherits actions, states, roles, schema, datasets, and views from eac
 
 `qwerty-outbox`'s `defaultChildren` lists two collections, which Emissary's `User.Save` creates when a User is first saved, however the account was made. Existing profiles get none.
 
-- **Keep the entries in step with `qwerty-collection`'s `create`.** They never run `create`, so they restate its defaults (layout, `data.zoom`, `data.calendarView`, `data.timelineOrder`, `data.episodeOrder`, `replyPolicy`, and the label). Change both places together.
+- **Keep the entries in step with `qwerty-collection`'s `create`.** They never run `create`, so they restate its defaults (layout, `data.zoom`, `data.calendarView`, `data.sortType`, `data.sortDirection`, `replyPolicy`, and the label). Change both places together.
 - **Both collections are public:** `groups.viewer.0` is the anonymous Group, `000000000000000000000000`.
 - **Quote every value.** An unquoted `000…` in hjson is a string that runs to the end of the line, swallowing any key after it.
 - **A bad entry stops every template from loading.** Emissary validates each entry through `qwerty-collection`'s schema at load.
@@ -212,11 +230,12 @@ A collection whose `data.layout` is `notes` lists `(.ParentOutbox "view").Outbox
 An Article's `content.format` is `EDITORJS` (the Visual Editor, and the default), `MARKDOWN`, or `HTML`, chosen in its Properties modal. Three places read it and must name the same three formats: the Properties select, the editor dispatcher (`edit-content.html`, which includes `edit-content-editorjs`, `-markdown`, or `-html`), and the `edit-content` action's `switch`. Anything else counts as `EDITORJS` in all three.
 
 - **The server takes the format from the record, never the request,** so a browser cannot post Markdown into a Visual Editor article. Each editor defines `window._save()` in its own shape (EditorJS posts JSON; Markdown and HTML post a form field named `content`), and the dispatcher's `save()` and `publish()` call it. `_save()` throws on a failed response, so the page never navigates away from unsaved text.
-- **A `fetch` form post must set `Content-Type: application/x-www-form-urlencoded` itself.** Emissary's form parser (`tools/formdata`) accepts only that exact string, and `fetch` with a `URLSearchParams` body adds `;charset=UTF-8`, which answers 400 "Unsupported encoding". htmx sends the bare type, so htmx forms never hit this.
+- **A `fetch` form post sets `Content-Type: application/x-www-form-urlencoded` itself.** `fetch` with a `URLSearchParams` body adds `;charset=UTF-8`, and older Emissary builds accepted only the bare string, answering 400 "Unsupported encoding". Current Emissary (`tools/formdata`) matches the media type alone, but the explicit header keeps the editors working on any build.
 - **Changing the format clears the text,** because one editor cannot read another's raw content. `properties` records the old format with `set-args` before its `edit` form applies, then blanks `content.raw` and `content.html` when the format changed. Switching to HTML instead copies the rendered `content.html` into `content.raw`, so nothing is lost. Either way it ends with `refresh-page`, so the edit page reloads into the new editor.
 - **The select is `required` as a form option, never in the schema.** `Stream.Save` normalizes against the schema, which refuses an empty required value, so a schema `required` would stop every older Article without a format from saving. The form option only blocks choosing the blank entry.
 - **Never restate `content.raw` or `content.html` in this schema.** A restated property replaces Emissary's whole definition. A plain `raw: {type:"string"}` falls back to `no-html`, which stripped every bold, italic, and link out of EditorJS's JSON on each save, and would strip an HTML Article bare.
 - **The Visual Editor starts empty on a blank `content.raw`,** which is what an Article just switched to it holds; `JSON.parse("")` would stop EditorJS from starting.
+- **The color picker is registered as `ColorPickerKeepingBreaks`, and that is what keeps a pasted line break.** EditorJS cleans a paste with only its inline tools' rules, and none of the others allows `<br>`, so a plain `ColorPicker.default` drops every pasted line break with no error (emissary-specs BUG-326). Emissary's `stream-article-editorjs` editor carries the same subclass, and `tests/playwright/editorjs.spec.mjs` pastes into both.
 
 ## The Article's stylesheet styles its two pages differently
 
@@ -227,6 +246,10 @@ An Article's `content.format` is `EDITORJS` (the Visual Editor, and the default)
 ## A new Emissary feature sets a minimum Emissary version
 
 A template that uses a funcmap helper (such as `toTime` or `cssValue`) fails to **load** on a server whose funcmap lacks it, because `html/template` resolves function names at parse time. A missing builder method, step option, or Emissary partial (such as `base-outbox`'s `follow-button`) fails only when a page **renders**, so the breakage hides until someone opens that page. An unknown `extends` entry halts first boot. Confirm the target server's Emissary has a feature before using it here.
+
+**An unknown step option is ignored, not refused.** A Custom Photo Gallery needs the `sort` step's `direction` option and turboclick's `.drag-handle` exemption. On an Emissary without them, a drag numbers the posted photos from 1, and pressing a handle opens the photo.
+
+**An unknown form path is dropped, not refused.** The episode editor's Publish Date needs Stream's `publishDateTime`. On an Emissary without it, the field renders empty and a save drops the value, logged only at debug level.
 
 ## The server caches template folders
 

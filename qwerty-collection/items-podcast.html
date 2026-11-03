@@ -1,8 +1,8 @@
-<!-- items-podcast is a Podcast's tab: the feed's link, then a table of episodes that each open their modal.
+<!-- items-podcast is a Podcast's tab: its description and the feed's link, then a table of episodes that each open their modal.
      RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
-<!-- Newest first unless data.episodeOrder is "asc" -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByCreateDate -}}
-{{- if ne (.Data "episodeOrder") "asc" -}}
+<!-- By rank, highest (newest) first unless data.sortDirection is "asc" -->
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByRank -}}
+{{- if ne (.DataString "sortDirection") "asc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}
 {{- $episodes := $query.Top60.Slice -}}
@@ -11,10 +11,18 @@
 {{- $canEdit := .UserCan "add" -}}
 
 {{- if $episodes.IsEmpty -}}
+	<!-- An empty Podcast keeps its description, centered above the welcome (list.html leaves it to this view) -->
+	{{- if ne "" .Summary -}}
+		<div class="reading-column text-gray">{{.Summary}}</div>
+	{{- end -}}
 	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
 {{- else -}}
-	<!-- The feed's link and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
+	<!-- The description, the feed's link, and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
 	<div class="qwerty-podcast reading-column margin-top-xl">
+
+		{{- if ne "" .Summary -}}
+			<div class="text-gray">{{.Summary}}</div>
+		{{- end -}}
 
 		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">
 			<div class="flex-grow"></div>

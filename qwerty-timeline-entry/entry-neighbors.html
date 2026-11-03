@@ -9,9 +9,6 @@
 
 <!-- The tab's own query (items-timeline.html), walked in full because date-only entries often share a date -->
 {{- $query := (.Siblings.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
-{{- if eq ($timeline.DataString "timelineOrder") "desc" -}}
-	{{- $query = $query.Reverse -}}
-{{- end -}}
 {{- if ne "" $tag -}}
 	{{- $query = $query.Tags $tag -}}
 {{- end -}}

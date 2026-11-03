@@ -35,10 +35,10 @@
 					// "notes" is the magic Notes collection, which lists the profile's Notes and holds no items (§1.7)
 					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes"]}
 					zoom: {type:"integer", minimum:0, maximum:19}
-					// A Timeline's order, "asc" (oldest first, the default) or "desc"
-					timelineOrder: {type:"string", enum:["", "asc", "desc"]}
-					// A Podcast's episode order, "desc" (newest first, the default when empty) or "asc"
-					episodeOrder: {type:"string", enum:["", "desc", "asc"]}
+					// A Photo Gallery's or Article collection's order: "publishDate" (Chronological, newest first), "rank" (Custom), or the older "createDate"
+					sortType: {type:"string", enum:["publishDate", "rank", "createDate"]}
+					// A Podcast's episode order by rank, "desc" (newest first) or "asc"
+					sortDirection: {type:"string", enum:["desc", "asc"]}
 					// A Calendar's default view, "list" (the default when empty), "week", or "month"
 					calendarView: {type:"string", enum:["", "list", "week", "month"]}
 				}
@@ -66,7 +66,7 @@
 		create: {
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "data.timelineOrder":"asc", "data.episodeOrder":"desc", "replyPolicy":"everyone"}}
+				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "data.sortType":"publishDate", "data.sortDirection":"desc", "replyPolicy":"everyone"}}
 				{do:"as-modal", steps: [
 					// A profile has at most one Notes collection, so Notes is offered only while it has none (§1.7)
 					{do:"if", condition:"{{(((.ParentOutbox `view`).Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice.NotEmpty}}", then:[
@@ -165,202 +165,275 @@
 		settings: {
 			roles: ["author"]
 			steps: [
-				// The Notes collection has no format to change, and no children; share-reply-policy carries its replies
-				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
-					{do:"as-modal", steps: [
-						{do:"view-html", file:"settings-title"}
-						{
-							do: "edit"
-							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
-								type: layout-vertical
-								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
-								]
-							}
-						}
-						// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
-						{do:"set-sharing", role:"viewer", group:"anonymous"}
-						{do:"save", comment:"Settings updated by {{.Author}}"}
-						// Notes are not this collection's children, so its reply policy is copied onto them here
-						{do:"share-reply-policy", template:"outbox-message"}
-					]}
-					{do:"refresh-page"}
-					{do:"halt"}
-				]}
 				{do:"as-modal", steps: [
-					// The format's icon and title, and a link to Settings → Collections, in place of each form's own label
 					{do:"view-html", file:"settings-title"}
-					// A Podcast's replies are a toggle here, and reach its episodes through shareWithChildren
-					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
-						{
-							do: "edit"
-							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
-								type: layout-tabs
+					{do:"switch", expression:"{{.Data `layout`}}", cases:{
+						notes: {do:"include", action:"settings-notes"}
+						podcast: {do:"include", action:"settings-podcast"}
+						gallery: {do:"include", action:"settings-photos"}
+						map: {do:"include", action:"settings-map"}
+						calendar: {do:"include", action:"settings-calendar"}
+						timeline: {do:"include", action:"settings-timeline"}
+					}, default:{do:"include", action:"settings-articles"}}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// The Notes collection has no format to change, and no children; share-reply-policy carries its replies
+		settings-notes: {
+			roles: ["author"]
+			steps: [
+				// RULE: only the Notes collection, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `notes`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-vertical
+						children: [
+							{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+							{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:12}}
+							{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
+						]
+					}
+				}
+				// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
+				{do:"set-sharing", role:"viewer", group:"anonymous"}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+
+				// Notes are not this collection's children, so its reply policy is copied onto them here
+				{do:"share-reply-policy", template:"outbox-message"}
+			]
+		}
+
+		// A Podcast's replies are a toggle here, and reach its episodes through shareWithChildren
+		settings-podcast: {
+			roles: ["author"]
+			steps: [
+				// RULE: only a Podcast, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `podcast`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
 								children: [
-									{
-										type: layout-vertical
-										label: General
-										children: [
-											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-											{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:12}}
-											{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
-										]
-									}
-									{
-										type: layout-vertical
-										label: Sort
-										children: [
-											{type:"radio-button-group", path:"data.episodeOrder", options:{provider:"qwerty-collection.episodeOrders"}}
-										]
-									}
+									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+									{type:"select", path:"data.sortDirection", label:"Sort", options:{provider:"qwerty-collection.sortDirections", required:true}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
 								]
 							}
-						}
-						{do:"save", comment:"Settings updated by {{.Author}}"}
-					], else:[
-					// A Photo Gallery's replies are a toggle here, and reach its photos through shareWithChildren
-					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
-						{
-							do: "edit"
-							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
+							{
 								type: layout-vertical
+								label: Description
 								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+									{type:"textarea", path:"summary", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:12}}
+								]
+							}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+			]
+		}
+
+		// A Photo Gallery's replies are a toggle here, and reach its photos through shareWithChildren
+		settings-photos: {
+			roles: ["author"]
+			steps: [
+				// RULE: only a Photo Gallery, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `gallery`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
+								children: [
+									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag photos into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
 								]
 							}
-						}
-						{do:"save", comment:"Settings updated by {{.Author}}"}
-					], else:[
-						// A Map's replies are a toggle too, as on a Photo Gallery
-						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
 							{
-								do: "edit"
-								options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-								form: {
-									type: layout-tabs
-									children: [
-										{
-											type: layout-vertical
-											label: General
-											children: [
-												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
-												{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
-											]
-										}
-										{
-											type: layout-vertical
-											label: Location
-											children: [
-												// The map's starting view, the only place it is set
-												{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-												{type:"select", path:"data.zoom", label:"Map Zoom", options:{provider:"qwerty-collection.mapZooms"}}
-											]
-										}
-									]
-								}
+								type: layout-vertical
+								label: Description
+								children: [
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+								]
 							}
-							{do:"save", comment:"Settings updated by {{.Author}}"}
-						], else:[
-							// A Calendar's replies are a toggle too, and reach its events through shareWithChildren
-							{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
-								{
-									do: "edit"
-									options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-									form: {
-										type: layout-tabs
-										children: [
-											{
-												type: layout-vertical
-												label: General
-												children: [
-													{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-													{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
-													{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
-												]
-											}
-											{
-												type: layout-vertical
-												label: Layout
-												children: [
-													{type:"radio-button-group", path:"data.calendarView", options:{provider:"qwerty-collection.calendarViews"}}
-												]
-											}
-										]
-									}
-								}
-								{do:"save", comment:"Settings updated by {{.Author}}"}
-							], else:[
-								// A Timeline's replies are a toggle too, and reach its events through shareWithChildren
-								{do:"if", condition:"{{eq (.Data `layout`) `timeline`}}", then:[
-									{
-										do: "edit"
-										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-										form: {
-											type: layout-tabs
-											children: [
-												{
-													type: layout-vertical
-													label: General
-													children: [
-														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
-														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
-													]
-												}
-												{
-													type: layout-vertical
-													label: Sort
-													children: [
-														{type:"radio-button-group", path:"data.timelineOrder", options:{provider:"qwerty-collection.timelineOrders"}}
-													]
-												}
-											]
-										}
-									}
-									{do:"save", comment:"Settings updated by {{.Author}}"}
-								], else:[
-									// An Article collection's replies are a toggle too, and reach its Articles through shareWithChildren
-									{
-										do: "edit"
-										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-										form: {
-											type: layout-tabs
-											children: [
-												{
-													type: layout-vertical
-													label: General
-													children: [
-														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
-														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
-													]
-												}
-												{
-													type: layout-vertical
-													label: Layout
-													children: [
-														{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.articleLayouts"}}
-													]
-												}
-											]
-										}
-									}
-									{do:"save", comment:"Settings updated by {{.Author}}"}
-								]}
-							]}
-						]}
-					]}
-					]}
-				]}
-				{do:"refresh-page"}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+			]
+		}
+
+		// A Map's replies are a toggle too, as on a Photo Gallery
+		settings-map: {
+			roles: ["author"]
+			steps: [
+				// RULE: only a Map, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `map`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
+								children: [
+									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Description
+								children: [
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Location
+								children: [
+									// The map's starting view, the only place it is set
+									{type:"place", path:"location", label:"Map Center", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+									{type:"select", path:"data.zoom", label:"Map Zoom", options:{provider:"qwerty-collection.mapZooms"}}
+								]
+							}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+			]
+		}
+
+		// A Calendar's replies are a toggle too, and reach its events through shareWithChildren
+		settings-calendar: {
+			roles: ["author"]
+			steps: [
+				// RULE: only a Calendar, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `calendar`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
+								children: [
+									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Description
+								children: [
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Layout
+								children: [
+									{type:"radio-button-group", path:"data.calendarView", options:{provider:"qwerty-collection.calendarViews"}}
+								]
+							}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+			]
+		}
+
+		// A Timeline's replies are a toggle too, and reach its events through shareWithChildren
+		settings-timeline: {
+			roles: ["author"]
+			steps: [
+				// RULE: only a Timeline, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `timeline`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Description
+								children: [
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+								]
+							}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
+			]
+		}
+
+		// An Article collection's replies are a toggle too, and reach its Articles through shareWithChildren
+		settings-articles: {
+			roles: ["author"]
+			steps: [
+				// RULE: only an Article collection, which is every format the settings switch leaves to its default
+				{do:"require", condition:"{{not (in (.Data `layout`) `notes` `podcast` `gallery` `map` `calendar` `timeline`)}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-tabs
+						children: [
+							{
+								type: layout-vertical
+								label: General
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag articles into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Description
+								children: [
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+								]
+							}
+							{
+								type: layout-vertical
+								label: Layout
+								children: [
+									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.articleLayouts"}}
+								]
+							}
+						]
+					}
+				}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
 			]
 		}
 
@@ -429,10 +502,16 @@
 			]
 		}
 
+		// Drag-and-drop reordering: a Custom collection shows its highest rank first, so its items post in that order
 		sort: {
 			roles: ["author"]
 			steps: [
-				{do:"sort", keys:"_id", values:"rank"}
+				// RULE: the direction matches the list's own, or a partial list collides with the rest (see AGENTS.md)
+				{do:"if", condition:"{{and (eq (.DataString `layout`) `podcast`) (eq (.DataString `sortDirection`) `asc`)}}", then:[
+					{do:"sort", keys:"_id", values:"rank"}
+				], else:[
+					{do:"sort", keys:"_id", values:"rank", direction:"desc"}
+				]}
 			]
 		}
 

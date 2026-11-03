@@ -138,32 +138,61 @@
 				{do:"as-modal", options:["class:large"], steps:[
 					// Save and X, top right, in place of the form's own buttons
 					{do:"view-html", file:"edit-pencil"}
-					{
-						do: "edit"
-						options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-						form: {
-							type: "layout-tabs"
-							label: "Edit Photo"
-							children: [
-								{
-									type: "layout-vertical"
-									label: "General"
-									children: [
-										{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
-										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
-									]
-								}
-								{
-									type: "layout-vertical"
-									label: "More Content"
-									children: [
-										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-										{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-									]
-								}
-							]
+					// RULE: a Custom gallery ignores pins, so its photos offer no Pin toggle (see AGENTS.md)
+					{do:"if", condition:"{{eq ((.Parent `view`).DataString `sortType`) `rank`}}", then:[
+						{
+							do: "edit"
+							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								label: "Edit Photo"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "More Content"
+										children: [
+											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+											{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+										]
+									}
+								]
+							}
 						}
-					}
+					], else:[
+						{
+							do: "edit"
+							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								label: "Edit Photo"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
+											{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "More Content"
+										children: [
+											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+											{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+										]
+									}
+								]
+							}
+						}
+					]}
 					// A new photo replaces the old one; saving without one keeps it
 					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{types:["webp"]}}
 					{do:"set-thumbnail", path:"iconUrl"}
