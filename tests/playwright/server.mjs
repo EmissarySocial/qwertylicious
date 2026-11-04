@@ -34,6 +34,9 @@ const entries = [
 // The Calendar event, opened from its calendar
 const calendarEvent = { id: "6ad7aa00094d4ab2cbcc8701", title: "Concert in the Park", date: "Saturday, July 18, 2026" }
 
+// The Article in a Custom collection, as its author sees the collection's tab
+const article = { token: "an-article", title: "An Article" }
+
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
 	return readdirSync(folder).filter((name) => !name.startsWith(".")).sort()
@@ -134,6 +137,30 @@ function modalFor(id) {
 	return ""
 }
 
+// profileTab is the first tab link of qwerty-common/profile-tabs.html, selected, for an Articles collection
+function profileTab() {
+	const link = stripComments(read(join(qwerty, "qwerty-common/profile-tabs.html"))).match(/<a [^>]*>/)[0]
+	return link.replaceAll("{{$tabID}}", "articles").replaceAll("{{$userID}}", "author")
+		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, "true") + "Articles</a>"
+}
+
+// sortForm is the opening tag of qwerty-common/layout.html's sort form, without its Sortable script
+function sortForm() {
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout.html"))).replace(/\sscript="[^"]*"/g, "")
+	return source.match(/<form[^>]*>/)[0].replaceAll("{{$class}}", "cols-1").replaceAll("{{$sortURL}}", "/articles/sort")
+}
+
+// articleCard is qwerty-common/layout-column.html's card for the Article, without its handle and pencil
+function articleCard() {
+	const link = stripComments(read(join(qwerty, "qwerty-common/layout-column.html"))).match(/<a href="\/\{\{\.Token\}\}"[^>]*>/)[0]
+	return `<div class="pos-relative hover-trigger">${link.replace("{{.Token}}", article.token)}${article.title}</a></div>`
+}
+
+// profileArticles is the Articles tab, as list.html swaps it into #profile-tabs, in Custom order
+function profileArticles() {
+	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articleCard()}</form></div>`
+}
+
 function page(body) {
 	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
 }
@@ -164,6 +191,9 @@ const routes = {
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
 	"/editorjs": () => ["text/html", page(visualEditor(join(qwerty, "qwerty-article/edit-content-editorjs.html")))],
 	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
+	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
+	"/articles/list": () => ["text/html", profileArticles()],
+	[`/${article.token}`]: () => ["text/html", `<h1>${article.title}</h1>`],
 }
 
 createServer((request, response) => {
@@ -191,6 +221,13 @@ createServer((request, response) => {
 	if (save && request.method == "POST") {
 		request.resume()
 		response.writeHead(303, { "Location": `/${save[1]}/modal` })
+		return response.end()
+	}
+
+	// Posting a new order answers as Emissary's sort step does, with nothing to swap
+	if (path == "/articles/sort" && request.method == "POST") {
+		request.resume()
+		response.writeHead(200, { "HX-Reswap": "none" })
 		return response.end()
 	}
 

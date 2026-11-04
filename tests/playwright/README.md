@@ -32,6 +32,10 @@ npx playwright show-report        # the HTML report of the last run
 | `/podcast-list` | One row of a podcast's episode list |
 | `/editorjs` | `qwerty-article/edit-content-editorjs.html` for a new Article, read from the template itself |
 | `/editorjs-emissary` | Emissary's `stream-article-editorjs/editor.html`, the same way |
+| `/@author` | A profile with its Articles tab open in Custom order, as the author sees it |
+| `/articles/list` | That tab, as a tab click swaps it into `#profile-tabs` |
+| `/an-article` | The Article's page, as a fragment |
+| `/articles/sort` | Posting a new order, answered as Emissary's `sort` step does, with `HX-Reswap: none` |
 
 It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout. The two editor pages load EditorJS from jsdelivr, as the real editors do, so `editorjs.spec.mjs` needs network access.
 
@@ -45,7 +49,10 @@ The pieces a test is about come from the template files themselves:
 - the episode title's `<h2>` tag, from `qwerty-episode/modal.html`;
 - the entry title's `<h1>` tag, from `qwerty-timeline-entry/modal.html`;
 - the event title's `<h1>` tag, from `qwerty-event/modal.html`;
-- the date cell, from `qwerty-collection/items-podcast.html`.
+- the date cell, from `qwerty-collection/items-podcast.html`;
+- the tab link, from `qwerty-common/profile-tabs.html`;
+- the sort form's opening tag, from `qwerty-common/layout.html`;
+- the Article card's link, from `qwerty-common/layout-column.html`.
 
 ## Checking that a test catches its bug
 
@@ -78,9 +85,15 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 `event.spec.mjs` checks the following:
 
 - **The title's size.** The event's title keeps one size on every frame while its modal opens. Without `id="modal-title"`, it went from 40px to 32px.
-- **One font size in the responses bar.** The Reply, Like, and Share buttons match the Replies, Likes, and Shares tabs. The bar's markup is copied into `fixtures/event-modal.html`, so this checks qwerty-theme's stylesheet, not the template. Without the rule in `03-app.css`, the buttons were 12.8px and the tabs 14.4px.
+- **One font size in the responses bar.** The Reply, Like, and Boost buttons match the Replies, Likes, and Boosts tabs. The bar's markup is copied into `fixtures/event-modal.html`, so this checks qwerty-theme's stylesheet, not the template. Without the rule in `03-app.css`, the buttons were 12.8px and the tabs 14.4px.
 
 `editorjs.spec.mjs` checks the following, in qwertylicious's editor and in Emissary's:
 
 - **A line break pasted into a paragraph.** Pasting `one<br>two` saves `one<br>two`. Without `ColorPickerKeepingBreaks`, EditorJS saved `onetwo`.
 - **A line break inside pasted paragraphs.** Pasting two `<p>` elements saves two blocks, and the first keeps its `<br>`.
+
+`articles.spec.mjs` checks the following, in an Article collection set to Custom order:
+
+- **Switching tabs.** A tab replaces the address and adds no history.
+- **Opening an article.** It pushes the article's address, so a reload stays on it and Back returns to the tab. Without `hx-disinherit="hx-push-url"` on the sort form, the card inherited the form's `hx-push-url="false"` and the address stayed on the tab.
+- **Posting a new order.** It leaves the address alone. Without the form's own `hx-push-url="false"`, it pushed `/articles/sort`.

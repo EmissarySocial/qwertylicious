@@ -33,7 +33,7 @@ test.describe("calendar event modal", () => {
 		expect(new Set(sizes), `sizes seen: ${[...new Set(sizes)].join(", ")}`).toEqual(new Set([sizes.at(-1)]))
 	})
 
-	test("the Reply, Like, and Share buttons use the same font size as the tabs beside them", async ({ page }) => {
+	test("the Reply, Like, and Boost buttons use the same font size as the tabs beside them", async ({ page }) => {
 		await page.goto("/calendar")
 		await openEvent(page)
 
