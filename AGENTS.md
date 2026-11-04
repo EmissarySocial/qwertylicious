@@ -100,6 +100,7 @@ The rules:
 - **A drag starts only from the handle** (Sortable's `handle` option). Emissary's turboclick skips `.drag-handle`, and the gallery's handle halts its own click, or pressing it would open the photo instead.
 - **`gallery-tiles` takes `(array $posts $canEdit $isCustom $canSort)`.** `$isCustom` hides the pin mark, and `$canSort` adds the handle and the hidden `keys` input that the form posts.
 - **An Article collection's Sortable lives in `qwerty-common/layout.html`.** A non-empty `$sortURL` draws the list as a form that posts the new order there, and each card template adds its handle and key. Sortable drags `>div`, the card's outer wrapper, so nothing else may sit directly inside that form.
+- **A sort form's `hx-push-url="false"` must stop at the form.** The form needs it, or posting a new order pushes `/sort` into the address bar. htmx passes it down to every card, though, so without `hx-disinherit="hx-push-url"` an article opened from a Custom collection keeps the tab's address, and a reload returns to the tab. The gallery's form carries the same pair, though each tile sets its own. `tests/playwright/articles.spec.mjs` checks both halves.
 - **Ranks can tie.** `MaxRank` is a read-then-write, so two items created at once on two servers can share a rank, and `?rank=LT:` paging then skips one of them at a page boundary.
 
 ## The corner pencil toggles between an item and its editor
@@ -275,11 +276,11 @@ Emissary's turboclick fires on the element actually pressed, so nested links, bu
 
 `css` is an unvalidated cast, used once: the owner's own `data.stylesheet` in [qwerty-outbox/stylesheet.html](qwerty-outbox/stylesheet.html). `cssValue` checks one property value against an allowlist and rejects `expression` and `url`, returning empty. Anything a template builds from data goes through `cssValue`.
 
-## Every collection item has Replies, Likes, and Shares
+## Every collection item has Replies, Likes, and Boosts
 
 Every collection item extends `qwerty-replies`.
 
-**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Share, and "..." at the left, `responses-tabs` (Replies, Likes, Shares) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab. Likes and Shares list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
+**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Boost, and "..." at the left, `responses-tabs` (Replies, Likes, Boosts) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab (Boosts keep the `shares` name in the URL and in `ShareCount`). Likes and Boosts list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
 
 **An Article's and an event's own page show tabs instead:** `{{template "replies-tabs" (array . "Article" "page")}}` (the event passes `"Details"`), then `replies-panel` in place of the content when `?tab=replies`. The bar is left out when the item neither accepts replies nor has any.
 
@@ -290,11 +291,11 @@ Every collection item extends `qwerty-replies`.
 - **Never load a reply's author with `AttributedTo.Load`.** An unreachable server returns an error that aborts the whole tab; `.ActivityStream` reports it and returns an empty document.
 - **No live updates for most replies.** Emissary's `new-replies` SSE event fires only for replies written on this server or arriving from an account it follows.
 
-## Like and Share go to the Fediverse, in one click once an account is saved
+## Like and Boost go to the Fediverse, in one click once an account is saved
 
-The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Share, and "..." between its byline and its text (`head-social.html`). A saved account is kept per site.
+The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Boost, and "..." between its byline and its text (`head-social.html`). A saved account is kept per site.
 
-- **Like is a Like intent, and Share an Announce intent.**
+- **Like is a Like intent, and Boost an Announce intent.** Its icon is Emissary's `announce` (the rocket); `share` is the arrow-square, kept for sharing a page elsewhere.
 - **Each button has a hidden twin.** The visible one opens `/{id}/intent?intent=…`; once CamperJS finds a saved account whose server supports that intent (`camper-show-if-ready`), the twin replaces it and runs the intent in one click.
 - **"..." appears once an account is saved** (`camper-show-if-has-accounts`) and opens the account manager.
 - **A visitor signed in here gets `base-social`'s own Like button** in the item modals (`.UserCan "like-button"`). The Article always draws the intent twins.

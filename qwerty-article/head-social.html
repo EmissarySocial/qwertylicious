@@ -1,11 +1,7 @@
-<!-- head-social: the Article's Like, Reply, Share, and "..." buttons, between its byline and its text -->
+<!-- head-social: the Article's Like, Reply, Boost, and "..." buttons, between its byline and its text -->
 <div id="article-social" class="flex-row flex-align-center">
 	<!-- Each button acts in one click once CamperJS finds a saved account that can (see AGENTS.md); "..." manages it -->
 	<div class="flex-grow text-xs">
-		<span data-camper-intent="like" data-camper-object="{{.Permalink}}">
-			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false">{{icon "heart"}} {{.LikeCount}}</button>
-			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} {{.LikeCount}}</button>
-		</span>
 		<!-- Signed in, Reply opens the visitor's own inbox at this article with its reply form; otherwise an Activity Intent, as in each responses.html -->
 		{{- if .AcceptsReplies -}}
 			{{- if .IsAuthenticated -}}
@@ -18,8 +14,12 @@
 			{{- end -}}
 		{{- end -}}
 		<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
-			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false">{{icon "share"}} {{.ShareCount}}</button>
-			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "share"}} {{.ShareCount}}</button>
+			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false">{{icon "announce"}} {{.ShareCount}}</button>
+			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "announce"}} {{.ShareCount}}</button>
+		</span>
+		<span data-camper-intent="like" data-camper-object="{{.Permalink}}">
+			<button type="button" class="tertiary turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=like&object={{.Permalink}}" hx-push-url="false">{{icon "heart"}} {{.LikeCount}}</button>
+			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} {{.LikeCount}}</button>
 		</span>
 		<button type="button" class="tertiary turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>{{icon "more-horizontal"}}</button>
 	</div>

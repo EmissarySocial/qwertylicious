@@ -1,4 +1,4 @@
-<!-- responses-list: the open tab's replies, likes, or shares (?tab=), drawn beneath responses-tabs -->
+<!-- responses-list: the open tab's replies, likes, or boosts (?tab=), drawn beneath responses-tabs -->
 {{- $builder := . -}}
 {{- $tab := .QueryParam "tab" -}}
 {{- if and (ne "likes" $tab) (ne "shares" $tab) -}}{{- $tab = "replies" -}}{{- end -}}
@@ -17,7 +17,7 @@
 
 	{{- $links := .ShareLinksAfter "" 60 -}}
 	{{- if eq 0 (len $links) -}}
-		<div class="text-gray">No shares yet.</div>
+		<div class="text-gray">No boosts yet.</div>
 	{{- end -}}
 	{{- range $links -}}
 		{{- template "responses-actor" (array $builder .URI) -}}
