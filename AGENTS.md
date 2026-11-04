@@ -100,6 +100,7 @@ The rules:
 - **A drag starts only from the handle** (Sortable's `handle` option). Emissary's turboclick skips `.drag-handle`, and the gallery's handle halts its own click, or pressing it would open the photo instead.
 - **`gallery-tiles` takes `(array $posts $canEdit $isCustom $canSort)`.** `$isCustom` hides the pin mark, and `$canSort` adds the handle and the hidden `keys` input that the form posts.
 - **An Article collection's Sortable lives in `qwerty-common/layout.html`.** A non-empty `$sortURL` draws the list as a form that posts the new order there, and each card template adds its handle and key. Sortable drags `>div`, the card's outer wrapper, so nothing else may sit directly inside that form.
+- **Every sortable list installs Emissary's `sortContainer`, and no template loads Sortable itself.** The behavior loads the library once per page, so revisiting a tab does not run it again. `data-sortable-handle` and `data-sortable-draggable` carry the list's options. The rule and its reasons are in Emissary's `_embed/templates/theme-global/AGENTS.md`.
 - **A sort form's `hx-push-url="false"` must stop at the form.** The form needs it, or posting a new order pushes `/sort` into the address bar. htmx passes it down to every card, though, so without `hx-disinherit="hx-push-url"` an article opened from a Custom collection keeps the tab's address, and a reload returns to the tab. The gallery's form carries the same pair, though each tile sets its own. `tests/playwright/articles.spec.mjs` checks both halves.
 - **Ranks can tie.** `MaxRank` is a read-then-write, so two items created at once on two servers can share a rank, and `?rank=LT:` paging then skips one of them at a page boundary.
 
@@ -280,7 +281,7 @@ Emissary's turboclick fires on the element actually pressed, so nested links, bu
 
 Every collection item extends `qwerty-replies`.
 
-**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Boost, and "..." at the left, `responses-tabs` (Replies, Likes, Boosts) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab (Boosts keep the `shares` name in the URL and in `ShareCount`). Likes and Boosts list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
+**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Boost, and "⁂" at the left, `responses-tabs` (Replies, Likes, Boosts) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab (Boosts keep the `shares` name in the URL and in `ShareCount`). Likes and Boosts list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
 
 **An Article's and an event's own page show tabs instead:** `{{template "replies-tabs" (array . "Article" "page")}}` (the event passes `"Details"`), then `replies-panel` in place of the content when `?tab=replies`. The bar is left out when the item neither accepts replies nor has any.
 
@@ -293,15 +294,15 @@ Every collection item extends `qwerty-replies`.
 
 ## Like and Boost go to the Fediverse, in one click once an account is saved
 
-The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Boost, and "..." between its byline and its text (`head-social.html`). A saved account is kept per site.
+The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Boost, and "⁂" between its byline and its text (`head-social.html`). A saved account is kept per site.
 
 - **Like is a Like intent, and Boost an Announce intent.** Its icon is Emissary's `announce` (the rocket); `share` is the arrow-square, kept for sharing a page elsewhere.
 - **Each button has a hidden twin.** The visible one opens `/{id}/intent?intent=…`; once CamperJS finds a saved account whose server supports that intent (`camper-show-if-ready`), the twin replaces it and runs the intent in one click.
-- **"..." appears once an account is saved** (`camper-show-if-has-accounts`) and opens the account manager.
+- **"⁂" appears once an account is saved** (`camper-show-if-has-accounts`) and opens the account manager.
 - **A visitor signed in here gets `base-social`'s own Like button** in the item modals (`.UserCan "like-button"`). The Article always draws the intent twins.
 - **Reply shows only while the item accepts replies,** as a pair of twins for the `reply` intent.
 - **The bar's buttons and tabs share one font size,** set in `qwerty-theme/stylesheet/03-app.css`, so the entries' own pages, which never load `collections.css`, match their modals. Below 640px the labels hide through `mobile-hide`, and each button keeps its name in `aria-label`; the label's leading space sits inside its span, so no gap is left.
-- **Byline Follow works the same way** (`entry-byline.html`, `photo-figure.html`, `head-byline.html`), with the author's `ProfileURL` as the object.
+- **Byline Follow works the same way** (`entry-byline.html`, `photo-figure.html`, `head-byline.html`), with the author's `ProfileURL` as the object. The Article's byline also draws the "⁂" manager beside Follow; the entry and photo bylines do not yet.
 - **Each modal loads CamperJS itself,** because htmx-swapped modals bring their own scripts. It installs once and redraws on every `htmx:afterSwap`.
 
 ## Qwerty's Profile settings tabs are drawn by `qwerty-outbox`
@@ -316,5 +317,5 @@ Emissary's `/@me/settings/general` draws its Profile tabs from the user's outbox
 
 The profile card's Follow (`profile-header.html`) and a product-less Subscribe modal (`subscribe.html`) use Emissary's Follow modal and email pages, inherited from `base-outbox`. Emissary's emails and redirects reach `follow-email-sent`, `follower-confirm`, and `follower-unsubscribe` by name, so a local `follow` action replaces only `follow`, and all three must still exist.
 
-- **The card draws Emissary's `follow-button`:** the modal until CamperJS finds a saved account that can follow, then one-click follow with a "..." account manager beside it.
+- **The card draws Emissary's `follow-button`:** the modal until CamperJS finds a saved account that can follow, then one-click follow with a "⁂" account manager beside it.
 - **Restyle by naming a view, never by defining an action.** A `follow-heading.html` or `follow-styles.html` in `qwerty-outbox` replaces Emissary's for every Qwerty profile.

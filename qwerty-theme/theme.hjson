@@ -3,7 +3,7 @@
 	extends:["global"]
 	isVisible:true
 	category: General
-	label: Qwertylicious V2
+	label: Qwertylicious
 	description: Modern theme to emphasize long-form text content.
 	rank: 0
 	schema: {

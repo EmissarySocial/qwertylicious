@@ -22,11 +22,12 @@
 	</div>
 	{{- if not .IsAuthor -}}
 		<!-- The author does not follow themselves, so the edit page never shows this -->
-		<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can -->
+		<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can; "⁂" manages it, as in head-social.html -->
 		<div data-camper-intent="follow" data-camper-object="{{.AttributedTo.ProfileURL}}">
 			<button type="button" class="primary text-sm turboclick camper-hide-if-ready" hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" hx-push-url="false">⁂ Follow {{.AttributedTo.Name}}</button>
 			<button type="button" class="primary text-sm camper-show-if-ready" data-camper-action="intent" hidden>⁂ Follow {{.AttributedTo.Name}}</button>
 		</div>
+		<button type="button" class="text-sm turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>⁂</button>
 		<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 	{{- end -}}
 </div>

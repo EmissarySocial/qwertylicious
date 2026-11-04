@@ -32,10 +32,11 @@ npx playwright show-report        # the HTML report of the last run
 | `/podcast-list` | One row of a podcast's episode list |
 | `/editorjs` | `qwerty-article/edit-content-editorjs.html` for a new Article, read from the template itself |
 | `/editorjs-emissary` | Emissary's `stream-article-editorjs/editor.html`, the same way |
-| `/@author` | A profile with its Articles tab open in Custom order, as the author sees it |
+| `/@author` | A profile with its Articles tab open in Custom order, as the author sees it: two Articles, each with its drag handle |
 | `/articles/list` | That tab, as a tab click swaps it into `#profile-tabs` |
 | `/an-article` | The Article's page, as a fragment |
 | `/articles/sort` | Posting a new order, answered as Emissary's `sort` step does, with `HX-Reswap: none` |
+| `/.themes/global/resources/sortable-1.15.7/Sortable.min.js` | Emissary's Sortable, at the path `sortContainer` loads it from, never cached so that every load is a request |
 
 It finds Emissary at `../emissary` beside this repo. Set `EMISSARY_DIR` to use another checkout. The two editor pages load EditorJS from jsdelivr, as the real editors do, so `editorjs.spec.mjs` needs network access.
 
@@ -51,8 +52,8 @@ The pieces a test is about come from the template files themselves:
 - the event title's `<h1>` tag, from `qwerty-event/modal.html`;
 - the date cell, from `qwerty-collection/items-podcast.html`;
 - the tab link, from `qwerty-common/profile-tabs.html`;
-- the sort form's opening tag, from `qwerty-common/layout.html`;
-- the Article card's link, from `qwerty-common/layout-column.html`.
+- the sortable branch up to its cards, from `qwerty-common/layout.html`;
+- the Article card's link and drag handle, from `qwerty-common/layout-column.html`.
 
 ## Checking that a test catches its bug
 
@@ -97,3 +98,5 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 - **Switching tabs.** A tab replaces the address and adds no history.
 - **Opening an article.** It pushes the article's address, so a reload stays on it and Back returns to the tab. Without `hx-disinherit="hx-push-url"` on the sort form, the card inherited the form's `hx-push-url="false"` and the address stayed on the tab.
 - **Posting a new order.** It leaves the address alone. Without the form's own `hx-push-url="false"`, it pushed `/articles/sort`.
+- **Dragging an article.** `sortContainer` passes the form's handle and draggable on to Sortable, and dragging the second card above the first posts both keys in their new order.
+- **Loading Sortable.** Opening the tab three times requests Sortable.js once. With a `<script src>` in `layout.html`, it was requested on every visit.

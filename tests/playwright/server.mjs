@@ -34,8 +34,11 @@ const entries = [
 // The Calendar event, opened from its calendar
 const calendarEvent = { id: "6ad7aa00094d4ab2cbcc8701", title: "Concert in the Park", date: "Saturday, July 18, 2026" }
 
-// The Article in a Custom collection, as its author sees the collection's tab
-const article = { token: "an-article", title: "An Article" }
+// The Articles in a Custom collection, highest rank first, as their author sees the collection's tab
+const articles = [
+	{ id: "6ad24ab9c00dfca0c02cd471", token: "an-article", title: "An Article" },
+	{ id: "6ad24ab9c00dfca0c02cd472", token: "the-second-article", title: "The Second Article" },
+]
 
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
@@ -144,21 +147,24 @@ function profileTab() {
 		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, "true") + "Articles</a>"
 }
 
-// sortForm is the opening tag of qwerty-common/layout.html's sort form, without its Sortable script
+// sortForm is qwerty-common/layout.html's sortable branch up to its cards: the form's opening tag, and anything it loads first
 function sortForm() {
-	const source = stripComments(read(join(qwerty, "qwerty-common/layout.html"))).replace(/\sscript="[^"]*"/g, "")
-	return source.match(/<form[^>]*>/)[0].replaceAll("{{$class}}", "cols-1").replaceAll("{{$sortURL}}", "/articles/sort")
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout.html")))
+	const branch = source.split("{{- else -}}")[1].split('{{- template "layout-cards" $cards -}}')[0]
+	return branch.replaceAll("{{$class}}", "cols-1").replaceAll("{{$sortURL}}", "/articles/sort").trim()
 }
 
-// articleCard is qwerty-common/layout-column.html's card for the Article, without its handle and pencil
-function articleCard() {
-	const link = stripComments(read(join(qwerty, "qwerty-common/layout-column.html"))).match(/<a href="\/\{\{\.Token\}\}"[^>]*>/)[0]
-	return `<div class="pos-relative hover-trigger">${link.replace("{{.Token}}", article.token)}${article.title}</a></div>`
+// articleCard is qwerty-common/layout-column.html's card for an Article, with its drag handle and without its pencil
+function articleCard(article) {
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout-column.html")))
+	const link = source.match(/<a href="\/\{\{\.Token\}\}"[^>]*>/)[0].replace("{{.Token}}", article.token)
+	const handle = source.match(/\{\{- if \$canSort -\}\}([\s\S]*?)\{\{- end -\}\}/)[1].replace("{{.StreamID}}", article.id)
+	return `<div class="pos-relative hover-trigger">${link}${article.title}</a>${icons(handle)}</div>`
 }
 
 // profileArticles is the Articles tab, as list.html swaps it into #profile-tabs, in Custom order
 function profileArticles() {
-	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articleCard()}</form></div>`
+	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articles.map(articleCard).join("")}</form></div>`
 }
 
 function page(body) {
@@ -185,6 +191,7 @@ const routes = {
 	"/js/global.js": () => ["text/javascript", concat(join(templates, "theme-global/javascript"))],
 	"/hs/global.hs": () => ["text/hyperscript", concat(join(templates, "theme-global/hyperscript"))],
 	"/js/podcast.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
+	"/.themes/global/resources/sortable-1.15.7/Sortable.min.js": () => ["text/javascript", read(join(templates, "theme-global/resources/sortable-1.15.7/Sortable.min.js"))],
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
 	"/calendar": () => ["text/html", page(`<button id="open-event" hx-get="/${calendarEvent.id}/modal" hx-push-url="false">${calendarEvent.title}</button><aside></aside>`)],
@@ -193,7 +200,7 @@ const routes = {
 	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
 	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
 	"/articles/list": () => ["text/html", profileArticles()],
-	[`/${article.token}`]: () => ["text/html", `<h1>${article.title}</h1>`],
+	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
 }
 
 createServer((request, response) => {
