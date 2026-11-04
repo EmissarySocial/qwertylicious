@@ -17,8 +17,9 @@
 	</div>
 {{- else -}}
 	<!-- The author drags cards by their handles, and Sortable's update event posts the new order to $sortURL -->
+	<!-- RULE: hx-push-url="false" is the form's own, so a card still pushes its article's address (see AGENTS.md) -->
 	<script src="/.themes/global/resources/sortable-1.15.7/Sortable.min.js" onload="window.dispatchEvent(new Event('sortableReady'))"></script>
-	<form class="{{$class}}" hx-post="{{$sortURL}}" hx-trigger="update" hx-push-url="false"
+	<form class="{{$class}}" hx-post="{{$sortURL}}" hx-trigger="update" hx-push-url="false" hx-disinherit="hx-push-url"
 		script="on load or sortableReady from window if Sortable is null then exit end if :sortableInstalled is true then exit end set :sortableInstalled to true make a Sortable from me, {handle:'.drag-handle', draggable:'>div', animation:150, ghostClass:'draggable-whisper'} end">
 		{{- template "layout-cards" $cards -}}
 	</form>

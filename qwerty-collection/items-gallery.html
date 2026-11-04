@@ -11,8 +11,9 @@
 		{{- template "items-empty" (array . "images" "Your Photo Gallery" $empty "+ Add a Photo") -}}
 	{{- else if .UserCan "sort" -}}
 		<!-- The author drags tiles by their handles, and Sortable's update event posts the new order -->
+		<!-- RULE: hx-push-url="false" is the form's own, and each tile sets its own (see AGENTS.md) -->
 		<script src="/.themes/global/resources/sortable-1.15.7/Sortable.min.js" onload="window.dispatchEvent(new Event('sortableReady'))"></script>
-		<form class="qwerty-gallery" hx-post="/{{.StreamID}}/sort" hx-trigger="update" hx-push-url="false"
+		<form class="qwerty-gallery" hx-post="/{{.StreamID}}/sort" hx-trigger="update" hx-push-url="false" hx-disinherit="hx-push-url"
 			script="on load or sortableReady from window if Sortable is null then exit end if :sortableInstalled is true then exit end set :sortableInstalled to true make a Sortable from me, {handle:'.drag-handle', draggable:'.qwerty-gallery-item', animation:150, ghostClass:'draggable-whisper'} end">
 			{{- template "gallery-tiles" (array $page $canEdit true true) -}}
 			{{- template "gallery-more" (array .StreamID $page true) -}}
