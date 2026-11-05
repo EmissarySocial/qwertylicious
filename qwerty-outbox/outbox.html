@@ -48,7 +48,7 @@
 		<!-- RULE: ?tab= opens a tab only when it names one of the profile's tabs, else the first (see AGENTS.md) -->
 		{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 		{{- $requested := .QueryParam "tab" -}}
-		{{- $selected := "about" -}}
+		{{- $selected := "" -}}
 		{{- if $collections.NotEmpty -}}
 			{{- $selected = $collections.First.ObjectID.Hex -}}
 		{{- end -}}
@@ -57,17 +57,12 @@
 				{{- $selected = $requested -}}
 			{{- end -}}
 		{{- end -}}
-		<!-- ?tab=notes names the magic Notes collection, which a note's modal draws behind itself -->
-		{{- if eq $requested "notes" -}}
-			{{- $notesTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" "notes").Top1.Slice -}}
-			{{- if $notesTab.NotEmpty -}}
-				{{- $selected = $notesTab.First.ObjectID.Hex -}}
+		<!-- ?tab=notes and ?tab=about name the magic collections: a note's modal draws Notes behind itself, and older links name About -->
+		{{- if in $requested "notes" "about" -}}
+			{{- $magicTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" $requested).Top1.Slice -}}
+			{{- if $magicTab.NotEmpty -}}
+				{{- $selected = $magicTab.First.ObjectID.Hex -}}
 			{{- end -}}
-		{{- end -}}
-		<!-- RULE: About can be hidden only while the profile has a collection; profile-tabs and the about action agree (see AGENTS.md) -->
-		{{- $showAbout := or (ne "false" (.Data "show-about")) $collections.IsEmpty -}}
-		{{- if and (eq $requested "about") $showAbout -}}
-			{{- $selected = "about" -}}
 		{{- end -}}
 
 		<!-- A tab's own ?view=, ?startDate=, and ?tag= ride along, escaped; the collection checks what it reads -->
@@ -78,20 +73,24 @@
 				{{- $panelURL = print $panelURL "&" $name "=" (urlquery $value) -}}
 			{{- end -}}
 		{{- end -}}
-		{{- if eq $selected "about" -}}
-			{{- $panelURL = print "/@" .UserID "/about" -}}
-		{{- end -}}
 
 		<div class="margin-top">
+
+			<!-- RULE: a profile with no collections has no tabs, only the prompt to make one (see AGENTS.md) -->
+			{{- if $collections.IsEmpty -}}
+				{{- template "outbox-empty" . -}}
+			{{- else -}}
 
 			<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
 			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
 
-				<!-- RULE: the same .profile-tabs-row as list.html and about.html, so the owner's buttons do not move when the tab loads -->
+				<!-- RULE: the same .profile-tabs-row as list.html, so the owner's buttons do not move when the tab loads -->
 				<div class="profile-tabs-row">
 					{{- template "profile-tabs" (array . $selected false) -}}
 				</div>
 			</div>
+
+			{{- end -}}
 		</div>
 
 	</div>

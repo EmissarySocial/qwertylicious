@@ -3,11 +3,6 @@
 <div class="card border padding transition-main-card">
 
 	{{- .View "settings-collections-form" -}}
-
-	<!-- RULE: the toggle saves as soon as it flips; About still shows while the profile has no collections (see AGENTS.md) -->
-	<form hx-post="/@me/settings-about" hx-trigger="change" hx-swap="none" hx-push-url="false" class="margin-top-lg">
-		<span script="install toggle" name="data.show-about" value="{{if eq `false` (.Data `show-about`)}}false{{else}}true{{end}}" text="Show &quot;About&quot; page"></span>
-	</form>
 </div>
 
 <!-- RULE: Edit Collection ends with refresh-page, so reload this tab rather than the settings page (see AGENTS.md) -->

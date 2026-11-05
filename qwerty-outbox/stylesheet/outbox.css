@@ -16,7 +16,7 @@
 	--gap: calc(var(--rhythm) * 2);
 }
 
-/* The profile's tab row, in all three copies (outbox.html's loading copy, list.html, about.html).
+/* The profile's tab row, in both copies (outbox.html's loading copy and list.html).
    The global theme puts a bottom margin on every tab bar, and the menu would center on the tabs plus
    that margin, so the row carries the margin instead. */
 

@@ -1,13 +1,10 @@
-<!-- profile-tabs: the collections in the owner's order, About, then the owner's buttons; called as (array $outbox $selected $collection). -->
-<!-- $selected is a collection ID or "about", and $collection the open collection's builder, or false (see AGENTS.md). -->
+<!-- profile-tabs: the collections in the owner's order, then the owner's buttons; called as (array $outbox $selected $collection). -->
+<!-- $selected is a collection ID, and $collection the open collection's builder, or false (see AGENTS.md). -->
 {{- $outbox := index . 0 -}}
 {{- $selected := index . 1 -}}
 {{- $collection := index . 2 -}}
 {{- $userID := $outbox.UserID -}}
 {{- $collections := ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
-
-<!-- RULE: About can be hidden only while the profile has a collection, as outbox.html decides it (see AGENTS.md) -->
-{{- $showAbout := or (ne "false" ($outbox.Data "show-about")) $collections.IsEmpty -}}
 
 <div class="flex-row flex-wrap flex-align-center">
 <div role="tablist" class="pills">
@@ -24,17 +21,6 @@
 			role="tab"
 			aria-selected="{{if eq $tabID $selected}}true{{else}}false{{end}}">{{.Label}}</a>
 	{{- end -}}
-	{{- if $showAbout -}}
-		<a class="turboclick" id="tab-about"
-			href="/@{{$userID}}?tab=about"
-			hx-get="/@{{$userID}}/about"
-			hx-target="#profile-tabs"
-			hx-swap="outerHTML transition:true show:none"
-			hx-push-url="unset"
-			hx-replace-url="/@{{$userID}}?tab=about"
-			role="tab"
-			aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
-	{{- end -}}
 </div>
-{{- template "profile-menu" (array $outbox $collection $selected) -}}
+{{- template "profile-menu" (array $outbox $collection) -}}
 </div>

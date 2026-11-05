@@ -32,8 +32,8 @@
 			data: {
 				type: object
 				properties: {
-					// "notes" is the magic Notes collection, which lists the profile's Notes and holds no items (§1.7)
-					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes"]}
+					// "notes" and "about" are magic: they show the profile's Notes or its About Me message, and hold no items (§1.7)
+					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes", "about"]}
 					zoom: {type:"integer", minimum:0, maximum:19}
 					// A Photo Gallery's or Article collection's order: "publishDate" (Chronological, newest first), "rank" (Custom), or the older "createDate"
 					sortType: {type:"string", enum:["publishDate", "rank", "createDate"]}
@@ -41,6 +41,8 @@
 					sortDirection: {type:"string", enum:["desc", "asc"]}
 					// A Calendar's default view, "list" (the default when empty), "week", or "month"
 					calendarView: {type:"string", enum:["", "list", "week", "month"]}
+					// A Photo Gallery's, Article collection's, or Calendar's filters, read in order by parseTags and never through tagPaths (see AGENTS.md)
+					tags: {type:"string", maxLength:1024}
 				}
 			}
 		}
@@ -96,8 +98,8 @@
 							}
 						}
 					]}
-					// RULE: Notes are always public, so the Notes tab is shared with everyone and has no Sharing item
-					{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					// RULE: Notes and the About Me message are always public, so those tabs are shared with everyone and have no Sharing item
+					{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
 						{do:"set-sharing", role:"viewer", group:"anonymous"}
 					]}
 					// A new Map starts over Los Angeles at the City zoom (data.zoom 11, above); Edit Map changes both
@@ -107,7 +109,7 @@
 						{do:"set-data", values:{"location.latitude":"34.0522", "location.longitude":"-118.2437"}}
 					]}
 					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
-					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else}}Articles{{end}}{{end}}"}}
+					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else if eq . `about`}}About{{else}}Articles{{end}}{{end}}"}}
 					{do:"save", comment:"Created by {{.Author}}"}
 				]}
 				{do:"forward-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
@@ -169,6 +171,7 @@
 					{do:"view-html", file:"settings-title"}
 					{do:"switch", expression:"{{.Data `layout`}}", cases:{
 						notes: {do:"include", action:"settings-notes"}
+						about: {do:"include", action:"settings-about"}
 						podcast: {do:"include", action:"settings-podcast"}
 						gallery: {do:"include", action:"settings-photos"}
 						map: {do:"include", action:"settings-map"}
@@ -204,6 +207,28 @@
 
 				// Notes are not this collection's children, so its reply policy is copied onto them here
 				{do:"share-reply-policy", template:"outbox-message"}
+			]
+		}
+
+		// The About collection has only a name; its message is the profile's, written in the profile's settings
+		settings-about: {
+			roles: ["author"]
+			steps: [
+				// RULE: only the About collection, because every settings-* action is also its own URL (see AGENTS.md)
+				{do:"require", condition:"{{eq (.Data `layout`) `about`}}"}
+				{
+					do: "edit"
+					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+					form: {
+						type: layout-vertical
+						children: [
+							{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+						]
+					}
+				}
+				// RULE: the About tab is always shared with everyone, as the message it shows is
+				{do:"set-sharing", role:"viewer", group:"anonymous"}
+				{do:"save", comment:"Settings updated by {{.Author}}"}
 			]
 		}
 
@@ -260,6 +285,7 @@
 								children: [
 									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
 									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag photos into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"Each one is a filter above your photos, in this order. (PUBLIC)", options:{autocomplete:"off"}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
 								]
 							}
@@ -337,6 +363,7 @@
 								label: General
 								children: [
 									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"Each one is a filter above your events, in this order. (PUBLIC)", options:{autocomplete:"off"}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
 								]
 							}
@@ -400,7 +427,7 @@
 			roles: ["author"]
 			steps: [
 				// RULE: only an Article collection, which is every format the settings switch leaves to its default
-				{do:"require", condition:"{{not (in (.Data `layout`) `notes` `podcast` `gallery` `map` `calendar` `timeline`)}}"}
+				{do:"require", condition:"{{not (in (.Data `layout`) `notes` `about` `podcast` `gallery` `map` `calendar` `timeline`)}}"}
 				{
 					do: "edit"
 					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
@@ -413,6 +440,7 @@
 								children: [
 									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag articles into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
+									{type:"text", path:"data.tags", label:"#Hashtags", description:"Each one is a filter above your articles, in this order. (PUBLIC)", options:{autocomplete:"off"}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
 								]
 							}
@@ -440,8 +468,8 @@
 		sharing: {
 			roles: ["author"]
 			steps: [
-				// RULE: Notes are always public, so the Notes collection has no sharing to set
-				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+				// RULE: Notes and the About Me message are always public, so those collections have no sharing to set
+				{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
 					{do:"halt"}
 				]}
 				{do:"as-modal", steps: [
@@ -474,8 +502,8 @@
 		add: {
 			roles: ["author"]
 			steps: [
-				// The Notes collection never has items; a Note is written on the profile (§1.7)
-				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+				// The Notes and About collections never have items; a Note is written on the profile (§1.7)
+				{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
 					{do:"halt"}
 				]}
 				{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
@@ -518,8 +546,8 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				// The Notes collection holds no Notes, so deleting it only hides them (§1.7)
-				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
+				// The Notes and About collections hold nothing, so deleting one only hides its tab (§1.7)
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else if eq (.Data `layout`) `about`}}Hide this collection from my profile page.  Your About Me message will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
 				{do:"forward-to", url:"/@me"}
 			]
 		}

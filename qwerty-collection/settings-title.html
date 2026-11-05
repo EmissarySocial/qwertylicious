@@ -6,6 +6,9 @@
 {{- if eq $layout "notes" -}}
 	{{- $icon = "chat-square-text" -}}
 	{{- $title = "Edit Notes Collection" -}}
+{{- else if eq $layout "about" -}}
+	{{- $icon = "person" -}}
+	{{- $title = "Edit About Collection" -}}
 {{- else if eq $layout "gallery" -}}
 	{{- $icon = "images" -}}
 	{{- $title = "Edit Photo Gallery" -}}
