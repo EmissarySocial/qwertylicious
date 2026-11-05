@@ -11,7 +11,7 @@ Notes go in this file, never inside a template folder (see "A bundle folder hold
 | ID | Model | What it is |
 | -- | ----- | ---------- |
 | `qwerty-outbox` | Outbox | The profile page (role `user-outbox`): the profile card, the tabs, and the open tab loaded in place |
-| `qwerty-collection` | Stream | A profile tab in one of eleven formats (`data.layout`). Five list Articles. Photo Gallery, Map, Timeline, Calendar, and Podcast each hold their own item template, which `add` picks from the format. Notes holds nothing |
+| `qwerty-collection` | Stream | A profile tab in one of twelve formats (`data.layout`). Five list Articles. Photo Gallery, Map, Timeline, Calendar, and Podcast each hold their own item template, which `add` picks from the format. Notes and About hold nothing |
 | `qwerty-article` | Stream | An Article, only inside a collection |
 | `qwerty-photo` | Stream | One photo in a Photo Gallery |
 | `qwerty-placemark` | Stream | A place on a Map: a required `location`, no dates |
@@ -84,7 +84,7 @@ A photo, place, timeline entry, event, and episode share one pattern. Its `view`
 - **No `<input>` in a modal that uses the keyboard.** The `Modal` behavior focuses the first `<input>`, which swallows the keys. That is why the podcast progress bar is a `div`.
 - **A timeline entry's modal starts with a sticky bar** (`entry-neighbors.html`) linking the previous and next entries in the tab's order and `?tag=` filter. It walks the whole list rather than using `WhereGT`, because date-only entries often share a date. Its arrows and the Left and Right keys go through the carousel bundle's `[data-modal-go]` handler. The bar comes before the `h-event`, so the corner pencil and X paint over its right end, and it keeps room for them.
 
-**A photo** publishes on upload and is its own thumbnail (`set-thumbnail`). Edit replaces it through `upload-attachments`' `replace` action, and saving without a file keeps it. Older posts may hold several photos and show as a carousel (marked by `data.photoCount`). Pinned photos (`isFeatured`) lead a Chronological gallery.
+**A photo** publishes on upload and is its own thumbnail (`set-thumbnail`). Edit replaces it through `upload-attachments`' `replace` action, and saving without a file keeps it. Older posts may hold several photos and show as a carousel (marked by `data.photoCount`). Pinned photos (`isFeatured`) lead a Chronological gallery. Its `data.tags` (`tagPaths`) are the #hashtags its gallery's filters match.
 
 ## A Photo Gallery or Article collection sorts by date or by rank
 
@@ -98,11 +98,22 @@ The rules:
 - **Custom is rank, highest first, and ignores pins and Featured.** Emissary ranks a new child one above its highest sibling, so a new item lands on top, and a collection switched to Custom keeps its creation order. The photo's Edit form and the Article's Properties form leave out their toggles, so `isFeatured` survives a switch back.
 - **The `sort` step must match the list's own direction,** which is `desc` everywhere except a Podcast set to `asc`. The gallery's tiles post only the pages loaded so far, which hold the highest ranks. A descending sort numbers them down from the highest rank among them, so the photos not yet loaded keep their places; an ascending sort numbers them from 1 and collides with those photos.
 - **A drag starts only from the handle** (Sortable's `handle` option). Emissary's turboclick skips `.drag-handle`, and the gallery's handle halts its own click, or pressing it would open the photo instead.
-- **`gallery-tiles` takes `(array $posts $canEdit $isCustom $canSort)`.** `$isCustom` hides the pin mark, and `$canSort` adds the handle and the hidden `keys` input that the form posts.
+- **`gallery-tiles` takes `(array $posts $canEdit $isCustom $canSort $tag)`.** `$isCustom` hides the pin mark, `$canSort` adds the handle and the hidden `keys` input that the form posts, and a `$tag` opens each tile's modal with `?tag=`.
 - **An Article collection's Sortable lives in `qwerty-common/layout.html`.** A non-empty `$sortURL` draws the list as a form that posts the new order there, and each card template adds its handle and key. Sortable drags `>div`, the card's outer wrapper, so nothing else may sit directly inside that form.
 - **Every sortable list installs Emissary's `sortContainer`, and no template loads Sortable itself.** The behavior loads the library once per page, so revisiting a tab does not run it again. `data-sortable-handle` and `data-sortable-draggable` carry the list's options. The rule and its reasons are in Emissary's `_embed/templates/theme-global/AGENTS.md`.
 - **A sort form's `hx-push-url="false"` must stop at the form.** The form needs it, or posting a new order pushes `/sort` into the address bar. htmx passes it down to every card, though, so without `hx-disinherit="hx-push-url"` an article opened from a Custom collection keeps the tab's address, and a reload returns to the tab. The gallery's form carries the same pair, though each tile sets its own. `tests/playwright/articles.spec.mjs` checks both halves.
 - **Ranks can tie.** `MaxRank` is a read-then-write, so two items created at once on two servers can share a rank, and `?rank=LT:` paging then skips one of them at a page boundary.
+
+## A Photo Gallery, Article collection, or Calendar filters by the tags it lists
+
+These three formats' Edit Collection forms take `data.tags`, a line of #hashtags. Each one becomes a pill above the items, labeled without its #, in the order typed, after an All pill, and a pill shows the items whose own `data.tags` carry it. A collection with no tags draws no pills. Photos, Articles, and events all declare `tagPaths: ["data.tags"]`, which is what the filter matches.
+
+- **The list is read with `parseTags`, never through `tagPaths`.** `tagPaths` would pass the tags through `NormalizeTags`, which sorts them alphabetically and loses the author's order. `tag-pills.html` drops a repeated tag as it draws the row.
+- **Only a listed tag filters, and the match ignores case.** An item's tags do pass through `NormalizeTags`, which swaps in whatever spelling the server already knows, so `#Sunset` on the collection may meet `sunset` on an item. Five views each check `?tag=` against the list, show All for anything else, and add `.CaseInsensitive` to the query, and they must agree: `items-gallery.html`, `items-gallery-page.html`, `qwerty-photo/photo-figure.html`, `items.html` (Articles), and `items-calendar.html`.
+- **Only All drags.** A descending sort numbers the posted items down from the highest rank among them, so sorting a filtered few would move the hidden items between them. While a tag is selected, a Custom gallery draws no sort form and its tiles no handles, and a Custom Article collection passes `layout` no `$sortURL`.
+- **The filter rides along.** In a gallery, `gallery-more` adds `&tag=` to the next page's URL, and each tile opens its modal with `?tag=`, so scrolling and the modal's neighbors keep to the filter. Saving a photo's edit returns to `/{id}/modal` without it, so the neighbors widen to All after an edit. In a Calendar, the pills keep `?view=` and `?startDate=`, and every toolbar link (Previous, Today, Next, and the three views) keeps `?tag=`. Articles and events have no neighbors, so nothing more is needed there.
+- **`tag-pills.html` draws the row for every format,** called as `(array $collection $tags $selected $query)`. `$query` is the tab's other parameters without a leading `&` (a Calendar's `view=…&startDate=…`), and is empty elsewhere. A Map or Timeline passes the tags its items carry (`items-tags.html`); the other three pass their own list. `tag-empty.html` is the note under the pills when a gallery's or Article collection's tag matches nothing; a Calendar's List says it in its own empty row.
+- **A pill scrolls its row to the top of the window, and only the pills do.** Each one's `hx-swap` ends in `show:.qwerty-tag-pills:top`, which htmx looks up across the whole page once the new tab is in, so that class must stay on this row and nowhere else. htmx splits `hx-swap` at spaces, so the selector cannot hold one: `show:find .pills:top` is read as two settings, and neither scrolls. A short tab stops wherever the page ends. The profile tabs, the Calendar's toolbar, and the profile's first load keep `show:none`. `tests/playwright/tags.spec.mjs` checks it.
 
 ## The corner pencil toggles between an item and its editor
 
@@ -118,7 +129,7 @@ Every item modal (photo, episode, place, timeline entry, event, and Emissary's N
 `qwerty-theme/carousel/qwerty-carousel.js` (the `carousel` bundle, loaded once by `includes-foot.html`) runs `qwerty-photo/photo-figure.html`'s carousel: a transform-driven track, arrows, the Left and Right keys, and a swipe that locks to an axis after 8px and commits past 50px.
 
 - **Every listener sits on `document`,** so swapped-in carousels need no setup, and `window.qwertyCarousel` guards against installing twice.
-- **Past the first or last photo, the keys go to the neighboring post,** by clicking the figure's hidden `a.qwerty-carousel-post-prev` and `-next`, which the server computes in the gallery's order with `Siblings`. Swipes and buttons stay within the photos.
+- **Past the first or last photo, the keys go to the neighboring post,** by clicking the figure's hidden `a.qwerty-carousel-post-prev` and `-next`, which the server computes in the gallery's order and `?tag=` filter with `Siblings`. Swipes and buttons stay within the photos.
 - **`photo-figure` takes `(array $builder $mode)`.** In `"modal"` mode the neighbor links re-open the modal; in `"page"` mode they load the next page.
 - **The keys drive the carousel in `#modal` when one is open,** otherwise the one in `<main>`, and never while focus is in a text field.
 
@@ -154,7 +165,7 @@ A Map's default view is its own `location` and `data.zoom`, set only in Edit Map
 
 ## A tab's own query parameters ride along in the profile's URL
 
-A Calendar's `?view=` and `?startDate=`, and a Map or Timeline's `?tag=`, are the tab's state. Its links reload `#profile-tabs` and push `/@user?tab={id}&…`, and `outbox.html` passes them to the tab's `/list` URL, so reloads and shared links keep the view. **Never name a new parameter `createDate`, `publishDate`, `updateDate`, `expirationDate`, `rank`, or `label`:** a Stream's children query applies those as filters. A Photo Gallery's infinite scroll relies on exactly that (`?publishDate=LT:{last}`, or `?rank=LT:{last}` when Custom).
+A Calendar's `?view=` and `?startDate=`, and the `?tag=` of every format with tag filters, are the tab's state. Its links reload `#profile-tabs` and push `/@user?tab={id}&…`, and `outbox.html` passes them to the tab's `/list` URL, so reloads and shared links keep the view. **Never name a new parameter `createDate`, `publishDate`, `updateDate`, `expirationDate`, `rank`, or `label`:** a Stream's children query applies those as filters. A Photo Gallery's infinite scroll relies on exactly that (`?publishDate=LT:{last}`, or `?rank=LT:{last}` when Custom).
 
 ## A `z-` filename prefix parks a template
 
@@ -162,15 +173,15 @@ A Calendar's `?view=` and `?startDate=`, and a Map or Timeline's `?tag=`, are th
 
 ## The profile page is the frame, and every tab loads inside it
 
-`/@user` (`outbox.html`) draws the profile card (`profile-header.html`), then `#profile-tabs`: the tab bar (`qwerty-common/profile-tabs.html`: the collections in the owner's order, then About) above a panel that loads the open tab. Each tab's content (a collection's `/{id}/list`, or `/@user/about`) is a new `#profile-tabs` that redraws the bar with its own tab selected.
+`/@user` (`outbox.html`) draws the profile card (`profile-header.html`), then `#profile-tabs`: the tab bar (`qwerty-common/profile-tabs.html`: the collections in the owner's order) above a panel that loads the open tab. Each tab's content (a collection's `/{id}/list`) is a new `#profile-tabs` that redraws the bar with its own tab selected.
 
-- **The open tab is `?tab={collectionId}`, `?tab=notes`, or `?tab=about`.** `outbox.html` accepts only a visible collection, `notes` (mapped to the Notes collection), or `about` while About shows, and falls back to the first tab, so a crafted value never reaches the page.
-- **The owner can hide About, but only while the profile has a collection.** `data.show-about` set to `"false"` (the Collections settings tab's toggle) hides it. `outbox.html`, `profile-tabs.html`, and the `about` action each apply the same rule and must agree. About is where an empty profile prompts its owner to make a collection, and the `about` action forwards a hidden About to the profile, which would loop if About were the only tab.
-- **A tab swaps `#profile-tabs` whole and replaces the profile's URL,** never the partial's, so reload and copied links ask for a full page. It replaces rather than pushes, so switching tabs adds no history: Back from an item returns to the tab it was opened from, not through every tab visited before. `hx-push-url="unset"` is what cancels `<body>`'s inherited push, as on the Article's corner pencil. Each tab keeps a stable `id` (`tab-{id}`, `tab-about`) so htmx can restore focus.
+- **The open tab is `?tab={collectionId}`, `?tab=notes`, or `?tab=about`.** `outbox.html` accepts only a visible collection, or `notes` or `about` (mapped to the first collection in that format), and falls back to the first tab, so a crafted value never reaches the page.
+- **A profile with no collections has no tabs.** `outbox.html` shows `outbox-empty.html` in their place: a visitor's note, or the owner's prompt to make one. Every `profile-tabs` caller can assume a collection exists.
+- **A tab swaps `#profile-tabs` whole and replaces the profile's URL,** never the partial's, so reload and copied links ask for a full page. It replaces rather than pushes, so switching tabs adds no history: Back from an item returns to the tab it was opened from, not through every tab visited before. `hx-push-url="unset"` is what cancels `<body>`'s inherited push, as on the Article's corner pencil. Each tab keeps a stable `id` (`tab-{id}`) so htmx can restore focus.
 - **Only the page's own `#profile-tabs` has `hx-trigger="load"`,** and it sets `hx-target="this"`, `hx-push-url="false"`, and `hx-disinherit="*"` for that first load. Swapped-in copies carry no htmx attributes, so a page restored from history does not reload the first tab, and cards inside navigate the whole page.
-- **The owner's buttons follow the tabs,** beside the `tablist`, not in it, so the ARIA stays valid. `profile-tabs` takes `(array $outbox $selected $collection)` and draws `profile-menu.html`. On a collection: icon-only `.edit-circle`s for Edit Collection, its sharing status (none on Notes), and its add item (Notes opens the outbox's `add-note`). On About: one pencil linking to `/@me/settings/general`. Every copy of the bar sits in `.profile-tabs-row`, which carries its bottom margin, so the buttons center on the tabs.
+- **The owner's buttons follow the tabs,** beside the `tablist`, not in it, so the ARIA stays valid. `profile-tabs` takes `(array $outbox $selected $collection)` and draws `profile-menu.html`. On a collection: icon-only `.edit-circle`s for Edit Collection, its sharing status (none on Notes or About), and its add item (Notes opens the outbox's `add-note`). About has nothing to add, so its last button links to `/@me/settings/general`, where its message is written. Every copy of the bar sits in `.profile-tabs-row`, which carries its bottom margin, so the buttons center on the tabs.
 - **Both copies of the bar read the same query.** A collection's `list.html` reaches the profile through `.ParentOutbox "view"` and calls `.Outbox`. Never switch it to `.Siblings`, which hides anything outside its publish window, and a collection is never published.
-- **Partials redirect when visited directly.** A collection's `view` redirects to its tab, and `about` renders only for an htmx request (`.IsPartialRequest`).
+- **Partials redirect when visited directly.** A collection's `view` redirects to its tab.
 - **Reloads carry the tab.** The owner's `refreshPage` and SSE reloads copy `?tab=` from the address bar through `hx-vals`.
 
 ## Never put a template action where an attribute name goes
@@ -189,16 +200,16 @@ A template inherits actions, states, roles, schema, datasets, and views from eac
 
 **A wrong provider name fails silently:** the server logs it and the form renders an empty dropdown. Check the provider name first when a select is blank.
 
-## Every profile starts with Articles and Notes, from `defaultChildren`
+## Every profile starts with Articles, Notes, and About, from `defaultChildren`
 
-`qwerty-outbox`'s `defaultChildren` lists two collections, which Emissary's `User.Save` creates when a User is first saved, however the account was made. Existing profiles get none.
+`qwerty-outbox`'s `defaultChildren` lists three collections, which Emissary's `User.Save` creates when a User is first saved, however the account was made. Existing profiles get none.
 
 - **Keep the entries in step with `qwerty-collection`'s `create`.** They never run `create`, so they restate its defaults (layout, `data.zoom`, `data.calendarView`, `data.sortType`, `data.sortDirection`, `replyPolicy`, and the label). Change both places together.
-- **Both collections are public:** `groups.viewer.0` is the anonymous Group, `000000000000000000000000`.
+- **All three collections are public:** `groups.viewer.0` is the anonymous Group, `000000000000000000000000`.
 - **Quote every value.** An unquoted `000…` in hjson is a string that runs to the end of the line, swallowing any key after it.
 - **A bad entry stops every template from loading.** Emissary validates each entry through `qwerty-collection`'s schema at load.
 - **A profile imported from another Qwerty server gets two of each,** because Emissary imports every Stream as new.
-- **Defaults go one level deep.** A collection template's own `defaultChildren` would be created by `add-stream`, but never for the profile's two defaults.
+- **Defaults go one level deep.** A collection template's own `defaultChildren` would be created by `add-stream`, but never for the profile's three defaults.
 
 ## The Notes collection lists the profile's Notes, and holds none
 
@@ -214,6 +225,15 @@ A collection whose `data.layout` is `notes` lists `(.ParentOutbox "view").Outbox
 - **One Notes collection per profile.** Add a Collection offers `layoutsWithoutNotes` once one exists, and a POST for a second halts.
 - **The reply toggle reaches Notes by two routes,** because `shareWithChildren` cannot: saving Edit Notes runs `share-reply-policy` on every `outbox-message`, and `add-note` stamps the policy on new Notes. A Note arriving through the API or an import keeps its own policy until Edit Notes is next saved.
 - **Note content goes through `htmlMinimal`,** because a Note can arrive through the Mastodon API.
+
+## The About collection shows the profile's About Me message, and holds nothing
+
+A collection whose `data.layout` is `about` shows `(.ParentOutbox "view").StatusMessage` as Markdown (`items-about.html`). The message belongs to the profile and is edited in its settings, so Edit About holds only the tab's name.
+
+- **About is an ordinary tab.** It sits wherever the owner drags it, and deleting the collection hides the tab while the message stays on the profile. There is no other way to hide it.
+- **The About tab is always public, with no Sharing control,** because the message it shows is public on the profile already. `create` and Edit About both run `set-sharing` (`viewer`, `anonymous`), and `sharing` and `add` halt, as for Notes.
+- **A profile may hold more than one About collection,** each showing the same message. Add a Collection offers About in both of its lists, so nothing enforces one per profile yet.
+- **Profiles made before About existed have none,** because `defaultChildren` runs only when a User is first saved. Their owners add one through Add a Collection.
 
 ## Steps and template data that look safe and are not
 
@@ -281,7 +301,7 @@ Emissary's turboclick fires on the element actually pressed, so nested links, bu
 
 Every collection item extends `qwerty-replies`.
 
-**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Boost, and "⁂" at the left, `responses-tabs` (Replies, Likes, Boosts) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab (Boosts keep the `shares` name in the URL and in `ShareCount`). Likes and Boosts list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
+**A photo, episode, place, timeline entry, and event's modal draw `{{template "responses" .}}` under their content,** the item's own `responses.html`: Reply, Like, Boost, "⁂", and Share at the left, `responses-tabs` (Replies, Likes, Boosts) at the right, and `responses-list` below. Each tab redraws the item's `responses` action in place, and `?tab=likes` or `?tab=shares` opens that tab (Boosts keep the `shares` name in the URL and in `ShareCount`). Likes and Boosts list the first 60 through `responses-actor`, which loads each actor through `.ActivityStream`. The bar is written into each `responses.html` on purpose, not shared.
 
 **An Article's and an event's own page show tabs instead:** `{{template "replies-tabs" (array . "Article" "page")}}` (the event passes `"Details"`), then `replies-panel` in place of the content when `?tab=replies`. The bar is left out when the item neither accepts replies nor has any.
 
@@ -294,13 +314,16 @@ Every collection item extends `qwerty-replies`.
 
 ## Like and Boost go to the Fediverse, in one click once an account is saved
 
-The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Boost, and "⁂" between its byline and its text (`head-social.html`). A saved account is kept per site.
+The item modals' bar follows Emissary's Note (`stream-outbox-message/note-actions.html`). An Article draws Like, Reply, Boost, "⁂", and Share between its byline and its text (`head-social.html`), with its hashtags just above that bar on the public view (`head-tags.html`). A saved account is kept per site.
+
+**An Article's hashtags are plain chips, because qwerty-article names no `tagUrl`.** The Stream builder's `.Tags` builds each tag's `Href` from the template's `tagUrl`, and `head-tags.html` links a tag only when that `Href` is set. A `tagUrl` would also publish that link in the Article's ActivityPub tags, so adding one is a federation change, not just a styling one.
 
 - **Like is a Like intent, and Boost an Announce intent.** Its icon is Emissary's `announce` (the rocket); `share` is the arrow-square, kept for sharing a page elsewhere.
 - **Each button has a hidden twin.** The visible one opens `/{id}/intent?intent=…`; once CamperJS finds a saved account whose server supports that intent (`camper-show-if-ready`), the twin replaces it and runs the intent in one click.
 - **"⁂" appears once an account is saved** (`camper-show-if-has-accounts`) and opens the account manager.
 - **A visitor signed in here gets `base-social`'s own Like button** in the item modals (`.UserCan "like-button"`). The Article always draws the intent twins.
 - **Reply shows only while the item accepts replies,** as a pair of twins for the `reply` intent.
+- **Share is last for every visitor, signed in or not,** and opens the OS share menu with the item's `Permalink` through Emissary's `Share` behavior. It is sent `hidden` and shown only where the browser has `navigator.share`, so desktop Firefox draws the bar without it.
 - **The bar's buttons and tabs share one font size,** set in `qwerty-theme/stylesheet/03-app.css`, so the entries' own pages, which never load `collections.css`, match their modals. Below 640px the labels hide through `mobile-hide`, and each button keeps its name in `aria-label`; the label's leading space sits inside its span, so no gap is left.
 - **Byline Follow works the same way** (`entry-byline.html`, `photo-figure.html`, `head-byline.html`), with the author's `ProfileURL` as the object. The Article's byline also draws the "⁂" manager beside Follow; the entry and photo bylines do not yet.
 - **Each modal loads CamperJS itself,** because htmx-swapped modals bring their own scripts. It installs once and redraws on every `htmx:afterSwap`.
@@ -309,7 +332,7 @@ The item modals' bar follows Emissary's Note (`stream-outbox-message/note-action
 
 Emissary's `/@me/settings/general` draws its Profile tabs from the user's outbox, so `qwerty-outbox` extends `base-outbox` and overrides `settings-tabs.html`. The General, Images, and Links forms are Emissary's; there is no Qwerty settings template.
 
-**Collections is Qwerty's own tab.** `settings-collections-form` is a sortable list that posts on a changed order (`hx-trigger="update"`, Sortable's event) and answers with itself (`view-html`, `method: "both"`), so the new `tbody` re-installs `sortContainer`. Below it, the Show "About" page toggle is its own form, which posts to `settings-about` on the toggle's `change` event. The tab reloads itself on `refreshPage`, because Edit Collection ends with `refresh-page` and reloading the whole page would open General. Every Edit Collection modal links back here through `qwerty-collection/settings-title.html`, which carries the format's icon and title because `layout-tabs` writes its label as plain text.
+**Collections is Qwerty's own tab.** `settings-collections-form` is a sortable list that posts on a changed order (`hx-trigger="update"`, Sortable's event) and answers with itself (`view-html`, `method: "both"`), so the new `tbody` re-installs `sortContainer`. The tab reloads itself on `refreshPage`, because Edit Collection ends with `refresh-page` and reloading the whole page would open General. Every Edit Collection modal links back here through `qwerty-collection/settings-title.html`, which carries the format's icon and title because `layout-tabs` writes its label as plain text.
 
 **`?tab=` opens the settings page on any tab.** The page runs the outbox's `settings-general` with its own request, and `base-outbox` makes that a `switch` on `?tab=` for `images` and `links`. `qwerty-outbox` overrides it to add `collections`, and since an override replaces the whole action, it repeats base-outbox's cases. The action is `settings-general` whichever tab it drew, so `settings-tabs.html` picks the selected tab from the same parameter. **Its tab names must match the switch's cases,** trimmed and case-sensitive, or the page draws one tab and highlights another.
 

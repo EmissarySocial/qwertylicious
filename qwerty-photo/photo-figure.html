@@ -15,13 +15,24 @@
 {{- $several := gt (len $photos) 1 -}}
 
 <!-- The neighboring posts, in the gallery's order: by rank when Custom, else pinned posts and then the rest, each newest first -->
+{{- $collection := $builder.Parent "view" -}}
 {{- $gallery := $builder.Siblings.Where "templateId" "qwerty-photo" -}}
+<!-- RULE: only the gallery's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := $builder.QueryParam "tag" -}}
+{{- if not ((parseTags ($collection.DataString "tags")).Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- $modalQuery := "" -}}
+{{- if ne "" $tag -}}
+	{{- $gallery = ($gallery.Tags $tag).CaseInsensitive -}}
+	{{- $modalQuery = print "?tag=" ($tag | urlquery) -}}
+{{- end -}}
 {{- $pinned := $gallery.Where "isFeatured" true -}}
 {{- $unpinned := $gallery.Where "isFeatured" false -}}
 {{- $published := $builder.PublishDate -}}
 {{- $prev := "" -}}
 {{- $next := "" -}}
-{{- if eq (($builder.Parent "view").DataString "sortType") "rank" -}}
+{{- if eq ($collection.DataString "sortType") "rank" -}}
 	{{- $rank := $builder.Rank -}}
 	{{- $higher := (($gallery.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
 	{{- $lower := (($gallery.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
@@ -66,18 +77,18 @@
 			<div class="qwerty-carousel-count text-xs" aria-live="polite">1 / {{len $photos}}</div>
 		{{- end -}}
 
-		<!-- Hidden links to the neighboring posts, for the arrow keys; a modal opens a modal, a page a page -->
+		<!-- Hidden links to the neighboring posts, for the arrow keys; a modal opens a modal, a page a page, each in the same ?tag= -->
 		{{- if ne "" $prev -}}
 			<a class="qwerty-carousel-post-prev" hidden aria-hidden="true" tabindex="-1"
 				href="/{{$prev}}"
-				hx-get="/{{$prev}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
+				hx-get="/{{$prev}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}{{$modalQuery}}"
 				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
 				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$prev}}{{end}}">Previous Post</a>
 		{{- end -}}
 		{{- if ne "" $next -}}
 			<a class="qwerty-carousel-post-next" hidden aria-hidden="true" tabindex="-1"
 				href="/{{$next}}"
-				hx-get="/{{$next}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
+				hx-get="/{{$next}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}{{$modalQuery}}"
 				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
 				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$next}}{{end}}">Next Post</a>
 		{{- end -}}

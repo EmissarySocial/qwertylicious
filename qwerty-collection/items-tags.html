@@ -1,10 +1,8 @@
-<!-- items-tags is the row of #hashtag filters above a Map or Timeline, called as (array $collection $items $tag).
-     $items is unfiltered so every tag stays on offer; a filter reloads this tab with ?tag= in the profile's URL. -->
+<!-- items-tags is the row of hashtag filters above a Map or Timeline, called as (array $collection $items $tag).
+     $items is unfiltered so every tag stays on offer; tag-pills draws the row. -->
 {{- $collection := index . 0 -}}
 {{- $items := index . 1 -}}
 {{- $selected := index . 2 -}}
-{{- $collectionID := $collection.StreamID -}}
-{{- $profileTab := print "/@" $collection.ParentID "?tab=" $collectionID -}}
 
 {{- $tags := split "" "," -}}
 {{- range $items -}}
@@ -15,11 +13,4 @@
 	{{- end -}}
 {{- end -}}
 
-{{- if $tags.NotEmpty -}}
-	<div role="tablist" class="pills margin-bottom" aria-label="Filter by tag">
-		<a role="tab" class="turboclick" aria-selected="{{if eq `` $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}">All</a>
-		{{- range $tags -}}
-			<a role="tab" class="turboclick" aria-selected="{{if eq . $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?tag={{. | urlquery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&tag={{. | urlquery}}">#{{.}}</a>
-		{{- end -}}
-	</div>
-{{- end -}}
+{{- template "tag-pills" (array $collection $tags $selected "") -}}

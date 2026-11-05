@@ -1,0 +1,25 @@
+<!-- tag-pills is a tab's row of hashtag filters, each without its #, All first, called as (array $collection $tags $selected $query); no tags draw nothing.
+     A filter reloads this tab with ?tag= in the profile's URL, plus $query, the tab's other parameters (view=list&startDate=…). -->
+{{- $collection := index . 0 -}}
+{{- $selected := index . 2 -}}
+{{- $query := index . 3 -}}
+{{- $collectionID := $collection.StreamID -}}
+{{- $profileTab := print "/@" $collection.ParentID "?tab=" $collectionID -}}
+
+<!-- Each tag draws once, in its first place -->
+{{- $tags := split "" "," -}}
+{{- range index . 1 -}}
+	{{- if not ($tags.Contains .) -}}
+		{{- $tags = append $tags (split . "\x00") -}}
+	{{- end -}}
+{{- end -}}
+
+{{- if $tags.NotEmpty -}}
+	<!-- RULE: each pill scrolls this row to the top of the window, found by its qwerty-tag-pills class (see AGENTS.md) -->
+	<div role="tablist" class="qwerty-tag-pills pills margin-bottom" aria-label="Filter by tag">
+		<a role="tab" class="turboclick" aria-selected="{{if eq `` $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list{{if ne `` $query}}?{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top" hx-push-url="{{$profileTab}}{{if ne `` $query}}&{{$query}}{{end}}">All</a>
+		{{- range $tags -}}
+			<a role="tab" class="turboclick" aria-selected="{{if eq . $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top" hx-push-url="{{$profileTab}}&tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}">{{.}}</a>
+		{{- end -}}
+	</div>
+{{- end -}}

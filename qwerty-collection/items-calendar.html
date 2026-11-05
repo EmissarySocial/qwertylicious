@@ -1,5 +1,5 @@
 <!-- items-calendar is a Calendar's tab: its events as a List, Week, or Month (?view=, else data.calendarView),
-     around ?startDate= (YYYY-MM-DD, else today).  Times are site-relative, as typed, with no zone (BUG-283). -->
+     around ?startDate= (YYYY-MM-DD, else today), in any ?tag= filter.  Times are site-relative, as typed, with no zone (BUG-283). -->
 {{- $collectionID := .StreamID -}}
 {{- $profileTab := print "/@" .ParentID "?tab=" .StreamID -}}
 {{- $view := .QueryParam "view" -}}
@@ -29,6 +29,19 @@
 {{- $startQuery := "" -}}
 {{- if ne "" $startParam -}}
 	{{- $startQuery = print "&startDate=" $startParam -}}
+{{- end -}}
+
+<!-- The Calendar's own #hashtags are its filters, in the author's order -->
+{{- $tags := parseTags (.DataString "tags") -}}
+
+<!-- RULE: only the Calendar's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- $tagQuery := "" -}}
+{{- if ne "" $tag -}}
+	{{- $tagQuery = print "&tag=" ($tag | urlquery) -}}
 {{- end -}}
 
 <!-- The range of days: a month padded to whole weeks, or one week.  printf turns a time.Weekday into an int. -->
@@ -67,25 +80,32 @@
 {{- $nextKey := $next.Format "2006-01-02" -}}
 
 <!-- The events that touch the range: the query reaches back a month for long events, and each day keeps its own -->
-{{- $events := ((((.ChildrenWithDrafts.Where "templateId" "qwerty-event").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd).ByStartDate.All).Slice -}}
+{{- $query := ((.ChildrenWithDrafts.Where "templateId" "qwerty-event").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd -}}
+{{- if ne "" $tag -}}
+	{{- $query = ($query.Tags $tag).CaseInsensitive -}}
+{{- end -}}
+{{- $events := ($query.ByStartDate.All).Slice -}}
 
-<!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views -->
+<!-- The tag filters lead, and keep the view and its dates -->
+{{- template "tag-pills" (array . $tags $tag (print "view=" $view $startQuery)) -}}
+
+<!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views, each in the same ?tag= -->
 <div class="qwerty-calendar-toolbar flex-row flex-wrap flex-align-center margin-bottom">
 	<div class="flex-row flex-align-center flex-grow">
 		{{- if eq $view "month" -}}
 			<h2 class="text-xl bold margin-none margin-right-sm">{{$title}}</h2>
 		{{- end -}}
-		<button type="button" class="turboclick" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}">{{icon "chevron-left"}}</button>
-		<button type="button" class="turboclick" hx-get="/{{$collectionID}}/list?view={{$view}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}">Today</button>
-		<button type="button" class="turboclick" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}">{{icon "chevron-right"}}</button>
+		<button type="button" class="turboclick" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}{{$tagQuery}}">{{icon "chevron-left"}}</button>
+		<button type="button" class="turboclick" hx-get="/{{$collectionID}}/list?view={{$view}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}{{$tagQuery}}">Today</button>
+		<button type="button" class="turboclick" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}{{$tagQuery}}">{{icon "chevron-right"}}</button>
 		{{- if ne $view "month" -}}
 			<h2 class="text-xl bold margin-none margin-left-sm">{{$title}}</h2>
 		{{- end -}}
 	</div>
 	<div role="tablist" class="pills margin-none">
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `list`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=list{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=list{{$startQuery}}">List</a>
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `week`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=week{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=week{{$startQuery}}">Week</a>
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `month`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=month{{$startQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=month{{$startQuery}}">Month</a>
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `list`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=list{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=list{{$startQuery}}{{$tagQuery}}">List</a>
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `week`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=week{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=week{{$startQuery}}{{$tagQuery}}">Week</a>
+		<a role="tab" class="turboclick" aria-selected="{{if eq $view `month`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=month{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=month{{$startQuery}}{{$tagQuery}}">Month</a>
 	</div>
 </div>
 
@@ -118,7 +138,7 @@
 			{{- end -}}
 		{{- end -}}
 		{{- if eq $count 0 -}}
-			<div class="padding text-gray align-center">No events in {{$title}}.</div>
+			<div class="padding text-gray align-center">No {{if ne `` $tag}}#{{$tag}} {{end}}events in {{$title}}.</div>
 		{{- end -}}
 	</div>
 

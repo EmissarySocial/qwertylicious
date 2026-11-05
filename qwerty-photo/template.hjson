@@ -10,6 +10,7 @@
 	label: "Qwertylicious Photo"
 	description: "A photo in a Qwertylicious photo gallery."
 	icon: "image"
+	tagPaths: ["data.tags"]
 
 	schema: {
 		type: "object"
@@ -25,6 +26,7 @@
 			isFeatured: {type:"boolean"}
 			data: {type:"object", properties: {
 				photoCount: {type:"integer", minimum:0, maximum:64}
+				tags: {type:"string", maxLength:1024}
 			}}
 		}
 	}
@@ -63,6 +65,7 @@
 								{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", required:true}}
 								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 								{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:3}}
+								{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The gallery's filters find photos by these."}
 							]
 						}
 					}
@@ -160,6 +163,7 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The gallery's filters find photos by these."}
 										]
 									}
 								]
@@ -187,6 +191,7 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The gallery's filters find photos by these."}
 										]
 									}
 								]

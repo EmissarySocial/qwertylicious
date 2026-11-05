@@ -1,17 +1,20 @@
-<!-- gallery-tiles draws photo posts as grid tiles, called as (array $posts $canEdit $isCustom $canSort) (see AGENTS.md).
+<!-- gallery-tiles draws photo posts as grid tiles, called as (array $posts $canEdit $isCustom $canSort $tag) (see AGENTS.md).
      RULE: tiles set hx-push-url="false" so the address bar keeps the profile's ?tab= (see AGENTS.md). -->
 {{- $canEdit := index . 1 -}}
 {{- $isCustom := index . 2 -}}
 {{- $canSort := index . 3 -}}
+<!-- A tile opens its modal in the same ?tag= filter, so the modal's neighbors keep to it -->
+{{- $modalQuery := "" -}}
+{{- if ne "" (index . 4) -}}{{- $modalQuery = print "?tag=" (index . 4 | urlquery) -}}{{- end -}}
 {{- range index . 0 -}}
 	<!-- A tile's accessible name: its title, else its description (the hidden copy below), else "Photo" -->
 	{{- if ne "" .Label -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-label="{{.Label}}">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal{{$modalQuery}}" hx-push-url="false" aria-label="{{.Label}}">
 	{{- else if ne "" .Content.HTML -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-labelledby="tile-caption-{{.StreamID}}">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal{{$modalQuery}}" hx-push-url="false" aria-labelledby="tile-caption-{{.StreamID}}">
 		<div id="tile-caption-{{.StreamID}}" hidden>{{.Content.HTML | htmlMinimal}}</div>
 	{{- else -}}
-	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal" hx-push-url="false" aria-label="Photo">
+	<div role="button" tabindex="0" class="qwerty-gallery-item hover-trigger turboclick" hx-get="/{{.Token}}/modal{{$modalQuery}}" hx-push-url="false" aria-label="Photo">
 	{{- end -}}
 		<img src="{{.IconURL}}.webp?width=480&height=480" alt="" loading="lazy">
 		{{- $count := int (index .Data "photoCount") -}}
