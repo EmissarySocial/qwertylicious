@@ -3,8 +3,9 @@
 <div id="profile-tabs">
 
 <!-- The tab bar, with the owner's buttons for this collection after the tabs (qwerty-common/profile-menu.html) -->
-<div class="profile-tabs-row">
-	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID .) -}}
+<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID) -}}
+	{{- template "profile-menu" . -}}
 </div>
 
 <!-- The description, no wider than a post; a Calendar and a Podcast draw their own (items-calendar.html, items-podcast.html) -->

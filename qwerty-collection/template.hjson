@@ -210,25 +210,26 @@
 			]
 		}
 
-		// The About collection has only a name; its message is the profile's, written in the profile's settings
+		// Edit About: one hand-written form for the tab's name and the profile's About Me message, which are two records (see AGENTS.md)
 		settings-about: {
 			roles: ["author"]
 			steps: [
 				// RULE: only the About collection, because every settings-* action is also its own URL (see AGENTS.md)
 				{do:"require", condition:"{{eq (.Data `layout`) `about`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-vertical
-						children: [
-							{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-						]
-					}
-				}
+				{do:"view-html", file:"settings-about"}
+
+				// RULE: set-data does not enforce the form's required name, so an empty one falls back to "About"
+				{do:"set-data", from-form:["label"], defaults:{"label":"About"}}
 				// RULE: the About tab is always shared with everyone, as the message it shows is
 				{do:"set-sharing", role:"viewer", group:"anonymous"}
 				{do:"save", comment:"Settings updated by {{.Author}}"}
+
+				// The message belongs to the profile that owns this collection, which is the one the tab shows
+				{do:"with-parent", steps:[
+					{do:"set-data", from-form:["statusMessage"]}
+					{do:"save", comment:"About Me updated from the About tab"}
+					{do:"search-index"}
+				]}
 			]
 		}
 

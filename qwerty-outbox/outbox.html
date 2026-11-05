@@ -84,9 +84,9 @@
 			<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
 			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
 
-				<!-- RULE: the same .profile-tabs-row as list.html, so the owner's buttons do not move when the tab loads -->
-				<div class="profile-tabs-row">
-					{{- template "profile-tabs" (array . $selected false) -}}
+				<!-- RULE: the same .profile-tabs-row as list.html, so the tabs do not move when the tab loads and adds the owner's buttons -->
+				<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+					{{- template "profile-tabs" (array . $selected) -}}
 				</div>
 			</div>
 

@@ -10,7 +10,7 @@
 			<div class="text-light-gray" style="font-size:96px;">{{icon "person"}}</div>
 			<div class="text-2xl margin-none">About You</div>
 			<div class="margin-vertical max-width-512 margin-horizontal-auto">This tab introduces you to visitors.  Write a few words about who you are and what you share here.</div>
-			<button class="primary turboclick margin-top-lg" hx-get="/@me/settings">Write Your About Me</button>
+			<button class="primary turboclick margin-top-lg" hx-get="/{{.StreamID}}/settings">Write Your About Me</button>
 		</div>
 	{{- else -}}
 		<div id="profile-status" class="margin-vertical">{{$outbox.DisplayName}} hasn't added an "About Me" message yet.</div>
