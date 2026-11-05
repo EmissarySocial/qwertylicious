@@ -1,4 +1,4 @@
-<!-- responses: under the entry, its Reply, Like, Boost, and "⁂" buttons, its Replies, Likes, and Boosts tabs, and the open tab's list -->
+<!-- responses: under the entry, its Reply, Like, Boost, "⁂", and Share buttons, its Replies, Likes, and Boosts tabs, and the open tab's list -->
 <div class="qwerty-responses margin-top" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
 	<div class="qwerty-responses-row flex-row flex-align-center flex-wrap margin-bottom-lg">
 
@@ -31,6 +31,8 @@
 				<button type="button" class="turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>⁂</button>
 				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 			{{- end -}}
+			<!-- Share is last for every visitor, and the Share behavior shows it only where the browser has an OS share menu -->
+			<button type="button" aria-label="Share" script="install Share" data-share-url="{{.Permalink}}" hidden>{{icon "share"}}<span class="mobile-hide"> Share</span></button>
 		</div>
 
 		<div class="flex-grow"></div>

@@ -40,6 +40,9 @@ const articles = [
 	{ id: "6ad24ab9c00dfca0c02cd472", token: "the-second-article", title: "The Second Article" },
 ]
 
+// The tags a Photo Gallery lists, in its author's order
+const galleryTags = ["travel", "food"]
+
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
 	return readdirSync(folder).filter((name) => !name.startsWith(".")).sort()
@@ -167,6 +170,32 @@ function profileArticles() {
 	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articles.map(articleCard).join("")}</form></div>`
 }
 
+// tagPills is qwerty-collection/tag-pills.html's row for the gallery with $selected open, its row and pills taken from the template
+function tagPills(selected) {
+	const source = stripComments(read(join(qwerty, "qwerty-collection/tag-pills.html")))
+	const row = source.match(/<div role="tablist"[^>]*>/)[0]
+	const [all, tag] = source.match(/<a [^>]*>[^<]*<\/a>/g)
+	const fill = (link, value) => link
+		.replace(/\{\{if ne `` \$query\}\}[?&]\{\{\$query\}\}\{\{end\}\}/g, "")
+		.replace(/\{\{if eq (``|\.) \$selected\}\}true\{\{else\}\}false\{\{end\}\}/, value == selected ? "true" : "false")
+		.replaceAll("{{$collectionID}}", "gallery")
+		.replaceAll("{{$profileTab}}", "/@author?tab=gallery")
+		.replaceAll("{{. | urlquery}}", encodeURIComponent(value))
+		.replaceAll("{{.}}", value)
+	return row + fill(all, "") + galleryTags.map((value) => fill(tag, value)).join("") + "</div>"
+}
+
+// galleryTab is the gallery's tab, as list.html swaps it into #profile-tabs, with photos taller than the window below the pills
+function galleryTab(selected) {
+	return `<div id="profile-tabs"><div role="tablist" class="pills"><a role="tab" aria-selected="true">Gallery</a></div>${tagPills(selected)}<div style="height: 2000px">${selected || "All"} photos</div></div>`
+}
+
+// profileUsername is qwerty-outbox/profile-header.html's handle, whose Clipboard behavior copies the full @user@host
+function profileUsername() {
+	const block = stripComments(read(join(qwerty, "qwerty-outbox/profile-header.html"))).match(/<div id="profile-username"[\s\S]*?<\/div>/)[0]
+	return icons(block.replaceAll("{{.Username}}", "author").replaceAll("{{.Hostname}}", "example.social"))
+}
+
 function page(body) {
 	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
 }
@@ -200,11 +229,15 @@ const routes = {
 	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
 	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
 	"/articles/list": () => ["text/html", profileArticles()],
+	"/@photographer": () => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${galleryTab("")}</div></main>`)],
+	"/gallery/list": (url) => ["text/html", galleryTab(url.searchParams.get("tag") || "")],
+	"/handle": () => ["text/html", page(profileUsername())],
 	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
 }
 
 createServer((request, response) => {
-	const path = new URL(request.url, "http://x").pathname
+	const url = new URL(request.url, "http://x")
+	const path = url.pathname
 
 	// The bootstrap icons, as static files
 	if (path.startsWith("/icons/")) {
@@ -239,7 +272,7 @@ createServer((request, response) => {
 	}
 
 	if (routes[path]) {
-		const [type, body] = routes[path]()
+		const [type, body] = routes[path](url)
 		response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" })
 		return response.end(body)
 	}

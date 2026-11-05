@@ -1,4 +1,4 @@
-<!-- head-social: the Article's Like, Reply, Boost, and "⁂" buttons, between its byline and its text -->
+<!-- head-social: the Article's Like, Reply, Boost, "⁂", and Share buttons, between its byline and its text -->
 <div id="article-social" class="flex-row flex-align-center">
 	<!-- Each button acts in one click once CamperJS finds a saved account that can (see AGENTS.md); "⁂" manages it -->
 	<div class="flex-grow text-xs">
@@ -22,6 +22,8 @@
 			<button type="button" class="tertiary camper-show-if-ready" data-camper-action="intent" hidden>{{icon "heart"}} {{.LikeCount}}</button>
 		</span>
 		<button type="button" class="tertiary turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>⁂</button>
+		<!-- The Share behavior shows Share only where the browser has an OS share menu -->
+		<button type="button" class="tertiary" aria-label="Share" script="install Share" data-share-url="{{.Permalink}}" hidden>{{icon "share"}}</button>
 	</div>
 </div>
 
