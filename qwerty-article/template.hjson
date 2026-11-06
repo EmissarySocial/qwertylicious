@@ -5,7 +5,7 @@
 	socialRole:"Article"
 	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends:["base-intent", "qwerty-replies"]
+	extends:["base-intent", "qwerty-replies", "qwerty-item-base"]
 	tagPaths:["data.tags"]
 	label:"Qwertylicious Article"
 	description:"Articles show up on a Qwertylicious user's profile page."
@@ -22,14 +22,14 @@
 			name: {type:"string"}
 			summary: {type:"string"}
 			// RULE: content restates no property, so raw and html keep Emissary's definitions (see AGENTS.md)
-			content:{type:"object", properties: {},
+			content:{type:"object", properties: {}}
 			data: {type:"object", properties: {
 				tags: {type:"string"}
-				iconDescription: {type:"string", maxlength:2048}
+				iconDescription: {type:"string", maxLength:2048}
 				bannerUrl: {type:"string", format:"url"}
 				bannerId: {type:"string", format:"objectId"}
-				bannerDescription: {type:"string", maxlength:2048}
-			}}}
+				bannerDescription: {type:"string", maxLength:2048}
+			}}
 		}
 	}
 	states: {
@@ -58,6 +58,7 @@
 				{do:"forward-to", url: "/{{.StreamID}}/edit"}
 			]
 		}
+
 
 		view: {
 			roles: ["author"]
@@ -163,7 +164,6 @@
 												{value:"MARKDOWN", label:"Markdown"}
 												{value:"HTML", label:"HTML"}
 											]}}
-											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 									{
@@ -171,6 +171,14 @@
 										label:"Description"
 										children:[
 											{type:"textarea", path:"summary", description:"(PUBLIC) Shows beneath the post title.", options:{rows:10}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Hashtags"
+										children:[
+											// The article's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
 										]
 									}
 									{
@@ -211,7 +219,6 @@
 												{value:"MARKDOWN", label:"Markdown"}
 												{value:"HTML", label:"HTML"}
 											]}}
-											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 											{type:"toggle", path:"isFeatured", options:{false-text:"Feature?", true-text:"Featured"}}
 										]
 									}
@@ -220,6 +227,14 @@
 										label:"Description"
 										children:[
 											{type:"textarea", path:"summary", description:"(PUBLIC) Shows beneath the post title.", options:{rows:10}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Hashtags"
+										children:[
+											// The article's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
 										]
 									}
 									{

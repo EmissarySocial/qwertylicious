@@ -7,7 +7,7 @@
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
+	extends: ["base-intent", "qwerty-common", "qwerty-replies", "qwerty-item-base"]
 	label: "Qwertylicious Placemark"
 	description: "A place on a Qwertylicious map."
 	icon: "map-pin"
@@ -72,12 +72,15 @@
 									{type:"text", path:"label", label:"Name", options:{required:true}}
 									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
 									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
-									{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+									// The place's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+									{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
 									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
 									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
 								]
 							}
 						}
+					// The include lets the collection's add run tag-options on the unsaved place; its view draws nothing on the POST
+					{do:"include", action:"tag-options"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
@@ -88,6 +91,7 @@
 		}
 
 		// An entry's URL opens its modal over its collection's tab
+
 		view: {
 			roles: ["author"]
 			stateRoles: {
@@ -170,7 +174,14 @@
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
 											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Hashtags"
+										children: [
+											// The place's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
 										]
 									}
 								]

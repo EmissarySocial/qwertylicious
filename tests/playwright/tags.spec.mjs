@@ -23,6 +23,12 @@ test.describe("tag pills", () => {
 		await expect.poll(() => pillsTop(page)).toBe(0)
 	})
 
+	test("a pill's text cannot be selected", async ({ page }) => {
+		await page.goto("/@photographer")
+		const pill = page.getByRole("tab", { name: "travel" })
+		expect(await pill.evaluate((element) => getComputedStyle(element).webkitUserSelect || getComputedStyle(element).userSelect)).toBe("none")
+	})
+
 	test("All scrolls the row to the top too", async ({ page }) => {
 		await page.goto("/@photographer")
 		await page.getByRole("tab", { name: "travel" }).click()

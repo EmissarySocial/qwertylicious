@@ -6,7 +6,7 @@
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends: ["base-intent", "qwerty-replies"]
+	extends: ["base-intent", "qwerty-replies", "qwerty-item-base"]
 	label: "Qwertylicious Photo"
 	description: "A photo in a Qwertylicious photo gallery."
 	icon: "image"
@@ -79,7 +79,14 @@
 									children: [
 										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Hashtags"
+									children: [
+										// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+										{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
 									]
 								}
 							]
@@ -87,6 +94,8 @@
 					}
 					// The include lets the photos action run on the unsaved post before the Save, and adopts the staged photos at it
 					{do:"include", action:"photos"}
+					// The include lets the gallery's add run tag-options on the unsaved post; its view draws nothing on the POST
+					{do:"include", action:"tag-options"}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
@@ -106,6 +115,7 @@
 				{do:"save", comment:"Photos updated by {{.Author}}"}
 			]
 		}
+
 
 		// The photo's shareable URL: its modal over the gallery, or over its own page if the profile is hidden
 		view: {
@@ -190,7 +200,14 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Hashtags"
+										children: [
+											// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
 										]
 									}
 								]
@@ -218,7 +235,14 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Hashtags"
+										children: [
+											// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
 										]
 									}
 								]

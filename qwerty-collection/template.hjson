@@ -291,17 +291,17 @@
 							}
 							{
 								type: layout-vertical
-								label: Featured
+								label: Description
 								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
 								type: layout-vertical
-								label: Description
+								label: Hashtags
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 						]
@@ -333,17 +333,17 @@
 							}
 							{
 								type: layout-vertical
-								label: Featured
+								label: Description
 								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
 								type: layout-vertical
-								label: Description
+								label: Hashtags
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -384,17 +384,17 @@
 							}
 							{
 								type: layout-vertical
-								label: Featured
+								label: Description
 								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
 								type: layout-vertical
-								label: Description
+								label: Hashtags
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -433,17 +433,17 @@
 							}
 							{
 								type: layout-vertical
-								label: Featured
+								label: Description
 								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
 								type: layout-vertical
-								label: Description
+								label: Hashtags
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 						]
@@ -476,17 +476,17 @@
 							}
 							{
 								type: layout-vertical
-								label: Featured
+								label: Description
 								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
+									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
 								]
 							}
 							{
 								type: layout-vertical
-								label: Description
+								label: Hashtags
 								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{

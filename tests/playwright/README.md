@@ -38,6 +38,8 @@ npx playwright show-report        # the HTML report of the last run
 | `/staged` | The files staged under the user and not yet adopted, for the photo spec |
 | `/{id}/edit` | Edit Photo in a modal; its POST answers a 303 to the modal, as the edit action does |
 | `/{id}/photos` | The post's `photos` action, answered as Emissary's `edit-attachments` step does: GET draws the row of tiles, and a POST deletes one file (`?attachmentId=`) or stores the posted files and applies the posted order, then draws the row again |
+| `/{id}/tag-options`, `/{collectionId}/add?action=tag-options` | The post's `tag-options` action, drawn from `qwerty-item-base/tag-options.html`: the gallery's hashtags as checkboxes, the post's own checked, and the hidden `data.tags` input; through the gallery's add, nothing is checked. A POST to `/{id}/edit` or `/{collectionId}/add` keeps the `data.tags` it carries |
+| `/lists` | A gallery's hashtag list from JSON, for the picker spec; a gallery with none set lists `travel` and `food` |
 | `/list` | The `list` widget's fixture inside a form; its POST answers with every value it received, by name, in the order posted |
 | `/tabs` | A two-tab form, General and Hashtags, as `layout-tabs` draws one |
 | `/seed`, `/posts/{id}` | A post stored from JSON, and a post's files in rank order, for the photo spec |
@@ -49,6 +51,11 @@ npx playwright show-report        # the HTML report of the last run
 | `/articles/sort` | Posting a new order, answered as Emissary's `sort` step does, with `HX-Reswap: none` |
 | `/@photographer` | A profile with a Photo Gallery tab open below a 300px header, its pill row tagged `travel` and `food`, and photos taller than the window |
 | `/gallery/list` | That tab, as a pill swaps it into `#profile-tabs`, with `?tag=` selecting a pill |
+| `/@cartographer` | A profile with a Map tab open below a 300px header: three places in California, tagged `travel` and `food`, with no saved view. `?tag=` selects a pill |
+| `/map/list` | That tab, as a pill swaps it into `#profile-tabs` |
+| `/.themes/global/resources/leaflet-1.9.4/…` | Emissary's Leaflet stylesheet, script, and marker images |
+| `/.themes/qwerty-theme/maps` | `qwerty-theme/maps` |
+| `/tiles/…` | One gray square for every map tile |
 | `/handle` | A profile's handle, which copies the full `@author@example.social` |
 
 The photo routes keep their posts in memory, under the collection id the spec makes up, so tests running at once never share a post.
@@ -69,6 +76,7 @@ The pieces a test is about come from the template files themselves:
 - the date cell, from `qwerty-collection/items-podcast.html`;
 - the tab link, from `qwerty-common/profile-tabs.html`;
 - the tag pill row and its All and tag pills, from `qwerty-collection/tag-pills.html`;
+- a Map tab from its map onward, including its scripts, from `qwerty-collection/items-map.html`, where an action the server does not fill in stops the server;
 - the profile's handle and its copy button, from `qwerty-outbox/profile-header.html`;
 - the sortable branch up to its cards, from `qwerty-common/layout.html`;
 - the Article card's link and drag handle, from `qwerty-common/layout-column.html`;
@@ -76,7 +84,7 @@ The pieces a test is about come from the template files themselves:
 
 `fixtures/list.html` holds benpate/form's `list` widget as it draws three lists in a `layout-vertical`: one of at most 4 values, an empty one, and one of at least 2. Render it again from the form library whenever the widget's markup changes. `fixtures/tabs.html` holds a `layout-tabs` form drawn the same way, with a text field on General and a `list` on Hashtags.
 
-`fixtures/photo-create.html` and `fixtures/photo-edit.html` copy Add Photos and Edit Photo as Emissary's `edit` step renders them from `qwerty-photo/template.hjson`, with the `html-remote` element's own markup, an empty shell that loads the photo zone from `server.mjs`; `fixtures/photo-modal.html` holds the modal around the carousel, which `server.mjs` draws from the post's files as `qwerty-photo/photo-figure.html` does.
+`fixtures/photo-create.html` and `fixtures/photo-edit.html` copy Add Photos and Edit Photo as Emissary's `edit` step renders them from `qwerty-photo/template.hjson`, with their two `html-remote` elements' own markup, empty shells that load the photo zone and the hashtag picker from `server.mjs`; `fixtures/photo-modal.html` holds the modal around the carousel, which `server.mjs` draws from the post's files as `qwerty-photo/photo-figure.html` does.
 
 ## Checking that a test catches its bug
 
@@ -156,6 +164,14 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 
 - **The labels.** Each pill shows its bare tag, with no `#`.
 - **Scrolling.** A tag pill, and All after it, scroll the pill row to the top of the window as the tab redraws. With `show:none` in their `hx-swap`, the row stayed where it was.
+
+`map.spec.mjs` checks a Map tab's pills:
+
+- **The map stays.** A pill keeps the same canvas and live map, and redraws only the markers. Before `hx-preserve`, every pill drew a new map.
+- **The view.** A tag fits the map to its places, and All to every place, even when it is clicked while the last zoom is still animating. Without the wait for `zoomend`, All left the map on the tag's view.
+- **A link with `?tag=`.** The map opens fitted to that tag.
+- **Back.** It brings back a live map, which a pill can still filter. With a `data-drawn` attribute, the restored map could not be dragged.
+- **The marker images.** Every marker's image loads, before and after a pill. When Leaflet guessed the folder before leaflet.css loaded, Chromium drew broken markers.
 
 `editorjs.spec.mjs` checks the following, in qwertylicious's editor and in Emissary's:
 

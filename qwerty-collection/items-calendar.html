@@ -89,9 +89,6 @@
 {{- end -}}
 {{- $events := ($query.ByStartDate.All).Slice -}}
 
-<!-- The tag filters lead, and keep the view and its dates -->
-{{- template "tag-pills" (array . $tags $tag (print "view=" $view $startQuery)) -}}
-
 <!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views, each in the same ?tag= -->
 <div class="qwerty-calendar-toolbar flex-row flex-wrap flex-align-center margin-bottom">
 	<div class="flex-row flex-align-center flex-grow">
@@ -116,6 +113,9 @@
 {{- if ne "" .Summary -}}
 	<div class="text-gray margin-vertical max-width-640">{{.Summary | markdown}}</div>
 {{- end -}}
+
+<!-- RULE: the tag filters follow the toolbar and the description, directly above the events, and keep the view and its dates (see AGENTS.md) -->
+{{- template "tag-pills" (array . $tags $tag (print "view=" $view $startQuery)) -}}
 
 {{- if eq $view "list" -}}
 

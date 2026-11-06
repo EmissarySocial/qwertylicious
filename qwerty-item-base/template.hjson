@@ -1,0 +1,27 @@
+{
+	// The base of every item in a Qwertylicious collection: what their forms share, starting with the hashtag picker (see AGENTS.md).
+	// Views: tag-options, the Hashtags tab's checkboxes, loaded by each form's html-remote element.
+	templateId: "qwerty-item-base"
+	category: Base
+	model: None
+	extends: []
+
+	// Emissary refuses a template with no state; each item keeps its own, and the picker draws in any of them
+	states: {
+		default: {
+			label: "Default"
+			description: "The picker draws in every state alike"
+		}
+	}
+
+	actions: {
+
+		// The Hashtags tab of an item's forms: its collection's hashtags as checkboxes, drawn by tag-options.html (see AGENTS.md)
+		tag-options: {
+			roles: ["author"]
+			steps: [
+				{do:"view-html", method:"get"}
+			]
+		}
+	}
+}

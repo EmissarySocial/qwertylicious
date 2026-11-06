@@ -1,5 +1,5 @@
 <!-- items-map is a Map's tab: one map with a marker per place, which opens the entry's modal when clicked (see AGENTS.md).
-     The default view is the collection's location and data.zoom; with none saved, the map fits its places. -->
+     A selected tag fits the map to its places; otherwise the view is the collection's location and data.zoom, else its places. -->
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-placemark").ByLabel -}}
 
 <!-- The Map's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
@@ -22,8 +22,9 @@
 
 {{- template "tag-pills" (array . $tags $tag "") -}}
 
-<div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}">
-	<div class="qwerty-map-canvas qwerty-map-large rounded"></div>
+<!-- RULE: the canvas keeps its id and hx-preserve, so a pill keeps the drawn map and redraws only its markers (see AGENTS.md) -->
+<div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}" data-tag="{{$tag}}">
+	<div id="qwerty-map-{{.StreamID}}" class="qwerty-map-canvas qwerty-map-large rounded" hx-preserve="true"></div>
 
 	<div hidden>
 		{{- range $places -}}
@@ -35,6 +36,18 @@
 </div>
 
 
-<link rel="stylesheet" href="/.themes/global/resources/leaflet-1.9.4/leaflet.css">
+<!-- RULE: leaflet.css goes in <head> once per page, never inside the tab, where Safari would reset the scroll (see AGENTS.md) -->
+<script>
+	(function () {
+		var href = "/.themes/global/resources/leaflet-1.9.4/leaflet.css";
+		if (document.head.querySelector('link[href="' + href + '"]')) {
+			return;
+		}
+		var link = document.createElement("link");
+		link.rel = "stylesheet";
+		link.href = href;
+		document.head.appendChild(link);
+	})();
+</script>
 <script src="/.themes/global/resources/leaflet-1.9.4/leaflet.js" onload="window.qwertyMaps && window.qwertyMaps()"></script>
 <script src="/.themes/qwerty-theme/maps"></script>

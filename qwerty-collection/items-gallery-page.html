@@ -1,20 +1,15 @@
-<<<<<<< HEAD
-<!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?createDate=LT: and ?tag=). -->
-{{- $tag := .QueryParam "tag" -}}
-{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
-{{- if ne "" $tag -}}
-	{{- $photos = $photos.CaseInsensitive.Tags $tag -}}
-{{- end -}}
-{{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
-{{- template "gallery-tiles" (array $page (.UserCan "settings")) -}}
-{{- template "gallery-more" (array .StreamID $page $tag) -}}
-=======
 <!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?publishDate=LT: or ?rank=LT:, and any ?tag=). -->
 {{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
 
+<!-- The gallery's own hashtags are its filters, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
+{{- end -}}
+
 <!-- RULE: only the gallery's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
 {{- $tag := .QueryParam "tag" -}}
-{{- if not ((parseTags (.DataString "tags")).Contains $tag) -}}
+{{- if not ($tags.Contains $tag) -}}
 	{{- $tag = "" -}}
 {{- end -}}
 {{- if ne "" $tag -}}
@@ -31,4 +26,3 @@
 	{{- template "gallery-tiles" (array $page (.UserCan "settings") false false $tag) -}}
 	{{- template "gallery-more" (array .StreamID $page false $tag) -}}
 {{- end -}}
->>>>>>> dev

@@ -210,6 +210,12 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 	color: inherit;
 }
 
+/* A collection's hashtag pills (qwerty-collection/tag-pills.html): a click filters, so their text is never selectable (Ben, 2026-11-06) */
+.qwerty-tag-pills > [role="tab"] {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
 /* An item's responses bar (each item's responses.html): its buttons and its tabs share text-sm's font size.
    RULE: each selector outranks the rule it replaces, .text-sm button (1.6 rhythm) and [role=tab] (0.9rem). */
 .qwerty-responses-row .text-sm button,

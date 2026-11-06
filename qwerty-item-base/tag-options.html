@@ -1,0 +1,65 @@
+<!-- tag-options is the Hashtags tab of every item's forms: the collection's hashtags as checkboxes, posted as one "#a #b" string, loaded by the form's html-remote element from /{id}/tag-options or the collection's add?action=tag-options (see AGENTS.md) -->
+{{- $collection := .Parent "view" -}}
+
+<!-- The nouns of the sentence above the boxes, from the item's template, because each item template lives in one format (see AGENTS.md) -->
+{{- $item := "item" -}}
+{{- $home := "collection" -}}
+{{- if eq .TemplateID "qwerty-photo" -}}
+	{{- $item = "photo" -}}
+	{{- $home = "gallery" -}}
+{{- else if eq .TemplateID "qwerty-article" -}}
+	{{- $item = "article" -}}
+{{- else if eq .TemplateID "qwerty-event" -}}
+	{{- $item = "event" -}}
+	{{- $home = "calendar" -}}
+{{- else if eq .TemplateID "qwerty-placemark" -}}
+	{{- $item = "place" -}}
+	{{- $home = "map" -}}
+{{- else if eq .TemplateID "qwerty-timeline-entry" -}}
+	{{- $item = "entry" -}}
+	{{- $home = "timeline" -}}
+{{- end -}}
+
+<!-- The collection's own hashtags, in the owner's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range ($collection.Data "tags") -}}
+	{{- if not ($tags.Contains .) -}}
+		{{- $tags = append $tags (split . "\x00") -}}
+	{{- end -}}
+{{- end -}}
+
+<!-- The item's own hashtags, lower-cased, so a listed Sunset finds a stored sunset -->
+{{- $mine := split "" "," -}}
+{{- range parseTags (.DataString "tags") -}}
+	{{- $mine = append $mine (split (lowerCase .) "\x00") -}}
+{{- end -}}
+
+<!-- RULE: the hidden input is the field, and the boxes only rebuild it, so every Save posts data.tags (see AGENTS.md) -->
+{{- $value := "" -}}
+<div class="qwerty-tag-picker" script="on change from <input[type=checkbox]/> in me
+	set tags to ''
+	for box in <input[type=checkbox]:checked/> in me
+		set tags to tags + ' #' + box.value
+	end
+	set the value of the first <input.qwerty-tag-value/> in me to tags.trim()">
+	{{- if $tags.IsEmpty -}}
+		<!-- The link opens Edit Collection, the collection's settings action, in place of this modal (see AGENTS.md) -->
+		<div class="text-sm gray50">After you <a href="/{{.ParentID}}/settings" hx-get="/{{.ParentID}}/settings" hx-push-url="false">add hashtags to the collection container</a>, you'll be able to select tags and organize this item with them.</div>
+	{{- else -}}
+		<div class="margin-bottom-sm">Select one or more hashtags to arrange this {{$item}} within the {{$home}}.</div>
+		<div class="multiselect"><div class="options" style="max-height:300px">
+		{{- range $index, $tag := $tags -}}
+			<label for="tag-option-{{$index}}">
+			{{- if $mine.Contains (lowerCase $tag) -}}
+				{{- $value = print $value " #" $tag -}}
+				<input type="checkbox" id="tag-option-{{$index}}" name="tag-option" value="{{$tag}}" checked>
+			{{- else -}}
+				<input type="checkbox" id="tag-option-{{$index}}" name="tag-option" value="{{$tag}}">
+			{{- end -}}
+			<div><div>{{$tag}}</div></div>
+			</label>
+		{{- end -}}
+		</div></div>
+	{{- end -}}
+	<input type="hidden" class="qwerty-tag-value" name="data.tags" value="{{trim $value}}">
+</div>

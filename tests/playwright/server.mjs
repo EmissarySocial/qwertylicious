@@ -61,9 +61,10 @@ function newPhotoFile(file) {
 	return { id: photoID("6ada"), name: file.name, type: file.type || "image/png" }
 }
 
-// newPhotoPost stores a post of these files in the collection, as the create action's include does
-function newPhotoPost(collection, files) {
-	const post = { id: photoID("6ad9"), collection, files: files.map(newPhotoFile) }
+// newPhotoPost stores a post of these files in the collection, as the create action's include does, with its
+// hashtags as the "#a #b" string the picker posts
+function newPhotoPost(collection, files, tags = "") {
+	const post = { id: photoID("6ad9"), collection, files: files.map(newPhotoFile), tags }
 	photoPosts.set(post.id, post)
 	return post
 }
@@ -199,6 +200,36 @@ function photoCreate(collection) {
 	return read(join(here, "fixtures/photo-create.html")).replaceAll("${COLLECTION}", collection)
 }
 
+// The hashtags a gallery lists, set by a spec through /lists, or galleryTags when none is set
+const galleryLists = new Map()
+const galleryTagsFor = (collection) => galleryLists.get(collection) ?? galleryTags
+
+// parseTags reads the names out of a "#a #b" string, lower-cased, as the picker's template does
+const parseTags = (tags) => tags.split(/\s+/).filter((word) => word.startsWith("#")).map((word) => word.slice(1).toLowerCase())
+
+// tagOptions draws the hashtag picker as qwerty-item-base/tag-options.html does: the gallery's list as checkboxes, the
+// post's own checked, the sentence above them naming the photo and its gallery, and the hidden data.tags input holding
+// the checked values; a gallery with no list draws its note alone
+function tagOptions(collection, tags) {
+	const source = stripComments(read(join(qwerty, "qwerty-item-base/tag-options.html")))
+	const picker = source.match(/<div class="qwerty-tag-picker"[\s\S]*?">/)[0]
+	const note = source.match(/<div class="text-sm gray50">[\s\S]*?<\/div>/)[0].replaceAll("{{.ParentID}}", collection)
+	const sentence = source.match(/<div class="margin-bottom-sm">[^<]*<\/div>/)[0].replace("{{$item}}", "photo").replace("{{$home}}", "gallery")
+	const options = source.match(/<div class="multiselect"><div class="options"[^>]*>/)[0]
+	const label = source.match(/<label for="tag-option-\{\{\$index\}\}">/)[0]
+	const [checked, unchecked] = source.match(/<input type="checkbox"[^>]*>/g)
+	const text = source.match(/<div><div>\{\{\$tag\}\}<\/div><\/div>/)[0]
+	const hidden = source.match(/<input type="hidden"[^>]*>/)[0]
+	const fill = (piece, index, tag) => piece.replaceAll("{{$index}}", index).replaceAll("{{$tag}}", tag)
+	const mine = parseTags(tags)
+	const list = galleryTagsFor(collection)
+	const isMine = (tag) => mine.includes(tag.toLowerCase())
+	const rows = list.map((tag, index) => fill(label, index, tag) + fill(isMine(tag) ? checked : unchecked, index, tag) + fill(text, index, tag) + "</label>").join("")
+	const body = list.length == 0 ? note : sentence + options + rows + "</div></div>"
+	const value = list.filter(isMine).map((tag) => "#" + tag).join(" ")
+	return picker + body + hidden.replace("{{trim $value}}", escapeHTML(value)) + "</div>"
+}
+
 // galleryTiles draws a collection's posts for their owner, as qwerty-collection/gallery-tiles.html does,
 // or the welcome of qwerty-collection/items-empty.html
 function galleryTiles(collection) {
@@ -296,6 +327,11 @@ async function photosAction(request, response, post, query) {
 // draws a create form's zone, a POST stores the one posted file under the user and draws its tile alone, and
 // ?attachmentId= deletes one staged file and answers nothing
 async function stagingAction(request, response, query, collection) {
+
+	// The picker on Add Photos, with nothing checked: the unsaved post has no hashtags yet
+	if (query.get("action") == "tag-options" && request.method != "POST") {
+		return htmlResponse(response, tagOptions(collection, ""))
+	}
 
 	if (query.get("action") != "photos") {
 		response.writeHead(400)
@@ -397,7 +433,7 @@ async function photoRoute(request, response, path, query) {
 			inlineError(response, "At least 1 file is required")
 			return true
 		}
-		newPhotoPost(match[1], files)
+		newPhotoPost(match[1], files, form.get("data.tags") ?? "")
 		htmlResponse(response, "", { "HX-Trigger": '{"closeModal":"true","refreshPage":"true"}' })
 		return true
 	}
@@ -405,7 +441,15 @@ async function photoRoute(request, response, path, query) {
 	// A saved post for a spec to start from, and a post's files for a spec to check
 	if (path == "/seed" && request.method == "POST") {
 		const body = JSON.parse((await readBody(request)).toString("utf8"))
-		jsonResponse(response, newPhotoPost(body.collection, body.files.map((name) => ({ name, type: "image/png" }))))
+		jsonResponse(response, newPhotoPost(body.collection, body.files.map((name) => ({ name, type: "image/png" })), body.tags ?? ""))
+		return true
+	}
+
+	// A gallery's hashtag list, for the picker spec
+	if (path == "/lists" && request.method == "POST") {
+		const body = JSON.parse((await readBody(request)).toString("utf8"))
+		galleryLists.set(body.collection, body.tags)
+		jsonResponse(response, body.tags)
 		return true
 	}
 
@@ -415,7 +459,7 @@ async function photoRoute(request, response, path, query) {
 	}
 
 	// Everything below belongs to one saved post
-	match = path.match(new RegExp(`^/(${hex})/(modal|edit|photos)$`))
+	match = path.match(new RegExp(`^/(${hex})/(modal|edit|photos|tag-options)$`))
 	const post = match ? photoPosts.get(match[1]) : undefined
 
 	if (post == null) {
@@ -428,10 +472,10 @@ async function photoRoute(request, response, path, query) {
 			htmlResponse(response, photoModal(post), modalHeaders)
 			return true
 
-		// Saving answers as the edit action does: a 303 to the modal
+		// Saving keeps the posted hashtags and answers as the edit action does: a 303 to the modal
 		case "edit":
 			if (request.method == "POST") {
-				await readBody(request)
+				post.tags = (await formData(request)).get("data.tags") ?? ""
 				response.writeHead(303, { "Location": `/${post.id}/modal` })
 				response.end()
 				return true
@@ -441,6 +485,10 @@ async function photoRoute(request, response, path, query) {
 
 		case "photos":
 			await photosAction(request, response, post, query)
+			return true
+
+		case "tag-options":
+			htmlResponse(response, tagOptions(post.collection, post.tags))
 			return true
 	}
 
@@ -600,16 +648,16 @@ function profileArticles() {
 	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articles.map(articleCard).join("")}</form></div>`
 }
 
-// tagPills is qwerty-collection/tag-pills.html's row for the gallery with $selected open, its row and pills taken from the template
-function tagPills(selected) {
+// tagPills is qwerty-collection/tag-pills.html's row for a collection with $selected open, its row and pills taken from the template
+function tagPills(selected, collection = "gallery", profile = "author") {
 	const source = stripComments(read(join(qwerty, "qwerty-collection/tag-pills.html")))
 	const row = source.match(/<div role="tablist"[^>]*>/)[0]
 	const [all, tag] = source.match(/<a [^>]*>[^<]*<\/a>/g)
 	const fill = (link, value) => link
 		.replace(/\{\{if ne `` \$query\}\}[?&]\{\{\$query\}\}\{\{end\}\}/g, "")
 		.replace(/\{\{if eq (``|\.) \$selected\}\}true\{\{else\}\}false\{\{end\}\}/, value == selected ? "true" : "false")
-		.replaceAll("{{$collectionID}}", "gallery")
-		.replaceAll("{{$profileTab}}", "/@author?tab=gallery")
+		.replaceAll("{{$collectionID}}", collection)
+		.replaceAll("{{$profileTab}}", `/@${profile}?tab=${collection}`)
 		.replaceAll("{{. | urlquery}}", encodeURIComponent(value))
 		.replaceAll("{{.}}", value)
 	return row + fill(all, "") + galleryTags.map((value) => fill(tag, value)).join("") + "</div>"
@@ -618,6 +666,65 @@ function tagPills(selected) {
 // galleryTab is the gallery's tab, as list.html swaps it into #profile-tabs, with photos taller than the window below the pills
 function galleryTab(selected) {
 	return `<div id="profile-tabs"><div role="tablist" class="pills"><a role="tab" aria-selected="true">Gallery</a></div>${tagPills(selected)}<div style="height: 2000px">${selected || "All"} photos</div></div>`
+}
+
+// mapPlaces are a Map's places, tagged with the gallery's tags, and far enough apart that one tag's view leaves another place out
+const mapPlaces = [
+	{ token: "los-angeles", label: "Los Angeles", latitude: 34.05, longitude: -118.24, tags: ["travel"] },
+	{ token: "san-francisco", label: "San Francisco", latitude: 37.77, longitude: -122.42, tags: ["food"] },
+	{ token: "san-diego", label: "San Diego", latitude: 32.72, longitude: -117.16, tags: ["travel", "food"] },
+]
+
+// mapTab is a Map's tab, as list.html swaps it into #profile-tabs: its pills, then items-map.html from its map onward,
+// read from the template, with no saved view and the places $selected shows
+function mapTab(selected) {
+	const shown = mapPlaces.filter((place) => selected == "" || place.tags.includes(selected))
+	const markers = shown.map((place) => `<div class="qwerty-map-marker" data-latitude="${place.latitude}" data-longitude="${place.longitude}" data-label="${place.label}" data-modal-url="/${place.token}/modal"></div>`).join("")
+	const source = stripComments(read(join(qwerty, "qwerty-collection/items-map.html")))
+
+	// The markers replace the range over $places, which closes with its if's end and then its own
+	const map = source.slice(source.indexOf(`<div class="qwerty-map `))
+	const start = map.indexOf("{{- range $places -}}")
+	const end = map.indexOf("{{- end -}}", map.indexOf("{{- end -}}", start) + 1) + "{{- end -}}".length
+	const body = (map.slice(0, start) + markers + map.slice(end))
+		.replace("{{$mapTiles.Href}}", "/tiles/{z}/{x}/{y}.png")
+		.replace("{{$mapTiles.Description}}", "Tiles")
+		.replace("{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}", "")
+		.replace("{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}", "")
+		.replace("{{.Data `zoom`}}", "")
+		.replaceAll("{{$tag}}", selected)
+		.replaceAll("{{.StreamID}}", "map")
+
+	// A template change this copy cannot render fails here, not as a wrong map
+	const action = body.match(/\{\{[^}]*\}\}/)
+	if (action) {
+		throw new Error(`items-map.html has an action mapTab does not render: ${action[0]}`)
+	}
+	return `<div id="profile-tabs"><div role="tablist" class="pills"><a role="tab" aria-selected="true">Map</a></div>${tagPills(selected, "map", "cartographer")}${body}</div>`
+}
+
+// mapRoute serves Leaflet's stylesheet, script, and marker images from Emissary's resources, and one gray tile for every map tile
+function mapRoute(response, path) {
+
+	const leafletPath = "/.themes/global/resources/leaflet-1.9.4/"
+	if (path.startsWith(leafletPath)) {
+		const file = join(templates, "theme-global/resources/leaflet-1.9.4", path.slice(leafletPath.length).replaceAll("..", ""))
+		const types = { css: "text/css", js: "text/javascript", png: "image/png" }
+		if (!existsSync(file)) {
+			return false
+		}
+		response.writeHead(200, { "Content-Type": types[file.split(".").pop()] ?? "application/octet-stream" })
+		response.end(readFileSync(file))
+		return true
+	}
+
+	if (path.startsWith("/tiles/")) {
+		response.writeHead(200, { "Content-Type": "image/png" })
+		response.end(png(256, 256, [220, 220, 220]))
+		return true
+	}
+
+	return false
 }
 
 // profileUsername is qwerty-outbox/profile-header.html's handle, whose Clipboard behavior copies the full @user@host
@@ -664,6 +771,9 @@ const routes = {
 	"/articles/list": () => ["text/html", profileArticles()],
 	"/@photographer": () => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${galleryTab("")}</div></main>`)],
 	"/gallery/list": (url) => ["text/html", galleryTab(url.searchParams.get("tag") || "")],
+	"/@cartographer": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${mapTab(url.searchParams.get("tag") || "")}</div></main>`)],
+	"/map/list": (url) => ["text/html", mapTab(url.searchParams.get("tag") || "")],
+	"/.themes/qwerty-theme/maps": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/maps"))],
 	"/handle": () => ["text/html", page(profileUsername())],
 	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
 }
@@ -689,6 +799,11 @@ createServer(async (request, response) => {
 			response.writeHead(200, { "Content-Type": file.endsWith(".css") ? "text/css" : "font/woff2" })
 			return response.end(readFileSync(file))
 		}
+	}
+
+	// Leaflet and the map tiles
+	if (mapRoute(response, path)) {
+		return
 	}
 
 	// An episode's, an entry's, or the event's modal, with the headers Emissary's as-modal sends
