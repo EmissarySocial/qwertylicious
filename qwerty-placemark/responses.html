@@ -1,4 +1,4 @@
-<!-- responses: under the place, its Reply, Like, Share, and "..." buttons, its Replies, Likes, and Shares tabs, and the open tab's list -->
+<!-- responses: under the place, its Reply, Like, Boost, "⁂", and Share buttons, its Replies, Likes, and Boosts tabs, and the open tab's list -->
 <div class="qwerty-responses margin-top" hx-target="this" hx-swap="outerHTML" hx-push-url="false">
 	<div class="qwerty-responses-row flex-row flex-align-center flex-wrap margin-bottom-lg">
 
@@ -16,7 +16,7 @@
 					</span>
 				{{- end -}}
 			{{- end -}}
-			<!-- Like and Share open base-intent's modal, or act in one click once CamperJS finds a saved account that can; "..." manages it -->
+			<!-- Like and Boost open base-intent's modal, or act in one click once CamperJS finds a saved account that can; "⁂" manages it -->
 			{{- if .UserCan "like-button" -}}
 				{{.View "like-button"}}
 			{{- else -}}
@@ -25,12 +25,14 @@
 					<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Like" hidden>{{icon "heart"}}<span class="mobile-hide"> Like</span></button>
 				</span>
 				<span data-camper-intent="announce" data-camper-object="{{.Permalink}}">
-					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false" aria-label="Share">{{icon "share"}}<span class="mobile-hide"> Share</span></button>
-					<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Share" hidden>{{icon "share"}}<span class="mobile-hide"> Share</span></button>
+					<button type="button" class="turboclick camper-hide-if-ready" hx-get="/{{.StreamID}}/intent?intent=announce&object={{.Permalink}}" hx-push-url="false" aria-label="Boost">{{icon "announce"}}<span class="mobile-hide"> Boost</span></button>
+					<button type="button" class="camper-show-if-ready" data-camper-action="intent" aria-label="Boost" hidden>{{icon "announce"}}<span class="mobile-hide"> Boost</span></button>
 				</span>
-				<button type="button" class="turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>{{icon "more-horizontal"}}</button>
+				<button type="button" class="turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>⁂</button>
 				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 			{{- end -}}
+			<!-- Share is last for every visitor, and the Share behavior shows it only where the browser has an OS share menu -->
+			<button type="button" aria-label="Share" script="install Share" data-share-url="{{.Permalink}}" hidden>{{icon "share"}}<span class="mobile-hide"> Share</span></button>
 		</div>
 
 		<div class="flex-grow"></div>

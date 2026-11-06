@@ -1,11 +1,12 @@
-<!-- gallery-more is the sentinel after a full page of photo posts, called as (array $collectionID $page $tag).
-     In view, it replaces itself with the next 30 posts older than this page's last (?createDate=LT:), in the same ?tag=. -->
+<!-- gallery-more is the sentinel after a full page of photo posts, called as (array $collectionID $page $isCustom $tag).
+     In view, it replaces itself with the next 30 posts after this page's last (?publishDate=LT:, or ?rank=LT: when Custom). -->
 {{- $collectionID := index . 0 -}}
 {{- $page := index . 1 -}}
-{{- $tag := index . 2 -}}
+{{- $isCustom := index . 2 -}}
+{{- $tag := index . 3 -}}
 {{- if $page.IsLength 30 -}}
 	<div class="qwerty-gallery-more"
-		hx-get="/{{$collectionID}}/gallery-page?createDate=LT:{{$page.Last.CreateDate}}{{if ne `` $tag}}&tag={{$tag | urlquery}}{{end}}"
+		hx-get="/{{$collectionID}}/gallery-page?{{if $isCustom}}rank=LT:{{$page.Last.Rank}}{{else}}publishDate=LT:{{$page.Last.PublishDate}}{{end}}{{if ne `` $tag}}&tag={{$tag | urlquery}}{{end}}"
 		hx-trigger="revealed"
 		hx-target="this"
 		hx-swap="outerHTML"

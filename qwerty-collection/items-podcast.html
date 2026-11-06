@@ -1,8 +1,8 @@
-<!-- items-podcast is a Podcast's tab: the feed's link, then a table of episodes that each open their modal.
+<!-- items-podcast is a Podcast's tab: its description and the feed's link, then a table of episodes that each open their modal.
      RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
-<!-- Newest first unless data.episodeOrder is "asc" -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByCreateDate -}}
-{{- if ne (.Data "episodeOrder") "asc" -}}
+<!-- By rank, highest (newest) first unless data.sortDirection is "asc" -->
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByRank -}}
+{{- if ne (.DataString "sortDirection") "asc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}
 {{- $episodes := $query.Top60.Slice -}}
@@ -11,10 +11,18 @@
 {{- $canEdit := .UserCan "add" -}}
 
 {{- if $episodes.IsEmpty -}}
+	<!-- An empty Podcast keeps its description, centered above the welcome (list.html leaves it to this view) -->
+	{{- if ne "" .Summary -}}
+		<div class="reading-column text-gray">{{.Summary | markdown}}</div>
+	{{- end -}}
 	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
 {{- else -}}
-	<!-- The feed's link and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
+	<!-- The description, the feed's link, and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
 	<div class="qwerty-podcast reading-column margin-top-xl">
+
+		{{- if ne "" .Summary -}}
+			<div class="text-gray">{{.Summary | markdown}}</div>
+		{{- end -}}
 
 		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">
 			<div class="flex-grow"></div>
@@ -35,7 +43,7 @@
 								data-track-artist="{{$collection.AttributedTo.Name}}"
 								data-track-album="{{$collection.Label}}"
 								data-track-image="{{if ne `` .IconURL}}{{.IconURL}}{{else}}{{$collection.AttributedTo.IconURL}}{{end}}"
-								hx-get="/{{.StreamID}}/modal"
+								hx-get="/{{.Token}}/modal"
 								hx-push-url="false">
 								<span class="playing-hide">{{icon "play-fill"}}</span>
 								<span class="playing-show">{{icon "volume-up-fill"}}</span>
@@ -44,7 +52,7 @@
 							<span class="qwerty-podcast-play text-light-gray" aria-hidden="true">{{icon "mic"}}</span>
 						{{- end -}}
 					</td>
-					<td class="qwerty-podcast-name"><a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
+					<td class="qwerty-podcast-name"><a href="/{{.Token}}" hx-get="/{{.Token}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
 					<!-- .text-gray is an opacity, so it goes on the text; on the cell it would fade the row's hover color too -->
 					<td class="qwerty-podcast-date text-sm"><span class="text-gray">
 						{{- .PublishDate | shortDate -}}
@@ -52,7 +60,7 @@
 					</span></td>
 					{{- if $canEdit -}}
 						<td class="qwerty-podcast-edit">
-							<button class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
+							<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
 						</td>
 					{{- end -}}
 				</tr>

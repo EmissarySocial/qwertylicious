@@ -33,7 +33,7 @@ test.describe("calendar event modal", () => {
 		expect(new Set(sizes), `sizes seen: ${[...new Set(sizes)].join(", ")}`).toEqual(new Set([sizes.at(-1)]))
 	})
 
-	test("the Reply, Like, and Share buttons use the same font size as the tabs beside them", async ({ page }) => {
+	test("the Reply, Like, Boost, and Share buttons use the same font size as the tabs beside them", async ({ page }) => {
 		await page.goto("/calendar")
 		await openEvent(page)
 
@@ -41,7 +41,7 @@ test.describe("calendar event modal", () => {
 			buttons: [...row.querySelectorAll("button")].map((button) => getComputedStyle(button).fontSize),
 			tabs: [...row.querySelectorAll("[role=tab]")].map((tab) => getComputedStyle(tab).fontSize),
 		}))
-		expect(sizes.buttons).toHaveLength(3)
+		expect(sizes.buttons).toHaveLength(4)
 		expect(sizes.tabs).toHaveLength(3)
 		expect(new Set([...sizes.buttons, ...sizes.tabs]), `buttons ${sizes.buttons.join(", ")}; tabs ${sizes.tabs.join(", ")}`).toEqual(new Set([sizes.tabs[0]]))
 	})

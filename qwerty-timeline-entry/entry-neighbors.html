@@ -3,17 +3,25 @@
      The carousel script's Left and Right keys click these links (data-modal-go). -->
 {{- $timeline := .Parent "view" -}}
 {{- $id := .StreamID -}}
+
+<!-- The Timeline's own hashtags, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range ($timeline.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
+{{- end -}}
+
+<!-- RULE: only the Timeline's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
 {{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
 {{- $tagQuery := "" -}}
 {{- if ne "" $tag -}}{{- $tagQuery = print "?tag=" (urlquery $tag) -}}{{- end -}}
 
 <!-- The tab's own query (items-timeline.html), walked in full because date-only entries often share a date -->
 {{- $query := (.Siblings.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
-{{- if eq ($timeline.DataString "timelineOrder") "desc" -}}
-	{{- $query = $query.Reverse -}}
-{{- end -}}
 {{- if ne "" $tag -}}
-	{{- $query = $query.CaseInsensitive.Tags $tag -}}
+	{{- $query = ($query.Tags $tag).CaseInsensitive -}}
 {{- end -}}
 
 <!-- RULE: positions, not entries, because a template variable keeps the type it was declared with -->

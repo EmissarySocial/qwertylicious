@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?createDate=LT: and ?tag=). -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
@@ -7,3 +8,27 @@
 {{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
 {{- template "gallery-tiles" (array $page (.UserCan "settings")) -}}
 {{- template "gallery-more" (array .StreamID $page $tag) -}}
+=======
+<!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?publishDate=LT: or ?rank=LT:, and any ?tag=). -->
+{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
+
+<!-- RULE: only the gallery's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ((parseTags (.DataString "tags")).Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- if ne "" $tag -}}
+	{{- $photos = ($photos.Tags $tag).CaseInsensitive -}}
+{{- end -}}
+
+{{- if eq (.DataString "sortType") "rank" -}}
+	{{- $page := ($photos.ByRank.Reverse.Top30).Slice -}}
+	<!-- RULE: only All drags (see items-gallery.html) -->
+	{{- template "gallery-tiles" (array $page (.UserCan "settings") true (and (.UserCan "sort") (eq "" $tag)) $tag) -}}
+	{{- template "gallery-more" (array .StreamID $page true $tag) -}}
+{{- else -}}
+	{{- $page := (($photos.Where "isFeatured" false).ByPublishDate.Reverse.Top30).Slice -}}
+	{{- template "gallery-tiles" (array $page (.UserCan "settings") false false $tag) -}}
+	{{- template "gallery-more" (array .StreamID $page false $tag) -}}
+{{- end -}}
+>>>>>>> dev

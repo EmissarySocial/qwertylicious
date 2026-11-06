@@ -10,7 +10,7 @@
 	label: "Qwertylicious Photo"
 	description: "A photo in a Qwertylicious photo gallery."
 	icon: "image"
-	// A photo's own hashtags, which its gallery's featured hashtags filter by
+	// A photo's own hashtags, which its gallery's filters match
 	tagPaths: ["data.tags"]
 
 	schema: {
@@ -168,33 +168,63 @@
 				{do:"as-modal", options:["class:medium"], steps:[
 					// Save and X, top right, in place of the form's own buttons
 					{do:"view-html", file:"edit-pencil"}
-					{
-						do: "edit"
-						options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-						form: {
-							type: "layout-tabs"
-							label: "Edit Image"
-							children: [
-								{
-									type: "layout-vertical"
-									label: "Images"
-									children: [
-										{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ID}}/photos"}}
-										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
-									]
-								}
-								{
-									type: "layout-vertical"
-									label: "Text Content"
-									children: [
-										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
-									]
-								}
-							]
+					// RULE: a Custom gallery ignores pins, so its photos offer no Pin toggle (see AGENTS.md)
+					{do:"if", condition:"{{eq ((.Parent `view`).DataString `sortType`) `rank`}}", then:[
+						{
+							do: "edit"
+							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								label: "Edit Image"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "Images"
+										children: [
+											{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ID}}/photos"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Text Content"
+										children: [
+											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										]
+									}
+								]
+							}
 						}
-					}
+					], else:[
+						{
+							do: "edit"
+							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								label: "Edit Image"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "Images"
+										children: [
+											{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ID}}/photos"}}
+											{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Text Content"
+										children: [
+											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										]
+									}
+								]
+							}
+						}
+					]}
 					// The photos are already saved: the widget changes them in place through the photos action
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save", comment:"Updated by {{.Author}}"}

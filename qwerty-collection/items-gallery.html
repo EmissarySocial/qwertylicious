@@ -1,23 +1,64 @@
-<!-- items-gallery is a Photo Gallery's tab: a square grid of posts, pinned first, then newest first, 30 at a time.
+<!-- items-gallery is a Photo Gallery's tab: a square grid of posts, 30 at a time, newest first or in its Custom order.
      Each page ends in a sentinel that loads the next (gallery-more.html); a post opens qwerty-photo's modal. -->
-{{- $tag := .QueryParam "tag" -}}
 {{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
-<!-- RULE: the welcome is for a gallery with no photos at all, never for a filter that matches none -->
-{{- $isEmpty := $photos.Top1.Slice.IsEmpty -}}
-{{- if ne "" $tag -}}
-	{{- $photos = $photos.CaseInsensitive.Tags $tag -}}
-{{- end -}}
-{{- $pinned := (($photos.Where "isFeatured" true).ByCreateDate.Reverse.All).Slice -}}
-{{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
+{{- $canEdit := .UserCan "settings" -}}
+{{- $empty := "This gallery shows off your photos, newest first.  Each post holds up to 16.  Add your first one now." -}}
 
-{{- if $isEmpty -}}
-	{{- template "items-empty" (array . "images" "Your Photo Gallery" "This gallery shows off your photos, newest first.  Each post holds up to 16.  Add your first one now." "+ Add Photos") -}}
+<!-- The gallery's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
+{{- end -}}
+
+<!-- RULE: only the gallery's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- if ne "" $tag -}}
+	{{- $photos = ($photos.Tags $tag).CaseInsensitive -}}
+{{- end -}}
+
+{{- if eq (.DataString "sortType") "rank" -}}
+	<!-- RULE: Custom order is rank, highest first, and ignores pins (see AGENTS.md) -->
+	{{- $page := ($photos.ByRank.Reverse.Top30).Slice -}}
+	{{- if and $page.IsEmpty (eq "" $tag) -}}
+		{{- template "items-empty" (array . "images" "Your Photo Gallery" $empty "+ Add Photos") -}}
+	{{- else -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
+		{{- if $page.IsEmpty -}}
+			{{- template "tag-empty" (array "photos" $tag) -}}
+		{{- else if and (.UserCan "sort") (eq "" $tag) -}}
+			<!-- The author drags tiles by their handles, and Sortable's update event posts the new order -->
+			<!-- RULE: only All drags, because ranking a filtered few would move the photos hidden between them -->
+			<!-- RULE: hx-push-url="false" is the form's own, and each tile sets its own (see AGENTS.md) -->
+			<form class="qwerty-gallery" hx-post="/{{.StreamID}}/sort" hx-trigger="update" hx-push-url="false" hx-disinherit="hx-push-url"
+				data-sortable-handle=".drag-handle" data-sortable-draggable=".qwerty-gallery-item" script="install sortContainer">
+				{{- template "gallery-tiles" (array $page $canEdit true true $tag) -}}
+				{{- template "gallery-more" (array .StreamID $page true $tag) -}}
+			</form>
+		{{- else -}}
+			<div class="qwerty-gallery">
+				{{- template "gallery-tiles" (array $page $canEdit true false $tag) -}}
+				{{- template "gallery-more" (array .StreamID $page true $tag) -}}
+			</div>
+		{{- end -}}
+	{{- end -}}
 {{- else -}}
-	{{- template "items-tags" (array . $tag) -}}
-	<div class="qwerty-gallery">
-		{{- $canEdit := .UserCan "settings" -}}
-		{{- template "gallery-tiles" (array $pinned $canEdit) -}}
-		{{- template "gallery-tiles" (array $page $canEdit) -}}
-		{{- template "gallery-more" (array .StreamID $page $tag) -}}
-	</div>
+	{{- $pinned := (($photos.Where "isFeatured" true).ByPublishDate.Reverse.All).Slice -}}
+	{{- $page := (($photos.Where "isFeatured" false).ByPublishDate.Reverse.Top30).Slice -}}
+	{{- if and $pinned.IsEmpty $page.IsEmpty (eq "" $tag) -}}
+		{{- template "items-empty" (array . "images" "Your Photo Gallery" $empty "+ Add Photos") -}}
+	{{- else -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
+		{{- if and $pinned.IsEmpty $page.IsEmpty -}}
+			{{- template "tag-empty" (array "photos" $tag) -}}
+		{{- else -}}
+			<div class="qwerty-gallery">
+				{{- template "gallery-tiles" (array $pinned $canEdit false false $tag) -}}
+				{{- template "gallery-tiles" (array $page $canEdit false false $tag) -}}
+				{{- template "gallery-more" (array .StreamID $page false $tag) -}}
+			</div>
+		{{- end -}}
+	{{- end -}}
 {{- end -}}

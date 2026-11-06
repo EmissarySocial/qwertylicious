@@ -1,31 +1,22 @@
-<!-- profile-tabs: the collections in the owner's order, About, then the owner's buttons; called as (array $outbox $selected $collection). -->
-<!-- $selected is a collection ID or "about", and $collection the open collection's builder, or false (see AGENTS.md). -->
+<!-- profile-tabs: the collections in the owner's order, called as (array $outbox $selected), where $selected is a collection ID. -->
+<!-- The caller draws the row around it, and list.html draws profile-menu beside it (see AGENTS.md). -->
 {{- $outbox := index . 0 -}}
 {{- $selected := index . 1 -}}
-{{- $collection := index . 2 -}}
 {{- $userID := $outbox.UserID -}}
+{{- $collections := ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 
-<div class="flex-row flex-wrap flex-align-center">
 <div role="tablist" class="pills">
-	{{- range ($outbox.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+	<!-- RULE: a tab replaces the address instead of pushing it, so Back skips tab switches (see AGENTS.md) -->
+	{{- range $collections -}}
 		{{- $tabID := .ObjectID.Hex -}}
 		<a class="turboclick" id="tab-{{$tabID}}"
 			href="/@{{$userID}}?tab={{$tabID}}"
 			hx-get="/{{$tabID}}/list"
 			hx-target="#profile-tabs"
 			hx-swap="outerHTML transition:true show:none"
-			hx-push-url="/@{{$userID}}?tab={{$tabID}}"
+			hx-push-url="unset"
+			hx-replace-url="/@{{$userID}}?tab={{$tabID}}"
 			role="tab"
 			aria-selected="{{if eq $tabID $selected}}true{{else}}false{{end}}">{{.Label}}</a>
 	{{- end -}}
-	<a class="turboclick" id="tab-about"
-		href="/@{{$userID}}?tab=about"
-		hx-get="/@{{$userID}}/about"
-		hx-target="#profile-tabs"
-		hx-swap="outerHTML transition:true show:none"
-		hx-push-url="/@{{$userID}}?tab=about"
-		role="tab"
-		aria-selected="{{if eq `about` $selected}}true{{else}}false{{end}}">About</a>
-</div>
-{{- template "profile-menu" (array $outbox $collection $selected) -}}
 </div>

@@ -447,6 +447,15 @@ async function photoRoute(request, response, path, query) {
 	return false
 }
 
+// The Articles in a Custom collection, highest rank first, as their author sees the collection's tab
+const articles = [
+	{ id: "6ad24ab9c00dfca0c02cd471", token: "an-article", title: "An Article" },
+	{ id: "6ad24ab9c00dfca0c02cd472", token: "the-second-article", title: "The Second Article" },
+]
+
+// The tags a Photo Gallery lists, in its author's order
+const galleryTags = ["travel", "food"]
+
 // concat joins every file in a folder, in name order, as a bundle does
 function concat(folder) {
 	return readdirSync(folder).filter((name) => !name.startsWith(".")).sort()
@@ -564,8 +573,68 @@ async function listRoute(request, response, path) {
 	return true
 }
 
+// profileTab is the first tab link of qwerty-common/profile-tabs.html, selected, for an Articles collection
+function profileTab() {
+	const link = stripComments(read(join(qwerty, "qwerty-common/profile-tabs.html"))).match(/<a [^>]*>/)[0]
+	return link.replaceAll("{{$tabID}}", "articles").replaceAll("{{$userID}}", "author")
+		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, "true") + "Articles</a>"
+}
+
+// sortForm is qwerty-common/layout.html's sortable branch up to its cards: the form's opening tag, and anything it loads first
+function sortForm() {
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout.html")))
+	const branch = source.split("{{- else -}}")[1].split('{{- template "layout-cards" $cards -}}')[0]
+	return branch.replaceAll("{{$class}}", "cols-1").replaceAll("{{$sortURL}}", "/articles/sort").trim()
+}
+
+// articleCard is qwerty-common/layout-column.html's card for an Article, with its drag handle and without its pencil
+function articleCard(article) {
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout-column.html")))
+	const link = source.match(/<a href="\/\{\{\.Token\}\}"[^>]*>/)[0].replace("{{.Token}}", article.token)
+	const handle = source.match(/\{\{- if \$canSort -\}\}([\s\S]*?)\{\{- end -\}\}/)[1].replace("{{.StreamID}}", article.id)
+	return `<div class="pos-relative hover-trigger">${link}${article.title}</a>${icons(handle)}</div>`
+}
+
+// profileArticles is the Articles tab, as list.html swaps it into #profile-tabs, in Custom order
+function profileArticles() {
+	return `<div id="profile-tabs"><div role="tablist" class="pills">${profileTab()}</div>${sortForm()}${articles.map(articleCard).join("")}</form></div>`
+}
+
+// tagPills is qwerty-collection/tag-pills.html's row for the gallery with $selected open, its row and pills taken from the template
+function tagPills(selected) {
+	const source = stripComments(read(join(qwerty, "qwerty-collection/tag-pills.html")))
+	const row = source.match(/<div role="tablist"[^>]*>/)[0]
+	const [all, tag] = source.match(/<a [^>]*>[^<]*<\/a>/g)
+	const fill = (link, value) => link
+		.replace(/\{\{if ne `` \$query\}\}[?&]\{\{\$query\}\}\{\{end\}\}/g, "")
+		.replace(/\{\{if eq (``|\.) \$selected\}\}true\{\{else\}\}false\{\{end\}\}/, value == selected ? "true" : "false")
+		.replaceAll("{{$collectionID}}", "gallery")
+		.replaceAll("{{$profileTab}}", "/@author?tab=gallery")
+		.replaceAll("{{. | urlquery}}", encodeURIComponent(value))
+		.replaceAll("{{.}}", value)
+	return row + fill(all, "") + galleryTags.map((value) => fill(tag, value)).join("") + "</div>"
+}
+
+// galleryTab is the gallery's tab, as list.html swaps it into #profile-tabs, with photos taller than the window below the pills
+function galleryTab(selected) {
+	return `<div id="profile-tabs"><div role="tablist" class="pills"><a role="tab" aria-selected="true">Gallery</a></div>${tagPills(selected)}<div style="height: 2000px">${selected || "All"} photos</div></div>`
+}
+
+// profileUsername is qwerty-outbox/profile-header.html's handle, whose Clipboard behavior copies the full @user@host
+function profileUsername() {
+	const block = stripComments(read(join(qwerty, "qwerty-outbox/profile-header.html"))).match(/<div id="profile-username"[\s\S]*?<\/div>/)[0]
+	return icons(block.replaceAll("{{.Username}}", "author").replaceAll("{{.Hostname}}", "example.social"))
+}
+
 function page(body) {
 	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
+}
+
+// visualEditor renders an EditorJS editor template for a new Article, whose content.raw is empty
+function visualEditor(file) {
+	return stripComments(read(file))
+		.replaceAll("{{.ContentRaw}}", "")
+		.replaceAll("{{.StreamID}}", "6ad24ab9c00dfca0c02cd460")
 }
 
 const routes = {
@@ -589,6 +658,14 @@ const routes = {
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
 	"/list": () => ["text/html", page(read(join(here, "fixtures/list.html")))],
 	"/tabs": () => ["text/html", page(read(join(here, "fixtures/tabs.html")))],
+	"/editorjs": () => ["text/html", page(visualEditor(join(qwerty, "qwerty-article/edit-content-editorjs.html")))],
+	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
+	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
+	"/articles/list": () => ["text/html", profileArticles()],
+	"/@photographer": () => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${galleryTab("")}</div></main>`)],
+	"/gallery/list": (url) => ["text/html", galleryTab(url.searchParams.get("tag") || "")],
+	"/handle": () => ["text/html", page(profileUsername())],
+	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
 }
 
 createServer(async (request, response) => {
@@ -630,8 +707,15 @@ createServer(async (request, response) => {
 		return response.end()
 	}
 
+	// Posting a new order answers as Emissary's sort step does, with nothing to swap
+	if (path == "/articles/sort" && request.method == "POST") {
+		request.resume()
+		response.writeHead(200, { "HX-Reswap": "none" })
+		return response.end()
+	}
+
 	if (routes[path]) {
-		const [type, body] = routes[path]()
+		const [type, body] = routes[path](url)
 		response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" })
 		return response.end(body)
 	}

@@ -1,5 +1,5 @@
-<!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, and Notes have
-     their own views; every other format lists Articles, featured first.  ChildrenWithDrafts adds the author's drafts. -->
+<!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, Notes, and About have
+     their own views; every other format lists Articles, featured first or in Custom order.  ChildrenWithDrafts adds drafts. -->
 {{- $layout := .Data "layout" -}}
 
 {{- if eq $layout "gallery" -}}
@@ -14,40 +14,76 @@
 	{{- template "items-podcast" . -}}
 {{- else if eq $layout "notes" -}}
 	{{- template "items-notes" . -}}
+{{- else if eq $layout "about" -}}
+	{{- template "items-about" . -}}
 {{- else -}}
 
 {{- $canEdit := .UserCan "settings" -}}
-{{- $tag := .QueryParam "tag" -}}
-{{- $query := .ChildrenWithDrafts -}}
-<!-- RULE: the welcome is for a collection with no Articles at all, never for a filter that matches none -->
-{{- $isEmpty := $query.Top1.Slice.IsEmpty -}}
-{{- if ne "" $tag -}}
-	{{- $query = $query.CaseInsensitive.Tags $tag -}}
+{{- $empty := "This collection holds your articles, each one on its own page.  Write your first one now." -}}
+
+<!-- The collection's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
 {{- end -}}
-{{- $featured := ($query.Where "isFeatured" true).Slice -}}
-{{- $articles := ($query.Where "isFeatured" false).Slice -}}
 
-{{- if $isEmpty -}}
+<!-- RULE: only the collection's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- $children := .ChildrenWithDrafts -}}
+{{- if ne "" $tag -}}
+	{{- $children = ($children.Tags $tag).CaseInsensitive -}}
+{{- end -}}
 
-	{{- template "items-empty" (array . "article" "Your Articles" "This collection holds your articles, each one on its own page.  Write your first one now." "+ Add an Article") -}}
+{{- if eq (.DataString "sortType") "rank" -}}
+	<!-- RULE: Custom order is rank, highest first, and ignores Featured (see AGENTS.md) -->
+	{{- $articles := $children.ByRank.Reverse.Slice -}}
+	<!-- RULE: only All drags, because ranking a filtered few would move the articles hidden between them -->
+	{{- $sortURL := "" -}}
+	{{- if and (.UserCan "sort") (eq "" $tag) -}}
+		{{- $sortURL = print "/" .StreamID "/sort" -}}
+	{{- end -}}
+
+	{{- if and $articles.IsEmpty (eq "" $tag) -}}
+		{{- template "items-empty" (array . "article" "Your Articles" $empty "+ Add an Article") -}}
+	{{- else -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
+		{{- if $articles.IsEmpty -}}
+			{{- template "tag-empty" (array "articles" $tag) -}}
+		{{- else -}}
+			{{- template "layout" (array $layout $articles $canEdit $sortURL) -}}
+		{{- end -}}
+	{{- end -}}
 
 {{- else -}}
+	<!-- Chronological order is newest published first, so the author's drafts lead -->
+	{{- $featured := (($children.Where "isFeatured" true).ByPublishDate.Reverse).Slice -}}
+	{{- $articles := (($children.Where "isFeatured" false).ByPublishDate.Reverse).Slice -}}
 
-	{{- template "items-tags" (array . $tag) -}}
+	{{- if and $featured.IsEmpty $articles.IsEmpty (eq "" $tag) -}}
+		{{- template "items-empty" (array . "article" "Your Articles" $empty "+ Add an Article") -}}
+	{{- else if and $featured.IsEmpty $articles.IsEmpty -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
+		{{- template "tag-empty" (array "articles" $tag) -}}
+	{{- else -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
 
-	{{- if $featured.NotEmpty -}}
-		{{- if $articles.NotEmpty -}}
-			<div class="text-sm bold text-gray margin-bottom-sm">{{icon "pin-fill"}} Featured</div>
+		{{- if $featured.NotEmpty -}}
+			{{- if $articles.NotEmpty -}}
+				<div class="text-sm bold text-gray margin-bottom-sm">{{icon "pin-fill"}} Featured</div>
+			{{- end -}}
+			<div class="margin-bottom">
+				{{- template "layout" (array $layout $featured $canEdit "") -}}
+			</div>
 		{{- end -}}
-		<div class="margin-bottom">
-			{{- template "layout" (array $layout $featured $canEdit) -}}
-		</div>
-	{{- end -}}
 
-	{{- if $articles.NotEmpty -}}
-		{{- template "layout" (array $layout $articles $canEdit) -}}
-	{{- end -}}
+		{{- if $articles.NotEmpty -}}
+			{{- template "layout" (array $layout $articles $canEdit "") -}}
+		{{- end -}}
 
+	{{- end -}}
 {{- end -}}
 
 {{- end -}}

@@ -1,16 +1,26 @@
 <!-- items-map is a Map's tab: one map with a marker per place, which opens the entry's modal when clicked (see AGENTS.md).
      The default view is the collection's location and data.zoom; with none saved, the map fits its places. -->
-{{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-placemark").ByLabel -}}
-{{- $allPlaces := $query.All.Slice -}}
-{{- $places := $allPlaces -}}
-{{- if ne "" $tag -}}
-	{{- $places = ($query.CaseInsensitive.Tags $tag).All.Slice -}}
+
+<!-- The Map's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
 {{- end -}}
+
+<!-- RULE: only the Map's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- if ne "" $tag -}}
+	{{- $query = ($query.Tags $tag).CaseInsensitive -}}
+{{- end -}}
+{{- $places := $query.All.Slice -}}
 {{- $location := .Location -}}
 {{- $mapTiles := .MapTiles -}}
 
-{{- template "items-tags" (array . $tag) -}}
+{{- template "tag-pills" (array . $tags $tag "") -}}
 
 <div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}">
 	<div class="qwerty-map-canvas qwerty-map-large rounded"></div>
@@ -18,7 +28,7 @@
 	<div hidden>
 		{{- range $places -}}
 			{{- if .Location.HasGeocode -}}
-				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}" data-label="{{.Label}}" data-modal-url="/{{.StreamID}}/modal"></div>
+				<div class="qwerty-map-marker" data-latitude="{{.Location.Latitude}}" data-longitude="{{.Location.Longitude}}" data-label="{{.Label}}" data-modal-url="/{{.Token}}/modal"></div>
 			{{- end -}}
 		{{- end -}}
 	</div>

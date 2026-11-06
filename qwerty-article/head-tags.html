@@ -1,0 +1,13 @@
+<!-- head-tags is the Article's hashtags, between its byline and head-social's bar; an Article with no tags draws nothing -->
+{{- with .Tags -}}
+	<div id="article-tags">
+		<!-- RULE: a tag links only when the template names a tagUrl, and qwerty-article names none (see AGENTS.md) -->
+		{{- range . -}}
+			{{- if ne "" .Href -}}
+				<a href="{{.Href}}" class="tag turboclick">#{{.Name}}</a>
+			{{- else -}}
+				<span class="tag">#{{.Name}}</span>
+			{{- end -}}
+		{{- end -}}
+	</div>
+{{- end -}}

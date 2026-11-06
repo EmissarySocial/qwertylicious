@@ -1,0 +1,17 @@
+<!-- The HTML editor, a plain textarea, for an Article whose format is HTML. It defines _save() -->
+<textarea id="html-content" class="width-100%" style="min-height:600px" aria-label="Article text, in HTML">{{.ContentRaw}}</textarea>
+<div class="text-sm text-gray padding-vertical-xs">Emissary removes scripts and other unsafe markup when it saves.</div>
+
+<script>
+	// HTML posts as a form field named "content".  RULE: the bare Content-Type, because older Emissary builds refuse fetch's own "...;charset=UTF-8"
+	window._save = async function() {
+		var response = await fetch("/{{.StreamID}}/edit-content", {
+			method: "POST",
+			headers: {"Content-Type": "application/x-www-form-urlencoded"},
+			body: new URLSearchParams({content: document.getElementById("html-content").value}).toString()
+		})
+
+		// A failed save stops save() and publish() here, so the page keeps the unsaved text
+		if (!response.ok) throw new Error("Saving the article failed: " + response.status)
+	}
+</script>

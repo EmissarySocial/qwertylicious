@@ -1,58 +1,45 @@
-<!-- profile-menu is the owner's buttons for the open tab, after the tabs, called as (array $outbox $collection $selected).
-     $collection is false on About and the loading copy; About gets a pencil to the profile's settings. -->
-{{- $outbox := index . 0 -}}
+<!-- profile-menu is the owner's buttons for the open collection, beside the tabs, called with the collection's builder. -->
+<!-- RULE: only the collection's author, who is the profile's owner, sees them (see AGENTS.md) -->
+{{- if .IsAuthor -}}
+	{{- $layout := .Data "layout" -}}
 
-{{- if $outbox.IsMyself -}}
+	<!-- Icon-only circles; each names itself in an instant tooltip (data-tooltip) and its aria-label, never a title -->
+	<div class="flex-row flex-shrink-0 margin-none">
 
-	{{- $collection := index . 1 -}}
-	{{- $selected := index . 2 -}}
+		<!-- About holds nothing to add, and Edit Collection edits its message too -->
+		{{- if ne $layout "about" -}}
 
-	<!-- RULE: a plain link, because the loading copy of the tab bar disinherits the body's htmx settings -->
-	{{- if eq $selected "about" -}}
-		<a href="/@me/settings/general" class="button edit-circle turboclick" data-tooltip="Edit Profile" aria-label="Edit Profile">{{icon "pencil"}}</a>
-	{{- else -}}
-
-		{{- with $collection -}}
-			{{- $layout := .Data "layout" -}}
-
-			<!-- Icon-only circles; each names itself in an instant tooltip (data-tooltip) and its aria-label, never a title -->
-			<div class="flex-row flex-shrink-0 margin-none">
-
-				<!-- Add names what this format holds: Articles are created at once (hx-post), the rest open a form in a modal (hx-get).
-					A Note is written on the profile, so its form is the outbox's add-note, not the collection's add. -->
-				{{- $addLabel := "" -}}
-				{{- $addURL := print "/" .StreamID "/add" -}}
-
-				{{- if eq $layout "notes" -}}
-					{{- $addLabel = "Add a Note" -}}
-					{{- $addURL = "/@me/add-note" -}}
-				{{- else if eq $layout "gallery" -}}
-					{{- $addLabel = "Add a Photo" -}}
-				{{- else if eq $layout "map" -}}
-					{{- $addLabel = "Add a Place" -}}
-				{{- else if in $layout "timeline" "calendar" -}}
-					{{- $addLabel = "Add an Event" -}}
-				{{- else if eq $layout "podcast" -}}
-					{{- $addLabel = "Add an Episode" -}}
-				{{- else -}}
-					{{- $addLabel = "Add an Article" -}}
-				{{- end -}}
+			<!-- Add names what this format holds: Articles are created at once (hx-post), the rest open a form in a modal (hx-get).
+				A Note is written on the profile, so its form is the outbox's add-note, not the collection's add. -->
+			{{- $addLabel := "" -}}
+			{{- $addURL := print "/" .StreamID "/add" -}}
+			{{- if eq $layout "notes" -}}
+				{{- $addLabel = "Add a Note" -}}
+				{{- $addURL = "/@me/add-note" -}}
+			{{- else if eq $layout "gallery" -}}
+				{{- $addLabel = "Add a Photo" -}}
+			{{- else if eq $layout "map" -}}
+				{{- $addLabel = "Add a Place" -}}
+			{{- else if in $layout "timeline" "calendar" -}}
+				{{- $addLabel = "Add an Event" -}}
+			{{- else if eq $layout "podcast" -}}
+				{{- $addLabel = "Add an Episode" -}}
+			{{- end -}}
+			{{- if ne "" $addLabel -}}
 				<button type="button" class="edit-circle primary turboclick" hx-get="{{$addURL}}" data-tooltip="{{$addLabel}}" aria-label="{{$addLabel}}">{{icon "plus"}}</button>
+			{{- else -}}
+				<button type="button" class="edit-circle primary" hx-post="{{$addURL}}" data-tooltip="Add an Article" aria-label="Add an Article">{{icon "plus"}}</button>
+			{{- end -}}
 
-				<!-- PENCIL ICON -->
-
-				<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/settings" data-tooltip="Edit Collection" aria-label="Edit Collection">{{icon "pencil"}}</button>
-
-				<!-- Sharing shows the status in the Sharing modal's terms, red (.warning) when Not Shared; Notes are always public, so Notes has none -->
-				{{- if ne $layout "notes" -}}
-					{{- $sharing := .CircleSharingStatus "viewer" -}}
-					<button type="button" class="edit-circle turboclick{{if eq $sharing.Value `OWNERS`}} warning{{end}}" hx-get="/{{.StreamID}}/sharing" data-tooltip="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
-				{{- end -}}
-
-			</div>
-		
 		{{- end -}}
 
-	{{- end -}}
+		<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/settings" data-tooltip="Edit Collection" aria-label="Edit Collection">{{icon "pencil"}}</button>
 
+		<!-- Sharing shows the status in the Sharing modal's terms, red (.warning) when Not Shared; Notes and About are always public, so they have none -->
+		{{- if not (in $layout "notes" "about") -}}
+			{{- $sharing := .CircleSharingStatus "viewer" -}}
+			<button type="button" class="edit-circle turboclick{{if eq $sharing.Value `OWNERS`}} warning{{end}}" hx-get="/{{.StreamID}}/sharing" data-tooltip="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
+		{{- end -}}
+
+	</div>
 {{- end -}}
