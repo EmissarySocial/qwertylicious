@@ -72,7 +72,7 @@
 									{type:"text", path:"label", label:"Name", options:{required:true}}
 									{type:"place", path:"location", label:"Location", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete", required:true}}
 									{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
-									{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+									{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
 									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
 								]
@@ -170,7 +170,7 @@
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
 											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 								]

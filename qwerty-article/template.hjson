@@ -163,7 +163,7 @@
 												{value:"MARKDOWN", label:"Markdown"}
 												{value:"HTML", label:"HTML"}
 											]}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 									{
@@ -211,7 +211,7 @@
 												{value:"MARKDOWN", label:"Markdown"}
 												{value:"HTML", label:"HTML"}
 											]}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
+											{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 											{type:"toggle", path:"isFeatured", options:{false-text:"Feature?", true-text:"Featured"}}
 										]
 									}
