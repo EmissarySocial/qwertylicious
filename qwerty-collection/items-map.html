@@ -5,12 +5,12 @@
 {{- $allPlaces := $query.All.Slice -}}
 {{- $places := $allPlaces -}}
 {{- if ne "" $tag -}}
-	{{- $places = ($query.Tags $tag).All.Slice -}}
+	{{- $places = ($query.CaseInsensitive.Tags $tag).All.Slice -}}
 {{- end -}}
 {{- $location := .Location -}}
 {{- $mapTiles := .MapTiles -}}
 
-{{- template "items-tags" (array . $allPlaces $tag) -}}
+{{- template "items-tags" (array . $tag) -}}
 
 <div class="qwerty-map margin-bottom" data-tiles="{{$mapTiles.Href}}" data-attribution="{{$mapTiles.Description}}" data-latitude="{{if $location.HasGeocode}}{{$location.Latitude}}{{end}}" data-longitude="{{if $location.HasGeocode}}{{$location.Longitude}}{{end}}" data-zoom="{{.Data `zoom`}}">
 	<div class="qwerty-map-canvas qwerty-map-large rounded"></div>

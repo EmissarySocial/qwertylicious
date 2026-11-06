@@ -12,6 +12,8 @@
 	childSortDirection: asc
 	// Every item takes this collection's sharing and reply policy, and a change reaches the items on save
 	shareWithChildren: true
+	// A Podcast's own hashtags, published with it; no other format fills data.tags
+	tagPaths: ["data.tags"]
 
 	schema: {
 		type: object
@@ -41,6 +43,10 @@
 					episodeOrder: {type:"string", enum:["", "desc", "asc"]}
 					// A Calendar's default view, "list" (the default when empty), "week", or "month"
 					calendarView: {type:"string", enum:["", "list", "week", "month"]}
+					// A collection's filter row, in the owner's order and as typed; with none, it shows no row
+					featuredTags: {type:"array", maxLength:12, items:{type:"string", maxLength:64}}
+					// A Podcast's own hashtags, as typed, which tagPaths turns into its tags
+					tags: {type:"string", maxLength:1024}
 				}
 			}
 		}
@@ -211,6 +217,13 @@
 									}
 									{
 										type: layout-vertical
+										label: Hashtags
+										children: [
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"Hashtags that describe this podcast. (PUBLIC)"}
+										]
+									}
+									{
+										type: layout-vertical
 										label: Sort
 										children: [
 											{type:"radio-button-group", path:"data.episodeOrder", options:{provider:"qwerty-collection.episodeOrders"}}
@@ -227,12 +240,25 @@
 							do: "edit"
 							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 							form: {
-								type: layout-vertical
+								type: layout-tabs
 								label: Edit Photo Gallery
 								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
+									{
+										type: layout-vertical
+										label: General
+										children: [
+											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+											{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
+											{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
+										]
+									}
+									{
+										type: layout-vertical
+										label: Hashtags
+										children: [
+											{type:"list", path:"data.featuredTags", label:"Featured Hashtags", description:"Shown above the photos in this order, to filter them. With none, no filter is shown. (PUBLIC)", options:{add-label:"Add a Hashtag"}}
+										]
+									}
 								]
 							}
 						}
@@ -254,6 +280,13 @@
 												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 												{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+											]
+										}
+										{
+											type: layout-vertical
+											label: Hashtags
+											children: [
+												{type:"list", path:"data.featuredTags", label:"Featured Hashtags", description:"Shown above the map in this order, to filter its places. With none, no filter is shown. (PUBLIC)", options:{add-label:"Add a Hashtag"}}
 											]
 										}
 										{
@@ -320,6 +353,13 @@
 												}
 												{
 													type: layout-vertical
+													label: Hashtags
+													children: [
+														{type:"list", path:"data.featuredTags", label:"Featured Hashtags", description:"Shown above the timeline in this order, to filter its entries. With none, no filter is shown. (PUBLIC)", options:{add-label:"Add a Hashtag"}}
+													]
+												}
+												{
+													type: layout-vertical
 													label: Sort
 													children: [
 														{type:"radio-button-group", path:"data.timelineOrder", options:{provider:"qwerty-collection.timelineOrders"}}
@@ -345,6 +385,13 @@
 														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
 														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:12}}
 														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
+													]
+												}
+												{
+													type: layout-vertical
+													label: Hashtags
+													children: [
+														{type:"list", path:"data.featuredTags", label:"Featured Hashtags", description:"Shown above the articles in this order, to filter them. With none, no filter is shown. (PUBLIC)", options:{add-label:"Add a Hashtag"}}
 													]
 												}
 												{
@@ -410,7 +457,7 @@
 					{do:"halt"}
 				]}
 				{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
-					{do:"add-stream", style:"inline", location:"child", template:"qwerty-photo", title:"+ Add a Photo"}
+					{do:"add-stream", style:"inline", location:"child", template:"qwerty-photo", title:"+ Add Photos"}
 				], else:[
 					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 						{do:"add-stream", style:"inline", location:"child", template:"qwerty-episode", title:"+ Add an Episode"}

@@ -1,0 +1,10 @@
+<main>
+<div id="profile-tabs">
+	<div class="profile-tabs-row flex-row flex-align-center">
+		<button type="button" id="add-photos" class="edit-circle primary turboclick" hx-get="/${COLLECTION}/add" hx-push-url="false" data-tooltip="Add Photos" aria-label="Add Photos"><i class="bi bi-plus"></i></button>
+	</div>
+	<div id="gallery" hx-get="/${COLLECTION}/tiles" hx-trigger="load, refreshPage from:window" hx-target="this" hx-swap="innerHTML" hx-push-url="false"></div>
+</div>
+</main>
+<aside></aside>
+<script src="/js/carousel.js" defer></script>

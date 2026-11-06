@@ -7,13 +7,13 @@
 {{- $allEvents := $query.All.Slice -}}
 {{- $events := $allEvents -}}
 {{- if ne "" $tag -}}
-	{{- $events = ($query.Tags $tag).All.Slice -}}
+	{{- $events = ($query.CaseInsensitive.Tags $tag).All.Slice -}}
 {{- end -}}
 
 {{- if $allEvents.IsEmpty -}}
 	{{- template "items-empty" (array . "clock-history" "Your Timeline" "This timeline tells your story as dated events, in order.  Add your first one now." "+ Add an Event") -}}
 {{- else -}}
-	{{- template "items-tags" (array . $allEvents $tag) -}}
+	{{- template "items-tags" (array . $tag) -}}
 	{{- $years := groupie -}}
 	<ol class="qwerty-timeline">
 		{{- range $events -}}

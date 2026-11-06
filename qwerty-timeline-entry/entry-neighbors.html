@@ -13,7 +13,7 @@
 	{{- $query = $query.Reverse -}}
 {{- end -}}
 {{- if ne "" $tag -}}
-	{{- $query = $query.Tags $tag -}}
+	{{- $query = $query.CaseInsensitive.Tags $tag -}}
 {{- end -}}
 
 <!-- RULE: positions, not entries, because a template variable keeps the type it was declared with -->

@@ -1,4 +1,9 @@
-<!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?createDate=LT:). -->
-{{- $page := (((.ChildrenWithDrafts.Where "templateId" "qwerty-photo").Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
+<!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?createDate=LT: and ?tag=). -->
+{{- $tag := .QueryParam "tag" -}}
+{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
+{{- if ne "" $tag -}}
+	{{- $photos = $photos.CaseInsensitive.Tags $tag -}}
+{{- end -}}
+{{- $page := (($photos.Where "isFeatured" false).ByCreateDate.Reverse.Top30).Slice -}}
 {{- template "gallery-tiles" (array $page (.UserCan "settings")) -}}
-{{- template "gallery-more" (array .StreamID $page) -}}
+{{- template "gallery-more" (array .StreamID $page $tag) -}}

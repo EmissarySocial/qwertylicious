@@ -17,14 +17,23 @@
 {{- else -}}
 
 {{- $canEdit := .UserCan "settings" -}}
-{{- $featured := (.ChildrenWithDrafts.Where "isFeatured" true).Slice -}}
-{{- $articles := (.ChildrenWithDrafts.Where "isFeatured" false).Slice -}}
+{{- $tag := .QueryParam "tag" -}}
+{{- $query := .ChildrenWithDrafts -}}
+<!-- RULE: the welcome is for a collection with no Articles at all, never for a filter that matches none -->
+{{- $isEmpty := $query.Top1.Slice.IsEmpty -}}
+{{- if ne "" $tag -}}
+	{{- $query = $query.CaseInsensitive.Tags $tag -}}
+{{- end -}}
+{{- $featured := ($query.Where "isFeatured" true).Slice -}}
+{{- $articles := ($query.Where "isFeatured" false).Slice -}}
 
-{{- if and $featured.IsEmpty $articles.IsEmpty -}}
+{{- if $isEmpty -}}
 
 	{{- template "items-empty" (array . "article" "Your Articles" "This collection holds your articles, each one on its own page.  Write your first one now." "+ Add an Article") -}}
 
 {{- else -}}
+
+	{{- template "items-tags" (array . $tag) -}}
 
 	{{- if $featured.NotEmpty -}}
 		{{- if $articles.NotEmpty -}}
