@@ -293,8 +293,8 @@
 								type: layout-vertical
 								label: Featured
 								children: [
-									{type:"label", description:"These labels appear at the top of the collection, and can be used to filter its contents."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Hashtag"}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -335,8 +335,8 @@
 								type: layout-vertical
 								label: Featured
 								children: [
-									{type:"label", description:"These labels appear at the top of the collection, and can be used to filter its contents."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Hashtag"}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -386,8 +386,8 @@
 								type: layout-vertical
 								label: Featured
 								children: [
-									{type:"label", description:"These labels appear at the top of the collection, and can be used to filter its contents."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Hashtag"}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -435,8 +435,8 @@
 								type: layout-vertical
 								label: Featured
 								children: [
-									{type:"label", description:"These labels appear at the top of the collection, and can be used to filter its contents."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Hashtag"}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{
@@ -478,8 +478,8 @@
 								type: layout-vertical
 								label: Featured
 								children: [
-									{type:"label", description:"These labels appear at the top of the collection, and can be used to filter its contents."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Hashtag"}}
+									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
+									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
 								]
 							}
 							{

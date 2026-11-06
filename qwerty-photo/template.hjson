@@ -79,7 +79,7 @@
 									children: [
 										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+										{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 									]
 								}
 							]
@@ -190,7 +190,7 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 								]
@@ -218,7 +218,7 @@
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
 											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 								]

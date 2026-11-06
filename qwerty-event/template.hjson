@@ -87,7 +87,7 @@
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the calendar.", options:{rows:2}}
 											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 									{
@@ -194,7 +194,7 @@
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the calendar.", options:{rows:2}}
 											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
-											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"Enter #Hashtags separated by spaces. Filters items in the collection index."}
 										]
 									}
 									{
