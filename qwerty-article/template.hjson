@@ -25,6 +25,8 @@
 			content:{type:"object", properties: {}}
 			data: {type:"object", properties: {
 				tags: {type:"string"}
+				// default:true draws the toggle ON for an Article saved before it existed, and head-byline reads a missing value as true
+				showSummary: {type:"boolean", default:true}
 				iconDescription: {type:"string", maxLength:2048}
 				bannerUrl: {type:"string", format:"url"}
 				bannerId: {type:"string", format:"objectId"}
@@ -53,7 +55,7 @@
 		create:{
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"name":"New Article Title", "content.format":"EDITORJS", "content.raw":"{\"time\":0,\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"Enter your article text here...\"}}],\"version\":\"2.31.5\"}"}}
+				{do:"set-data", values:{"name":"New Article Title", "data.showSummary":"true", "content.format":"EDITORJS", "content.raw":"{\"time\":0,\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"Enter your article text here...\"}}],\"version\":\"2.31.5\"}"}}
 				{do:"save"}
 				{do:"forward-to", url: "/{{.StreamID}}/edit"}
 			]
@@ -70,13 +72,14 @@
 			]
 		}
 
+		// A permission that view.html reads through .UserCan, and a URL that draws the same page
 		view-premium: {
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
 			}
 			steps:[
-				{do:"view-html"}
+				{do:"view-html", file:"view"}
 			]
 		}
 
@@ -170,7 +173,8 @@
 										type:layout-vertical
 										label:"Description"
 										children:[
-											{type:"textarea", path:"summary", description:"(PUBLIC) Shows beneath the post title.", options:{rows:10}}
+											{type:"textarea", path:"summary", description:"(PUBLIC) Shows on article lists, and beneath the title when the toggle below is on.", options:{rows:10}}
+											{type:"toggle", path:"data.showSummary", options:{false-text:"Show summary on article?", true-text:"Showing summary on article."}}
 										]
 									}
 									{
@@ -226,7 +230,8 @@
 										type:layout-vertical
 										label:"Description"
 										children:[
-											{type:"textarea", path:"summary", description:"(PUBLIC) Shows beneath the post title.", options:{rows:10}}
+											{type:"textarea", path:"summary", description:"(PUBLIC) Shows on article lists, and beneath the title when the toggle below is on.", options:{rows:10}}
+											{type:"toggle", path:"data.showSummary", options:{false-text:"Show summary on article?", true-text:"Showing summary on article."}}
 										]
 									}
 									{
@@ -268,7 +273,7 @@
 					]}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
 					{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
-					{do:"save", comment:"Properties updated by {{.Author}}"}
+					{do:"save", comment:"Properties updated"}
 					{do:"trigger-event", event:"refreshBanner"}
 				]}
 			]

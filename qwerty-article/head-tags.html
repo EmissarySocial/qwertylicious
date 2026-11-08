@@ -1,10 +1,16 @@
 <!-- head-tags is the Article's hashtags, between its byline and head-social's bar; an Article with no tags draws nothing -->
+<!-- RULE: a tag links to the collection's tab filtered by it, written here and never through a tagUrl, which would federate the link (see AGENTS.md) -->
+{{- $collection := .ParentSummary.Slice.First -}}
+{{- $profileTab := "" -}}
+{{- if ne "" $collection.Label -}}
+	{{- $profileTab = print "/@" $collection.ParentID "?tab=" .ParentID -}}
+{{- end -}}
 {{- with .Tags -}}
 	<div id="article-tags">
-		<!-- RULE: a tag links only when the template names a tagUrl, and qwerty-article names none (see AGENTS.md) -->
+		<!-- A reader who cannot see the collection gets plain chips -->
 		{{- range . -}}
-			{{- if ne "" .Href -}}
-				<a href="{{.Href}}" class="tag turboclick">#{{.Name}}</a>
+			{{- if ne "" $profileTab -}}
+				<a href="{{$profileTab}}&tag={{.Name | urlquery}}" class="tag turboclick">#{{.Name}}</a>
 			{{- else -}}
 				<span class="tag">#{{.Name}}</span>
 			{{- end -}}

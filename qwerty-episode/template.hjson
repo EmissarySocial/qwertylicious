@@ -165,7 +165,7 @@
 					{do:"upload-attachments", action:"replace", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, height:1200, types:["webp"]}}
 					{do:"set-data", values:{"data.enclosureUrl":"{{if ne `` (.DataString `attachmentId`)}}{{.Permalink}}/audio?format=mp3{{end}}", "data.enclosureType":"audio/mpeg"}}
 					{do:"process-content", format:"MARKDOWN"}
-					{do:"save", comment:"Updated by {{.Author}}"}
+					{do:"save", comment:"Updated"}
 					{do:"search-index"}
 				]}
 				// Saving returns to the updated episode in its modal; the 303 makes the browser GET it
@@ -180,7 +180,7 @@
 			steps: [
 				{do:"delete-attachments", category:"icon"}
 				{do:"set-data", values:{"iconUrl": ""}}
-				{do:"save", comment:"Photo removed by {{.Author}}"}
+				{do:"save", comment:"Photo removed"}
 			]
 		}
 

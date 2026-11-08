@@ -74,7 +74,9 @@
 			{{- end -}}
 		{{- end -}}
 
-		<div class="margin-top">
+		<!-- RULE: every swap into #profile-tabs keeps <main> where it was, because Safari moves it as the tab is replaced (see AGENTS.md) -->
+		<div class="margin-top" script="on htmx:beforeSwap if the target's id is 'profile-tabs' then set :scrollTop to the scrollTop of the closest <main/> end
+			on htmx:afterSwap if the target's id is 'profile-tabs' then set the scrollTop of the closest <main/> to :scrollTop end">
 
 			<!-- RULE: a profile with no collections has no tabs, only the prompt to make one (see AGENTS.md) -->
 			{{- if $collections.IsEmpty -}}

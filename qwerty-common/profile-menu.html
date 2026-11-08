@@ -39,6 +39,14 @@
 		{{- if not (in $layout "notes" "about") -}}
 			{{- $sharing := .CircleSharingStatus "viewer" -}}
 			<button type="button" class="edit-circle turboclick{{if eq $sharing.Value `OWNERS`}} warning{{end}}" hx-get="/{{.StreamID}}/sharing" data-tooltip="{{$sharing.Label}}" aria-label="{{$sharing.Label}}">{{icon $sharing.Icon}}</button>
+		{{- else -}}
+			<!-- RULE: invisible circles keep the missing buttons' places after the pencil, so the centered tabs do not move between tabs (see AGENTS.md) -->
+			<button type="button" class="edit-circle placeholder" aria-hidden="true" tabindex="-1">{{icon "globe"}}</button>
+		{{- end -}}
+
+		<!-- About's Add slot comes after the pencil too, so the pencil stays beside the tabs -->
+		{{- if eq $layout "about" -}}
+			<button type="button" class="edit-circle placeholder" aria-hidden="true" tabindex="-1">{{icon "plus"}}</button>
 		{{- end -}}
 
 	</div>

@@ -16,11 +16,12 @@
 	--gap: calc(var(--rhythm) * 2);
 }
 
-/* The profile's tab row, in both copies (outbox.html's loading copy and list.html).
+/* The profile's tab row, in both copies (outbox.html's loading copy and list.html), centered on the page.
    The global theme puts a bottom margin on every tab bar, and the menu would center on the tabs plus
    that margin, so the row carries the margin instead. */
 
 .profile-tabs-row {
+	justify-content: center;
 	margin-bottom: calc(var(--rhythm) * 3);
 }
 

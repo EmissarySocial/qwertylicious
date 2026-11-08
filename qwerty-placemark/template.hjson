@@ -79,8 +79,8 @@
 								]
 							}
 						}
-					// The include lets the collection's add run tag-options on the unsaved place; its view draws nothing on the POST
-					{do:"include", action:"tag-options"}
+					// The include lets the collection's add run tag-options on the unsaved place, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
+					{do:"include", action:"tag-options", method:"post"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
@@ -189,7 +189,7 @@
 						}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
 					{do:"process-content", format:"MARKDOWN"}
-					{do:"save", comment:"Updated by {{.Author}}"}
+					{do:"save", comment:"Updated"}
 					{do:"search-index"}
 				]}
 				// Saving returns to the updated entry in its modal; the 303 makes the browser GET it

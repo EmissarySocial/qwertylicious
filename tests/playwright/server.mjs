@@ -621,11 +621,23 @@ async function listRoute(request, response, path) {
 	return true
 }
 
-// profileTab is the first tab link of qwerty-common/profile-tabs.html, selected, for an Articles collection
-function profileTab() {
+// profileTabLink is one tab link of qwerty-common/profile-tabs.html, read from the template, for the collection $tabID on $userID's profile
+function profileTabLink(label, tabID, userID, selected) {
 	const link = stripComments(read(join(qwerty, "qwerty-common/profile-tabs.html"))).match(/<a [^>]*>/)[0]
-	return link.replaceAll("{{$tabID}}", "articles").replaceAll("{{$userID}}", "author")
-		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, "true") + "Articles</a>"
+	return link.replaceAll("{{$tabID}}", tabID).replaceAll("{{$userID}}", userID)
+		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, selected ? "true" : "false") + `${label}</a>`
+}
+
+// profileTab is the Articles tab link, selected, for the sorting spec's profile
+function profileTab() {
+	return profileTabLink("Articles", "articles", "author", true)
+}
+
+// profileFrame is qwerty-outbox/outbox.html's element around #profile-tabs, with the script that keeps <main>'s scroll across a swap, if it still has one
+function profileFrame(tab) {
+	const source = stripComments(read(join(qwerty, "qwerty-outbox/outbox.html")))
+	const open = source.match(/<div class="margin-top"(?: script="[^"]*")?>/)[0]
+	return `${open}${tab}</div>`
 }
 
 // sortForm is qwerty-common/layout.html's sortable branch up to its cards: the form's opening tag, and anything it loads first
@@ -666,6 +678,41 @@ function tagPills(selected, collection = "gallery", profile = "author") {
 // galleryTab is the gallery's tab, as list.html swaps it into #profile-tabs, with photos taller than the window below the pills
 function galleryTab(selected) {
 	return `<div id="profile-tabs"><div role="tablist" class="pills"><a role="tab" aria-selected="true">Gallery</a></div>${tagPills(selected)}<div style="height: 2000px">${selected || "All"} photos</div></div>`
+}
+
+// essays are an Article collection's posts, tagged with the gallery's tags, few enough that the tab ends above the bottom of the window
+const essays = [
+	{ token: "on-travel", title: "On Travel", tags: ["travel"] },
+	{ token: "on-food", title: "On Food", tags: ["food"] },
+	{ token: "on-both", title: "On Both", tags: ["travel", "food"] },
+]
+
+// essayCard is qwerty-common/layout-column.html's card for an Article with no image, read from the template
+function essayCard(essay) {
+	const source = stripComments(read(join(qwerty, "qwerty-common/layout-column.html")))
+	const card = source.match(/<a href="\/\{\{\.Token\}\}"[\s\S]*?<\/a>/)[0]
+		.replace(/\{\{- if ne "" \.IconURL -\}\}[\s\S]*?\{\{- end -\}\}/, "")
+		.replace("{{.Token}}", essay.token)
+		.replace("{{.Name}}", essay.title)
+		.replace("{{.Description}}", "A summary of the essay.")
+		.replace("{{.PublishDate | shortDate}}", "Nov 6, 2026")
+	return `<div class="pos-relative hover-trigger">${card}</div>`
+}
+
+// columnistTabs is the columnist's tab bar, as list.html draws it: the Essays and Scrapbook collections, with $open selected
+function columnistTabs(open) {
+	return `<div class="profile-tabs-row flex-row flex-wrap flex-align-center"><div role="tablist" class="pills">${profileTabLink("Essays", "essays", "columnist", open == "essays")}${profileTabLink("Scrapbook", "scrapbook", "columnist", open == "scrapbook")}</div></div>`
+}
+
+// essaysTab is an Article collection's tab, as list.html swaps it into #profile-tabs: its pills, then the cards $selected shows, in one column
+function essaysTab(selected) {
+	const shown = essays.filter((essay) => selected == "" || essay.tags.includes(selected))
+	return `<div id="profile-tabs">${columnistTabs("essays")}${tagPills(selected, "essays", "columnist")}<div class="cols-1">${shown.map(essayCard).join("")}</div></div>`
+}
+
+// scrapbookTab is the columnist's other collection: no pills, and content taller than the window
+function scrapbookTab() {
+	return `<div id="profile-tabs">${columnistTabs("scrapbook")}<div style="height: 2000px">The scrapbook</div></div>`
 }
 
 // mapPlaces are a Map's places, tagged with the gallery's tags, and far enough apart that one tag's view leaves another place out
@@ -733,8 +780,10 @@ function profileUsername() {
 	return icons(block.replaceAll("{{.Username}}", "author").replaceAll("{{.Hostname}}", "example.social"))
 }
 
+// page wraps a body in the shell, with the htmx-config meta that qwerty-theme/page.html carries, if it still does
 function page(body) {
-	return read(join(here, "fixtures/shell.html")).replace("${BODY}", body)
+	const meta = read(join(qwerty, "qwerty-theme/page.html")).match(/<meta name="htmx-config"[^>]*>/)
+	return read(join(here, "fixtures/shell.html")).replace("${HTMX_CONFIG}", meta ? meta[0] : "").replace("${BODY}", body)
 }
 
 // visualEditor renders an EditorJS editor template for a new Article, whose content.raw is empty
@@ -771,11 +820,15 @@ const routes = {
 	"/articles/list": () => ["text/html", profileArticles()],
 	"/@photographer": () => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${galleryTab("")}</div></main>`)],
 	"/gallery/list": (url) => ["text/html", galleryTab(url.searchParams.get("tag") || "")],
+	"/@columnist": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${profileFrame(url.searchParams.get("tab") == "scrapbook" ? scrapbookTab() : essaysTab(url.searchParams.get("tag") || ""))}</div></main>`)],
+	"/essays/list": (url) => ["text/html", essaysTab(url.searchParams.get("tag") || "")],
+	"/scrapbook/list": () => ["text/html", scrapbookTab()],
 	"/@cartographer": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${mapTab(url.searchParams.get("tag") || "")}</div></main>`)],
 	"/map/list": (url) => ["text/html", mapTab(url.searchParams.get("tag") || "")],
 	"/.themes/qwerty-theme/maps": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/maps"))],
 	"/handle": () => ["text/html", page(profileUsername())],
 	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
+	...Object.fromEntries(essays.map((essay) => [`/${essay.token}`, () => ["text/html", `<h1>${essay.title}</h1>`]])),
 }
 
 createServer(async (request, response) => {

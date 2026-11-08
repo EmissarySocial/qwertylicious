@@ -3,6 +3,8 @@
 <head>
 	<title>{{.DomainLabel}} - {{.PageTitle}}</title>
 	<link rel="webmention" href="/.webmention"/>
+	<!-- RULE: every htmx show: scroll is instant, never smooth, so a swap that moves the page is corrected before it paints (see AGENTS.md) -->
+	<meta name="htmx-config" content='{"scrollBehavior":"instant"}'>
 	{{ template "includes-head" .}}
 </head>
 

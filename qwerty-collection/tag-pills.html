@@ -15,11 +15,11 @@
 {{- end -}}
 
 {{- if $tags.NotEmpty -}}
-	<!-- RULE: each pill scrolls this row to the top of the window, found by its qwerty-tag-pills class (see AGENTS.md) -->
-	<div role="tablist" class="qwerty-tag-pills pills margin-bottom" aria-label="Filter by tag">
-		<a role="tab" class="turboclick" aria-selected="{{if eq `` $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list{{if ne `` $query}}?{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top" hx-push-url="{{$profileTab}}{{if ne `` $query}}&{{$query}}{{end}}">All</a>
+	<!-- RULE: each pill scrolls this row to the top of the window, found by its qwerty-tag-pills class, in the same task as the swap (see AGENTS.md) -->
+	<div role="tablist" class="text-sm qwerty-tag-pills pills margin-top-lg margin-bottom margin-horizontal-auto" aria-label="Filter by tag">
+		<a role="tab" class="turboclick" aria-selected="{{if eq `` $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list{{if ne `` $query}}?{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top settle:0ms" hx-push-url="{{$profileTab}}{{if ne `` $query}}&{{$query}}{{end}}">All</a>
 		{{- range $tags -}}
-			<a role="tab" class="turboclick" aria-selected="{{if eq . $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top" hx-push-url="{{$profileTab}}&tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}">{{.}}</a>
+			<a role="tab" class="turboclick" aria-selected="{{if eq . $selected}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}" hx-target="#profile-tabs" hx-swap="outerHTML show:.qwerty-tag-pills:top settle:0ms" hx-push-url="{{$profileTab}}&tag={{. | urlquery}}{{if ne `` $query}}&{{$query}}{{end}}">{{.}}</a>
 		{{- end -}}
 	</div>
 {{- end -}}

@@ -51,6 +51,9 @@ npx playwright show-report        # the HTML report of the last run
 | `/articles/sort` | Posting a new order, answered as Emissary's `sort` step does, with `HX-Reswap: none` |
 | `/@photographer` | A profile with a Photo Gallery tab open below a 300px header, its pill row tagged `travel` and `food`, and photos taller than the window |
 | `/gallery/list` | That tab, as a pill swaps it into `#profile-tabs`, with `?tag=` selecting a pill |
+| `/@columnist` | A profile with two collections below a 300px header, Essays and Scrapbook, inside the profile frame. Essays is open: an Articles tab whose pill row is tagged `travel` and `food`, with three cards, few enough that the tab ends above the bottom of the window. `?tag=` selects a pill, and `?tab=scrapbook` opens Scrapbook instead |
+| `/essays/list` | That tab, as a pill or the Essays tab swaps it into `#profile-tabs` |
+| `/scrapbook/list` | The Scrapbook tab: no pills, and content taller than the window |
 | `/@cartographer` | A profile with a Map tab open below a 300px header: three places in California, tagged `travel` and `food`, with no saved view. `?tag=` selects a pill |
 | `/map/list` | That tab, as a pill swaps it into `#profile-tabs` |
 | `/.themes/global/resources/leaflet-1.9.4/…` | Emissary's Leaflet stylesheet, script, and marker images |
@@ -75,11 +78,13 @@ The pieces a test is about come from the template files themselves:
 - the Share button, from `qwerty-event/responses.html` and `qwerty-timeline-entry/responses.html`;
 - the date cell, from `qwerty-collection/items-podcast.html`;
 - the tab link, from `qwerty-common/profile-tabs.html`;
+- the profile frame around `#profile-tabs`, with the script that keeps `<main>`'s scroll across a swap, from `qwerty-outbox/outbox.html`;
 - the tag pill row and its All and tag pills, from `qwerty-collection/tag-pills.html`;
 - a Map tab from its map onward, including its scripts, from `qwerty-collection/items-map.html`, where an action the server does not fill in stops the server;
 - the profile's handle and its copy button, from `qwerty-outbox/profile-header.html`;
 - the sortable branch up to its cards, from `qwerty-common/layout.html`;
-- the Article card's link and drag handle, from `qwerty-common/layout-column.html`;
+- the Article card's link and drag handle, and an essay's whole card, from `qwerty-common/layout-column.html`;
+- the `htmx-config` meta in every page's `<head>`, from `qwerty-theme/page.html`, so the specs run htmx with the theme's settings;
 - a photo's pencil and X, from `qwerty-photo/modal.html` and `edit-pencil.html`.
 
 `fixtures/list.html` holds benpate/form's `list` widget as it draws three lists in a `layout-vertical`: one of at most 4 values, an empty one, and one of at least 2. Render it again from the form library whenever the widget's markup changes. `fixtures/tabs.html` holds a `layout-tabs` form drawn the same way, with a text field on General and a `list` on Hashtags.

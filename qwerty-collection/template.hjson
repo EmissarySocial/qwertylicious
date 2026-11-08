@@ -110,7 +110,7 @@
 					]}
 					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
 					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else if eq . `about`}}About{{else}}Articles{{end}}{{end}}"}}
-					{do:"save", comment:"Created by {{.Author}}"}
+					{do:"save", comment:"Created"}
 				]}
 				{do:"forward-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
 			]
@@ -203,7 +203,7 @@
 				}
 				// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
 				{do:"set-sharing", role:"viewer", group:"anonymous"}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 
 				// Notes are not this collection's children, so its reply policy is copied onto them here
 				{do:"share-reply-policy", template:"outbox-message"}
@@ -222,7 +222,7 @@
 				{do:"set-data", from-form:["label"], defaults:{"label":"About"}}
 				// RULE: the About tab is always shared with everyone, as the message it shows is
 				{do:"set-sharing", role:"viewer", group:"anonymous"}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 
 				// The message belongs to the profile that owns this collection, which is the one the tab shows
 				{do:"with-parent", steps:[
@@ -264,7 +264,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -307,7 +307,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -358,7 +358,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -407,7 +407,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -449,7 +449,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -499,7 +499,7 @@
 						]
 					}
 				}
-				{do:"save", comment:"Settings updated by {{.Author}}"}
+				{do:"save", comment:"Settings updated"}
 			]
 		}
 
@@ -529,7 +529,7 @@
 							]}
 						]}
 					]}
-					{do:"save", comment:"Sharing updated by {{.Author}}"}
+					{do:"save", comment:"Sharing updated"}
 				]}
 				{do:"refresh-page"}
 			]

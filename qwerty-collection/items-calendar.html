@@ -89,32 +89,24 @@
 {{- end -}}
 {{- $events := ($query.ByStartDate.All).Slice -}}
 
-<!-- Toolbar: the range's title and Previous / Today / Next (the title leads in the Month view), then the three views, each in the same ?tag= -->
+<!-- Toolbar, the same in every view: Previous / Today / Next, the range's title centered, then the three views, each in the same ?tag= -->
 <div class="qwerty-calendar-toolbar flex-row flex-wrap flex-align-center margin-bottom">
-	<div class="flex-row flex-align-center flex-grow">
-		{{- if eq $view "month" -}}
-			<h2 class="text-xl bold margin-none margin-right-sm">{{$title}}</h2>
-		{{- end -}}
+	<div class="qwerty-calendar-nav flex-row flex-align-center">
 		<button type="button" class="turboclick" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}{{$tagQuery}}">{{icon "chevron-left"}}</button>
 		<button type="button" class="turboclick" hx-get="/{{$collectionID}}/list?view={{$view}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}{{$tagQuery}}">Today</button>
 		<button type="button" class="turboclick" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}{{$tagQuery}}">{{icon "chevron-right"}}</button>
-		{{- if ne $view "month" -}}
-			<h2 class="text-xl bold margin-none margin-left-sm">{{$title}}</h2>
-		{{- end -}}
 	</div>
-	<div role="tablist" class="pills margin-none">
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `list`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=list{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=list{{$startQuery}}{{$tagQuery}}">List</a>
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `week`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=week{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=week{{$startQuery}}{{$tagQuery}}">Week</a>
-		<a role="tab" class="turboclick" aria-selected="{{if eq $view `month`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=month{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=month{{$startQuery}}{{$tagQuery}}">Month</a>
+	<h2 class="text-xl bold margin-none align-center">{{$title}}</h2>
+	<div class="qwerty-calendar-views flex-row flex-align-center">
+		<div role="tablist" class="pills margin-none">
+			<a role="tab" class="turboclick" aria-selected="{{if eq $view `list`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=list{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=list{{$startQuery}}{{$tagQuery}}">List</a>
+			<a role="tab" class="turboclick" aria-selected="{{if eq $view `week`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=week{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=week{{$startQuery}}{{$tagQuery}}">Week</a>
+			<a role="tab" class="turboclick" aria-selected="{{if eq $view `month`}}true{{else}}false{{end}}" hx-get="/{{$collectionID}}/list?view=month{{$startQuery}}{{$tagQuery}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view=month{{$startQuery}}{{$tagQuery}}">Month</a>
+		</div>
 	</div>
 </div>
 
-<!-- The description, between the toolbar and the events (list.html leaves it to this view) -->
-{{- if ne "" .Summary -}}
-	<div class="text-gray margin-vertical max-width-640">{{.Summary | markdown}}</div>
-{{- end -}}
-
-<!-- RULE: the tag filters follow the toolbar and the description, directly above the events, and keep the view and its dates (see AGENTS.md) -->
+<!-- RULE: the tag filters follow the toolbar, directly above the events, and keep the view and its dates (see AGENTS.md) -->
 {{- template "tag-pills" (array . $tags $tag (print "view=" $view $startQuery)) -}}
 
 {{- if eq $view "list" -}}

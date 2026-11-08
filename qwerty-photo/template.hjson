@@ -92,10 +92,11 @@
 							]
 						}
 					}
-					// The include lets the photos action run on the unsaved post before the Save, and adopts the staged photos at it
-					{do:"include", action:"photos"}
-					// The include lets the gallery's add run tag-options on the unsaved post; its view draws nothing on the POST
-					{do:"include", action:"tag-options"}
+					// The include lets the photos action run on the unsaved post before the Save, and adopts the staged photos at it;
+					// it runs on the POST only, because the widget's own request draws the photos (see AGENTS.md)
+					{do:"include", action:"photos", method:"post"}
+					// The include lets the gallery's add run tag-options on the unsaved post, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
+					{do:"include", action:"tag-options", method:"post"}
 					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
@@ -112,7 +113,7 @@
 				// The first photo is the post's thumbnail, so every change re-picks it and recounts
 				{do:"set-thumbnail", path:"iconUrl", category:"photo"}
 				{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
-				{do:"save", comment:"Photos updated by {{.Author}}"}
+				{do:"save", comment:"Photos updated"}
 			]
 		}
 
@@ -251,7 +252,7 @@
 					]}
 					// The photos are already saved: the widget changes them in place through the photos action
 					{do:"process-content", format:"MARKDOWN"}
-					{do:"save", comment:"Updated by {{.Author}}"}
+					{do:"save", comment:"Updated"}
 				]}
 				// Saving returns to the updated photo in its modal; the 303 makes the browser GET it
 				{do:"remove-event", event:"closeModal"}

@@ -319,6 +319,11 @@ button.edit-circle,
 	}
 }
 
+/* An invisible circle that keeps a missing button's place in the owner's menu (qwerty-common/profile-menu.html) */
+.edit-circle.placeholder {
+	visibility: hidden;
+}
+
 /* The pencil in an item's top right corner, on its modal or page and on its editor, which toggles between them */
 .corner-pencil {
 	position: absolute;

@@ -1,7 +1,10 @@
 <!-- head-byline is the Article's description and byline, below the title on the public view and the edit page -->
 <!-- RULE: spacing is in utility classes, because the stylesheet's #article rules reach only the public view (see AGENTS.md) -->
-{{- if ne "" .Description -}}
-	<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
+<!-- RULE: an Article saved before the toggle existed has no data.showSummary and still shows its summary (see AGENTS.md) -->
+{{- if ne "false" (print (.Data "showSummary")) -}}
+	{{- if ne "" .Description -}}
+		<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
+	{{- end -}}
 {{- end -}}
 
 <div id="article-byline" class="flex-row flex-align-center margin-bottom-lg">

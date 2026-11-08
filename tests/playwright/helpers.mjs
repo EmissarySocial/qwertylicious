@@ -1,4 +1,5 @@
-// Shared helpers for the specs: colors as [r, g, b, a] numbers, whatever syntax the browser reports them in.
+// Shared helpers for the specs: colors as [r, g, b, a] numbers, whatever syntax the browser reports them in,
+// and <main>'s scroll position sampled on every frame, for the specs that check a swap never moves the page.
 
 // rgba reads one CSS property of an element as [r, g, b, a], drawn through a canvas so every color syntax compares
 export async function rgba(locator, property = "background-color") {
@@ -33,4 +34,28 @@ export async function pixels(page, points) {
 		const scale = image.width / window.innerWidth
 		return points.map(([x, y]) => [...context.getImageData(Math.round(x * scale), Math.round(y * scale), 1, 1).data].slice(0, 3))
 	}, { png, points })
+}
+
+// sampleScroll records <main>'s scroll position on every frame for the next 1.5 seconds; scrollSamples reads them back
+export async function sampleScroll(page) {
+	await page.evaluate(() => {
+		const main = document.querySelector("main")
+		window.__scroll = []
+		const until = performance.now() + 1500
+		const tick = () => {
+			window.__scroll.push(Math.round(main.scrollTop))
+			if (performance.now() < until) requestAnimationFrame(tick)
+		}
+		requestAnimationFrame(tick)
+	})
+}
+
+export async function scrollSamples(page) {
+	await page.waitForTimeout(1600)
+	return page.evaluate(() => window.__scroll)
+}
+
+// movingFrames counts the frames whose scroll position differs from the frame before
+export function movingFrames(samples) {
+	return samples.filter((top, index) => index > 0 && top != samples[index - 1]).length
 }

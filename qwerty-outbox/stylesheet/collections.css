@@ -298,6 +298,29 @@
 	gap: var(--rhythm);
 }
 
+/* The title is centered on the page: the navigation and the views on either side of it share the width
+   equally (flex-basis 0), whatever each holds */
+.qwerty-calendar-nav,
+.qwerty-calendar-views {
+	flex: 1 1 0;
+}
+
+.qwerty-calendar-views {
+	justify-content: flex-end;
+}
+
+/* Narrow: the toolbar wraps into lines (the navigation and the title, then the views), each centered */
+@media (max-width: 768px) {
+	.qwerty-calendar-toolbar {
+		justify-content: center;
+	}
+
+	.qwerty-calendar-nav,
+	.qwerty-calendar-views {
+		flex: 0 0 auto;
+	}
+}
+
 .qwerty-calendar-grid {
 	display: grid;
 	grid-template-columns: repeat(7, minmax(0, 1fr));

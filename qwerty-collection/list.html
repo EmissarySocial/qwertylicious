@@ -8,9 +8,9 @@
 	{{- template "profile-menu" . -}}
 </div>
 
-<!-- The description, no wider than a post; a Calendar and a Podcast draw their own (items-calendar.html, items-podcast.html) -->
-{{- if and (ne "" .Summary) (ne "calendar" (.DataString "layout")) (ne "podcast" (.DataString "layout")) -}}
-	<div class="text-gray margin-bottom max-width-640">{{.Summary | markdown}}</div>
+<!-- The description, directly below the tab bar, centered and no wider than a post; a Podcast draws its own (items-podcast.html) -->
+{{- if and (ne "" .Summary) (ne "podcast" (.DataString "layout")) -}}
+	<div class="text-gray margin-bottom margin-horizontal-auto max-width-640">{{.Summary | markdown}}</div>
 {{- end -}}
 
 {{- template "items" . -}}

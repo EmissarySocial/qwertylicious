@@ -1,6 +1,7 @@
 // A tagged collection's pills: each one redraws the tab and scrolls the pill row to the top of the window.
 // Each runs in Chromium and WebKit, light and dark (playwright.config.mjs).
 import { test, expect } from "@playwright/test"
+import { sampleScroll, scrollSamples, movingFrames } from "./helpers.mjs"
 
 // pillsTop is how far the pill row sits below the top of the window, in whole pixels
 async function pillsTop(page) {
@@ -27,6 +28,32 @@ test.describe("tag pills", () => {
 		await page.goto("/@photographer")
 		const pill = page.getByRole("tab", { name: "travel" })
 		expect(await pill.evaluate((element) => getComputedStyle(element).webkitUserSelect || getComputedStyle(element).userSelect)).toBe("none")
+	})
+
+	test("the row reaches the top in one frame, not a smooth scroll", async ({ page }) => {
+		await page.goto("/@photographer")
+		await sampleScroll(page)
+		await page.getByRole("tab", { name: "travel" }).click()
+		const samples = await scrollSamples(page)
+		expect(await pillsTop(page)).toBe(0)
+		expect(movingFrames(samples), `scroll positions: ${samples.join(" ")}`).toBeLessThanOrEqual(1)
+	})
+
+	test("a short tab never paints above where it was", async ({ page }) => {
+
+		// Safari moves <main> as a short tab is replaced; the pill's scroll must correct it before the frame paints
+		await page.goto("/@columnist")
+		await page.getByRole("tab", { name: "travel" }).click()
+		await expect(page.getByRole("tab", { name: "travel" })).toHaveAttribute("aria-selected", "true")
+		await page.waitForTimeout(500)
+		const start = await page.evaluate(() => Math.round(document.querySelector("main").scrollTop))
+		expect(start).toBeGreaterThan(0)
+
+		await sampleScroll(page)
+		await page.getByRole("tab", { name: "food" }).click()
+		const samples = await scrollSamples(page)
+		await expect(page.getByRole("tab", { name: "food" })).toHaveAttribute("aria-selected", "true")
+		expect(Math.min(...samples), `scroll positions: ${samples.join(" ")}`).toBeGreaterThanOrEqual(start)
 	})
 
 	test("All scrolls the row to the top too", async ({ page }) => {
