@@ -319,6 +319,8 @@ An Article's `content.format` is `EDITORJS` (the Visual Editor, and the default)
 
 A template that uses a funcmap helper (such as `toTime` or `cssValue`) fails to **load** on a server whose funcmap lacks it, because `html/template` resolves function names at parse time. A missing builder method, step option, or Emissary partial (such as `base-outbox`'s `follow-button`) fails only when a page **renders**, so the breakage hides until someone opens that page. An unknown `extends` entry halts first boot. Confirm the target server's Emissary has a feature before using it here.
 
+**An unknown schema format stops every Template from loading.** Emissary refuses a schema whose `format` it does not register, and then publishes no Templates from that load, though the copies already live keep serving. The Stylesheet tab needs Emissary's `custom-css` format and `customCSS` helper, so Emissary deploys first.
+
 **An unknown step option is ignored, not refused.** A Custom Photo Gallery needs the `sort` step's `direction` option and turboclick's `.drag-handle` exemption. On an Emissary without them, a drag numbers the posted photos from 1, and pressing a handle opens the photo.
 
 **An unknown form path is dropped, not refused.** The episode editor's Publish Date needs Stream's `publishDateTime`. On an Emissary without it, the field renders empty and a save drops the value, logged only at debug level.
@@ -343,9 +345,18 @@ A container with `hx-swap="none"` makes every `hx-get` or `hx-boost` inside it f
 
 Emissary's turboclick fires on the element actually pressed, so nested links, buttons, `hx-get`s, and hyperscript handlers all still fire. Don't move the class onto the children. A dead click inside a turboclick region is almost always the `hx-swap` trap above.
 
-## `css` and `cssValue` are two different trust levels
+## A profile's CSS goes through `customCSS`, and nothing here uses `css`
 
-`css` is an unvalidated cast, used once: the owner's own `data.stylesheet` in [qwerty-outbox/stylesheet.html](qwerty-outbox/stylesheet.html). `cssValue` checks one property value against an allowlist and rejects `expression` and `url`, returning empty. Anything a template builds from data goes through `cssValue`.
+rosetta's `css` is a raw cast: inside a `<style>` element it passes `</style><script>` straight through, so every visitor would run a profile owner's script. The Stylesheet tab's CSS is placed by Emissary's `customCSS`, which writes nothing unless Emissary's `tools/customcss` accepts the stylesheet. `cssValue` checks one property value against an allowlist and rejects `expression` and `url`, returning empty. Anything a template builds from data goes through `cssValue`.
+
+## The Stylesheet tab's CSS styles the profile and nothing outside it
+
+`outbox.html` places `data.stylesheet` as `<style>@scope (#outbox-page) { … }</style>`, inline, so a save shows on the next view with no file to cache and no extra request.
+
+- **`@scope (#outbox-page)` is the boundary.** A rule can select only inside the profile frame: the card, the tab bar, and the open tab. The site's navigation and every modal (Follow, a photo, a Note) sit outside it and keep the theme's look. `:scope` selects the frame itself, and a browser without `@scope` drops the whole block, so the profile looks as it does with no stylesheet. The scope limits what a rule selects, not where an element paints: `position: fixed` inside the frame can still cover the menu.
+- **Emissary checks the CSS when it is saved and again when it is drawn.** The schema's `custom-css` format and `customCSS` apply the same rules: no `"</"` anywhere, every block closed, no `@import`, and no address on another website, though relative paths and `data:` URIs work. A `data:` SVG must percent-encode its tags (`%3C/svg%3E`). The rules are in Emissary's `tools/customcss/README.md`.
+- **The form writes the field a second time through `set-data`.** `edit` keeps the old stylesheet without a word when the format refuses the new one, and the form still answers as if it saved (emissary-specs BUG-261). `{do:"set-data", from-form:["data.stylesheet"]}` refuses it again and shows the rule and the line inline, so removing it makes a bad stylesheet vanish silently.
+- **The limit is 4096 characters,** Emissary's cap on every value in a User's `data` (`userDataMaxLength`).
 
 ## Every collection item has Replies, Likes, and Boosts
 
@@ -380,11 +391,11 @@ The item modals' bar follows Emissary's Note (`stream-outbox-message/note-action
 
 ## Qwerty's Profile settings tabs are drawn by `qwerty-outbox`
 
-Emissary's `/@me/settings/general` draws its Profile tabs from the user's outbox, so `qwerty-outbox` extends `base-outbox` and overrides `settings-tabs.html`. The General, Images, and Links forms are Emissary's; there is no Qwerty settings template.
+Emissary's `/@me/settings/general` draws its Profile tabs from the user's outbox, so `qwerty-outbox` extends `base-outbox` and overrides `settings-tabs.html`. The General, Images, and Links forms are Emissary's, Collections and Stylesheet are Qwerty's own, and there is no Qwerty settings template.
 
 **Collections is Qwerty's own tab.** `settings-collections-form` is a sortable list that posts on a changed order (`hx-trigger="update"`, Sortable's event) and answers with itself (`view-html`, `method: "both"`), so the new `tbody` re-installs `sortContainer`. The tab reloads itself on `refreshPage`, because Edit Collection ends with `refresh-page` and reloading the whole page would open General. Every Edit Collection modal links back here through `qwerty-collection/settings-title.html`, which carries the format's icon and title because `layout-tabs` writes its label as plain text.
 
-**`?tab=` opens the settings page on any tab.** The page runs the outbox's `settings-general` with its own request, and `base-outbox` makes that a `switch` on `?tab=` for `images` and `links`. `qwerty-outbox` overrides it to add `collections`, and since an override replaces the whole action, it repeats base-outbox's cases. The action is `settings-general` whichever tab it drew, so `settings-tabs.html` picks the selected tab from the same parameter. **Its tab names must match the switch's cases,** trimmed and case-sensitive, or the page draws one tab and highlights another.
+**`?tab=` opens the settings page on any tab.** The page runs the outbox's `settings-general` with its own request, and `base-outbox` makes that a `switch` on `?tab=` for `images` and `links`. `qwerty-outbox` overrides it to add `collections` and `stylesheet`, and since an override replaces the whole action, it repeats base-outbox's cases. The action is `settings-general` whichever tab it drew, so `settings-tabs.html` picks the selected tab from the same parameter. **Its tab names must match the switch's cases,** trimmed and case-sensitive, or the page draws one tab and highlights another.
 
 ## Follow is Emissary's modal, from `base-outbox`
 

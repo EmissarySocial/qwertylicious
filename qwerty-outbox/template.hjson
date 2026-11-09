@@ -31,7 +31,8 @@
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
 					layout-highlight-first: {type:"boolean"}
-					stylesheet: {type:"string"}
+					// The Stylesheet tab's CSS, kept exactly as written; outbox.html scopes it to the profile (see AGENTS.md)
+					stylesheet: {type:"string", format:"custom-css", maxLength:4096}
 					color-button: {type:"string", format:"color"}
 				}
 			}
@@ -286,7 +287,7 @@
 			]
 		}
 
-		// base-outbox's ?tab= switch plus Collections; an override replaces the whole action, so keep its cases
+		// base-outbox's ?tab= switch plus Collections and Stylesheet; an override replaces the whole action, so keep its cases
 		settings-general: {
 			roles: ["self"]
 			steps: [
@@ -294,6 +295,7 @@
 					images: {do:"view-html", file:"settings-images"}
 					links: {do:"view-html", file:"settings-links"}
 					collections: {do:"view-html", file:"settings-collections"}
+					stylesheet: {do:"view-html", file:"settings-stylesheet"}
 				}, default:{do:"view-html"}}
 			]
 		}
@@ -315,6 +317,35 @@
 			]
 		}
 
+		// The Stylesheet tab of Settings → Profile, after Collections
+		settings-stylesheet: {
+			roles: ["self"]
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		// The tab's form: one textarea of CSS, which the custom-css format checks before it saves
+		settings-stylesheet-form: {
+			roles: ["self"]
+			steps: [
+				{
+					do:"edit"
+					options:["endpoint:/@me/settings-stylesheet-form", "cancel-button:hide"]
+					form:{
+						type:layout-vertical
+						children:[
+							{type:"textarea", path:"data.stylesheet", description:"Custom styles work only on your profile. Images and fonts must come from this website.", options:{rows:20, showLimit:true, style:"font-family:monospace;"}}
+						]
+					}
+				}
+				// RULE: edit drops a refused stylesheet without a word; set-data writes it again and shows why (see AGENTS.md)
+				{do:"set-data", from-form:["data.stylesheet"]}
+				{do:"save"}
+				{do:"inline-save-button"}
+			]
+		}
+
 		sort-featured: {
 			roles: ["self"]
 			steps: [
@@ -327,13 +358,6 @@
 			roles: ["self"]
 			steps: [
 				{do:"sort", model:"Stream", keys:"_id", values:"rankAlt"}
-			]
-		}
-
-		stylesheet: {
-			roles: ["anonymous"]
-			steps: [
-				{do:"view-css"}
 			]
 		}
 

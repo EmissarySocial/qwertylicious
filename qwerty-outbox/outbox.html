@@ -15,6 +15,11 @@
 		<title>{{.DisplayName}}</title>
 		<link rel="icon" href="{{.IconURL}}"/>
 
+		<!-- RULE: the Stylesheet tab's CSS styles this profile and nothing outside it (see AGENTS.md) -->
+		{{- with customCSS (.Data "stylesheet") }}
+			<style>@scope (#outbox-page) { {{.}} }</style>
+		{{- end }}
+
 		<!-- oEmbed: https://oembed.com -->
 		<link rel="alternate" type="application/json+oembed" href="{{.OEmbedJSON}}">
 		<link rel="alternate" type="text/xml+oembed" href="{{.OEmbedXML}}">

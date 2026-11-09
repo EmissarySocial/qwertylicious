@@ -2,7 +2,7 @@
 {{- $tab := "general" -}}
 {{- if .IsAction "settings-general" -}}
 	{{- $query := trim (.QueryParam "tab") -}}
-	{{- if in $query "images" "links" "collections" -}}
+	{{- if in $query "images" "links" "collections" "stylesheet" -}}
 		{{- $tab = $query -}}
 	{{- end -}}
 {{- else if .IsAction "settings-images" -}}
@@ -11,6 +11,8 @@
 	{{- $tab = "links" -}}
 {{- else if .IsAction "settings-collections" -}}
 	{{- $tab = "collections" -}}
+{{- else if .IsAction "settings-stylesheet" -}}
+	{{- $tab = "stylesheet" -}}
 {{- end -}}
 <div id="menu-bar">
 	{{- if .IsDesktop -}}
@@ -19,11 +21,12 @@
 			<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `images`}}selected{{end}}">Images</a>
 			<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `links`}}selected{{end}}">Links</a>
 			<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `collections`}}selected{{end}}">Collections</a>
+			<a href="#" hx-get="/@me/settings-stylesheet" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `stylesheet`}}selected{{end}}">Stylesheet</a>
 		</div>
 	{{- else -}}
 		<div class="dropdown">
 			<a class="button">
-				{{- if eq $tab "images" -}}Images{{- else if eq $tab "links" -}}Links{{- else if eq $tab "collections" -}}Collections{{- else -}}General{{- end }}
+				{{- if eq $tab "images" -}}Images{{- else if eq $tab "links" -}}Links{{- else if eq $tab "collections" -}}Collections{{- else if eq $tab "stylesheet" -}}Stylesheet{{- else -}}General{{- end }}
 				{{icon "chevron-down"}}
 			</a>
 			<div class="dropdown-content left">
@@ -31,6 +34,7 @@
 				<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `images`}}selected{{end}}">Images</a>
 				<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `links`}}selected{{end}}">Links</a>
 				<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `collections`}}selected{{end}}">Collections</a>
+				<a href="#" hx-get="/@me/settings-stylesheet" hx-target="#profile-settings" hx-push-url="false" class="turboclick dropdown-item {{if eq $tab `stylesheet`}}selected{{end}}">Stylesheet</a>
 			</div>
 		</div>
 	{{- end -}}
