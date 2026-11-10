@@ -150,9 +150,10 @@ Every item modal (photo, episode, place, timeline entry, event, and Emissary's N
 
 ## The photo carousel is one delegated script
 
-`qwerty-theme/carousel/qwerty-carousel.js` (the `carousel` bundle, loaded once by `includes-foot.html`) runs `qwerty-photo/photo-figure.html`'s carousel: a transform-driven track, arrows, the Left and Right keys, and a swipe that locks to an axis after 8px and commits past 50px.
+`qwerty-theme/carousel/qwerty-carousel.js` (the `carousel` bundle) runs `qwerty-photo/photo-figure.html`'s carousel: a transform-driven track, arrows, the Left and Right keys, and a swipe that locks to an axis after 8px and commits past 50px.
 
-- **Every listener sits on `document`,** so swapped-in carousels need no setup, and `window.qwertyCarousel` guards against installing twice.
+- **The markup that needs a script loads it.** `photo-figure.html` and `entry-neighbors.html` each carry a `<script src="/.themes/qwerty-theme/carousel">`, and `episode-player.html` carries the `podcast` bundle's. A theme's bundles are served on every site, but only `qwerty-theme`'s `includes-foot.html` loads them, and these templates also run on sites with another theme: on one using `minimal`, the carousel's arrows and keys did nothing and nothing was logged (2026-11-10). The footer still loads both, and the `window.qwertyCarousel` and `window.qwertyPodcast` guards make the second load a no-op.
+- **Every listener sits on `document`,** so swapped-in carousels need no setup.
 - **Past the first or last photo, the keys go to the neighboring post,** by clicking the figure's hidden `a.qwerty-carousel-post-prev` and `-next`, which the server computes in the gallery's order and `?tag=` filter with `Siblings`. Swipes and buttons stay within the photos.
 - **`photo-figure` takes `(array $builder $mode)`.** In `"modal"` mode the neighbor links re-open the modal; in `"page"` mode they load the next page.
 - **The keys drive the carousel in `#modal` when one is open,** otherwise the one in `<main>`, and never while focus is in a text field.

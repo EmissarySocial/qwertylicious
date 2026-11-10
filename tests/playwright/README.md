@@ -25,7 +25,7 @@ npx playwright show-report        # the HTML report of the last run
 | `/js/htmx.js`, `/js/hyperscript.js` | Emissary's htmx 1.9.12 and hyperscript 0.9.93 |
 | `/js/global.js`, `/hs/global.hs` | Emissary's `theme-global` JavaScript and hyperscript bundles, including the `Modal`, `Share`, and `Clipboard` behaviors |
 | `/js/podcast.js` | `qwerty-theme/podcast` |
-| `/js/carousel.js` | `qwerty-theme/carousel` |
+| `/.themes/qwerty-theme/carousel`, `/.themes/qwerty-theme/podcast` | `qwerty-theme/carousel` and `qwerty-theme/podcast`, at the paths the photo figure, the Timeline entry's bar, and the episode player load them from |
 | `/.themes/global/resources/sortable-1.15.7/Sortable.min.js` | Emissary's Sortable, at the path `sortContainer` and the `upload-multiple` script load it from, never cached so that every load is a request |
 | `/episode` | A page with the first of three episodes open in its modal |
 | `/entry` | A page with the first of three Timeline entries open in its modal |

@@ -166,6 +166,12 @@ test.describe("photo post", () => {
 		await expect(page.locator("#modal .qwerty-carousel-slide")).toHaveCount(2)
 		await expect(page.locator("#modal .qwerty-carousel-count")).toHaveText("1 / 2")
 		expect(await slideIDs(page)).toEqual(stored.map((file) => file.id))
+
+		// The figure brings its own script, so the arrows work on a page whose theme loads none
+		await page.locator('#modal [data-carousel="next"]').click()
+		await expect(page.locator("#modal .qwerty-carousel-count")).toHaveText("2 / 2")
+		await page.keyboard.press("ArrowLeft")
+		await expect(page.locator("#modal .qwerty-carousel-count")).toHaveText("1 / 2")
 	})
 
 	test("Add Photos stops a Save with no photo before it is sent, and a staged photo's X never locks", async ({ page }) => {

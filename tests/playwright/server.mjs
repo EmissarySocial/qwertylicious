@@ -174,7 +174,7 @@ function photoFigure(post) {
 	const count = post.files.length
 	const slides = post.files.map((file, index) => `<div class="qwerty-carousel-slide pos-relative"><img src="/${post.id}/attachments/${file.id}.webp?width=1600" alt="Photo ${index + 1} of ${count}" loading="${index == 0 ? "eager" : "lazy"}" draggable="false"></div>`).join("")
 	const controls = count > 1 ? `<button type="button" class="qwerty-carousel-prev" data-carousel="prev" aria-label="Previous Photo" disabled><i class="bi bi-arrow-left"></i></button><button type="button" class="qwerty-carousel-next" data-carousel="next" aria-label="Next Photo"><i class="bi bi-arrow-right"></i></button><div class="qwerty-carousel-count text-xs" aria-live="polite">1 / ${count}</div>` : ""
-	return `<figure class="margin-none"><div class="qwerty-carousel pos-relative"><div class="qwerty-carousel-stage"><div class="qwerty-carousel-track">${slides}</div></div>${controls}</div><figcaption class="margin-top"></figcaption></figure>`
+	return `<figure class="margin-none"><div class="qwerty-carousel pos-relative"><div class="qwerty-carousel-stage"><div class="qwerty-carousel-track">${slides}</div></div>${controls}</div><script src="/.themes/qwerty-theme/carousel" defer></script><figcaption class="margin-top"></figcaption></figure>`
 }
 
 // cornerButtons is the pencil and X block of a photo's view, taken from the template file, with the id filled in
@@ -577,7 +577,7 @@ function entryModal(index) {
 		.replaceAll("${ID}", entry.id)
 		.replaceAll("${TITLE}", entry.title)
 		.replaceAll("${DATE}", entry.date)
-		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div>`)
+		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div><script src="/.themes/qwerty-theme/carousel" defer></script>`)
 }
 
 function eventModal() {
@@ -806,7 +806,6 @@ const routes = {
 	"/js/global.js": () => ["text/javascript", concat(join(templates, "theme-global/javascript"))],
 	"/hs/global.hs": () => ["text/hyperscript", concat(join(templates, "theme-global/hyperscript"))],
 	"/js/podcast.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
-	"/js/carousel.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/carousel"))],
 	"/.themes/global/resources/sortable-1.15.7/Sortable.min.js": () => ["text/javascript", read(join(templates, "theme-global/resources/sortable-1.15.7/Sortable.min.js"))],
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
@@ -825,6 +824,8 @@ const routes = {
 	"/scrapbook/list": () => ["text/html", scrapbookTab()],
 	"/@cartographer": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${mapTab(url.searchParams.get("tag") || "")}</div></main>`)],
 	"/map/list": (url) => ["text/html", mapTab(url.searchParams.get("tag") || "")],
+	"/.themes/qwerty-theme/carousel": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/carousel"))],
+	"/.themes/qwerty-theme/podcast": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
 	"/.themes/qwerty-theme/maps": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/maps"))],
 	"/handle": () => ["text/html", page(profileUsername())],
 	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),

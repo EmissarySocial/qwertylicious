@@ -99,6 +99,9 @@
 		{{- end -}}
 	</div>
 
+	<!-- RULE: the figure loads its own script, because only qwerty-theme's footer does, and a site may use another theme -->
+	<script src="/.themes/qwerty-theme/carousel" defer></script>
+
 	<figcaption class="margin-top">
 		<!-- The title (the pencil is in modal.html, and view.html draws its own Edit) -->
 		{{- if $hasTitle -}}
