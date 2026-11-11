@@ -2,6 +2,10 @@
  * PAGE LAYOUT CLASSES
  ******************************************/
 
+:root {
+	--border-radius: calc(var(--rhythm) * 2);
+}
+
 * {
 	box-sizing: border-box;
 }

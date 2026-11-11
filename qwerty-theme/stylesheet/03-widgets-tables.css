@@ -11,14 +11,6 @@ table.table td {
   border-top: solid 1px var(--input-border);
 }
 
-div.table {
-	border-bottom: solid 1px var(--input-border);
-}
-
-div.table > * {
-	border-top: solid 1px var(--input-border);
-}
-
 table.table tr[role=link]:hover td,
 table.table tr[role=link]:focus td,
 table.table tr[role=button]:hover td,
@@ -31,11 +23,11 @@ table.table tr.clickable:focus td {
 /** DIV "TABLES" ****************/
 
 div.table {
-	border-bottom: solid 1px var(--input-border);
+	border-bottom: unset;
 }
 
 div.table > * {
-	border-top: solid 1px var(--input-border);
+	border-top: unset;
 }
 
 div.table > [role=link]:hover,

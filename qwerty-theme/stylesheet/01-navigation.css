@@ -93,10 +93,14 @@ nav.collapsed {
 	}
 
 	&.selected {
-		font-weight:bold;
+		font-weight: 500;
 
 		&:hover {
 			background-color: color-mix(in srgb, var(--page-background), var(--gray100) 6%)
+		}
+
+		.icon i {
+			color: var(--text-color-primary);
 		}
 	}
 
@@ -107,7 +111,7 @@ nav.collapsed {
 	.icon {
 		font-size: calc(var(--rhythm) * 2.25);
 
-		i.ti {
+		i {
 			color: var(--text-color-tertiary);
 			font-size: calc(var(--rhythm) * 2.25);
 		}

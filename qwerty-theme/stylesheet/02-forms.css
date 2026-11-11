@@ -11,19 +11,23 @@ button, .button,
 	border-radius: calc(var(--rhythm) * 4);
 	background-color: var(--button-background);
 	color: var(--button-color);
-
-	i.ti {
-		color: var(--text-color-tertiary);
+	
+	&:first-letter {
+		text-transform: capitalize;
 	}
 
-	&.icon {
+	i {
+		color: var(--text-color-secondary);
+	}
+
+	&.icon, &.edit-circle {
 		padding: calc(var(--rhythm) * 1.25);
 		align-content: center;
 		text-align: center;
 		aspect-ratio: 1/1;
 
 		i {
-			color: var(--text-color-tertiary);
+			color: var(--text-color-secondary);
 		}
 	}
 
@@ -31,7 +35,7 @@ button, .button,
 		background-color: var(--button-action-background);
 		color: var(--button-action-color);
 
-		i.ti {
+		i {
 			color: var(--button-action-color);
 		}
 
@@ -45,7 +49,7 @@ button, .button,
 		background-color: var(--button-primary-background);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
@@ -59,7 +63,7 @@ button, .button,
 		background-color: var(--button-secondary-background);
 		color: var(--button-secondary-color);
 
-		i.ti {
+		i {
 			color: var(--text-color-tertiary);
 		}
 
@@ -72,7 +76,7 @@ button, .button,
 		background-color: unset;
 	}
 
-	i.ti {
+	i {
 		color: var(--text-color-tertiary);
 	}
 
@@ -87,14 +91,14 @@ button, .button,
 	}
 
 	&.text-xs {
-		padding: calc(var(--rhythm) * 1.5) calc(var(--rhythm) * 1);
+		padding: calc(var(--rhythm) * 1) calc(var(--rhythm) * 1.25);
 		border-radius: calc(var(--rhythm) * 4);
 	}
 
 	&.text-red {
 		color: var(--red60);
 
-		i.ti {
+		i {
 			color: var(--red60);
 		}
 	}
@@ -103,7 +107,7 @@ button, .button,
 		background-color: var(--red70);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
@@ -117,7 +121,7 @@ button, .button,
 		background-color: var(--green70);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
@@ -212,7 +216,7 @@ button.button-invisible {
 			background-color: var(--red40);
 			color: var(--button-primary-color);
 
-			i.ti {
+			i {
 				color: var(--button-primary-color);
 			}
 
@@ -226,7 +230,7 @@ button.button-invisible {
 			background-color: var(--green40);
 			color: var(--button-primary-color);
 
-			i.ti {
+			i {
 				color: var(--button-primary-color);
 			}
 
@@ -301,9 +305,9 @@ button.edit-circle,
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: calc(var(--rhythm) * 4);
-	height: calc(var(--rhythm) * 4);
-	padding: 0;
+	width: calc(var(--rhythm) * 5);
+	height: calc(var(--rhythm) * 5);
+	padding: var(--rhythm);
 	margin: 0;
 	border-radius: 50%;
 

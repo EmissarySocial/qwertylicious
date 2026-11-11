@@ -36,9 +36,9 @@ html {
 .text-3xl p,
 .text-3xl input,
 .input.text-3xl {
-	font-size: calc(var(--rhythm) * 7 * 2 / 3);
+	font-size: calc(var(--rhythm) * 4);
 	line-height: calc(var(--rhythm) * 7);
-	margin-top: calc(var(--rhythm) * 3);
+	margin-top: calc(var(--rhythm) * 1.5);
 	margin-bottom: calc(var(--rhythm) * 1);
 	font-weight: calc(var(--weight) + 100);
 }
@@ -47,10 +47,10 @@ html {
 .text-2xl p,
 .text-2xl input,
 input.text-2xl {
-	font-size: calc(var(--rhythm) * 4);
+	font-size: calc(var(--rhythm) * 3.5);
 	line-height: calc(var(--rhythm) * 6);
-	margin-top: calc(var(--rhythm) * 3);
-	margin-bottom: calc(var(--rhythm) * 1);
+	margin-top: calc(var(--rhythm) * 1.5);
+	margin-bottom: calc(var(--rhythm) / 2);
 	font-weight: calc(var(--weight) + 100);
 }
 
@@ -58,10 +58,10 @@ input.text-2xl {
 .text-xl p,
 .text-xl input,
 input.text-xl {
-	font-size: calc(var(--rhythm) * 5 * 2 / 3);
+	font-size: calc(var(--rhythm) * 3);
 	line-height: calc(var(--rhythm) * 5);
-	margin-top: calc(var(--rhythm) * 2);
-	margin-bottom: calc(var(--rhythm) * 1);
+	margin-top: calc(var(--rhythm) * 1);
+	margin-bottom: calc(var(--rhythm) / 4);
 	font-weight: calc(var(--weight) + 100);
 }
 
@@ -69,10 +69,10 @@ input.text-xl {
 .text-lg p,
 .text-lg input,
 input.text-lg {
-	font-size: calc(var(--rhythm) * 4 * 2 / 3);
+	font-size: calc(var(--rhythm) * 2.5);
 	line-height: calc(var(--rhythm) * 4);
 	margin-top: calc(var(--rhythm));
-	margin-bottom: calc(var(--rhythm) * 1);
+	margin-bottom: calc(var(--rhythm) / 4);
 	font-weight: calc(var(--weight) - 100);
 }
 
@@ -104,11 +104,11 @@ input.text-md {
 
 /* Weights follow the text sizes, so that a weight class wins over a size's own font-weight */
 .bold {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .medium {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .icon {
@@ -131,4 +131,14 @@ input.text-md {
 
 .text.tertiary {
   color: var(--text-color-tertiary);
+}
+
+/******************************************
+ * Headings
+ ******************************************/
+
+h1:first-child,
+h2:first-child,
+h3:first-child {
+	margin-top: unset;
 }
