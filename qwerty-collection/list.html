@@ -10,7 +10,7 @@
 
 <!-- The description, directly below the tab bar, centered and no wider than a post; a Podcast draws its own (items-podcast.html) -->
 {{- if and (ne "" .Summary) (ne "podcast" (.DataString "layout")) -}}
-	<div class="text-gray margin-bottom margin-horizontal-auto max-width-640">{{.Summary | markdown}}</div>
+	<div class="text-gray margin-bottom margin-horizontal-auto max-width-640">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
 {{- end -}}
 
 {{- template "items" . -}}

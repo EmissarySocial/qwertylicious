@@ -36,6 +36,8 @@
 					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes", "about"]}
 					zoom: {type:"integer", minimum:0, maximum:19}
 					// A Photo Gallery's or Article collection's order: "publishDate" (Chronological, newest first), "rank" (Custom), or the older "createDate"
+					// TRUE renders each line break in the description as a <br>, set by the toggle under it
+					hardWraps: {type:"boolean"}
 					sortType: {type:"string", enum:["publishDate", "rank", "createDate"]}
 					// A Podcast's episode order by rank, "desc" (newest first) or "asc"
 					sortDirection: {type:"string", enum:["desc", "asc"]}
@@ -197,6 +199,7 @@
 						children: [
 							{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
 							{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+							{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 							{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
 						]
 					}
@@ -259,6 +262,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown above the player, and in the podcast's feed.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 						]
@@ -294,6 +298,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 							{
@@ -336,6 +341,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 							{
@@ -387,6 +393,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 							{
@@ -436,6 +443,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 							{
@@ -479,6 +487,7 @@
 								label: Description
 								children: [
 									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 							{

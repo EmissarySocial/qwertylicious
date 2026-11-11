@@ -23,6 +23,8 @@
 				html: {type:"string", format:"html"}
 			}}
 			data: {type:"object", properties: {
+				// TRUE renders each line break in the description as a <br>, set by the toggle under it
+				hardWraps: {type:"boolean"}
 				// The audio track: its attachment, its URL (which the upload widget previews), and its filename
 				attachmentId: {type:"string"}
 				audioUrl: {type:"string", format:"url"}
@@ -62,20 +64,40 @@
 					{
 						do: "edit"
 						form: {
-							type: "layout-vertical"
+							type: "layout-tabs"
 							label: "Add an Episode"
 							children: [
-								{type:"text", path:"label", label:"Name", options:{required:true}}
-								{type:"upload", path:"data.audioUrl", label:"Audio", description:"An MP3, M4A, WAV, or other audio file.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
-								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:6}}
-								{type:"upload", path:"iconUrl", label:"Photo", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*"}}
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"text", path:"label", label:"Name", options:{required:true}}
+										{type:"upload", path:"data.audioUrl", label:"Audio", description:"An MP3, M4A, WAV, or other audio file.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Description"
+									children: [
+										// The tab names the field, so it has no label of its own
+										{type:"textarea", path:"content.raw", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:12}}
+										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Image"
+									children: [
+										{type:"upload", path:"iconUrl", label:"Image", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*"}}
+									]
+								}
 							]
 						}
 					}
 					{do:"upload-attachments", action:"replace", category:"Audio", fieldname:"data.audioUrl", attachment-path:"data.attachmentId", download-path:"data.audioUrl", filename-path:"data.attachmentFilename", accept-type:"audio/*", maximum:1}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, height:1200, types:["webp"]}}
 					{do:"set-data", values:{"data.enclosureUrl":"{{if ne `` (.DataString `attachmentId`)}}{{.Permalink}}/audio?format=mp3{{end}}", "data.enclosureType":"audio/mpeg"}}
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
 				]}
@@ -149,22 +171,42 @@
 						do: "edit"
 						options: ["id:edit-episode-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
 						form: {
-							type: "layout-vertical"
+							type: "layout-tabs"
 							label: "<i class=\"bi bi-mic\"></i> Edit Episode"
 							children: [
-								{type:"text", path:"label", label:"Name", options:{required:true}}
-								// Emissary's virtual field over publishDate, in UTC; the list's order stays by rank
-								{type:"datetime", path:"publishDateTime", label:"Publish Date", description:"(PUBLIC) Shown with this episode, and in the podcast's feed.  Times are UTC."}
-								{type:"upload", path:"data.audioUrl", label:"Audio", description:"Choose a file to replace this episode's audio.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
-								{type:"textarea", path:"content.raw", label:"Description", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:6}}
-								{type:"upload", path:"iconUrl", label:"Photo", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*", delete:"/{{.StreamID.Hex}}/delete-icon"}}
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"text", path:"label", label:"Name", options:{required:true}}
+										{type:"upload", path:"data.audioUrl", label:"Audio", description:"Choose a file to replace this episode's audio.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
+										// Emissary's virtual field over publishDate, in UTC; the list's order stays by rank
+										{type:"datetime", path:"publishDateTime", label:"Publish Date", description:"(PUBLIC) Shown with this episode, and in the podcast's feed.  Times are UTC."}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Description"
+									children: [
+										// The tab names the field, so it has no label of its own
+										{type:"textarea", path:"content.raw", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:12}}
+										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Image"
+									children: [
+										{type:"upload", path:"iconUrl", label:"Image", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*", delete:"/{{.StreamID.Hex}}/delete-icon"}}
+									]
+								}
 							]
 						}
 					}
 					{do:"upload-attachments", action:"replace", category:"Audio", fieldname:"data.audioUrl", attachment-path:"data.attachmentId", download-path:"data.audioUrl", filename-path:"data.attachmentFilename", accept-type:"audio/*", maximum:1}
 					{do:"upload-attachments", action:"replace", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, height:1200, types:["webp"]}}
 					{do:"set-data", values:{"data.enclosureUrl":"{{if ne `` (.DataString `attachmentId`)}}{{.Permalink}}/audio?format=mp3{{end}}", "data.enclosureType":"audio/mpeg"}}
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save", comment:"Updated"}
 					{do:"search-index"}
 				]}

@@ -1,6 +1,8 @@
 <!-- items-timeline is a Timeline's tab: its events in date order, oldest first, down a vertical line, under a heading per year. -->
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
 {{- $allEvents := $query.All.Slice -}}
+<!-- The collection's author edits its entries (the same check as list.html's owner menu) -->
+{{- $canEdit := .UserCan "add" -}}
 
 <!-- The Timeline's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
 {{- $tags := split "" "," -}}
@@ -21,6 +23,8 @@
 {{- if $allEvents.IsEmpty -}}
 	{{- template "items-empty" (array . "clock-history" "Your Timeline" "This timeline tells your story as dated events, in order.  Add your first one now." "+ Add an Event") -}}
 {{- else -}}
+	<!-- The filters and the entries share one centered column, as the description above them does (list.html) -->
+	<div class="max-width-640 margin-horizontal-auto">
 	{{- template "tag-pills" (array . $tags $tag "") -}}
 	{{- if $events.IsEmpty -}}
 		{{- template "tag-empty" (array "entries" $tag) -}}
@@ -31,7 +35,7 @@
 				{{- if $years.Header (.StartDate.Format "2006") -}}
 					<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
 				{{- end -}}
-				<li class="qwerty-timeline-event">
+				<li class="qwerty-timeline-event hover-trigger">
 					<a href="/{{.Token}}" hx-get="/{{.Token}}/modal{{if ne `` $tag}}?tag={{$tag | urlquery}}{{end}}" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
 						<div class="flex-grow">
 							<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
@@ -42,8 +46,15 @@
 							<img src="{{.IconURL}}.webp?width=192&height=192" alt="" class="rounded square width-96 object-fit-cover flex-shrink-0 margin-left-sm" loading="lazy">
 						{{- end -}}
 					</a>
+					<!-- The author's pencil, shown while the pointer is over the entry; it opens the entry's editor -->
+					{{- if $canEdit -}}
+						<div class="hover-show pos-absolute-top-right">
+							<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" hx-push-url="false" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
+						</div>
+					{{- end -}}
 				</li>
 			{{- end -}}
 		</ol>
 	{{- end -}}
+	</div>
 {{- end -}}

@@ -13,7 +13,7 @@
 {{- if $episodes.IsEmpty -}}
 	<!-- An empty Podcast keeps its description, centered above the welcome (list.html leaves it to this view) -->
 	{{- if ne "" .Summary -}}
-		<div class="reading-column text-gray">{{.Summary | markdown}}</div>
+		<div class="reading-column text-gray">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
 	{{- end -}}
 	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
 {{- else -}}
@@ -21,7 +21,7 @@
 	<div class="qwerty-podcast reading-column margin-top-xl">
 
 		{{- if ne "" .Summary -}}
-			<div class="text-gray">{{.Summary | markdown}}</div>
+			<div class="text-gray">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
 		{{- end -}}
 
 		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">

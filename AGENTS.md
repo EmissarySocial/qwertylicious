@@ -81,6 +81,10 @@ The settings form in [theme.hjson](qwerty-theme/theme.hjson) ends with two selec
 
 A photo, place, timeline entry, event, and episode share one pattern. Its `view` includes its `modal`, drawn over its collection's tab through `as-modal`'s `background-url` (``/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}``), with its own URL (`replace-url`) and `head.html`. When that lookup fails or the visitor cannot see the profile, the item's `page` action is drawn behind it instead (`background: "page"`). Emissary's `modal-url.js` restores the tab's address on close, and peers still get JSON-LD at `/{id}`, because content negotiation runs before any action.
 
+Each of the five keeps its body in `content.raw` as Markdown, in a 12-row field with a toggle under it (`data.hardWraps`, off by default). The toggle feeds `process-content`'s `hard-wraps` option, so each Enter becomes a line break (Ben, 2026-11-10). This needs the Emissary build that added the option; an older server ignores it and keeps standard Markdown. An Article is not one of them: its body is EditorJS.
+
+A collection's Description has the same toggle, but it is the `summary`, which no step converts: `list.html` and `items-podcast.html` render it on every view, with Emissary's `markdownHardWraps` helper when `data.hardWraps` is set and `markdown` otherwise. A server without that helper cannot parse these files, so `qwerty-collection` does not load there at all; deploy Emissary first.
+
 - **`/{id}` answers an htmx request with the modal.** Anything that reloads an item's page with `hx-get` uses `/{id}/page`.
 - **A page drawn behind a modal leaves out its link-preview tags.** `qwerty-outbox/outbox.html` skips its canonical link and `og:` tags when `.IsBackground` is true.
 - **Write the title with `id="modal-title"`.** Emissary's `Modal` behavior adds that id after the first paint, and `#modal #modal-title` resizes the title to 32px, so without it every title visibly jumps.

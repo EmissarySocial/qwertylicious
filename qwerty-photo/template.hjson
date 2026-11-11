@@ -28,6 +28,8 @@
 			data: {type:"object", properties: {
 				photoCount: {type:"integer", minimum:0, maximum:16}
 				tags: {type:"string", maxLength:1024}
+				// TRUE renders each line break in the description as a <br>, set by the toggle under Description
+				hardWraps: {type:"boolean"}
 			}}
 		}
 	}
@@ -78,7 +80,8 @@
 									label: "Text Content"
 									children: [
 										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
+										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 									]
 								}
 								{
@@ -97,7 +100,7 @@
 					{do:"include", action:"photos", method:"post"}
 					// The include lets the gallery's add run tag-options on the unsaved post, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
 					{do:"include", action:"tag-options", method:"post"}
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
 				]}
@@ -200,7 +203,8 @@
 										label: "Text Content"
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
+											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 										]
 									}
 									{
@@ -235,7 +239,8 @@
 										label: "Text Content"
 										children: [
 											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
+											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 										]
 									}
 									{
@@ -251,7 +256,7 @@
 						}
 					]}
 					// The photos are already saved: the widget changes them in place through the photos action
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save", comment:"Updated"}
 				]}
 				// Saving returns to the updated photo in its modal; the 303 makes the browser GET it

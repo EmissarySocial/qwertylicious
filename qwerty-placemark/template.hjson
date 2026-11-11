@@ -32,6 +32,8 @@
 				html: {type:"string", format:"html"}
 			}}
 			data: {type:"object", properties: {
+				// TRUE renders each line break in the description as a <br>, set by the toggle under it
+				hardWraps: {type:"boolean"}
 				iconDescription: {type:"string", maxLength:2048}
 				tags: {type:"string", maxLength:1024}
 			}}
@@ -75,14 +77,15 @@
 									// The place's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
 									{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
 									{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
-									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+									{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
+									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 								]
 							}
 						}
 					// The include lets the collection's add run tag-options on the unsaved place, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
 					{do:"include", action:"tag-options", method:"post"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
 				]}
@@ -173,7 +176,8 @@
 										label: "Description"
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows beneath the name.  Markdown is allowed.", options:{rows:2}}
-											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
+											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 										]
 									}
 									{
@@ -188,7 +192,7 @@
 							}
 						}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
-					{do:"process-content", format:"MARKDOWN"}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
 					{do:"save", comment:"Updated"}
 					{do:"search-index"}
 				]}
