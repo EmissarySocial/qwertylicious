@@ -38,6 +38,7 @@
 		<!-- RULE: behind a modal (.IsBackground), the modal's own head carries the link-preview tags (see AGENTS.md) -->
 		{{- if not .IsBackground }}
 			<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
+			<link rel="canonical" class="u-url" href="{{.Host}}/@{{.Username}}">
 
 			<!-- Open Graph: https://ogp.me -->
 			<meta property="og:type" content="profile">
