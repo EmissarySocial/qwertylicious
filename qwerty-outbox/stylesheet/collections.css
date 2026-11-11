@@ -720,8 +720,7 @@
 
 .qwerty-note {
 	gap: var(--rhythm);
-	padding: calc(var(--rhythm) * 2) 0;
-	border-top: solid 1px var(--gray20);
+	padding: calc(var(--rhythm) * 2);
 }
 
 .qwerty-note-avatar {

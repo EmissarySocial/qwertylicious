@@ -24,7 +24,7 @@
 					<!-- View opens the collection's tab on the profile; Edit opens its Edit Collection modal (qwerty-collection's settings action) -->
 					<td class="align-right" style="width:1px; white-space:nowrap;">
 						<a href="/@{{$.UserID}}?tab={{.ObjectID.Hex}}" class="button text-sm turboclick">View</a>
-						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">Edit</button>
+						<button type="button" class="icon text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">{{icon "edit"}}</button>
 					</td>
 				</tr>
 			{{- end -}}
