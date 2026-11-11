@@ -75,9 +75,9 @@
 		{{- if eq $view "month" -}}
 			<h2 class="text-xl bold margin-none margin-right-sm">{{$title}}</h2>
 		{{- end -}}
-		<button type="button" class="turboclick" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}">{{icon "chevron-left"}}</button>
+		<button type="button" class="turboclick icon" aria-label="Previous" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$previousKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$previousKey}}">{{icon "chevron-left"}}</button>
 		<button type="button" class="turboclick" hx-get="/{{$collectionID}}/list?view={{$view}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}">Today</button>
-		<button type="button" class="turboclick" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}">{{icon "chevron-right"}}</button>
+		<button type="button" class="turboclick icon" aria-label="Next" hx-get="/{{$collectionID}}/list?view={{$view}}&startDate={{$nextKey}}" hx-target="#profile-tabs" hx-swap="outerHTML show:none" hx-push-url="{{$profileTab}}&view={{$view}}&startDate={{$nextKey}}">{{icon "chevron-right"}}</button>
 		{{- if ne $view "month" -}}
 			<h2 class="text-xl bold margin-none margin-left-sm">{{$title}}</h2>
 		{{- end -}}
