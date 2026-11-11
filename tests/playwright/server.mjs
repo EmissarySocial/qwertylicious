@@ -805,7 +805,6 @@ const routes = {
 	"/js/hyperscript.js": () => ["text/javascript", read(join(templates, "theme-global/resources/hyperscript-0.9.93/_hyperscript.min.js"))],
 	"/js/global.js": () => ["text/javascript", concat(join(templates, "theme-global/javascript"))],
 	"/hs/global.hs": () => ["text/hyperscript", concat(join(templates, "theme-global/hyperscript"))],
-	"/js/podcast.js": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
 	"/.themes/global/resources/sortable-1.15.7/Sortable.min.js": () => ["text/javascript", read(join(templates, "theme-global/resources/sortable-1.15.7/Sortable.min.js"))],
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
