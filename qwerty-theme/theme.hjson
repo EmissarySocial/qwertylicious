@@ -3,7 +3,7 @@
 	extends:["global"]
 	isVisible:true
 	category: General
-	label: Qwertylicious
+	label: Qwertylicious V2
 	description: Modern theme to emphasize long-form text content.
 	rank: 0
 	schema: {
@@ -15,12 +15,6 @@
 			description: {type:"string", maxLength:100}
 			themeId: {type:"string", maxLength: 100}
 			registrationId: {type:"string", maxLength: 100}
-			themeData: {type:"object", properties: {
-				// page.html's data-theme; the default serves a Domain that has never saved this form
-				colorway: {type:"string", enum:["stone", "neutral", "slate"], default:"stone", required:true}
-				// page.html hides the navigation from anonymous visitors when this is "authenticated"
-				navigation: {type:"string", enum:["always", "authenticated"], default:"always", required:true}
-			}}
 		}
 	}
 	form: {
@@ -30,15 +24,6 @@
 			{type: "upload", label: "Icon", path: "iconUrl", description: "Icon for this website. Must be square. Often cropped to be a circle.", options:{accept:"image/*", delete:"/admin/domain/delete-icon"}}
 			{type: "upload", label: "Image", path: "imageUrl", description: "Image to display on signin pages and emails. Roughly 16:9 works best.", options:{accept:"image/*", delete:"/admin/domain/delete-image"}}
 			{type: "textarea", label: "Description", path: "description", options:{rows:5}}
-			{type: "select", label: "Colors", path: "themeData.colorway", description: "The shade of gray behind every page, in light and dark mode.", options:{enum:[
-				{value:"stone", label:"Stone (warm gray)"}
-				{value:"neutral", label:"Neutral gray"}
-				{value:"slate", label:"Slate (cool gray)"}
-			]}}
-			{type: "select", label: "Navigation", path: "themeData.navigation", description: "Who sees the navigation sidebar. Hidden, it takes its Sign In link with it, so visitors sign in at /signin.", options:{enum:[
-				{value:"always", label:"Always Show"}
-				{value:"authenticated", label:"Authenticated Users Only"}
-			]}}
 		]
 	}
 	bundles: {

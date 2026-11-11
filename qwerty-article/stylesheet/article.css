@@ -70,8 +70,3 @@
 	letter-spacing: 0.05em;
 }
 
-/* A hashtag chip that links to the collection's tab (head-tags.html): the global .tag sets cursor: default for plain chips */
-#article-tags a.tag {
-	cursor: pointer;
-}
-

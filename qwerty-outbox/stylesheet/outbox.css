@@ -16,22 +16,20 @@
 	--gap: calc(var(--rhythm) * 2);
 }
 
-/* The profile's tab row, in both copies (outbox.html's loading copy and list.html), centered on the page.
+#profile-tabs {
+	width: 100%;
+	margin-top: calc(var(--rhythm) * 4);
+}
+
+/* The profile's tab row, in all three copies (outbox.html's loading copy, list.html, about.html).
    The global theme puts a bottom margin on every tab bar, and the menu would center on the tabs plus
    that margin, so the row carries the margin instead. */
 
 .profile-tabs-row {
-	justify-content: center;
-	margin-bottom: calc(var(--rhythm) * 3);
+	margin-bottom: calc(var(--rhythm) * 2);
 }
 
 .profile-tabs-row [role="tablist"] {
 	margin-bottom: 0;
-}
-
-/* The profile page is wider than other framed pages: up to 1024px, and narrowing smoothly with the
-   window below that, where .framed would otherwise jump from full width to 720px at 1024px. */
-#outbox-page {
-	max-width: 1024px;
 }
 

@@ -17,7 +17,7 @@
 		type: object
 		properties: {
 			label: {type:"string", maxLength:128, required:true}
-			summary: {type:"string", format:"markdown", maxLength:2048}
+			summary: {type:"string", maxLength:2048}
 			// "everyone" or "nobody", set by the allowReplies toggle; items inherit it with their sharing
 			replyPolicy: {type:"string", enum:["", "everyone", "nobody"]}
 			// Emissary's virtual toggle over replyPolicy (TRUE is "everyone"), for Edit Collection forms
@@ -32,19 +32,15 @@
 			data: {
 				type: object
 				properties: {
-					// "notes" and "about" are magic: they show the profile's Notes or its About Me message, and hold no items (§1.7)
-					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes", "about"]}
+					// "notes" is the magic Notes collection, which lists the profile's Notes and holds no items (§1.7)
+					layout: {type:"string", enum:["column-1", "column-2", "column-3", "row", "row-reverse", "gallery", "map", "timeline", "calendar", "podcast", "notes"]}
 					zoom: {type:"integer", minimum:0, maximum:19}
-					// A Photo Gallery's or Article collection's order: "publishDate" (Chronological, newest first), "rank" (Custom), or the older "createDate"
-					// TRUE renders each line break in the description as a <br>, set by the toggle under it
-					hardWraps: {type:"boolean"}
-					sortType: {type:"string", enum:["publishDate", "rank", "createDate"]}
-					// A Podcast's episode order by rank, "desc" (newest first) or "asc"
-					sortDirection: {type:"string", enum:["desc", "asc"]}
+					// A Timeline's order, "asc" (oldest first, the default) or "desc"
+					timelineOrder: {type:"string", enum:["", "asc", "desc"]}
+					// A Podcast's episode order, "desc" (newest first, the default when empty) or "asc"
+					episodeOrder: {type:"string", enum:["", "desc", "asc"]}
 					// A Calendar's default view, "list" (the default when empty), "week", or "month"
 					calendarView: {type:"string", enum:["", "list", "week", "month"]}
-					// The filters of a Photo Gallery, Article collection, Calendar, Map, or Timeline, in the owner's order and as typed, never through tagPaths (see AGENTS.md)
-					tags: {type:"array", maxLength:12, items:{type:"string", maxLength:64}}
 				}
 			}
 		}
@@ -70,7 +66,7 @@
 		create: {
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "data.sortType":"publishDate", "data.sortDirection":"desc", "replyPolicy":"everyone"}}
+				{do:"set-data", values:{"data.layout":"column-3", "data.zoom":"11", "data.calendarView":"list", "data.timelineOrder":"asc", "data.episodeOrder":"desc", "replyPolicy":"everyone"}}
 				{do:"as-modal", steps: [
 					// A profile has at most one Notes collection, so Notes is offered only while it has none (§1.7)
 					{do:"if", condition:"{{(((.ParentOutbox `view`).Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice.NotEmpty}}", then:[
@@ -100,8 +96,8 @@
 							}
 						}
 					]}
-					// RULE: Notes and the About Me message are always public, so those tabs are shared with everyone and have no Sharing item
-					{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
+					// RULE: Notes are always public, so the Notes tab is shared with everyone and has no Sharing item
+					{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
 						{do:"set-sharing", role:"viewer", group:"anonymous"}
 					]}
 					// A new Map starts over Los Angeles at the City zoom (data.zoom 11, above); Edit Map changes both
@@ -111,8 +107,8 @@
 						{do:"set-data", values:{"location.latitude":"34.0522", "location.longitude":"-118.2437"}}
 					]}
 					// The form asks only for the format, so the new tab is named after it.  Edit Collection renames it.
-					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else if eq . `about`}}About{{else}}Articles{{end}}{{end}}"}}
-					{do:"save", comment:"Created"}
+					{do:"set-data", values:{"label":"{{with .Data `layout`}}{{if eq . `gallery`}}Photos{{else if eq . `podcast`}}Podcast{{else if eq . `timeline`}}Timeline{{else if eq . `calendar`}}Calendar{{else if eq . `map`}}Map{{else if eq . `notes`}}Notes{{else}}Articles{{end}}{{end}}"}}
+					{do:"save", comment:"Created by {{.Author}}"}
 				]}
 				{do:"forward-to", url:"/@{{.ParentID}}?tab={{.StreamID}}"}
 			]
@@ -169,354 +165,214 @@
 		settings: {
 			roles: ["author"]
 			steps: [
+				// The Notes collection has no format to change, and no children; share-reply-policy carries its replies
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
+					{do:"as-modal", steps: [
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-vertical
+								label: Edit Notes Collection
+								children: [
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes. (PUBLIC)", options:{rows:3}}
+									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
+								]
+							}
+						}
+						// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
+						{do:"set-sharing", role:"viewer", group:"anonymous"}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+						// Notes are not this collection's children, so its reply policy is copied onto them here
+						{do:"share-reply-policy", template:"outbox-message"}
+					]}
+					{do:"refresh-page"}
+					{do:"halt"}
+				]}
 				{do:"as-modal", steps: [
-					{do:"view-html", file:"settings-title"}
-					{do:"switch", expression:"{{.Data `layout`}}", cases:{
-						notes: {do:"include", action:"settings-notes"}
-						about: {do:"include", action:"settings-about"}
-						podcast: {do:"include", action:"settings-podcast"}
-						gallery: {do:"include", action:"settings-photos"}
-						map: {do:"include", action:"settings-map"}
-						calendar: {do:"include", action:"settings-calendar"}
-						timeline: {do:"include", action:"settings-timeline"}
-					}, default:{do:"include", action:"settings-articles"}}
-				]}
-				{do:"refresh-page"}
-			]
-		}
-
-		// The Notes collection has no format to change, and no children; share-reply-policy carries its replies
-		settings-notes: {
-			roles: ["author"]
-			steps: [
-				// RULE: only the Notes collection, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `notes`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-vertical
-						children: [
-							{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-							{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of your Notes.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-							{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-							{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Notes in this collection"}}
-						]
-					}
-				}
-				// RULE: the Notes tab is always shared with everyone, which also repairs one shared before this rule
-				{do:"set-sharing", role:"viewer", group:"anonymous"}
-				{do:"save", comment:"Settings updated"}
-
-				// Notes are not this collection's children, so its reply policy is copied onto them here
-				{do:"share-reply-policy", template:"outbox-message"}
-			]
-		}
-
-		// Edit About: one hand-written form for the tab's name and the profile's About Me message, which are two records (see AGENTS.md)
-		settings-about: {
-			roles: ["author"]
-			steps: [
-				// RULE: only the About collection, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `about`}}"}
-				{do:"view-html", file:"settings-about"}
-
-				// RULE: set-data does not enforce the form's required name, so an empty one falls back to "About"
-				{do:"set-data", from-form:["label"], defaults:{"label":"About"}}
-				// RULE: the About tab is always shared with everyone, as the message it shows is
-				{do:"set-sharing", role:"viewer", group:"anonymous"}
-				{do:"save", comment:"Settings updated"}
-
-				// The message belongs to the profile that owns this collection, which is the one the tab shows
-				{do:"with-parent", steps:[
-					{do:"set-data", from-form:["statusMessage", "data.hardWraps"]}
-					{do:"save", comment:"About Me updated from the About tab"}
-					{do:"search-index"}
-				]}
-			]
-		}
-
-		// A Podcast's replies are a toggle here, and reach its episodes through shareWithChildren
-		settings-podcast: {
-			roles: ["author"]
-			steps: [
-				// RULE: only a Podcast, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `podcast`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
+					// A Podcast's replies are a toggle here, and reach its episodes through shareWithChildren
+					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-tabs
+								label: Edit Podcast
 								children: [
-									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-									{type:"select", path:"data.sortDirection", label:"Sort", options:{provider:"qwerty-collection.sortDirections", required:true}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
+									{
+										type: layout-vertical
+										label: General
+										children: [
+											{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile, and as the podcast's name in its feed. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+											{type:"textarea", path:"summary", label:"Description", description:"Shown above the player, and in the podcast's feed. (PUBLIC)", options:{rows:3}}
+											{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Episodes in this collection"}}
+										]
+									}
+									{
+										type: layout-vertical
+										label: Sort
+										children: [
+											{type:"radio-button-group", path:"data.episodeOrder", options:{provider:"qwerty-collection.episodeOrders"}}
+										]
+									}
 								]
 							}
-							{
+						}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+					], else:[
+					// A Photo Gallery's replies are a toggle here, and reach its photos through shareWithChildren
+					{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
+						{
+							do: "edit"
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
 								type: layout-vertical
-								label: Description
+								label: Edit Photo Gallery
 								children: [
-									{type:"textarea", path:"summary", description:"Shown above the player, and in the podcast's feed.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
-			]
-		}
-
-		// A Photo Gallery's replies are a toggle here, and reach its photos through shareWithChildren
-		settings-photos: {
-			roles: ["author"]
-			steps: [
-				// RULE: only a Photo Gallery, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `gallery`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
-								children: [
-									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag photos into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
+									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+									{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
 									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all photos in this collection"}}
 								]
 							}
+						}
+						{do:"save", comment:"Settings updated by {{.Author}}"}
+					], else:[
+						// A Map's replies are a toggle too, as on a Photo Gallery
+						{do:"if", condition:"{{eq (.Data `layout`) `map`}}", then:[
 							{
-								type: layout-vertical
-								label: Description
-								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
+								do: "edit"
+								options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+								form: {
+									type: layout-tabs
+									label: Edit Map
+									children: [
+										{
+											type: layout-vertical
+											label: General
+											children: [
+												{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+												{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+												{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
+											]
+										}
+										{
+											type: layout-vertical
+											label: Location
+											children: [
+												// The map's starting view, the only place it is set
+												{type:"place", path:"location", label:"Map Center", description:"Optional.  With none, the map fits its places.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+												{type:"select", path:"data.zoom", label:"Map Zoom", options:{provider:"qwerty-collection.mapZooms"}}
+											]
+										}
+									]
+								}
 							}
-							{
-								type: layout-vertical
-								label: Hashtags
-								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
-			]
-		}
-
-		// A Map's replies are a toggle too, as on a Photo Gallery
-		settings-map: {
-			roles: ["author"]
-			steps: [
-				// RULE: only a Map, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `map`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
-								children: [
-									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow Replies to all Places in this collection"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Description
-								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Hashtags
-								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Location
-								children: [
-									// The map's starting view, the only place it is set
-									{type:"place", path:"location", label:"Map Center", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
-									{type:"select", path:"data.zoom", label:"Map Zoom", options:{provider:"qwerty-collection.mapZooms"}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
-			]
-		}
-
-		// A Calendar's replies are a toggle too, and reach its events through shareWithChildren
-		settings-calendar: {
-			roles: ["author"]
-			steps: [
-				// RULE: only a Calendar, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `calendar`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
-								children: [
-									{type:"text", path:"label", label:"Name", options:{required:true, autocomplete:"off"}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Description
-								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Hashtags
-								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Layout
-								children: [
-									{type:"radio-button-group", path:"data.calendarView", options:{provider:"qwerty-collection.calendarViews"}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
-			]
-		}
-
-		// A Timeline's replies are a toggle too, and reach its events through shareWithChildren
-		settings-timeline: {
-			roles: ["author"]
-			steps: [
-				// RULE: only a Timeline, because every settings-* action is also its own URL (see AGENTS.md)
-				{do:"require", condition:"{{eq (.Data `layout`) `timeline`}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
-								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Description
-								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Hashtags
-								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
-			]
-		}
-
-		// An Article collection's replies are a toggle too, and reach its Articles through shareWithChildren
-		settings-articles: {
-			roles: ["author"]
-			steps: [
-				// RULE: only an Article collection, which is every format the settings switch leaves to its default
-				{do:"require", condition:"{{not (in (.Data `layout`) `notes` `about` `podcast` `gallery` `map` `calendar` `timeline`)}}"}
-				{
-					do: "edit"
-					options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-					form: {
-						type: layout-tabs
-						children: [
-							{
-								type: layout-vertical
-								label: General
-								children: [
-									{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
-									{type:"select", path:"data.sortType", label:"Sort", description:"Custom lets you drag articles into any order.", options:{provider:"qwerty-collection.sortTypes", required:true}}
-									{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Description
-								children: [
-									{type:"textarea", path:"summary", description:"Shown at the top of this collection.  Markdown is okay. (PUBLIC)", options:{rows:12}}
-									{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Hashtags
-								children: [
-									{type:"label", description:"These labels appear as filters at the top of the collection page, and will match on the hashtags of the items within it."}
-									{type:"list", path:"data.tags", options:{add-label:"Add a Label"}}
-								]
-							}
-							{
-								type: layout-vertical
-								label: Layout
-								children: [
-									{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.articleLayouts"}}
-								]
-							}
-						]
-					}
-				}
-				{do:"save", comment:"Settings updated"}
+							{do:"save", comment:"Settings updated by {{.Author}}"}
+						], else:[
+							// A Calendar's replies are a toggle too, and reach its events through shareWithChildren
+							{do:"if", condition:"{{eq (.Data `layout`) `calendar`}}", then:[
+								{
+									do: "edit"
+									options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+									form: {
+										type: layout-tabs
+										label: Edit Calendar
+										children: [
+											{
+												type: layout-vertical
+												label: General
+												children: [
+													{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+													{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+													{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+												]
+											}
+											{
+												type: layout-vertical
+												label: Layout
+												children: [
+													{type:"radio-button-group", path:"data.calendarView", options:{provider:"qwerty-collection.calendarViews"}}
+												]
+											}
+										]
+									}
+								}
+								{do:"save", comment:"Settings updated by {{.Author}}"}
+							], else:[
+								// A Timeline's replies are a toggle too, and reach its events through shareWithChildren
+								{do:"if", condition:"{{eq (.Data `layout`) `timeline`}}", then:[
+									{
+										do: "edit"
+										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+										form: {
+											type: layout-tabs
+											label: Edit Timeline
+											children: [
+												{
+													type: layout-vertical
+													label: General
+													children: [
+														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all events in this collection"}}
+													]
+												}
+												{
+													type: layout-vertical
+													label: Sort
+													children: [
+														{type:"radio-button-group", path:"data.timelineOrder", options:{provider:"qwerty-collection.timelineOrders"}}
+													]
+												}
+											]
+										}
+									}
+									{do:"save", comment:"Settings updated by {{.Author}}"}
+								], else:[
+									// An Article collection's replies are a toggle too, and reach its Articles through shareWithChildren
+									{
+										do: "edit"
+										options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+										form: {
+											type: layout-tabs
+											label: Edit Articles Collection
+											children: [
+												{
+													type: layout-vertical
+													label: General
+													children: [
+														{type:"text", path:"label", label:"Name", description:"Shown as this collection's tab on your profile. (PUBLIC)", options:{required:true, autocomplete:"off"}}
+														{type:"textarea", path:"summary", label:"Description", description:"Shown at the top of this collection. (PUBLIC)", options:{rows:3}}
+														{type:"toggle", path:"allowReplies", options:{text:"Allow replies to all articles in this collection"}}
+													]
+												}
+												{
+													type: layout-vertical
+													label: Layout
+													children: [
+														{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-collection.articleLayouts"}}
+													]
+												}
+											]
+										}
+									}
+									{do:"save", comment:"Settings updated by {{.Author}}"}
+								]}
+							]}
+						]}
+					]}
+					]}
+				]}
+				{do:"refresh-page"}
 			]
 		}
 
 		sharing: {
 			roles: ["author"]
 			steps: [
-				// RULE: Notes and the About Me message are always public, so those collections have no sharing to set
-				{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
+				// RULE: Notes are always public, so the Notes collection has no sharing to set
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
 					{do:"halt"}
 				]}
 				{do:"as-modal", steps: [
@@ -538,7 +394,7 @@
 							]}
 						]}
 					]}
-					{do:"save", comment:"Sharing updated"}
+					{do:"save", comment:"Sharing updated by {{.Author}}"}
 				]}
 				{do:"refresh-page"}
 			]
@@ -549,12 +405,12 @@
 		add: {
 			roles: ["author"]
 			steps: [
-				// The Notes and About collections never have items; a Note is written on the profile (§1.7)
-				{do:"if", condition:"{{in (.Data `layout`) `notes` `about`}}", then:[
+				// The Notes collection never has items; a Note is written on the profile (§1.7)
+				{do:"if", condition:"{{eq (.Data `layout`) `notes`}}", then:[
 					{do:"halt"}
 				]}
 				{do:"if", condition:"{{eq (.Data `layout`) `gallery`}}", then:[
-					{do:"add-stream", style:"inline", location:"child", template:"qwerty-photo", title:"+ Add Photos"}
+					{do:"add-stream", style:"inline", location:"child", template:"qwerty-photo", title:"+ Add a Photo"}
 				], else:[
 					{do:"if", condition:"{{eq (.Data `layout`) `podcast`}}", then:[
 						{do:"add-stream", style:"inline", location:"child", template:"qwerty-episode", title:"+ Add an Episode"}
@@ -577,24 +433,18 @@
 			]
 		}
 
-		// Drag-and-drop reordering: a Custom collection shows its highest rank first, so its items post in that order
 		sort: {
 			roles: ["author"]
 			steps: [
-				// RULE: the direction matches the list's own, or a partial list collides with the rest (see AGENTS.md)
-				{do:"if", condition:"{{and (eq (.DataString `layout`) `podcast`) (eq (.DataString `sortDirection`) `asc`)}}", then:[
-					{do:"sort", keys:"_id", values:"rank"}
-				], else:[
-					{do:"sort", keys:"_id", values:"rank", direction:"desc"}
-				]}
+				{do:"sort", keys:"_id", values:"rank"}
 			]
 		}
 
 		delete: {
 			roles: ["author"]
 			steps: [
-				// The Notes and About collections hold nothing, so deleting one only hides its tab (§1.7)
-				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else if eq (.Data `layout`) `about`}}Hide this collection from my profile page.  Your About Me message will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
+				// The Notes collection holds no Notes, so deleting it only hides them (§1.7)
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
 				{do:"forward-to", url:"/@me"}
 			]
 		}

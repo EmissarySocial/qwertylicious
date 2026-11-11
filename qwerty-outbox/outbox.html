@@ -15,11 +15,6 @@
 		<title>{{.DisplayName}}</title>
 		<link rel="icon" href="{{.IconURL}}"/>
 
-		<!-- RULE: the Stylesheet tab's CSS styles this profile and nothing outside it (see AGENTS.md) -->
-		{{- with customCSS (.Data "stylesheet") }}
-			<style>@scope (#outbox-page) { {{.}} }</style>
-		{{- end }}
-
 		<!-- oEmbed: https://oembed.com -->
 		<link rel="alternate" type="application/json+oembed" href="{{.OEmbedJSON}}">
 		<link rel="alternate" type="text/xml+oembed" href="{{.OEmbedXML}}">
@@ -38,7 +33,6 @@
 		<!-- RULE: behind a modal (.IsBackground), the modal's own head carries the link-preview tags (see AGENTS.md) -->
 		{{- if not .IsBackground }}
 			<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
-			<link rel="canonical" class="u-url" href="{{.Host}}/@{{.Username}}">
 
 			<!-- Open Graph: https://ogp.me -->
 			<meta property="og:type" content="profile">
@@ -54,7 +48,7 @@
 		<!-- RULE: ?tab= opens a tab only when it names one of the profile's tabs, else the first (see AGENTS.md) -->
 		{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
 		{{- $requested := .QueryParam "tab" -}}
-		{{- $selected := "" -}}
+		{{- $selected := "about" -}}
 		{{- if $collections.NotEmpty -}}
 			{{- $selected = $collections.First.ObjectID.Hex -}}
 		{{- end -}}
@@ -63,12 +57,15 @@
 				{{- $selected = $requested -}}
 			{{- end -}}
 		{{- end -}}
-		<!-- ?tab=notes and ?tab=about name the magic collections: a note's modal draws Notes behind itself, and older links name About -->
-		{{- if in $requested "notes" "about" -}}
-			{{- $magicTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" $requested).Top1.Slice -}}
-			{{- if $magicTab.NotEmpty -}}
-				{{- $selected = $magicTab.First.ObjectID.Hex -}}
+		<!-- ?tab=notes names the magic Notes collection, which a note's modal draws behind itself -->
+		{{- if eq $requested "notes" -}}
+			{{- $notesTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" "notes").Top1.Slice -}}
+			{{- if $notesTab.NotEmpty -}}
+				{{- $selected = $notesTab.First.ObjectID.Hex -}}
 			{{- end -}}
+		{{- end -}}
+		{{- if eq $requested "about" -}}
+			{{- $selected = "about" -}}
 		{{- end -}}
 
 		<!-- A tab's own ?view=, ?startDate=, and ?tag= ride along, escaped; the collection checks what it reads -->
@@ -79,26 +76,17 @@
 				{{- $panelURL = print $panelURL "&" $name "=" (urlquery $value) -}}
 			{{- end -}}
 		{{- end -}}
+		{{- if eq $selected "about" -}}
+			{{- $panelURL = print "/@" .UserID "/about" -}}
+		{{- end -}}
 
-		<!-- RULE: every swap into #profile-tabs keeps <main> where it was, because Safari moves it as the tab is replaced (see AGENTS.md) -->
-		<div class="margin-top" script="on htmx:beforeSwap if the target's id is 'profile-tabs' then set :scrollTop to the scrollTop of the closest <main/> end
-			on htmx:afterSwap if the target's id is 'profile-tabs' then set the scrollTop of the closest <main/> to :scrollTop end">
+		<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
+		<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
 
-			<!-- RULE: a profile with no collections has no tabs, only the prompt to make one (see AGENTS.md) -->
-			{{- if $collections.IsEmpty -}}
-				{{- template "outbox-empty" . -}}
-			{{- else -}}
-
-			<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
-			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
-
-				<!-- RULE: the same .profile-tabs-row as list.html, so the tabs do not move when the tab loads and adds the owner's buttons -->
-				<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
-					{{- template "profile-tabs" (array . $selected) -}}
-				</div>
+			<!-- RULE: the same .profile-tabs-row as list.html and about.html, so the owner's buttons do not move when the tab loads -->
+			<div class="profile-tabs-row">
+				{{- template "profile-tabs" (array . $selected false) -}}
 			</div>
-
-			{{- end -}}
 		</div>
 
 	</div>
@@ -131,7 +119,7 @@
 	{{- end -}}
 
 	<link rel="stylesheet" href="/.templates/qwerty-outbox/stylesheet" />
-	<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
+	<script src="/.themes/global/resources/camperjs/camper.js"></script>
 
 {{- else if not $isMyself -}}
 	{{- template "coming-soon" . -}}

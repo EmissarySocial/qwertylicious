@@ -4,6 +4,9 @@
 
 /* All Screens */
 .page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	background-color: unset;
 	container-type: inline-size;
 	position: relative;
@@ -22,29 +25,16 @@
 }
 
 article.content {
-	width: 100%;
-	background-color: var(--gray00);
+	max-width: 720px;
 	padding: calc(var(--rhythm) * 3);
-	border-radius: calc(var(--rhythm) * 2);
-	border: 1px solid var(--page-border);
-}
-
-/* Inside a card, as on an Article's page (qwerty-article/view.html), the card is the frame: it holds the banner above
-   this, so the article drops its own border and corners and the two read as one card */
-.card > article.content {
-	border: none;
-	border-radius: 0;
-}
-
-/* A wide frame is as wide as the profile page (#outbox-page), as on an Article's page and edit page */
-.framed.wide {
-	max-width: 1024px;
+	background-color: var(--gray00);
+	border-radius: var(--border-radius);
+	border: solid 1px var(--page-border);
 }
 
 /* A reading column keeps text at a normal frame's width inside a wide frame, centered in its white space */
 .reading-column {
 	width: 100%;
-	max-width: 720px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -55,7 +45,7 @@ article.content {
 
 .fullscreen {
 	container-type:inline-size;
-    position:relative;
+	position:relative;
 	line-height:150%;
 	border: none;
 	padding: var(--rhythm);

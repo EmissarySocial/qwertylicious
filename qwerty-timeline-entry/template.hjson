@@ -7,7 +7,7 @@
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends: ["base-intent", "qwerty-common", "qwerty-replies", "qwerty-item-base"]
+	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
 	label: "Qwertylicious Timeline Entry"
 	description: "An event on a Qwertylicious timeline."
 	icon: "clock-history"
@@ -34,8 +34,6 @@
 				html: {type:"string", format:"html"}
 			}}
 			data: {type:"object", properties: {
-				// TRUE renders each line break in the description as a <br>, set by the toggle under it
-				hardWraps: {type:"boolean"}
 				iconDescription: {type:"string", maxLength:2048}
 				tags: {type:"string", maxLength:1024}
 			}}
@@ -88,16 +86,8 @@
 										label: "Description"
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline.", options:{rows:2}}
-											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
-											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Hashtags"
-										children: [
-											// The entry's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
-											{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
 										]
 									}
 									{
@@ -110,10 +100,8 @@
 								]
 							}
 						}
-					// The include lets the collection's add run tag-options on the unsaved entry, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
-					{do:"include", action:"tag-options", method:"post"}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
-					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
 				]}
@@ -122,7 +110,6 @@
 		}
 
 		// An entry's URL opens its modal over its collection's tab
-
 		view: {
 			roles: ["author"]
 			stateRoles: {
@@ -142,7 +129,6 @@
 			steps: [
 				{
 					do: "as-modal"
-					options: ["class:medium"]
 					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
 					background: "page"
 					replace-url: "/{{.StreamID}}"
@@ -153,17 +139,6 @@
 						{do:"view-html", file:"modal"}
 					]
 				}
-			]
-		}
-
-		// The Replies, Likes, and Shares tabs under the item, redrawn in place when a tab is clicked (?tab=)
-		responses: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["viewer"]
-			}
-			steps: [
-				{do:"view-html"}
 			]
 		}
 
@@ -207,16 +182,8 @@
 										label: "Description"
 										children: [
 											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline.", options:{rows:2}}
-											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
-											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Hashtags"
-										children: [
-											// The entry's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
-											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:6}}
+											{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) The collection can be filtered by these."}
 										]
 									}
 									{
@@ -230,8 +197,8 @@
 							}
 						}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
-					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
-					{do:"save", comment:"Updated"}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save", comment:"Updated by {{.Author}}"}
 					{do:"search-index"}
 				]}
 				// Saving returns to the updated entry in its modal; the 303 makes the browser GET it

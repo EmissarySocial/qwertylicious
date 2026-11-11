@@ -3,14 +3,12 @@
 <div id="profile-tabs">
 
 <!-- The tab bar, with the owner's buttons for this collection after the tabs (qwerty-common/profile-menu.html) -->
-<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
-	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID) -}}
-	{{- template "profile-menu" . -}}
+<div class="profile-tabs-row">
+	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID .) -}}
 </div>
 
-<!-- The description, directly below the tab bar, centered and no wider than a post; a Podcast draws its own (items-podcast.html) -->
-{{- if and (ne "" .Summary) (ne "podcast" (.DataString "layout")) -}}
-	<div class="text-gray margin-bottom margin-horizontal-auto max-width-640">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
+{{- if ne "" .Summary -}}
+	<div class="text-gray margin-bottom">{{.Summary}}</div>
 {{- end -}}
 
 {{- template "items" . -}}

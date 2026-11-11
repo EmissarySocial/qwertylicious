@@ -62,11 +62,6 @@
 	}
 }
 
-/* The author's drag handle in a Custom collection, top left, opposite the Edit button (gallery-tiles.html, qwerty-common/layout-*.html) */
-.drag-handle {
-	cursor: grab;
-}
-
 /* Carousel: a post's photos side by side, one in view, slid by transform (qwerty-theme/carousel/qwerty-carousel.js).
    touch-action leaves vertical scrolling to the browser and horizontal drags to the script.  The script sets the
    stage's height to the photo in view, so the caption below moves up and down to fit each photo. */
@@ -104,7 +99,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
 	.qwerty-carousel-stage,
 	.qwerty-carousel-track {
 		transition: none;
@@ -215,24 +209,21 @@
 	}
 }
 
-/* A Timeline entry's modal header: its previous and next entries, stuck to the modal's top edge.
-   RULE: its margins and top cancel #modal-window's padding (qwerty-theme's 03-widgets-modal.css). A sticky
-   element stops at the scroller's padding, so top: 0 would float it below the edge. */
+/* A Timeline entry's modal footer: its previous and next entries, stuck to the modal's bottom edge.
+   RULE: its margins and bottom cancel #modal-window's padding (qwerty-theme's 03-widgets-modal.css). A sticky
+   element stops at the scroller's padding, so bottom: 0 would float it above the edge. */
 .qwerty-entry-neighbors {
 	--window-padding: calc(var(--border-radius) * 1.8);
 	position: sticky;
-	top: calc(var(--window-padding) * -1);
+	bottom: calc(var(--window-padding) * -1);
 	z-index: 1;
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: var(--rhythm);
-	margin: calc(var(--window-padding) * -1) calc(var(--window-padding) * -1) var(--window-padding);
+	margin: var(--window-padding) calc(var(--window-padding) * -1) calc(var(--window-padding) * -1);
 	padding: var(--rhythm) calc(var(--window-padding) - var(--rhythm));
-	border-bottom: solid 1px var(--page-border);
+	border-top: solid 1px var(--page-border);
 	background-color: var(--page-background);
-
-	/* RULE: room at the right for the corner's pencil and X (.corner-pencil), which paint over this bar */
-	padding-right: calc(var(--rhythm) * 11);
 }
 
 .qwerty-entry-neighbor {
@@ -296,29 +287,6 @@
 /* Calendar: the toolbar, the Month and Week grids, and the List */
 .qwerty-calendar-toolbar {
 	gap: var(--rhythm);
-}
-
-/* The title is centered on the page: the navigation and the views on either side of it share the width
-   equally (flex-basis 0), whatever each holds */
-.qwerty-calendar-nav,
-.qwerty-calendar-views {
-	flex: 1 1 0;
-}
-
-.qwerty-calendar-views {
-	justify-content: flex-end;
-}
-
-/* Narrow: the toolbar wraps into lines (the navigation and the title, then the views), each centered */
-@media (max-width: 768px) {
-	.qwerty-calendar-toolbar {
-		justify-content: center;
-	}
-
-	.qwerty-calendar-nav,
-	.qwerty-calendar-views {
-		flex: 0 0 auto;
-	}
 }
 
 .qwerty-calendar-grid {
@@ -457,7 +425,7 @@
 	}
 }
 
-/* A Podcast collection (qwerty-collection/items-podcast.html): its description and the feed's link, then the episodes.  The theme's
+/* A Podcast collection (qwerty-collection/items-podcast.html): the feed's link, then the episodes.  The theme's
    podcast bundle marks the episode that is playing with .playing. */
 /* Space between the tab bar and the podcast, then the feed's link above the episodes */
 .qwerty-podcast {
@@ -559,7 +527,7 @@
 	gap: calc(var(--rhythm) * 2);
 
 	/* The name may shrink, so a long one wraps instead of pushing Edit off the modal */
-	>.flex-grow {
+	> .flex-grow {
 		min-width: 0;
 	}
 
@@ -581,7 +549,6 @@
 	from {
 		opacity: 0;
 	}
-
 	to {
 		opacity: 1;
 	}
@@ -730,6 +697,20 @@
 	background-color: var(--button-primary-background);
 }
 
+/* The tabs and Share share a line (qwerty-episode/modal.html), whose margin replaces the tab list's own.  The tab
+   list's is the utility .margin-bottom-lg, which is !important, so this must be too, or Share sits below the tabs'
+   middle. */
+.qwerty-episode-tabs > [role=tablist] {
+	margin-bottom: 0 !important;
+}
+
+@media (max-width: 640px) {
+	.qwerty-episode-art {
+		width: 64px;
+		height: 64px;
+	}
+}
+
 /******************************************
  * Notes
  *
@@ -739,8 +720,7 @@
 
 .qwerty-note {
 	gap: var(--rhythm);
-	padding: calc(var(--rhythm) * 2) 0;
-	border-top: solid 1px var(--gray20);
+	padding: calc(var(--rhythm) * 2);
 }
 
 .qwerty-note-avatar {

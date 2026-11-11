@@ -1,10 +1,7 @@
-<!-- head-byline is the Article's description and byline, below the title on the public view and the edit page -->
-<!-- RULE: spacing is in utility classes, because the stylesheet's #article rules reach only the public view (see AGENTS.md) -->
-<!-- RULE: an Article saved before the toggle existed has no data.showSummary and still shows its summary (see AGENTS.md) -->
-{{- if ne "false" (print (.Data "showSummary")) -}}
-	{{- if ne "" .Description -}}
-		<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
-	{{- end -}}
+<!-- head-byline is the Article's description and byline, below the title on the public view and the edit page.
+     RULE: spacing is in utility classes, because the public view loads no Article stylesheet (see AGENTS.md). -->
+{{- if ne "" .Description -}}
+	<div id="article-description" class="p-summary margin-bottom-lg">{{.Description}}</div>
 {{- end -}}
 
 <div id="article-byline" class="flex-row flex-align-center margin-bottom-lg">
@@ -25,12 +22,8 @@
 	</div>
 	{{- if not .IsAuthor -}}
 		<!-- The author does not follow themselves, so the edit page never shows this -->
-		<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can; "⁂" manages it, as in head-social.html -->
-		<div data-camper-intent="follow" data-camper-object="{{.AttributedTo.ProfileURL}}">
-			<button type="button" class="primary text-sm turboclick camper-hide-if-ready" hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" hx-push-url="false">⁂ Follow {{.AttributedTo.Name}}</button>
-			<button type="button" class="primary text-sm camper-show-if-ready" data-camper-action="intent" hidden>⁂ Follow {{.AttributedTo.Name}}</button>
+		<div>
+			<button hx-get="/@{{.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
 		</div>
-		<button type="button" class="text-sm turboclick camper-show-if-has-accounts" hx-get="/{{.StreamID}}/intent" hx-push-url="false" aria-label="Manage Accounts" hidden>⁂</button>
-		<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 	{{- end -}}
 </div>

@@ -1,60 +1,37 @@
-<!-- items-timeline is a Timeline's tab: its events in date order, oldest first, down a vertical line, under a heading per year. -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
-{{- $allEvents := $query.All.Slice -}}
-<!-- The collection's author edits its entries (the same check as list.html's owner menu) -->
-{{- $canEdit := .UserCan "add" -}}
-
-<!-- The Timeline's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
-{{- $tags := split "" "," -}}
-{{- range (.Data "tags") -}}
-	{{- $tags = append $tags (split . "\x00") -}}
-{{- end -}}
-
-<!-- RULE: only the Timeline's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+<!-- items-timeline is a Timeline's tab: its events in date order down a vertical line, under a heading per year. -->
 {{- $tag := .QueryParam "tag" -}}
-{{- if not ($tags.Contains $tag) -}}
-	{{- $tag = "" -}}
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
+{{- if eq (.Data "timelineOrder") "desc" -}}
+	{{- $query = $query.Reverse -}}
 {{- end -}}
+{{- $allEvents := $query.All.Slice -}}
 {{- $events := $allEvents -}}
 {{- if ne "" $tag -}}
-	{{- $events = (($query.Tags $tag).CaseInsensitive).All.Slice -}}
+	{{- $events = ($query.Tags $tag).All.Slice -}}
 {{- end -}}
 
 {{- if $allEvents.IsEmpty -}}
 	{{- template "items-empty" (array . "clock-history" "Your Timeline" "This timeline tells your story as dated events, in order.  Add your first one now." "+ Add an Event") -}}
 {{- else -}}
-	<!-- The filters and the entries share one centered column, as the description above them does (list.html) -->
-	<div class="max-width-640 margin-horizontal-auto">
-	{{- template "tag-pills" (array . $tags $tag "") -}}
-	{{- if $events.IsEmpty -}}
-		{{- template "tag-empty" (array "entries" $tag) -}}
-	{{- else -}}
-		{{- $years := groupie -}}
-		<ol class="qwerty-timeline">
-			{{- range $events -}}
-				{{- if $years.Header (.StartDate.Format "2006") -}}
-					<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
-				{{- end -}}
-				<li class="qwerty-timeline-event hover-trigger">
-					<a href="/{{.Token}}" hx-get="/{{.Token}}/modal{{if ne `` $tag}}?tag={{$tag | urlquery}}{{end}}" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
-						<div class="flex-grow">
-							<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
-							<div class="text-lg bold">{{.Label}}</div>
-							{{- if ne "" .Summary -}}<div class="text-gray">{{.Summary}}</div>{{- end -}}
-						</div>
-						{{- if ne "" .IconURL -}}
-							<img src="{{.IconURL}}.webp?width=192&height=192" alt="" class="rounded square width-96 object-fit-cover flex-shrink-0 margin-left-sm" loading="lazy">
-						{{- end -}}
-					</a>
-					<!-- The author's pencil, shown while the pointer is over the entry; it opens the entry's editor -->
-					{{- if $canEdit -}}
-						<div class="hover-show pos-absolute-top-right">
-							<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" hx-push-url="false" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
-						</div>
-					{{- end -}}
-				</li>
+	{{- template "items-tags" (array . $allEvents $tag) -}}
+	{{- $years := groupie -}}
+	<ol class="qwerty-timeline">
+		{{- range $events -}}
+			{{- if $years.Header (.StartDate.Format "2006") -}}
+				<li class="qwerty-timeline-year">{{.StartDate.Format "2006"}}</li>
 			{{- end -}}
-		</ol>
-	{{- end -}}
-	</div>
+			<li class="qwerty-timeline-event">
+				<a href="/{{.StreamID}}" hx-get="/{{.StreamID}}/modal{{if ne `` $tag}}?tag={{$tag | urlquery}}{{end}}" hx-push-url="false" class="card flex-row text-plain text-nocolor padding turboclick">
+					<div class="flex-grow">
+						<div class="text-sm text-gray bold">{{template "event-dates" .}}</div>
+						<div class="text-lg bold">{{.Label}}</div>
+						{{- if ne "" .Summary -}}<div class="text-gray">{{.Summary}}</div>{{- end -}}
+					</div>
+					{{- if ne "" .IconURL -}}
+						<img src="{{.IconURL}}.webp?width=192&height=192" alt="" class="rounded square width-96 object-fit-cover flex-shrink-0 margin-left-sm" loading="lazy">
+					{{- end -}}
+				</a>
+			</li>
+		{{- end -}}
+	</ol>
 {{- end -}}

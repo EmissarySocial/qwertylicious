@@ -31,10 +31,7 @@
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
 					layout-highlight-first: {type:"boolean"}
-					// "true" renders each line break in the About Me message as a <br>; a string, because a User's data holds only strings
-					hardWraps: {type:"string", enum:["", "true", "false"]}
-					// The Stylesheet tab's CSS, kept exactly as written; outbox.html scopes it to the profile (see AGENTS.md)
-					stylesheet: {type:"string", format:"custom-css", maxLength:4096}
+					stylesheet: {type:"string"}
 					color-button: {type:"string", format:"color"}
 				}
 			}
@@ -55,7 +52,7 @@
 		}
 	}
 
-	// Every new profile starts with Articles, Notes, and About, set up as qwerty-collection's create would (see AGENTS.md)
+	// Every new profile starts with Articles and Notes, set up as qwerty-collection's create would (see AGENTS.md)
 	defaultChildren: [
 		{
 			templateId: "qwerty-collection"
@@ -63,8 +60,8 @@
 			"data.layout": "column-3"
 			"data.zoom": "11"
 			"data.calendarView": "list"
-			"data.sortType": "publishDate"
-			"data.sortDirection": "desc"
+			"data.timelineOrder": "asc"
+			"data.episodeOrder": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}
@@ -74,19 +71,8 @@
 			"data.layout": "notes"
 			"data.zoom": "11"
 			"data.calendarView": "list"
-			"data.sortType": "publishDate"
-			"data.sortDirection": "desc"
-			replyPolicy: "everyone"
-			"groups.viewer.0": "000000000000000000000000"
-		}
-		{
-			templateId: "qwerty-collection"
-			label: "About"
-			"data.layout": "about"
-			"data.zoom": "11"
-			"data.calendarView": "list"
-			"data.sortType": "publishDate"
-			"data.sortDirection": "desc"
+			"data.timelineOrder": "asc"
+			"data.episodeOrder": "desc"
 			replyPolicy: "everyone"
 			"groups.viewer.0": "000000000000000000000000"
 		}
@@ -111,6 +97,18 @@
 	tagPaths: ["data.tags"]
 
 	actions: {
+
+		// About renders only for htmx; a direct visit redirects to the profile with ?tab=about
+		about: {
+			roles: ["anonymous"]
+			steps:[
+				{do:"if", condition:"{{.IsPartialRequest}}", then:[
+					{do:"view-html"}
+				], else:[
+					{do:"redirect-to", url:"/@{{.UserID}}?tab=about"}
+				]}
+			]
+		}
 
 		// The Notes tab's + button opens this composer in a modal, which saves a Note on the profile, as Emissary's outbox-add does
 		add-note: {
@@ -216,8 +214,7 @@
 							label: Edit Status Message
 							type: layout-vertical
 							children: [
-								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
-								{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
 							]
 						}
 					}
@@ -263,6 +260,15 @@
 			] 
 		}
 
+		follow: {
+			roles: ["anonymous"]
+			steps: [
+				{do:"as-modal", steps:[
+					{do:"view-html"}
+				]}
+			]
+		}
+
 		header: {
 			roles: ["anonymous"]
 			steps: [
@@ -290,45 +296,6 @@
 			]
 		}
 
-		// base-outbox's General form plus the line-break toggle under About Me; an override replaces the whole action, so keep its fields
-		settings-general-form: {
-			roles: ["self"]
-			steps: [
-				{
-					do: "edit"
-					options: ["endpoint:/@me/settings-general-form", "cancel-button:hide"]
-					form: {
-						type: layout-vertical
-						children: [
-							{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)"}
-							{type:"text", path:"username", label:"Username", description:"How others will identify you online. (PUBLIC)", options:{autocomplete:"off", validator:"/.validate/user/username"}}
-							{type:"text", path:"emailAddress", label:"Email Address", description:"Used to sign in and support your account. Not shared. (PRIVATE)"}
-							{type:"textarea", path:"statusMessage", label:"About Me", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
-							{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-							{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-							{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
-						]
-					}
-				}
-				{do:"save"}
-				{do:"search-index"}
-				{do:"inline-save-button"}
-			]
-		}
-
-		// base-outbox's ?tab= switch plus Collections and Stylesheet; an override replaces the whole action, so keep its cases
-		settings-general: {
-			roles: ["self"]
-			steps: [
-				{do:"switch", expression:"{{.QueryParam `tab`}}", cases:{
-					images: {do:"view-html", file:"settings-images"}
-					links: {do:"view-html", file:"settings-links"}
-					collections: {do:"view-html", file:"settings-collections"}
-					stylesheet: {do:"view-html", file:"settings-stylesheet"}
-				}, default:{do:"view-html"}}
-			]
-		}
-
 		// The Collections tab of Settings → Profile, after base-outbox's Links tab
 		settings-collections: {
 			roles: ["self"]
@@ -346,35 +313,6 @@
 			]
 		}
 
-		// The Stylesheet tab of Settings → Profile, after Collections
-		settings-stylesheet: {
-			roles: ["self"]
-			steps: [
-				{do:"view-html"}
-			]
-		}
-
-		// The tab's form: one textarea of CSS, which the custom-css format checks before it saves
-		settings-stylesheet-form: {
-			roles: ["self"]
-			steps: [
-				{
-					do:"edit"
-					options:["endpoint:/@me/settings-stylesheet-form", "cancel-button:hide"]
-					form:{
-						type:layout-vertical
-						children:[
-							{type:"textarea", path:"data.stylesheet", description:"Custom styles work only on your profile. Images and fonts must come from this website.", options:{rows:20, showLimit:true, style:"font-family:monospace;"}}
-						]
-					}
-				}
-				// RULE: edit drops a refused stylesheet without a word; set-data writes it again and shows why (see AGENTS.md)
-				{do:"set-data", from-form:["data.stylesheet"]}
-				{do:"save"}
-				{do:"inline-save-button"}
-			]
-		}
-
 		sort-featured: {
 			roles: ["self"]
 			steps: [
@@ -387,6 +325,13 @@
 			roles: ["self"]
 			steps: [
 				{do:"sort", model:"Stream", keys:"_id", values:"rankAlt"}
+			]
+		}
+
+		stylesheet: {
+			roles: ["anonymous"]
+			steps: [
+				{do:"view-css"}
 			]
 		}
 

@@ -39,7 +39,6 @@
 			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
 			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
 			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}
-			{label:"About", value:"about", icon:"person", description:"Your About Me message, from your profile settings"}
 		]
 
 		// Add a Collection offers these once the profile has its one Notes collection.  Keep them in step with layouts.
@@ -50,7 +49,6 @@
 			{label:"Timeline", value:"timeline", icon:"clock-history", description:"Events in date order, by year"}
 			{label:"Calendar", value:"calendar", icon:"calendar3", description:"Events in a month, week, or list view"}
 			{label:"Map", value:"map", icon:"map", description:"Places, each a marker on one large map"}
-			{label:"About", value:"about", icon:"person", description:"Your About Me message, from your profile settings"}
 		]
 
 		// Edit Collection offers these to an Article collection, so its format can change only among the ones that hold Articles
@@ -62,16 +60,15 @@
 			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
 		]
 
-		// A Photo Gallery's or Article collection's order (data.sortType).  create sets Chronological.
-		sortTypes: [
-			{label:"Chronological", value:"publishDate"}
-			{label:"Custom", value:"rank"}
+		timelineOrders: [
+			{label:"Oldest First", value:"asc", icon:"sort-up", description:"Starts at the beginning, like a history"}
+			{label:"Newest First", value:"desc", icon:"sort-down", description:"Starts with the latest, like a feed"}
 		]
 
-		// A Podcast's episode order by rank (data.sortDirection).  create sets Newest First.
-		sortDirections: [
-			{label:"Newest First", value:"desc"}
-			{label:"Oldest First", value:"asc"}
+		// A Podcast's episode order.  Empty is treated as newest first.
+		episodeOrders: [
+			{label:"Newest First", value:"desc", icon:"sort-down", description:"The latest episode leads, like a feed"}
+			{label:"Oldest First", value:"asc", icon:"sort-up", description:"Starts at episode one, for a series heard in order"}
 		]
 
 		// A Calendar's default view, in the toolbar's order

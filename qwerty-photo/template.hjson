@@ -1,17 +1,15 @@
 {
-	// A post of 1 to 16 photos in a Photo Gallery; published at once, and opened in a modal.
+	// One photo in a Photo Gallery; published at once, and opened in a modal.
 	templateId: "qwerty-photo"
 	category: Content
 	templateRole: "photo"
 	socialRole: "Note"
 	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends: ["base-intent", "qwerty-replies", "qwerty-item-base"]
+	extends: ["base-intent", "qwerty-replies"]
 	label: "Qwertylicious Photo"
 	description: "A photo in a Qwertylicious photo gallery."
 	icon: "image"
-	// A photo's own hashtags, which its gallery's filters match
-	tagPaths: ["data.tags"]
 
 	schema: {
 		type: "object"
@@ -26,10 +24,7 @@
 			}}
 			isFeatured: {type:"boolean"}
 			data: {type:"object", properties: {
-				photoCount: {type:"integer", minimum:0, maximum:16}
-				tags: {type:"string", maxLength:1024}
-				// TRUE renders each line break in the description as a <br>, set by the toggle under Description
-				hardWraps: {type:"boolean"}
+				photoCount: {type:"integer", minimum:0, maximum:64}
 			}}
 		}
 	}
@@ -54,72 +49,33 @@
 
 	actions: {
 
-		// Opened inline by the collection's add; each photo is staged under the User as it is dropped, through the photos action reached before the Save, and the POST adopts them through the same action and publishes the post
+		// Opened inline by the collection's add; the POST uploads the photo and publishes the post
 		create: {
 			roles: ["author"]
 			steps: [
-				{do:"as-modal", options:["class:medium"], steps:[
-					// The same two tabs as Edit Photo below; a change to one form is a change to both
+				{do:"as-modal", steps:[
 					{
 						do: "edit"
 						form: {
-							type: "layout-tabs"
-							label: "Add Image"
+							type: "layout-vertical"
+							label: "Add a Photo"
 							children: [
-								{
-									type: "layout-vertical"
-									label: "Images"
-									children: [
-										// The post has no route yet, so the photos action is reached through the collection's add, which stages each photo under the User
-										{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ParentID.Hex}}/add?action=photos"}}
-										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
-									]
-								}
-								{
-									type: "layout-vertical"
-									label: "Text Content"
-									children: [
-										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-										{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
-										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-									]
-								}
-								{
-									type: "layout-vertical"
-									label: "Hashtags"
-									children: [
-										// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
-										{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
-									]
-								}
+								{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", required:true}}
+								{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+								{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:3}}
 							]
 						}
 					}
-					// The include lets the photos action run on the unsaved post before the Save, and adopts the staged photos at it;
-					// it runs on the POST only, because the widget's own request draws the photos (see AGENTS.md)
-					{do:"include", action:"photos", method:"post"}
-					// The include lets the gallery's add run tag-options on the unsaved post, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
-					{do:"include", action:"tag-options", method:"post"}
-					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:1, accept-type:"image/*", rules:{types:["webp"]}}
+					{do:"set-thumbnail", path:"iconUrl"}
+					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
+					{do:"process-content", format:"MARKDOWN"}
 					{do:"save-and-publish", state:"published", outbox:"true"}
 					{do:"search-index"}
 				]}
 				{do:"refresh-page"}
 			]
 		}
-
-		// The post's photos, which the html-remote element on Create and Edit Photo loads and changes in place
-		photos: {
-			roles: ["author"]
-			steps: [
-				{do:"edit-attachments", category:"photo", fieldname:"photos", accept-type:"image/*", minimum:1, maximum:16, rules:{types:["webp"]}}
-				// The first photo is the post's thumbnail, so every change re-picks it and recounts
-				{do:"set-thumbnail", path:"iconUrl", category:"photo"}
-				{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
-				{do:"save", comment:"Photos updated"}
-			]
-		}
-
 
 		// The photo's shareable URL: its modal over the gallery, or over its own page if the profile is hidden
 		view: {
@@ -154,17 +110,6 @@
 			]
 		}
 
-		// The Replies, Likes, and Shares tabs under the item, redrawn in place when a tab is clicked (?tab=)
-		responses: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["viewer"]
-			}
-			steps: [
-				{do:"view-html"}
-			]
-		}
-
 		// The photo's own page, behind the modal when its gallery cannot be drawn
 		page: {
 			roles: ["author"]
@@ -179,85 +124,41 @@
 		edit: {
 			roles: ["author"]
 			steps: [
-				{do:"as-modal", options:["class:medium"], steps:[
+				{do:"as-modal", options:["class:large"], steps:[
 					// Save and X, top right, in place of the form's own buttons
 					{do:"view-html", file:"edit-pencil"}
-					// RULE: a Custom gallery ignores pins, so its photos offer no Pin toggle (see AGENTS.md)
-					{do:"if", condition:"{{eq ((.Parent `view`).DataString `sortType`) `rank`}}", then:[
-						{
-							do: "edit"
-							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
-								type: "layout-tabs"
-								label: "Edit Image"
-								children: [
-									{
-										type: "layout-vertical"
-										label: "Images"
-										children: [
-											{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ID}}/photos"}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Text Content"
-										children: [
-											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
-											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Hashtags"
-										children: [
-											// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
-											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
-										]
-									}
-								]
-							}
+					{
+						do: "edit"
+						options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+						form: {
+							type: "layout-tabs"
+							label: "Edit Photo"
+							children: [
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"upload", path:"iconUrl", label:"Photo", description:"Choose a file to replace this photo.", options:{accept:"image/*"}}
+										{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "More Content"
+									children: [
+										{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
+										{type:"textarea", path:"content.raw", description:"Describe your image here.  Markdown is okay.", options:{rows:10}}
+									]
+								}
+							]
 						}
-					], else:[
-						{
-							do: "edit"
-							options: ["id:edit-photo-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
-							form: {
-								type: "layout-tabs"
-								label: "Edit Image"
-								children: [
-									{
-										type: "layout-vertical"
-										label: "Images"
-										children: [
-											{type:"html-remote", label:"Photos", description:"Add up to 16 files. Recommended size maximum 2000x2000 pixels.", options:{url:"/{{.ID}}/photos"}}
-											{type:"toggle", path:"isFeatured", options:{true-text:"Pinned to top", false-text:"Pin to top"}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Text Content"
-										children: [
-											{type:"text", path:"label", label:"Title", description:"(PUBLIC) Optional.  Shows above the description."}
-											{type:"textarea", path:"content.raw", label:"Description", description:"Describe your image here.  Markdown is okay.", options:{rows:12}}
-											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
-										]
-									}
-									{
-										type: "layout-vertical"
-										label: "Hashtags"
-										children: [
-											// The gallery's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
-											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
-										]
-									}
-								]
-							}
-						}
-					]}
-					// The photos are already saved: the widget changes them in place through the photos action
-					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
-					{do:"save", comment:"Updated"}
+					}
+					// A new photo replaces the old one; saving without one keeps it
+					{do:"upload-attachments", category:"photo", fieldname:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{types:["webp"]}}
+					{do:"set-thumbnail", path:"iconUrl"}
+					{do:"set-data", values:{"data.photoCount":"{{len (.AttachmentsByCategory `photo`)}}"}}
+					{do:"process-content", format:"MARKDOWN"}
+					{do:"save", comment:"Updated by {{.Author}}"}
 				]}
 				// Saving returns to the updated photo in its modal; the 303 makes the browser GET it
 				{do:"remove-event", event:"closeModal"}

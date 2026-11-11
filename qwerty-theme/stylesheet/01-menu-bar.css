@@ -5,15 +5,17 @@
 /* The bar's border, margins, and padding are theme-default's, which #menu-bar-sub's -32px top margin is
    built against, so a sub-menu sits flush under the bar.  Overflow stays visible for the bars' dropdowns. */
  #menu-bar {
-	position: relative;
-	line-height: 100%;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	flex-wrap: nowrap;
+	margin-bottom: unset;
+	position: relative;
 	overflow: visible;
 	overscroll-behavior: none;
+	border-bottom: unset;
+	line-height: 100%;
+	flex-wrap: nowrap;
 }
 
 #menu-bar div {
@@ -37,16 +39,17 @@
 	text-align: right;
 }
 
-#menu-bar .tabs {
+#menu-bar .tabs, #menu-bar .left:has(a) {
 	display: flex;
 	align-items: center;
-	width: fit-content;
 	gap: calc(var(--rhythm) / 2);
 	padding: calc(var(--rhythm) / 1.5);
 	border-radius: calc(var(--border-radius) * 4);
 	background-color: var(--page-background);
+	white-space: nowrap;
+	overflow-x: auto;
 
-	a.tab {
+	a.turboclick {
 		padding: 12px 16px;
 		border-radius: calc(var(--border-radius) * 4);
 
@@ -58,7 +61,7 @@
 			background-color: var(--gray00);
 		}
 
-		i.ti {
+		i {
 			color: var(--text-color-tertiary);
 		}
 	}
@@ -97,7 +100,7 @@
 	position: relative;
 }
 
-.dropdown-content, #menu-bar .dropdown-content {
+.dropdown-content, #menu-bar .dropdown-content, #menu-bar .dropdown-content.left:has(.selected) {
 	display: none;
 	position: absolute;
 	right: 0;
@@ -127,6 +130,8 @@
 		position: fixed;
 		right: unset;
 	}
+
+
 }
 
 .dropdown:hover .dropdown-content, #menu-bar .dropdown:hover .dropdown-content {

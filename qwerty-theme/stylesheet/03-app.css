@@ -1,6 +1,4 @@
-/******************************************
- * Page
- ******************************************/
+/* App */
 
 .app {
 	display: flex;
@@ -55,19 +53,23 @@
 	&.selected {
 		background-color: var(--gray00);
 		color: var(--gray100);
-		font-weight: 600;
+		font-weight: 500;
 	}
 
 	&.icon {
 		aspect-ratio: 1/1;
 	}
 
-	&.action {
+	&.action, &.primary {
 		background-color: var(--button-action-background);
 		color: var(--button-action-color);
 
 		i {
 			color: var(--button-action-color);
+		}
+
+		+ .menu-item {
+			margin-top: calc(var(--rhythm) * 2);
 		}
 	}
 
@@ -101,28 +103,31 @@
 .app-content {
 	flex-grow: 1;
 	padding: unset;
-	position:relative;
-	container-type:inline;
+	position: relative;
 	view-transition-name: app-content;
 }
 
-.app.page .app-content {
-	view-transition-name: app-content;
-	padding-top: 12px;
-}
-
-.card {
+.card, .qwerty-note {
 	border: none;
 	border-radius: var(--border-radius);
 	background-color: var(--page-background);
 	box-shadow: unset;
-	overflow: hidden;
+	overflow: clip;
 
 	&.border {
 		background-color: var(--gray00);
 		border-radius: calc(var(--rhythm) * 2);
 		border: 1px solid var(--page-border);
 	}
+
+	+ .qwerty-note {
+		margin-top: calc(var(--rhythm) * 2);
+	}
+}
+
+.app #profile-settings, .app .app-content {
+	display: flex;
+	flex-direction: column;
 }
 
 /* Buttons */
@@ -163,20 +168,20 @@ button > .pill,
 	background-color:var(--gray20);
 }
 
-i.bi {min-width:calc(1.5 * var(--rhythm))px;}
+i {min-width:calc(1.5 * var(--rhythm))px;}
 
 
 /* Pill Style Tabs */
 
 [role="tablist"].pills {
-	width: fit-content;
 	background-color: var(--page-background);
 	padding: calc(var(--rhythm) / 1.5);
 	border-radius: calc(var(--border-radius) * 4);
+	white-space: nowrap;
+	overflow-x: auto;
 }
 
 [role="tablist"].pills > [role="tab"] {
-	margin: unset;
 	padding: 12px 16px;
 	color: var(--text-color-tertiary);
 	background-color: unset;
@@ -185,7 +190,6 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 
 [role="tablist"].pills > [role="tab"]:hover:not([disabled]),
 [role="tablist"].pills > [role="tab"]:focus-visible:not([disabled]) {
-	margin: unset;
 	padding: 12px 16px;
 	border: none;
 	background-color: var(--input-background);
@@ -193,7 +197,6 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 }
 
 [role="tablist"].pills > [role="tab"][disabled] {
-	margin: unset;
 	padding: 12px 16px;
 	color:var(--gray60);
 	cursor:default;
@@ -203,22 +206,8 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 [role="tablist"].pills > [role="tab"][aria-selected="true"]:hover,
 [role="tablist"].pills > [role="tab"].selected,
 [role="tablist"].pills > [role="tab"].selected:hover {
-	margin: unset;
 	padding: 12px 16px;
 	border: none;
 	background-color: var(--gray00);
 	color: inherit;
-}
-
-/* A collection's hashtag pills (qwerty-collection/tag-pills.html): a click filters, so their text is never selectable (Ben, 2026-11-06) */
-.qwerty-tag-pills > [role="tab"] {
-	-webkit-user-select: none;
-	user-select: none;
-}
-
-/* An item's responses bar (each item's responses.html): its buttons and its tabs share text-sm's font size.
-   RULE: each selector outranks the rule it replaces, .text-sm button (1.6 rhythm) and [role=tab] (0.9rem). */
-.qwerty-responses-row .text-sm button,
-.qwerty-responses-row [role="tablist"] > [role="tab"] {
-	font-size: calc(var(--rhythm) * 1.75);
 }
