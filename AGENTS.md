@@ -278,7 +278,7 @@ A collection whose `data.layout` is `notes` lists `(.ParentOutbox "view").Outbox
 
 ## The About collection shows the profile's About Me message, and holds nothing
 
-A collection whose `data.layout` is `about` shows `(.ParentOutbox "view").StatusMessage` as Markdown (`items-about.html`). The message belongs to the profile, so Edit About edits two records: the collection's name and the profile's message.
+A collection whose `data.layout` is `about` shows `(.ParentOutbox "view").StatusMessage` as Markdown (`items-about.html`). The message belongs to the profile, so Edit About edits two records: the collection's name and the profile's message. The profile also holds the message's line-break choice, `data.hardWraps`, a string (`"true"`) because a User's data holds only strings. Three forms set it under the message: Edit About, the General settings tab (`settings-general-form`, a copy of base-outbox's with the toggle added, so a field added there must be added here), and `edit-status`. `items-about.html` then renders with `markdownHardWraps`. Only Qwerty pages read it: the profile summary that Emissary federates, and `sidebar.html`'s `StatusMessageHTML`, keep standard Markdown (Ben, 2026-11-10).
 
 - **About is an ordinary tab.** It sits wherever the owner drags it, and deleting the collection hides the tab while the message stays on the profile. There is no other way to hide it.
 - **The About tab is always public, with no Sharing control,** because the message it shows is public on the profile already. `create` and Edit About both run `set-sharing` (`viewer`, `anonymous`), and `sharing` and `add` halt, as for Notes.

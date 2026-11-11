@@ -31,6 +31,8 @@
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
 					layout-highlight-first: {type:"boolean"}
+					// "true" renders each line break in the About Me message as a <br>; a string, because a User's data holds only strings
+					hardWraps: {type:"string", enum:["", "true", "false"]}
 					// The Stylesheet tab's CSS, kept exactly as written; outbox.html scopes it to the profile (see AGENTS.md)
 					stylesheet: {type:"string", format:"custom-css", maxLength:4096}
 					color-button: {type:"string", format:"color"}
@@ -214,7 +216,8 @@
 							label: Edit Status Message
 							type: layout-vertical
 							children: [
-								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
+								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
+								{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 							]
 						}
 					}
@@ -284,6 +287,32 @@
 				{do:"save"}
 				{do:"search-index", if:"{{.IsIndexable}}"}
 				{do:"refresh-page"}
+			]
+		}
+
+		// base-outbox's General form plus the line-break toggle under About Me; an override replaces the whole action, so keep its fields
+		settings-general-form: {
+			roles: ["self"]
+			steps: [
+				{
+					do: "edit"
+					options: ["endpoint:/@me/settings-general-form", "cancel-button:hide"]
+					form: {
+						type: layout-vertical
+						children: [
+							{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)"}
+							{type:"text", path:"username", label:"Username", description:"How others will identify you online. (PUBLIC)", options:{autocomplete:"off", validator:"/.validate/user/username"}}
+							{type:"text", path:"emailAddress", label:"Email Address", description:"Used to sign in and support your account. Not shared. (PRIVATE)"}
+							{type:"textarea", path:"statusMessage", label:"About Me", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
+							{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+							{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
+							{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
+						]
+					}
+				}
+				{do:"save"}
+				{do:"search-index"}
+				{do:"inline-save-button"}
 			]
 		}
 

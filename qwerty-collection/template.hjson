@@ -229,7 +229,7 @@
 
 				// The message belongs to the profile that owns this collection, which is the one the tab shows
 				{do:"with-parent", steps:[
-					{do:"set-data", from-form:["statusMessage"]}
+					{do:"set-data", from-form:["statusMessage", "data.hardWraps"]}
 					{do:"save", comment:"About Me updated from the About tab"}
 					{do:"search-index"}
 				]}

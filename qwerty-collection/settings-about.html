@@ -12,8 +12,14 @@
 			<!-- RULE: showLimit hangs its counter on the field's last node, so the description closes the field with no space after it -->
 			<div class="layout-element layout-vertical-element">
 				<label for="statusMessage_textarea" aria-hidden="true">About Me</label>
-				<textarea name="statusMessage" id="statusMessage_textarea" rows="12" aria-label="About Me" aria-description="Displayed on your profile page. Markdown is allowed. (PUBLIC)" tabIndex="0" maxlength="2048" script="install showLimit">{{$outbox.StatusMessage}}</textarea>
+				<textarea name="statusMessage" id="statusMessage_textarea" rows="12" aria-label="About Me" aria-description="Displayed on your profile page. Markdown is allowed. (PUBLIC)" tabIndex="0" maxlength="8192" script="install showLimit">{{$outbox.StatusMessage}}</textarea>
 				<div aria-hidden="true" class="text-sm gray40">Displayed on your profile page. Markdown is allowed. (PUBLIC)</div></div>
+			<!-- The profile's line-break choice, saved with the message; the markup an edit step draws for a toggle -->
+			<!-- RULE: the value is a whole attribute, because the minifier lowercases an action written between attributes -->
+			<div class="layout-element layout-vertical-element">
+				<label for="data_hardWraps_toggle" aria-hidden="true"></label>
+				<span id="data_hardWraps_toggle" data-script="install toggle " name="data.hardWraps" value="{{$outbox.Data `hardWraps`}}" true-text="Keeping line breaks as typed." false-text="Keep line breaks as typed?"></span>
+			</div>
 		</div>
 	</div>
 	<div class="flex-row flex-align-center">
