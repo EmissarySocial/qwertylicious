@@ -1,0 +1,267 @@
+{
+	// An episode in a Podcast collection: a name, a Markdown description, an optional photo, and one audio track.
+	templateId: "qwerty-episode"
+	category: Content
+	templateRole: "episode"
+	socialRole: "Note"
+	containedBy: ["qwerty-collection"]
+	model: Stream
+	extends: ["base-intent", "qwerty-common", "qwerty-replies"]
+	label: "Qwertylicious Podcast Episode"
+	description: "An episode of a Qwertylicious podcast."
+	icon: "mic"
+
+	schema: {
+		type: "object"
+		properties: {
+			token: {type:"string"}
+			label: {type:"string", maxLength:128, required:true}
+			iconUrl: {type:"string", format:"url"}
+			content: {type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string", format:"markdown"}
+				html: {type:"string", format:"html"}
+			}}
+			data: {type:"object", properties: {
+				// TRUE renders each line break in the description as a <br>, set by the toggle under it
+				hardWraps: {type:"boolean"}
+				// The audio track: its attachment, its URL (which the upload widget previews), and its filename
+				attachmentId: {type:"string"}
+				audioUrl: {type:"string", format:"url"}
+				attachmentFilename: {type:"string"}
+				// The feeds' enclosure for this episode (Emissary's tools/convert/enclosure.go)
+				enclosureUrl: {type:"string", format:"url"}
+				enclosureType: {type:"string"}
+			}}
+		}
+	}
+
+	states: {
+		default: {
+			label: "Default State"
+			description: "Visible only to Authors and Owners"
+		}
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this episode"
+		}
+	}
+
+	actions: {
+
+		// Opened inline by the collection's add; an episode saved without audio is listed but has no enclosure
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					{
+						do: "edit"
+						form: {
+							type: "layout-tabs"
+							label: "Add an Episode"
+							children: [
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"text", path:"label", label:"Name", options:{required:true}}
+										{type:"upload", path:"data.audioUrl", label:"Audio", description:"An MP3, M4A, WAV, or other audio file.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Description"
+									children: [
+										// The tab names the field, so it has no label of its own
+										{type:"textarea", path:"content.raw", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:12}}
+										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Image"
+									children: [
+										{type:"upload", path:"iconUrl", label:"Image", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*"}}
+									]
+								}
+							]
+						}
+					}
+					{do:"upload-attachments", action:"replace", category:"Audio", fieldname:"data.audioUrl", attachment-path:"data.attachmentId", download-path:"data.audioUrl", filename-path:"data.attachmentFilename", accept-type:"audio/*", maximum:1}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, height:1200, types:["webp"]}}
+					{do:"set-data", values:{"data.enclosureUrl":"{{if ne `` (.DataString `attachmentId`)}}{{.Permalink}}/audio?format=mp3{{end}}", "data.enclosureType":"audio/mpeg"}}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// The episode's shareable URL: its modal over its podcast's tab, or over its own page if the profile is hidden
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"include", action:"modal"}
+			]
+		}
+
+		modal: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{
+					do: "as-modal"
+					options: ["class:medium"]
+					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+					background: "page"
+					replace-url: "/{{.StreamID}}"
+					head: [
+						{do:"view-html", file:"head"}
+					]
+					steps: [
+						{do:"view-html", file:"modal"}
+					]
+				}
+			]
+		}
+
+		// The Replies, Likes, and Shares tabs under the item, redrawn in place when a tab is clicked (?tab=)
+		responses: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		// The episode's own page, behind the modal when its podcast cannot be drawn
+		page: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html", file:"view"}
+			]
+		}
+
+		// Replacing the audio keeps the episode's URL, and its feed enclosure, the same
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					// Save and X, top right, in place of the form's own buttons
+					{do:"view-html", file:"edit-pencil"}
+					{
+						do: "edit"
+						options: ["id:edit-episode-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+						form: {
+							type: "layout-tabs"
+							label: "<i class=\"bi bi-mic\"></i> Edit Episode"
+							children: [
+								{
+									type: "layout-vertical"
+									label: "General"
+									children: [
+										{type:"text", path:"label", label:"Name", options:{required:true}}
+										{type:"upload", path:"data.audioUrl", label:"Audio", description:"Choose a file to replace this episode's audio.", options:{accept:"audio/*", filename:"data.attachmentFilename"}}
+										// Emissary's virtual field over publishDate, in UTC; the list's order stays by rank
+										{type:"datetime", path:"publishDateTime", label:"Publish Date", description:"(PUBLIC) Shown with this episode, and in the podcast's feed.  Times are UTC."}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Description"
+									children: [
+										// The tab names the field, so it has no label of its own
+										{type:"textarea", path:"content.raw", description:"(PUBLIC) Show notes, beneath the episode.  Markdown is okay.", options:{rows:12}}
+										{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+									]
+								}
+								{
+									type: "layout-vertical"
+									label: "Image"
+									children: [
+										{type:"upload", path:"iconUrl", label:"Image", description:"Optional.  Shown beside the episode, and on lock screens while it plays.", options:{accept:"image/*", delete:"/{{.StreamID.Hex}}/delete-icon"}}
+									]
+								}
+							]
+						}
+					}
+					{do:"upload-attachments", action:"replace", category:"Audio", fieldname:"data.audioUrl", attachment-path:"data.attachmentId", download-path:"data.audioUrl", filename-path:"data.attachmentFilename", accept-type:"audio/*", maximum:1}
+					{do:"upload-attachments", action:"replace", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, height:1200, types:["webp"]}}
+					{do:"set-data", values:{"data.enclosureUrl":"{{if ne `` (.DataString `attachmentId`)}}{{.Permalink}}/audio?format=mp3{{end}}", "data.enclosureType":"audio/mpeg"}}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"save", comment:"Updated"}
+					{do:"search-index"}
+				]}
+				// Saving returns to the updated episode in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
+			]
+		}
+
+		// The edit form's photo preview removes the photo (the upload widget's delete option)
+		delete-icon: {
+			roles: ["author"]
+			steps: [
+				{do:"delete-attachments", category:"icon"}
+				{do:"set-data", values:{"iconUrl": ""}}
+				{do:"save", comment:"Photo removed"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This episode and its audio will be removed from your podcast.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+
+		// The audio, transcoded on request, with the episode's name, podcast, and photo in its tags
+		audio: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{
+					do: "view-attachment"
+					category: "Audio"
+					format: ["mp3", "ogg"]
+					bitrate: 128
+					cache: false
+					metadata: [
+						{first:"cover", rules:[
+							{target:"cover", path:"stream.iconUrl"}
+							{target:"cover", path:"parent.attributedTo.iconUrl"}
+						]}
+						{target:"title", path:"stream.name"}
+						{target:"artist", path:"parent.attributedTo.name"}
+						{target:"album_artist", path:"parent.attributedTo.name"}
+						{target:"album", path:"parent.name"}
+						{target:"comment", path:"parent.attributedTo.profileUrl"}
+						{target:"genre", value:"Podcast"}
+					]
+				}
+			]
+		}
+	}
+}

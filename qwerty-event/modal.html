@@ -1,0 +1,25 @@
+<!-- modal: an event opened from its calendar, drawn over its collection or its own page.
+     ?tab=likes or ?tab=shares opens that tab under the event. -->
+<div class="h-event">
+
+	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
+
+	{{- if ne "" .IconURL -}}
+		<img src="{{.IconURL}}.webp" alt="{{.Data `iconDescription`}}" class="block width-100%" style="max-height:320px; object-fit:cover; border-radius:var(--border-radius);">
+	{{- end -}}
+
+	<div class="padding">
+		<!-- RULE: the title carries its modal-title id from the start, so it never shrinks after the first paint (see AGENTS.md) -->
+		<h1 id="modal-title" class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
+
+		<!-- The event's details stay on every tab, and its Replies, Likes, and Shares tabs sit beneath them, as on a timeline entry -->
+		{{- template "entry-body" . -}}
+		{{- template "responses" . -}}
+	</div>
+</div>

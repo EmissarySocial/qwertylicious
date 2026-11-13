@@ -6,7 +6,7 @@ nav.desktop, nav.mobile {
 	background-color: var(--body-background);
 	border-right: solid 1px var(--page-border);
 	padding: calc(var(--rhythm) * 2);
-	color: var(--black);
+	color: var(--gray100);
 
 	&.mobile {
 		min-height: unset;
@@ -96,7 +96,7 @@ nav.collapsed {
 		font-weight:bold;
 
 		&:hover {
-			background-color: color-mix(in srgb, var(--page-background), var(--black) 6%)
+			background-color: color-mix(in srgb, var(--page-background), var(--gray100) 6%)
 		}
 	}
 

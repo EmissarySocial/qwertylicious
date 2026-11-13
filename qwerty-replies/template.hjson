@@ -1,0 +1,49 @@
+{
+	// The Replies widget for every collection item: a Replies tab, the accepted replies, and a Reply button.
+	// Partials: replies-tabs (array $builder $label $mode ["count"]), replies-panel, responses-tabs, and responses-list, each but the first taking $builder.
+	templateId: "qwerty-replies"
+	category: Base
+	model: None
+	// base-social supplies hidden-placeholder, for a reply the viewer's own rules hide
+	extends: ["base-social"]
+
+	// Emissary validates each template's actions alone, so the state and role they name are defined here too
+	states: {
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this item and its replies"
+		}
+	}
+
+	actions: {
+
+		// The next page of replies, loaded by the list's "revealed" sentinel (?after=createDate)
+		replies-list: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		// One reply (?id=), re-drawn with ?reveal=true when a visitor shows a reply their rules hide
+		reply: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html"}
+			]
+		}
+	}
+}

@@ -1,0 +1,17 @@
+<!-- list is this collection's tab: the profile's tab bar with this tab selected and the owner's menu, then its contents.
+     RULE: the tab bar reads the profile's Outbox query, as outbox.html does (see AGENTS.md). -->
+<div id="profile-tabs">
+
+<!-- The tab bar, with the owner's buttons for this collection after the tabs (qwerty-common/profile-menu.html) -->
+<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+	{{- template "profile-tabs" (array (.ParentOutbox "view") .StreamID) -}}
+	{{- template "profile-menu" . -}}
+</div>
+
+<!-- The description, directly below the tab bar, centered and no wider than a post; a Podcast draws its own (items-podcast.html) -->
+{{- if and (ne "" .Summary) (ne "podcast" (.DataString "layout")) -}}
+	<div class="text-gray margin-bottom margin-horizontal-auto max-width-640">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
+{{- end -}}
+
+{{- template "items" . -}}
+</div>

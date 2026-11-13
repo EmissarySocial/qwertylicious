@@ -1,11 +1,11 @@
 {{- $isMyself := .IsMyself -}}
 {{- $username := .Username -}}
-{{- $layout := .Data "layout" -}}
+{{- $userID := .UserID -}}
 
 {{- if eq .StateID "LIVE" -}}
 
 	<!-- Page content -->
-	<div class="framed page h-card" 
+	<div id="outbox-page" class="framed page h-card" 
 		script="{{- if .IsMyself -}}
 			init send SelectNav(id:'outbox')
 		{{- else -}}
@@ -14,6 +14,11 @@
 
 		<title>{{.DisplayName}}</title>
 		<link rel="icon" href="{{.IconURL}}"/>
+
+		<!-- RULE: the Stylesheet tab's CSS styles this profile and nothing outside it (see AGENTS.md) -->
+		{{- with customCSS (.Data "stylesheet") }}
+			<style>@scope (#outbox-page) { {{.}} }</style>
+		{{- end }}
 
 		<!-- oEmbed: https://oembed.com -->
 		<link rel="alternate" type="application/json+oembed" href="{{.OEmbedJSON}}">
@@ -29,67 +34,82 @@
 		<link rel="alternate" type="application/rss+xml" href="{{.Host}}/@{{.UserID}}/feed?format=rss"/>
 		<link rel="alternate" type="application/atom+xml" href="{{.Host}}/@{{.UserID}}/feed?format=atom"/>
 		<link rel="alternate" type="application/feed+json" href="{{.Host}}/@{{.UserID}}/feed?format=json"/>
-		<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
 
-		<!-- Open Graph: https://ogp.me -->
-		<meta property="og:type" content="profile">
-		<meta property="og:title" content="{{.DisplayName}}">
-		<meta property="og:description" content="{{.StatusMessage}}">
-		<meta property="og:url" content="{{.Permalink}}">
-		<meta property="og:image" content="{{.IconURL}}">
-		<meta property="profile:username" content="{{.Username}}">
+		<!-- RULE: behind a modal (.IsBackground), the modal's own head carries the link-preview tags (see AGENTS.md) -->
+		{{- if not .IsBackground }}
+			<link rel="canonical" class="u-url" href="{{.ProfileURL}}">
+			<link rel="canonical" class="u-url" href="{{.Host}}/@{{.Username}}">
 
-		{{- if not .IsPublic -}}
-			<div hx-get="/@{{.UserID}}/publish" class="clickable alert-green margin-none" role="button">
-				{{icon "check-circle"}} 
-				Your profile IS READY TO PUBLISH on the social web.
-				<span class="text-underline">Click here to publish it now</span>
-			</div>
+			<!-- Open Graph: https://ogp.me -->
+			<meta property="og:type" content="profile">
+			<meta property="og:title" content="{{.DisplayName}}">
+			<meta property="og:description" content="{{.StatusMessage}}">
+			<meta property="og:url" content="{{.Permalink}}">
+			<meta property="og:image" content="{{.IconURL}}">
+			<meta property="profile:username" content="{{.Username}}">
+		{{- end }}
+
+		{{- template "profile-header" . -}}
+
+		<!-- RULE: ?tab= opens a tab only when it names one of the profile's tabs, else the first (see AGENTS.md) -->
+		{{- $collections := (.Outbox.Where "templateId" "qwerty-collection").ByRank.Slice -}}
+		{{- $requested := .QueryParam "tab" -}}
+		{{- $selected := "" -}}
+		{{- if $collections.NotEmpty -}}
+			{{- $selected = $collections.First.ObjectID.Hex -}}
+		{{- end -}}
+		{{- range $collections -}}
+			{{- if eq $requested .ObjectID.Hex -}}
+				{{- $selected = $requested -}}
+			{{- end -}}
+		{{- end -}}
+		<!-- ?tab=notes and ?tab=about name the magic collections: a note's modal draws Notes behind itself, and older links name About -->
+		{{- if in $requested "notes" "about" -}}
+			{{- $magicTab := ((.Outbox.Where "templateId" "qwerty-collection").Where "data.layout" $requested).Top1.Slice -}}
+			{{- if $magicTab.NotEmpty -}}
+				{{- $selected = $magicTab.First.ObjectID.Hex -}}
+			{{- end -}}
 		{{- end -}}
 
-		{{- template "header" . -}}
+		<!-- A tab's own ?view=, ?startDate=, and ?tag= ride along, escaped; the collection checks what it reads -->
+		{{- $panelURL := print "/" $selected "/list?tab=" $selected -}}
+		{{- range $name := array "view" "startDate" "tag" -}}
+			{{- $value := $.QueryParam $name -}}
+			{{- if ne "" $value -}}
+				{{- $panelURL = print $panelURL "&" $name "=" (urlquery $value) -}}
+			{{- end -}}
+		{{- end -}}
 
-			<div class="max-width-800 margin-top">
+		<!-- RULE: every swap into #profile-tabs keeps <main> where it was, because Safari moves it as the tab is replaced (see AGENTS.md) -->
+		<div class="margin-top" script="on htmx:beforeSwap if the target's id is 'profile-tabs' then set :scrollTop to the scrollTop of the closest <main/> end
+			on htmx:afterSwap if the target's id is 'profile-tabs' then set the scrollTop of the closest <main/> to :scrollTop end">
 
-				<!-- "Tabs" -->
-				<div role="tablist" class="pills">
-					<span role="tab" aria-selected="true">Posts</span>
-					<a href="/@{{.UserID}}/replies" hx-get="/@{{.UserID}}/replies" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">Replies</a>
-					<a href="/@{{.UserID}}/about" hx-get="/@{{.UserID}}/about" hx-push-url="false" hx-swap="innerHTML transition:false show:none" role="tab">About</a>
+			<!-- RULE: a profile with no collections has no tabs, only the prompt to make one (see AGENTS.md) -->
+			{{- if $collections.IsEmpty -}}
+				{{- template "outbox-empty" . -}}
+			{{- else -}}
+
+			<!-- The loading state.  RULE: only this copy of #profile-tabs has hx-trigger="load" (see AGENTS.md). -->
+			<div id="profile-tabs" hx-get="{{$panelURL}}" hx-trigger="load" hx-target="this" hx-swap="outerHTML transition:false show:none" hx-push-url="false" hx-disinherit="*">
+
+				<!-- RULE: the same .profile-tabs-row as list.html, so the tabs do not move when the tab loads and adds the owner's buttons -->
+				<div class="profile-tabs-row flex-row flex-wrap flex-align-center">
+					{{- template "profile-tabs" (array . $selected) -}}
 				</div>
+			</div>
 
-				<!-- Layout -->
-				{{- if eq $layout "column-1" -}}
-					<div class="cols-1">
-						{{template "outbox-column" .}}
-					</div>
-				{{- else if eq $layout "column-2" -}}
-					<div class="cols-2">
-						{{template "outbox-columns" .}}
-					</div>
-				{{- else if eq $layout "column-3" -}}
-					<div class="cols-2-3">
-						{{template "outbox-columns" .}}
-					</div>
-				{{- else if eq $layout "row-reverse" -}}
-					<div class="max-width-800">
-						{{template "outbox-row-reverse" .}}
-					</div>
-				{{- else -}}
-					<div class="max-width-800">
-						{{template "outbox-row" .}}
-					</div>
-				{{- end -}}
-
-			</div>		
+			{{- end -}}
+		</div>
 
 	</div>
 
 	{{- if $isMyself -}}
 		<div id="outbox-refresh-{{.UserID}}" hx-preserve>
 
+			<!-- Reloads keep ?tab=, ?view=, ?startDate=, and ?tag= from the address bar, else the tab open on screen -->
 			<div 
 				hx-get="/@{{.UserID}}" 
+				hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ((document.querySelector("#profile-tabs [role=tab][aria-selected=true]") || {}).id || "").replace("tab-", ""), view: new URLSearchParams(window.location.search).get("view") || "", startDate: new URLSearchParams(window.location.search).get("startDate") || "", tag: new URLSearchParams(window.location.search).get("tag") || ""}'
 				hx-trigger="refreshPage from:window" 
 				hx-target="main" 
 				hx-swap="innerHTML"
@@ -99,6 +119,7 @@
 			<div hx-ext="sse" sse-connect="/@me/sse">
 				<div 
 					hx-get="/@{{.UserID}}" 
+					hx-vals='js:{tab: new URLSearchParams(window.location.search).get("tab") || ((document.querySelector("#profile-tabs [role=tab][aria-selected=true]") || {}).id || "").replace("tab-", ""), view: new URLSearchParams(window.location.search).get("view") || "", startDate: new URLSearchParams(window.location.search).get("startDate") || "", tag: new URLSearchParams(window.location.search).get("tag") || ""}'
 					hx-trigger="sse:{{.UserID}}"  
 					hx-target="main" 
 					hx-swap="innerHTML"
@@ -109,9 +130,8 @@
 		</div>
 	{{- end -}}
 
-	<link rel="stylesheet" href="/.templates/user-outbox/stylesheet" />
-	<script src="/.themes/global/resources/camperjs/camper.js"></script>
-
+	<link rel="stylesheet" href="/.templates/qwerty-outbox/stylesheet" />
+	<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 
 {{- else if not $isMyself -}}
 	{{- template "coming-soon" . -}}

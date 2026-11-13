@@ -1,0 +1,81 @@
+<!-- modal: an episode opened from its podcast's list or its own URL; qwerty-podcast.js runs the player and keys.
+     Its CSS is in qwerty-outbox/stylesheet/collections.css. -->
+{{- $podcast := .Parent "view" -}}
+{{- $hasAudio := ne "" (.DataString "attachmentId") -}}
+{{- $image := .IconURL -}}
+{{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
+
+<!-- The neighboring episodes, in the list's order: highest rank first unless sortDirection is "asc" -->
+{{- $episodes := .Siblings.Where "templateId" "qwerty-episode" -}}
+{{- $rank := .Rank -}}
+{{- $higher := (($episodes.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
+{{- $lower := (($episodes.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
+{{- $above := "" -}}
+{{- $below := "" -}}
+{{- if eq ($podcast.DataString "sortDirection") "asc" -}}
+	{{- if not $lower.ObjectID.IsZero -}}{{- $above = $lower.StreamID -}}{{- end -}}
+	{{- if not $higher.ObjectID.IsZero -}}{{- $below = $higher.StreamID -}}{{- end -}}
+{{- else -}}
+	{{- if not $higher.ObjectID.IsZero -}}{{- $above = $higher.StreamID -}}{{- end -}}
+	{{- if not $lower.ObjectID.IsZero -}}{{- $below = $lower.StreamID -}}{{- end -}}
+{{- end -}}
+
+<div class="qwerty-episode h-entry padding" data-episode-id="{{.StreamID}}">
+
+	<!-- Top right: the author's pencil opens Edit Episode in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit Episode">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
+
+	<!-- The photo, podcast name, episode name, and date; text is top-aligned (see AGENTS.md) -->
+	<div class="qwerty-episode-head flex-row margin-bottom">
+		<img class="qwerty-episode-art" src="{{$image}}" alt="">
+		<div class="flex-grow">
+			{{- if ne "" $podcast.Label -}}
+				<!-- The podcast's name links to its tab on the profile -->
+				<div class="text-sm text-uppercase bold"><a href="/@{{$podcast.ParentID}}?tab={{.ParentID}}" class="text-nocolor text-gray turboclick">{{$podcast.Label}}</a></div>
+			{{- end -}}
+			<!-- id="modal-title" from the start, or the modal script adds it after the first paint and the title jumps in size -->
+			<h2 id="modal-title" class="p-name margin-none">{{.Label}}</h2>
+			<div class="text-sm text-gray"><time class="dt-published">{{.PublishDate | longDate}}</time></div>
+		</div>
+	</div>
+
+	<!-- The player and its skip buttons; an episode without audio keeps the skip buttons -->
+	{{- if $hasAudio -}}
+		{{- template "episode-player" (array . $podcast.Label $image $above $below) -}}
+	{{- else -}}
+		<!-- The skip buttons around a disabled play button, then the message -->
+		<div class="qwerty-episode-player-none card flex-row flex-align-center">
+			{{- template "episode-arrow-back" $above -}}
+			<button type="button" class="qwerty-episode-toggle" aria-label="Play" disabled>{{icon "play-fill"}}</button>
+			{{- template "episode-arrow-next" $below -}}
+			<div class="flex-grow text-gray">This episode has no audio yet.</div>
+		</div>
+	{{- end -}}
+
+	<!-- The notes stay on every tab, and the Replies, Likes, and Shares tabs sit beneath them, as on a Note -->
+	<div class="e-content">{{.ContentHTML}}</div>
+	{{- template "responses" . -}}
+
+	<!-- Hidden links to the neighboring episodes, clicked by the skip buttons and keys -->
+	{{- if ne "" $above -}}
+		<a class="qwerty-episode-prev" hidden aria-hidden="true" tabindex="-1"
+			href="/{{$above}}"
+			data-episode-id="{{$above}}"
+			hx-get="/{{$above}}/modal"
+			hx-target="aside"
+			hx-push-url="false">Previous Episode</a>
+	{{- end -}}
+	{{- if ne "" $below -}}
+		<a class="qwerty-episode-next" hidden aria-hidden="true" tabindex="-1"
+			href="/{{$below}}"
+			data-episode-id="{{$below}}"
+			hx-get="/{{$below}}/modal"
+			hx-target="aside"
+			hx-push-url="false">Next Episode</a>
+	{{- end -}}
+</div>

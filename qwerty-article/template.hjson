@@ -3,9 +3,9 @@
 	category: Content
 	templateRole:"article"
 	socialRole:"Article"
-	containedBy: ["outbox"]
+	containedBy: ["qwerty-collection"]
 	model: Stream
-	extends:["base-intent"]
+	extends:["base-intent", "qwerty-replies", "qwerty-item-base"]
 	tagPaths:["data.tags"]
 	label:"Qwertylicious Article"
 	description:"Articles show up on a Qwertylicious user's profile page."
@@ -21,18 +21,17 @@
 			token: {type:"string", required:true}
 			name: {type:"string"}
 			summary: {type:"string"}
-			content:{type:"object", properties: {
-				format: {type:"string"}
-				raw: {type:"string"}
-				html: {type:"string", format:"html"}
-			},
+			// RULE: content restates no property, so raw and html keep Emissary's definitions (see AGENTS.md)
+			content:{type:"object", properties: {}}
 			data: {type:"object", properties: {
 				tags: {type:"string"}
-				iconDescription: {type:"string", maxlength:2048}
+				// default:true draws the toggle ON for an Article saved before it existed, and head-byline reads a missing value as true
+				showSummary: {type:"boolean", default:true}
+				iconDescription: {type:"string", maxLength:2048}
 				bannerUrl: {type:"string", format:"url"}
 				bannerId: {type:"string", format:"objectId"}
-				bannerDescription: {type:"string", maxlength:2048}
-			}}}
+				bannerDescription: {type:"string", maxLength:2048}
+			}}
 		}
 	}
 	states: {
@@ -56,23 +55,14 @@
 		create:{
 			roles: ["author"]
 			steps: [
-				{do:"set-data", values:{"name":"New Article Title", "content.format":"EDITORJS", "content.raw":"{\"time\":0,\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"Enter your article text here...\"}}],\"version\":\"2.31.5\"}"}}
+				{do:"set-data", values:{"name":"New Article Title", "data.showSummary":"true", "content.format":"EDITORJS", "content.raw":"{\"time\":0,\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"Enter your article text here...\"}}],\"version\":\"2.31.5\"}"}}
 				{do:"save"}
 				{do:"forward-to", url: "/{{.StreamID}}/edit"}
 			]
 		}
 
-		view: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["anonymous"]
-			}
-			steps:[
-				{do:"view-html"}
-			]
-		}
 
-		view-premium: {
+		view: {
 			roles: ["author"]
 			stateRoles: {
 				published: ["viewer"]
@@ -82,25 +72,14 @@
 			]
 		}
 
-		replies: {
+		// A permission that view.html reads through .UserCan, and a URL that draws the same page
+		view-premium: {
 			roles: ["author"]
 			stateRoles: {
-				published: ["anonymous"]
+				published: ["viewer"]
 			}
 			steps:[
-				{do:"as-modal", options:["class:normal"], steps:[
-					{do:"view-html"}
-				]}
-			]
-		}
-
-		replies-list: {
-			roles: ["author"]
-			stateRoles: {
-				published: ["anonymous"]
-			}
-			steps:[
-				{do:"view-html"}
+				{do:"view-html", file:"view"}
 			]
 		}
 
@@ -118,11 +97,15 @@
 			]
 		}
 
+		// RULE: the stored format picks the editor's save step; edit-content.html and properties name the same three (see AGENTS.md)
 		edit-content: {
 			roles: ["author"]
 			steps: [
-				{do:"edit-content", file:"editor", format:"EDITORJS"}
-				{do:"process-content", add-links:false, remote-html:false}
+				{do:"switch", expression:"{{.ContentFormat}}", cases:{
+					MARKDOWN: {do:"edit-content", format:"MARKDOWN"}
+					HTML: {do:"edit-content", format:"HTML"}
+				}, default:{do:"edit-content", format:"EDITORJS"}}
+				{do:"process-content", add-links:false, remove-html:false}
 				{do:"save"}
 			]
 		}
@@ -132,19 +115,10 @@
 			steps: [
 				{do:"unpublish", state:"default", outbox:"true"}
 				{do:"delete", title:"Delete '{{.Label}}'?", message:"All content and comments will be lost.  There is NO UNDO."}
-				{do:"forward-to", url:"/@me"}
+				{do:"forward-to", url:"/{{.ParentID}}"}
 			]
 		}
 						
-		sharing: {
-			roles: ["author"]
-			steps: [
-				{do:"as-modal", steps: [
-					{do:"set-circle-sharing", role: "viewer", title:"Who Can Read This Article?", message:"Select which people have full access."}
-					{do:"save", message:"Sharing updated by {{.Author}}"}
-				]}
-			]
-		}
 		
 		publish: {
 			states: ["default", "published"]
@@ -171,44 +145,135 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-modal", steps:[
-					{
-						do: edit
-						form: {
-							type: layout-tabs
-							label: Article Properties
-							children: [
-								{
-									type:"layout-vertical"
-									label:"Properties"
-									children: [
-										{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
-										{type:"textarea", path:"summary", label:"Description", description:"(PUBLIC) Shows beneath the post title.", options:{rows:2}}
-										{type:"text", path:"data.tags", label:"#Hashtags", description:"(PUBLIC) Organize this post and make it more discoverable on the home page."}
-										{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
-									]
-								}
-								{
-									type:layout-vertical
-									label:"Icon"
-									children:[
-										{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
-										{type:"textarea", path:"data.iconDescription", label:"Icon Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
-									]
-								}
-								{
-									type:layout-vertical
-									label:"Banner"
-									children:[
-										{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.ID}}/delete-banner"}}
-										{type:"textarea", path:"data.bannerDescription", label:"Banner Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
-									]
-								}
-							]
+					// The format before the form applies, counting anything but MARKDOWN and HTML as EDITORJS, as edit-content does
+					{do:"set-args", previousFormat:"{{if in .ContentFormat `MARKDOWN` `HTML`}}{{.ContentFormat}}{{else}}EDITORJS{{end}}"}
+					// RULE: a Custom collection ignores Featured, so its Articles offer no Feature toggle (see AGENTS.md)
+					{do:"if", condition:"{{eq ((.Parent `view`).DataString `sortType`) `rank`}}", then:[
+						{
+							do: edit
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-tabs
+								label: Article Properties
+								children: [
+									{
+										type:"layout-vertical"
+										label:"General"
+										children: [
+											{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
+											{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
+											{type:"select", path:"content.format", label:"Format", description:"Changing the format will erase this article's text.", options:{required:true, enum:[
+												{value:"EDITORJS", label:"Visual Editor"}
+												{value:"MARKDOWN", label:"Markdown"}
+												{value:"HTML", label:"HTML"}
+											]}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Description"
+										children:[
+											{type:"textarea", path:"summary", description:"(PUBLIC) Shows on article lists, and beneath the title when the toggle below is on.", options:{rows:10}}
+											{type:"toggle", path:"data.showSummary", options:{false-text:"Show summary on article?", true-text:"Showing summary on article."}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Hashtags"
+										children:[
+											// The article's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Icon"
+										children:[
+											{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+											{type:"textarea", path:"data.iconDescription", label:"Icon Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Banner"
+										children:[
+											{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.ID}}/delete-banner"}}
+											{type:"textarea", path:"data.bannerDescription", label:"Banner Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+										]
+									}
+								]
+							}
 						}
-					}
+					], else:[
+						{
+							do: edit
+							options: ["delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: layout-tabs
+								label: Article Properties
+								children: [
+									{
+										type:"layout-vertical"
+										label:"General"
+										children: [
+											{type:"text", path:"name", label:"Title", description:"(PUBLIC) Shows in your news feed and at the top of the post."}
+											{type:"text", path:"token", label:"URL Token", description:"(PUBLIC) Appears as the URL for this post (MUST BE UNIQUE)", options:{validator:"/.validate/stream/token?streamId={{.ID}}"}}
+											{type:"select", path:"content.format", label:"Format", description:"Changing the format will erase this article's text.", options:{required:true, enum:[
+												{value:"EDITORJS", label:"Visual Editor"}
+												{value:"MARKDOWN", label:"Markdown"}
+												{value:"HTML", label:"HTML"}
+											]}}
+											{type:"toggle", path:"isFeatured", options:{false-text:"Feature?", true-text:"Featured"}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Description"
+										children:[
+											{type:"textarea", path:"summary", description:"(PUBLIC) Shows on article lists, and beneath the title when the toggle below is on.", options:{rows:10}}
+											{type:"toggle", path:"data.showSummary", options:{false-text:"Show summary on article?", true-text:"Showing summary on article."}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Hashtags"
+										children:[
+											// The article's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Icon"
+										children:[
+											{type:"upload", path:"iconUrl", label:"Icon Image", description:"Shows on article lists. Aspect Ratio: square", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+											{type:"textarea", path:"data.iconDescription", label:"Icon Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+										]
+									}
+									{
+										type:layout-vertical
+										label:"Banner"
+										children:[
+											{type:"upload", path:"data.bannerUrl", label:"Banner Image", description:"Shows on top of article page. Aspect Ratio: 16x9", options:{accept:"image/*", delete:"/{{.ID}}/delete-banner"}}
+											{type:"textarea", path:"data.bannerDescription", label:"Banner Description", description:"'Alt text' for screen readers and SEO", options:{rows:4}}
+										]
+									}
+								]
+							}
+						}
+					]}
+					// RULE: a new format starts empty, except HTML, which starts from the rendered text (see AGENTS.md)
+					{do:"if", condition:"{{$format := `EDITORJS`}}{{if in .ContentFormat `MARKDOWN` `HTML`}}{{$format = .ContentFormat}}{{end}}{{ne $format (.GetString `previousFormat`)}}", then:[
+						{do:"if", condition:"{{eq .ContentFormat `HTML`}}", then:[
+							{do:"set-data", values:{"content.raw":"{{.ContentHTML}}"}}
+						], else:[
+							{do:"set-data", values:{"content.raw":"", "content.html":""}}
+						]}
+						{do:"refresh-page"}
+					]}
 					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", description-fieldname:"data.iconDescription", accept-type:"image/*", rules:{width:800, height:800, types:["webp"]}}
 					{do:"upload-attachments", category:"banner", fieldname:"data.bannerUrl",attachment-path:"data.bannerId",  download-path:"data.bannerUrl", description-fieldname:"data.bannerDescription", accept-type:"image/*"}
-					{do:"save", comment:"Properties updated by {{.Author}}"}
+					{do:"save", comment:"Properties updated"}
 					{do:"trigger-event", event:"refreshBanner"}
 				]}
 			]
@@ -255,7 +320,7 @@
 		intent: {
 			roles: ["author"]
 			stateRoles: {
-				published: ["anonymous"]
+				published: ["viewer"]
 			}
 			steps:[
 				{do:"as-modal", steps:[

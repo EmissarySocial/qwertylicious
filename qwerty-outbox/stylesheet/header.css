@@ -10,6 +10,20 @@
 	object-fit: cover;
  }
 
+/* The owner's empty banner: a gray box the same shape as a banner, to click or drop an image on */
+#profile-banner-upload {
+	display: grid;
+	place-items: center;
+	aspect-ratio: 3/1;
+	background-color: var(--gray20);
+	color: var(--text-color-secondary);
+
+	&.highlight {
+		outline: solid 1px var(--blue60);
+		outline-offset: -1px;
+	}
+}
+
 #profile-icon {
  	aspect-ratio: 1/1;
  	border-radius: calc(var(--border-radius) * 0.8);

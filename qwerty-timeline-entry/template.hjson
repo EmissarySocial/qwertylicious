@@ -1,0 +1,261 @@
+{
+	// An entry on a Timeline collection; its dates are date-only, and its location is optional.
+	templateId: "qwerty-timeline-entry"
+	category: Content
+	templateRole: "timeline-entry"
+	// Not "Event": nothing federates its dates yet
+	socialRole: "Note"
+	containedBy: ["qwerty-collection"]
+	model: Stream
+	extends: ["base-intent", "qwerty-common", "qwerty-replies", "qwerty-item-base"]
+	label: "Qwertylicious Timeline Entry"
+	description: "An event on a Qwertylicious timeline."
+	icon: "clock-history"
+	tagPaths: ["data.tags"]
+
+	schema: {
+		type: "object"
+		properties: {
+			token: {type:"string"}
+			label: {type:"string", maxLength:128}
+			summary: {type:"string", format:"markdown", maxLength:2048}
+			iconUrl: {type:"string", format:"url"}
+			startDate: {type:"string"}
+			endDate: {type:"string"}
+			location: {type:"object", properties: {
+				name: {type:"string"}
+				formatted: {type:"string"}
+				latitude: {type:"number"}
+				longitude: {type:"number"}
+			}}
+			content: {type:"object", properties: {
+				format: {type:"string"}
+				raw: {type:"string", format:"markdown"}
+				html: {type:"string", format:"html"}
+			}}
+			data: {type:"object", properties: {
+				// TRUE renders each line break in the description as a <br>, set by the toggle under it
+				hardWraps: {type:"boolean"}
+				iconDescription: {type:"string", maxLength:2048}
+				tags: {type:"string", maxLength:1024}
+			}}
+		}
+	}
+
+	states: {
+		default: {
+			label: "Default State"
+			description: "Visible only to Authors and Owners"
+		}
+		published: {
+			label: "Published"
+			description: "Visible to all people with permissions"
+		}
+	}
+
+	roles: {
+		viewer: {
+			label: "Viewer"
+			description: "Can see this entry"
+		}
+	}
+
+	actions: {
+
+		// Opened inline by a Timeline collection's add.  The date widget posts YYYY-MM-DD, stored at midnight
+		create: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+						{
+							do: "edit"
+							form: {
+								type: "layout-tabs"
+								label: "Add an Event"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"text", path:"label", label:"Title", options:{required:true}}
+											{type:"date", path:"startDate", label:"Date", options:{required:true, default:"now"}}
+											{type:"date", path:"endDate", label:"End Date", description:"Optional, for an event that lasts several days."}
+											{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Description"
+										children: [
+											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline.", options:{rows:2}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
+											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Hashtags"
+										children: [
+											// The entry's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ParentID.Hex}}/add?action=tag-options"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Photo"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*"}}
+										]
+									}
+								]
+							}
+						}
+					// The include lets the collection's add run tag-options on the unsaved entry, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
+					{do:"include", action:"tag-options", method:"post"}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"search-index"}
+				]}
+				{do:"refresh-page"}
+			]
+		}
+
+		// An entry's URL opens its modal over its collection's tab
+
+		view: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"include", action:"modal"}
+			]
+		}
+
+		// Drawn over its Timeline tab, or over its own page if the profile is hidden
+		modal: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{
+					do: "as-modal"
+					options: ["class:medium"]
+					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
+					background: "page"
+					replace-url: "/{{.StreamID}}"
+					head: [
+						{do:"view-html", file:"head"}
+					]
+					steps: [
+						{do:"view-html", file:"modal"}
+					]
+				}
+			]
+		}
+
+		// The Replies, Likes, and Shares tabs under the item, redrawn in place when a tab is clicked (?tab=)
+		responses: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html"}
+			]
+		}
+
+		// The entry's own page
+		page: {
+			roles: ["author"]
+			stateRoles: {
+				published: ["viewer"]
+			}
+			steps: [
+				{do:"view-html", file:"view"}
+			]
+		}
+
+		edit: {
+			roles: ["author"]
+			steps: [
+				{do:"as-modal", steps:[
+					// Save and X, top right, in place of the form's own buttons
+					{do:"view-html", file:"edit-pencil"}
+					{do:"view-html", file:"edit-title"}
+					// Date-only, as in create
+						{
+							do: "edit"
+							options: ["id:edit-entry-form", "submit-button:hide", "cancel-button:hide", "delete:/{{.StreamID}}/delete", "delete-label:Delete"]
+							form: {
+								type: "layout-tabs"
+								children: [
+									{
+										type: "layout-vertical"
+										label: "General"
+										children: [
+											{type:"text", path:"label", label:"Title", options:{required:true}}
+											{type:"date", path:"startDate", label:"Date", options:{required:true}}
+											{type:"date", path:"endDate", label:"End Date", description:"Optional, for an event that lasts several days."}
+											{type:"place", path:"location", label:"Location", description:"Optional.", options:{placeholder:"Search for an address or place...", endpoint:"/.geocode/autocomplete"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Description"
+										children: [
+											{type:"textarea", path:"summary", label:"Summary", description:"(PUBLIC) Shows on the timeline.", options:{rows:2}}
+											{type:"textarea", path:"content.raw", label:"Details", description:"(PUBLIC) The full write-up on its own page.  Markdown is allowed.", options:{rows:12}}
+											{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Hashtags"
+										children: [
+											// The entry's hashtags as checkboxes, with no label or description of its own (see AGENTS.md)
+											{type:"html-remote", path:"data.tags", options:{url:"/{{.ID}}/tag-options"}}
+										]
+									}
+									{
+										type: "layout-vertical"
+										label: "Photo"
+										children: [
+											{type:"upload", path:"iconUrl", label:"Photo", options:{accept:"image/*", delete:"/{{.ID}}/delete-icon"}}
+										]
+									}
+								]
+							}
+						}
+					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", download-path:"iconUrl", maximum:1, action:"replace", accept-type:"image/*", rules:{width:1200, types:["webp"]}}
+					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
+					{do:"save", comment:"Updated"}
+					{do:"search-index"}
+				]}
+				// Saving returns to the updated entry in its modal; the 303 makes the browser GET it
+				{do:"remove-event", event:"closeModal"}
+				{do:"redirect-to", method:"post", status:303, url:"/{{.StreamID}}/modal"}
+			]
+		}
+
+		delete-icon: {
+			roles: ["author"]
+			steps: [
+				{do:"delete-attachments", category:"icon"}
+				{do:"set-data", values:{"iconUrl": ""}}
+				{do:"save"}
+			]
+		}
+
+		delete: {
+			roles: ["author"]
+			steps: [
+				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"This will be removed from your collection.  There is NO UNDO."}
+				{do:"forward-to", url:"/{{.ParentID}}"}
+			]
+		}
+	}
+}

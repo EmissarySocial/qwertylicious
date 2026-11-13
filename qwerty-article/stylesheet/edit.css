@@ -7,15 +7,15 @@
 
   .ce-toolbar__actions {
     right: 0;
-    color: var(--black);
+    color: var(--gray100);
 
     .ce-toolbar__plus {
-      color: var(--black);
+      color: var(--gray100);
       background-color: var(--page-background);
     }
 
     .ce-toolbar__settings-btn {
-      color: var(--black);
+      color: var(--gray100);
       background-color: var(--page-background);
     }
   }
@@ -28,7 +28,7 @@
 
 .ctx-notifies {
 .ctx-notify {
-  background-color: var(--white);
+  background-color: var(--gray00);
 }
 }
 
@@ -39,3 +39,16 @@ align-items: center;
 .codex-editor__redactor {
   padding-bottom: unset !important;
 }
+
+/* The editor's card lets its contents overflow so EditorJS's toolbar and popovers are not clipped;
+   the banner area clips itself instead, to keep the corners round. */
+#article-editor {
+	overflow: visible;
+
+	& > :first-child {
+		overflow: hidden;
+		border-top-left-radius: var(--border-radius);
+		border-top-right-radius: var(--border-radius);
+	}
+}
+

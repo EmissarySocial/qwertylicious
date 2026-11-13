@@ -1,0 +1,44 @@
+<!-- reply-item: one reply, called as (array $builder $url); a rule-hidden reply shows hidden-placeholder.
+     RULE: never mark these remote URLs safeURL (see AGENTS.md). -->
+{{- $builder := index . 0 -}}
+{{- $url := index . 1 -}}
+{{- $document := $builder.ActivityStream $url -}}
+
+{{- if and $document.Metadata.IsRuleHidden (ne ($builder.QueryParam "reveal") "true") -}}
+	<div class="qwerty-reply margin-bottom-lg" role="button"
+		hx-get="/{{$builder.StreamID}}/reply?id={{$url | urlquery}}&reveal=true"
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-push-url="false">
+		{{- template "hidden-placeholder" $document -}}
+	</div>
+{{- else if $document.NotNil -}}
+	{{- $object := $document.UnwrapActivity -}}
+	<!-- RULE: load the author through .ActivityStream, never AttributedTo.Load (see AGENTS.md). -->
+	{{- $actor := $object.AttributedTo -}}
+	{{- if ne "" $actor.ID -}}
+		{{- $actor = $builder.ActivityStream $actor.ID -}}
+	{{- end -}}
+	<div class="qwerty-reply flex-row margin-bottom-lg">
+		<a href="{{$actor.URL}}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0">
+			{{- if $actor.Icon.IsNil -}}
+				<div class="circle width-48"></div>
+			{{- else -}}
+				<img class="circle width-48" src="{{$actor.Icon.Href}}" alt="" loading="lazy">
+			{{- end -}}
+		</a>
+		<div class="flex-grow">
+			<div>
+				<a href="{{$actor.URL}}" target="_blank" rel="noopener noreferrer" class="bold text-nocolor">{{$actor.Name}}</a>
+				<span class="text-light-gray text-sm">{{$actor.UsernameOrID}}</span>
+			</div>
+			{{- if ne "" $object.Name -}}
+				<div class="bold margin-top-xs">{{$object.Name}}</div>
+			{{- end -}}
+			<div class="margin-top-xs">{{$object.Content | htmlMinimal}}</div>
+			<div class="text-sm text-light-gray margin-top-xs">
+				<a href="{{if ne `` $object.URL}}{{$object.URL}}{{else}}{{$object.ID}}{{end}}" target="_blank" rel="noopener noreferrer" class="text-nocolor">{{$object.Published | tinyDate}} ago</a>
+			</div>
+		</div>
+	</div>
+{{- end -}}

@@ -1,0 +1,14 @@
+<!-- modal: a photo post opened from its gallery or its own URL; ?tab=likes or ?tab=shares opens that tab under the photo. -->
+<div class="padding">
+	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
+	<div class="corner-pencil flex-row flex-align-start">
+		{{- if .UserCan "edit" -}}
+			<button type="button" class="edit-circle turboclick" hx-get="/{{.StreamID}}/edit" hx-push-url="false" aria-label="Edit">{{icon "pencil"}}</button>
+		{{- end -}}
+		<button type="button" class="edit-circle" script="on click trigger closeModal" aria-label="Close">{{icon "cancel"}}</button>
+	</div>
+
+	<!-- The photo stays on every tab, and its Replies, Likes, and Shares tabs sit beneath it, as on a Note -->
+	{{- template "photo-figure" (array . "modal") -}}
+	{{- template "responses" . -}}
+</div>

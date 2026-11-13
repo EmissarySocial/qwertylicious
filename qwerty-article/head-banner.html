@@ -1,3 +1,5 @@
+<!-- head-banner is the Article's banner image or video, atop its card on the public view and the edit page -->
+<!-- RULE: its top corners are rounded inline, because the edit page's card does not clip them (see AGENTS.md) -->
 {{- $banner := .AttachmentsByCategory "banner" -}}
 {{- $bannerDescription := .Data "bannerDescription" -}}
 
@@ -5,9 +7,9 @@
 	{{- $category := $attachment.MimeCategory -}}
 
 	{{- if eq "image" $category -}}
-		<img id="article-banner" src="{{$attachment.URL}}" alt="{{$bannerDescription}}" class="width-100% rectangle">
+		<img id="article-banner" src="{{$attachment.URL}}" alt="{{$bannerDescription}}" class="width-100% rectangle" style="border-top-left-radius:var(--border-radius); border-top-right-radius:var(--border-radius);">
 	{{- else if eq "video" $category -}}
-		<video id="article-banner" src="{{$attachment.URL}}.mp4" alt="{{$bannerDescription}}" class="width-100% rectangle" controls>
+		<video id="article-banner" src="{{$attachment.URL}}.mp4" alt="{{$bannerDescription}}" class="width-100% rectangle" style="border-top-left-radius:var(--border-radius); border-top-right-radius:var(--border-radius);" controls>
 			<source src="{{$attachment.URL}}.mp4" type="video/mp4">
 			<source src="{{$attachment.URL}}.webm" type="video/webm">
 			<source src="{{$attachment.URL}}.ogg" type="video/ogg">

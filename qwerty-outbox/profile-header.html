@@ -1,0 +1,137 @@
+<!-- profile-header is the profile card: banner, avatar, name, links, location, follower counts, hashtags, and Follow,
+     or the owner's Edit Profile and Publish. The owner's collection buttons are beside the tabs, not here. -->
+{{- $isMyself := .IsMyself -}}
+{{- $showAlbums := eq "true" (.Data "show-albums") -}}
+{{- $showEvents := eq "true" (.Data "show-events") -}}
+{{- $showNews := eq "true" (.Data "show-news") -}}
+{{- $showShop := ne "" (.Data "shop-url") -}}
+{{- $hasBannerImage := ne "" .ImageURL -}}
+{{- $hasBannerColor := ne "" (.Data "color-banner") -}}
+{{- $circleCount := .Circles.Featured.Count -}}
+{{- $isPublic := .IsPublic -}}
+
+
+<div id="profile-card" class="pos-relative">
+
+	<!-- Banner Image; an owner without one gets a box to click or drop an image on, as on an Article's banner -->
+	{{- if and $isMyself (not $hasBannerImage) -}}
+		<div class="hide sm:show">
+			<div id="profile-banner-upload" class="pos-relative" script="install DropToUpload">
+				<div class="align-center">
+					<div class="text-lg margin-none">{{icon "picture"}}</div>
+					<div class="text-lg bold margin-none">Banner</div>
+					<div class="text-sm">
+						Click here to <u>upload an image</u><br>
+						or drag a file into this box.
+					</div>
+				</div>
+				<form
+					hx-post="/@{{.UserID}}/upload-banner"
+					hx-encoding="multipart/form-data"
+					hx-swap="none"
+					hx-push-url="false"
+					hx-trigger="change from:#profile-banner-file">
+					<label for="profile-banner-file" class="clickable pos-absolute-four-corners" aria-label="Upload a banner image">
+						<input id="profile-banner-file" type="file" name="image" accept="image/*" hidden>
+					</label>
+				</form>
+			</div>
+		</div>
+	{{- else if or $hasBannerImage $hasBannerColor -}}
+		<div id="profile-banner" class="pos-relative">
+			<img src="{{.ImageURL}}" class="width-100%">
+			<!-- The banner image is removed only from Edit Profile -->
+		</div>
+	{{- end -}}
+
+	<!-- Author Name -->
+	<div class="padding md:flex-row flex-align-middle md:flex-align-start pos-relative">
+		<div class="width-128 height-100 margin-right-sm">
+			<img id="profile-icon" src="{{.IconURL}}" class="width-100%" aria-hidden="true">
+		</div>
+		<div class="width-100%">
+			<h1 id="profile-name" class="text-2xl bold margin-none align-left">{{.DisplayName}}</h1>
+			<div class="margin-vertical sm:margin-none align-left">
+				<div id="profile-username" class="text-gray margin-right-sm nowrap" script="install Clipboard">
+					<span class="clipboard-text" hidden>@{{.Username}}@{{.Hostname}}</span>
+					<span class="clickable clipboard-copy-button">
+						<span>@{{.Username}}</span>
+						<span class="text-xs">{{icon "copy"}}</span>
+					</span>
+					<span class="clipboard-copy-feedback" style="display:none;">
+						<span>@{{.Username}}</span>
+						<span class="text-xs text-green">{{icon "check"}} Copied</span>
+					</span>
+				</div>
+
+				<div class="text-gray nowrap">
+					{{- if ne "" .Location }}
+						<span id="profile-location"> {{icon "map-pin"}} {{.Location}}</span>
+						{{ if .Links.NotEmpty -}}
+							<span aria-hidden="true">&middot;</span>
+						{{ end -}}
+					{{- end -}}
+
+					{{- if .Links.NotEmpty -}}
+						<span id="profile-links">
+							{{- range  $index, $link := .Links }}
+								{{- if gt $index 0}}
+									<span aria-hidden="true">&middot;</span>
+								{{ end -}}
+								<a href="{{$link.ProfileURL}}" rel="me" target="_blank">{{$link.Name}}</a>
+							{{- end -}}
+						</span>
+					{{- end -}}
+				</div>
+
+				<!-- Follower counts and hashtags -->
+				<div id="profile-stats" class="margin-top-xs align-left">
+					<span><b>{{.FollowerCount}}</b> <span class="text-gray">{{pluralize .FollowerCount "Follower" "Followers"}}</span></span>
+					&nbsp;
+					<span><b>{{.FollowingCount}}</b> <span class="text-gray">Following</span></span>
+				</div>
+				{{- if .Tags -}}
+					<div id="profile-tags" class="margin-top-xs align-left">
+						{{- range .Tags -}}
+							<a href="/people?q=%23{{.Name}}" role="link" class="tag turboclick">#{{.Name}}</a>
+						{{- end -}}
+					</div>
+				{{- end -}}
+			</div>
+
+		</div>
+		<div>
+
+			<div class="nowrap" script="on load trigger storage on window">
+				<!-- The buttons stack on a phone, where two side by side would run past the card, and align to the top, under which Follow may name its account -->
+				<div class="flex-row flex-wrap md:flex-justify-end flex-align-start margin-none">
+					{{- if $isMyself -}}
+
+						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
+						<button hx-get="/@me/settings" class="text-sm turboclick">{{icon "settings"}} Edit Profile</button>
+
+						<!-- Both open the publish modal: green until the profile is public, then gray, to unpublish -->
+						{{- if $isPublic -}}
+							<button hx-get="/@me/publish" class="text-sm turboclick">{{icon "check"}} Published</button>
+						{{- else -}}
+							<button hx-get="/@me/publish" class="success text-sm turboclick">Publish Profile</button>
+						{{- end -}}
+
+					{{- else -}}
+
+						<!-- Emissary's base-outbox: follows in one click as the visitor's saved account, or opens the Follow modal -->
+						{{- template "follow-button" . -}}
+
+						{{- if gt $circleCount 0 -}}
+							<button hx-get="/@{{.UserID}}/subscribe" class="primary turboclick">
+								Subscribe
+							</button>
+						{{- end -}}
+
+					{{- end -}}
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

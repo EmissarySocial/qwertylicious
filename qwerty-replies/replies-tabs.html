@@ -1,0 +1,45 @@
+<!-- replies-tabs: the item's tab bar, its content then "3 Replies", "1 Reply", or "Replies"; takes (array $builder $label
+     $mode ["count"]). $mode is "page" or "modal". "count" also shows "0 Replies" and hides the bar when replies are
+     closed. No bar when the item neither accepts replies nor has any. -->
+{{- $builder := index . 0 -}}
+{{- $label := index . 1 -}}
+{{- $mode := index . 2 -}}
+{{- $style := "" -}}
+{{- if gt (len .) 3 -}}{{- $style = index . 3 -}}{{- end -}}
+
+{{- $showBar := or $builder.AcceptsReplies (gt $builder.ReplyCount 0) -}}
+{{- if eq $style "count" -}}
+	{{- if $builder.RepliesClosed -}}{{- $showBar = false -}}{{- end -}}
+{{- end -}}
+
+{{- if $showBar -}}
+	{{- $repliesSelected := eq ($builder.QueryParam "tab") "replies" -}}
+	{{- $base := print "/" $builder.StreamID -}}
+	{{- if eq $mode "modal" -}}
+		{{- $base = print $base "/modal" -}}
+	{{- end -}}
+	{{- $repliesURL := print $base "?tab=replies" -}}
+
+	<div role="tablist" class="pills margin-bottom-lg">
+		<a role="tab" class="turboclick"
+			href="{{$base}}"
+			hx-get="{{$base}}"
+			hx-target="main"
+			hx-swap="innerHTML transition:true show:none"
+			hx-push-url="{{if eq $mode `page`}}{{$base}}{{else}}false{{end}}"
+			aria-selected="{{if $repliesSelected}}false{{else}}true{{end}}">{{$label}}</a>
+		<a role="tab" class="turboclick"
+			href="{{$repliesURL}}"
+			hx-get="{{$repliesURL}}"
+			hx-target="main"
+			hx-swap="innerHTML transition:true show:none"
+			hx-push-url="{{if eq $mode `page`}}{{$repliesURL}}{{else}}false{{end}}"
+			aria-selected="{{if $repliesSelected}}true{{else}}false{{end}}">
+			{{- if or (eq $style "count") (gt $builder.ReplyCount 0) -}}
+				{{- $builder.ReplyCount }} {{ if eq $builder.ReplyCount 1 }}Reply{{ else }}Replies{{ end -}}
+			{{- else -}}
+				Replies
+			{{- end -}}
+			</a>
+	</div>
+{{- end -}}

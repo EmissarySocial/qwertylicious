@@ -1,0 +1,75 @@
+<!-- items-podcast is a Podcast's tab: its description and the feed's link, then a table of episodes that each open their modal.
+     RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
+<!-- By rank, highest (newest) first unless data.sortDirection is "asc" -->
+{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByRank -}}
+{{- if ne (.DataString "sortDirection") "asc" -}}
+	{{- $query = $query.Reverse -}}
+{{- end -}}
+{{- $episodes := $query.Top60.Slice -}}
+{{- $collection := . -}}
+<!-- The collection's author edits its episodes (the same check as list.html's owner menu) -->
+{{- $canEdit := .UserCan "add" -}}
+
+{{- if $episodes.IsEmpty -}}
+	<!-- An empty Podcast keeps its description, centered above the welcome (list.html leaves it to this view) -->
+	{{- if ne "" .Summary -}}
+		<div class="reading-column text-gray">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
+	{{- end -}}
+	{{- template "items-empty" (array . "mic" "Your Podcast" "This podcast publishes your audio episodes, with a feed for podcast apps.  Add your first one now." "+ Add an Episode") -}}
+{{- else -}}
+	<!-- The description, the feed's link, and the episodes share one centered column, up to 720px, as an Article's text does (.reading-column) -->
+	<div class="qwerty-podcast reading-column margin-top-xl">
+
+		{{- if ne "" .Summary -}}
+			<div class="text-gray">{{if .DataBool "hardWraps"}}{{.Summary | markdownHardWraps}}{{else}}{{.Summary | markdown}}{{end}}</div>
+		{{- end -}}
+
+		<div class="qwerty-podcast-header flex-row flex-align-center text-sm margin-vertical-lg">
+			<div class="flex-grow"></div>
+			<a href="/{{.StreamID}}/feed?format=rss" target="_blank" class="nowrap" aria-label="Podcast Feed (RSS)">{{icon "rss"}} Podcast Feed (RSS)</a>
+		</div>
+
+		<!-- The episodes, as a table so the dates and buttons line up; a click on a row opens its modal (see AGENTS.md) -->
+		<table class="qwerty-podcast-episodes">
+			<tbody>
+			{{- range $episodes -}}
+				{{- $hasAudio := index .Data "attachmentId" -}}
+				<tr class="qwerty-podcast-episode" data-episode-url="/{{.StreamID}}/audio?format=mp3" data-episode-row>
+					<td class="qwerty-podcast-icon">
+						{{- if $hasAudio -}}
+							<button class="qwerty-podcast-play turboclick" aria-label="Play {{.Label}}"
+								data-podcast-play="/{{.StreamID}}/audio?format=mp3"
+								data-track-name="{{.Label}}"
+								data-track-artist="{{$collection.AttributedTo.Name}}"
+								data-track-album="{{$collection.Label}}"
+								data-track-image="{{if ne `` .IconURL}}{{.IconURL}}{{else}}{{$collection.AttributedTo.IconURL}}{{end}}"
+								hx-get="/{{.Token}}/modal"
+								hx-push-url="false">
+								<span class="playing-hide">{{icon "play-fill"}}</span>
+								<span class="playing-show">{{icon "volume-up-fill"}}</span>
+							</button>
+						{{- else -}}
+							<span class="qwerty-podcast-play text-light-gray" aria-hidden="true">{{icon "mic"}}</span>
+						{{- end -}}
+					</td>
+					<td class="qwerty-podcast-name"><a href="/{{.Token}}" hx-get="/{{.Token}}/modal" hx-push-url="false" class="bold text-nocolor turboclick">{{.Label}}</a></td>
+					<!-- .text-gray is an opacity, so it goes on the text; on the cell it would fade the row's hover color too -->
+					<td class="qwerty-podcast-date text-sm"><span class="text-gray">
+						{{- .PublishDate | shortDate -}}
+						{{- if not $hasAudio }}<span class="hide sm:inline"> &middot; No audio</span>{{ end -}}
+					</span></td>
+					{{- if $canEdit -}}
+						<td class="qwerty-podcast-edit">
+							<button class="edit-circle turboclick" hx-get="/{{.Token}}/edit" aria-label="Edit {{.Label}}" title="Edit">{{icon "pencil"}}</button>
+						</td>
+					{{- end -}}
+				</tr>
+			{{- end -}}
+			</tbody>
+		</table>
+
+		<!-- RULE: the list loads the script behind its play buttons; no theme's footer does (see AGENTS.md) -->
+		<script src="/.themes/qwerty-theme/podcast" defer></script>
+
+	</div>
+{{- end -}}

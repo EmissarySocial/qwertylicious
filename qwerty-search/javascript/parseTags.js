@@ -1,3 +1,4 @@
+/** parseTags splits #tags out of value, returning the tags and the remaining text */
 function parseTags(value) {
 
 	var inTag = false
@@ -21,7 +22,7 @@ function parseTags(value) {
 			continue
 		}
 
-		// This is the end of a tag
+		// Inside a tag: a space or punctuation ends it
 		switch (char) {
 
 			case " ":
@@ -57,6 +58,7 @@ function parseTags(value) {
 	}
 }
 
+/** lastWord returns the last space-separated word in value */
 function lastWord(value) {
 	var words = value.split(" ")
 	return words[words.length - 1]

@@ -284,3 +284,75 @@ select,
 	background-color: var(--input-background);
 	border-radius: var(--border-radius);
 }
+
+/* The selected button's border reads 2px, but stays 1px wide: the second pixel is an inset shadow, which
+   takes no space, so selecting never resizes the button. currentColor follows the global theme's blue. */
+.radiobutton:has(input[type="radio"]:checked) {
+	border-width: 1px;
+	box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* The pencil that .hover-show reveals on an item card (Article layouts, gallery tiles, Notes): a
+   circle at any glyph size, because a fixed square, not padding, sets its shape. The glyph is
+   centered with flexbox and Bootstrap Icons' baseline nudge is undone. */
+button.edit-circle,
+.button.edit-circle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: calc(var(--rhythm) * 4);
+	height: calc(var(--rhythm) * 4);
+	padding: 0;
+	margin: 0;
+	border-radius: 50%;
+
+	i {
+		display: block;
+		font-size: calc(var(--rhythm) * 1.75);
+		line-height: 1;
+
+		&::before {
+			display: block;
+			vertical-align: 0;
+		}
+	}
+}
+
+/* An invisible circle that keeps a missing button's place in the owner's menu (qwerty-common/profile-menu.html) */
+.edit-circle.placeholder {
+	visibility: hidden;
+}
+
+/* The pencil in an item's top right corner, on its modal or page and on its editor, which toggles between them */
+.corner-pencil {
+	position: absolute;
+	top: calc(var(--rhythm) * 2);
+	right: calc(var(--rhythm) * 2);
+	z-index: 1;
+}
+
+/* RULE: a corner's other buttons are the circle's height, so its X sits exactly where the pencil did */
+.corner-pencil > button:not(.edit-circle),
+.corner-pencil > .button:not(.edit-circle) {
+	height: calc(var(--rhythm) * 4);
+	margin: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* A modal's tab bar on the corner buttons' line: a band the circle's height, at the corner's top.
+   RULE: its top margin cancels #modal-window's padding, so place it first inside one .padding wrapper. */
+.corner-tabs {
+	display: flex;
+	align-items: center;
+	height: calc(var(--rhythm) * 4);
+	margin-top: calc(var(--border-radius) * -1.8);
+	margin-bottom: calc(var(--rhythm) * 4);
+}
+
+/* The taller tab bar overflows the band evenly, so its center stays on the circles'.
+   RULE: !important, to beat the margin-bottom-lg utility that replies-tabs puts on the bar */
+.corner-tabs > [role="tablist"] {
+	margin: 0 !important;
+}

@@ -1,28 +1,40 @@
-<div class="page framed h-entry">
+<div class="page framed wide h-entry">
 
-	{{- template "head-banner" . -}}
+	<!-- One bordered card holds the banner, the heading, and the article, and clips the banner to its corners -->
+	<div class="pos-relative card border padding-none">
 
-	<div class="pos-relative card">
+		<!-- The author's pencil, top right, opens the editor (its pair is in edit.html).  "unset" drops <body>'s inherited
+		     hx-push-url, so the editor replaces this history entry instead of adding one -->
+		{{- if .UserCan "edit" -}}
+			<a class="button edit-circle corner-pencil turboclick" href="/{{.StreamID}}/edit" hx-push-url="unset" hx-replace-url="true" aria-label="Edit Article">{{icon "pencil"}}</a>
+		{{- end -}}
 
-		<article id="article" class="content">
+		{{- template "head-banner" . -}}
+
+		<article id="article" class="content reading-column">
 
 			{{- template "head-summary" . -}}
+			{{- template "head-tags" . -}}
 			{{- template "head-social" . -}}
 
-			{{- if .UserCan "view-premium" -}}
-				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
+			<!-- The article and its Replies, as two tabs (qwerty-replies) -->
+			{{- if .AcceptsReplies -}}
+				{{- template "replies-tabs" (array . "Article" "page") -}}
 
+				{{- if eq (.QueryParam "tab") "replies" -}}
+					{{- template "replies-panel" . -}}
+
+				{{- else if .UserCan "view-premium" -}}
+					<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
+
+				{{- else -}}
+					{{- template "view-subscribe" . -}}
+				{{- end -}}
 			{{- else -}}
-				{{- template "view-subscribe" . -}}
+				<div id="article-content" class="e-content">{{- .ContentHTML -}}</div>
 			{{- end -}}
 
 		</article>
-
-		{{- if .UserCan "edit" -}}
-			<div class="pos-absolute-top-right">
-				<a class="button icon" href="/{{.StreamID}}/edit">{{icon "pencil"}}</a>
-			</div>
-		{{- end -}}
 
 	</div>
 
@@ -34,6 +46,6 @@
 		hx-push-url="false">
 	</div>
 	
-	<link rel="stylesheet" href="/.templates/user-article/stylesheet" />
+	<link rel="stylesheet" href="/.templates/qwerty-article/stylesheet" />
 
 </div>

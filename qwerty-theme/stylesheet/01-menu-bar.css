@@ -2,12 +2,10 @@
  * Menu Bar
  ******************************************/
 
+/* The bar's border, margins, and padding are theme-default's, which #menu-bar-sub's -32px top margin is
+   built against, so a sub-menu sits flush under the bar.  Overflow stays visible for the bars' dropdowns. */
  #menu-bar {
 	position: relative;
-	border-bottom: unset;
-	margin-top: unset;
-	margin-bottom: calc(var(--rhythm) * 1.5);
-	padding: unset;
 	line-height: 100%;
 	display: flex;
 	flex-direction: row;
@@ -23,18 +21,15 @@
 	flex-grow: unset;
 }
 
+/* A bar with only a center section (Emissary's admin tabs) stretches it, so its tabs center */
+#menu-bar > div.center {
+	flex-grow: 1;
+}
+
 #menu-bar > div.left {
 	display: flex;
 	text-align: left;
 	z-index: 1;
-}
-
-#menu-bar > div.center {
-	margin: auto;
-	position: absolute;
-  left: 0;
-  right: 0;
-	text-align: center;
 }
 
 #menu-bar > div.right {
@@ -60,7 +55,7 @@
 		}
 
 		&.selected {
-			background-color: var(--white);
+			background-color: var(--gray00);
 		}
 
 		i.ti {
@@ -92,8 +87,8 @@
 #menu-bar .button.selected,
 #menu-bar .button.selected:hover,
 #menu-bar .button.selected:hover {
-	background-color: var(--white);
-	color: var(--black);
+	background-color: var(--gray00);
+	color: var(--gray100);
 }
 
 /* Dropdowns */
@@ -155,51 +150,48 @@
 
 @media (prefers-color-scheme: dark) {
 	.dropdown-content, #menu-bar .dropdown-content {
-		background-color: var(--black);
-		color: var(--white);
+		background-color: var(--gray100);
+		color: var(--gray00);
 	}
 
 	.dropdown-content .dropdown-item, #menu-bar .dropdown-content .dropdown-item {
 		&:not(.text-red) {
-			color: var(--white);
+			color: var(--gray00);
 
 			i {
-				color: var(--gray05);
+				color: var(--gray40);
 			}
 		}
 
 		&:hover {
-			background-color: var(--gray20);
+			background-color: var(--gray80);
 		}
 	}
 }
 
-/******************************************
- * Sub-Menu Bar
- ******************************************/
-
-#menu-bar-sub {
-	display:block;
-	background:var(--gray05);
-	border-bottom: solid 1px var(--gray20);
-	padding:4px 8px;
-	margin-top:-32px;
-	margin-bottom:32px;
-	text-align:center;
+/* A line between groups of menu items, without the global <hr> margins (the menu's gap spaces it).
+   RULE: faded menu text color, not --gray20, which nearly matches the menu's background in light mode. */
+.dropdown-content hr, #menu-bar .dropdown-content hr {
+	width: 100%;
+	margin: 0;
+	border-top: 1px solid currentColor;
+	opacity: 0.2;
 }
 
-#menu-bar-sub a {
-	color:var(--gray90);
-	font-size:12px;
-	border-radius:var(--rhythm);
-	padding:4px 8px;
-}
+/* An action item stands out in a menu just as an action button does elsewhere.  It comes after
+   the rules above because they reset every item's background, in light and dark mode. */
+.dropdown-content .dropdown-item.action, #menu-bar .dropdown-content .dropdown-item.action {
+	background-color: var(--button-action-background);
+	color: var(--button-action-color);
 
-#menu-bar-sub a.selected {
-	background-color:var(--gray20);
-	color:var(--black);
-}
+	i {
+		color: var(--button-action-color);
+	}
 
+	&:hover {
+		background-color: var(--button-action-background-hover);
+	}
+}
 
 /******************************************
  * Breadcrumbs

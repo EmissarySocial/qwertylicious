@@ -1,0 +1,7 @@
+<!-- episode-arrow-next: the skip button to the episode below, called with its ID, or "" to draw it disabled.
+     RULE: each state is drawn whole; no action where an attribute name goes (see AGENTS.md). -->
+{{- if ne "" . -}}
+	<button type="button" class="qwerty-episode-arrow turboclick" data-episode-go="next" aria-label="Next Episode">{{icon "skip-forward-fill"}}</button>
+{{- else -}}
+	<button type="button" class="qwerty-episode-arrow" aria-label="Next Episode" disabled>{{icon "skip-forward-fill"}}</button>
+{{- end -}}

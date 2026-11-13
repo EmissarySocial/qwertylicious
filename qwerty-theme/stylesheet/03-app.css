@@ -35,21 +35,6 @@
 		min-width: 160px;
 		max-width: 240px;
 	}
-
-	&.collapsed {
-		width: min-content;
-		min-width: unset;
-		max-width: unset;
-		padding: var(--rhythm);
-
-		.menu-item {
-			padding: calc(var(--rhythm) * 1.5);
-
-			.label {
-				display: none;
-			}
-		}
-	}
 }
 
 
@@ -68,8 +53,8 @@
 	}
 
 	&.selected {
-		background-color: var(--white);
-		color: var(--black);
+		background-color: var(--gray00);
+		color: var(--gray100);
 		font-weight: 600;
 	}
 
@@ -134,7 +119,7 @@
 	overflow: hidden;
 
 	&.border {
-		background-color: var(--white);
+		background-color: var(--gray00);
 		border-radius: calc(var(--rhythm) * 2);
 		border: 1px solid var(--page-border);
 	}
@@ -204,7 +189,7 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 	padding: 12px 16px;
 	border: none;
 	background-color: var(--input-background);
-	color:var(--black);
+	color:var(--gray100);
 }
 
 [role="tablist"].pills > [role="tab"][disabled] {
@@ -221,6 +206,19 @@ i.bi {min-width:calc(1.5 * var(--rhythm))px;}
 	margin: unset;
 	padding: 12px 16px;
 	border: none;
-	background-color: var(--white);
+	background-color: var(--gray00);
 	color: inherit;
+}
+
+/* A collection's hashtag pills (qwerty-collection/tag-pills.html): a click filters, so their text is never selectable (Ben, 2026-11-06) */
+.qwerty-tag-pills > [role="tab"] {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* An item's responses bar (each item's responses.html): its buttons and its tabs share text-sm's font size.
+   RULE: each selector outranks the rule it replaces, .text-sm button (1.6 rhythm) and [role=tab] (0.9rem). */
+.qwerty-responses-row .text-sm button,
+.qwerty-responses-row [role="tablist"] > [role="tab"] {
+	font-size: calc(var(--rhythm) * 1.75);
 }

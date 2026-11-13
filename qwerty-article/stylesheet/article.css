@@ -47,7 +47,7 @@
 		font-size:16px;
 
 		& h1, & h2, & h3, & h4, & h5, & h6 {
-			color: var(--black);
+			color: var(--gray100);
 			font-weight:normal;
 			margin-top: 1.5em;
 			margin-bottom: 0em;
@@ -63,3 +63,15 @@
 		max-width:100%;
 	}
 }
+
+/* The collection's name above an Article's title, on the public view and the edit page.  Its
+   capitals come from the text-uppercase class; this only spaces them. */
+#article-collection {
+	letter-spacing: 0.05em;
+}
+
+/* A hashtag chip that links to the collection's tab (head-tags.html): the global .tag sets cursor: default for plain chips */
+#article-tags a.tag {
+	cursor: pointer;
+}
+

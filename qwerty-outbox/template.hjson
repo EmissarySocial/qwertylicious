@@ -6,7 +6,7 @@
 	label: Qwertylicious Profile
 	description:Profile displays everything about a user, including their inbox and outbox information
 	icon: inbox
-	extends: ["base-social", "base-intent"]
+	extends: ["base-social", "base-intent", "qwerty-common", "base-outbox"]
     containedBy: []
     tagPaths: ["statusMessage"]
 	tagUrl:"/search?q="
@@ -30,9 +30,11 @@
 				properties: {
 					tags: {type:"string"}
 					background-body: {type:"string", format:"uri"}
-					layout: {type:"string"}
 					layout-highlight-first: {type:"boolean"}
-					stylesheet: {type:"string"}
+					// "true" renders each line break in the About Me message as a <br>; a string, because a User's data holds only strings
+					hardWraps: {type:"string", enum:["", "true", "false"]}
+					// The Stylesheet tab's CSS, kept exactly as written; outbox.html scopes it to the profile (see AGENTS.md)
+					stylesheet: {type:"string", format:"custom-css", maxLength:4096}
 					color-button: {type:"string", format:"color"}
 				}
 			}
@@ -53,6 +55,43 @@
 		}
 	}
 
+	// Every new profile starts with Articles, Notes, and About, set up as qwerty-collection's create would (see AGENTS.md)
+	defaultChildren: [
+		{
+			templateId: "qwerty-collection"
+			label: "Articles"
+			"data.layout": "column-3"
+			"data.zoom": "11"
+			"data.calendarView": "list"
+			"data.sortType": "publishDate"
+			"data.sortDirection": "desc"
+			replyPolicy: "everyone"
+			"groups.viewer.0": "000000000000000000000000"
+		}
+		{
+			templateId: "qwerty-collection"
+			label: "Notes"
+			"data.layout": "notes"
+			"data.zoom": "11"
+			"data.calendarView": "list"
+			"data.sortType": "publishDate"
+			"data.sortDirection": "desc"
+			replyPolicy: "everyone"
+			"groups.viewer.0": "000000000000000000000000"
+		}
+		{
+			templateId: "qwerty-collection"
+			label: "About"
+			"data.layout": "about"
+			"data.zoom": "11"
+			"data.calendarView": "list"
+			"data.sortType": "publishDate"
+			"data.sortDirection": "desc"
+			replyPolicy: "everyone"
+			"groups.viewer.0": "000000000000000000000000"
+		}
+	]
+
 	datasets: {
 		fonts: [
 			{Label:"System Fonts", Value:"system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"}
@@ -67,39 +106,47 @@
 			{Label:"Cormorant *", Value:"Cormorant *"}
 			{Label:"Source Serif", Value:"Source Serif"}
 		]
-
-		layouts: [
-			{label:"1x Column", value:"column-1", icon:"view-stacked", description:"Large cards take up the full page width"}
-			{label:"2x Columns", value:"column-2", icon:"grid", description:"Medium cards are arranged in two columns"}
-			{label:"3x Columns", value:"column-3", icon:"grid-3x2-gap", description:"Small cards are arranged in three columns"}
-			{label:"Rows", value:"row", icon:"list-columns-reverse", description:"Cards with descriptions to the right side of the image"}
-			{label:"Rows Reversed", value:"row-reverse", icon:"list-columns", description:"Cards with descriptions to the left side of the image"}
-		]
 	}
 
 	tagPaths: ["data.tags"]
 
 	actions: {
 
-		about: {
-			roles: ["anonymous"]
-			steps:[
-				{do:"view-html"}
+		// The Notes tab's + button opens this composer in a modal, which saves a Note on the profile, as Emissary's outbox-add does
+		add-note: {
+			roles: ["self"]
+			steps: [
+				{do:"set-args", postTo:"/@me/add-note"}
+				{do:"set-query-param", new-stream-label:"Post"}
+				{do:"as-modal", steps:[
+					{do:"view-html", file:"add-note-title"}
+					// A new note takes the Notes collection's reply policy (empty, which is "everyone", when there is none)
+					{do:"add-stream", style:"inline", location:"outbox", template:"outbox-message", with-data:{
+						replyPolicy:"{{range ((.Outbox.Where `templateId` `qwerty-collection`).Where `data.layout` `notes`).Top1.Slice}}{{.ReplyPolicy}}{{end}}"
+					}}
+				]}
+				{do:"refresh-page"}
 			]
 		}
 
-		add: {
+		// RULE: a profile holds up to 8 collections; past that, GET and POST both answer with a message
+		add-collection: {
 			roles: ["self"]
 			steps: [
+				{do:"if", condition:"{{ge (len (.Outbox.Where `templateId` `qwerty-collection`).Slice) 8}}", then:[
+					{do:"inline-error", message:"You have 8 collections, the most a profile can hold."}
+					{do:"as-modal", steps:[
+						{do:"view-html", file:"collections-full"}
+					]}
+					{do:"halt"}
+				]}
 				{
 					do: add-stream
 					style: inline
 					location: outbox
-					template: qwerty-article
-					title: + Add an Article
-					set-permissions: {copy:true, editor:["self"]}
+					template: qwerty-collection
+					title: + Add a Collection
 				}
-				{do: "save"}
 			]
 		}
 
@@ -159,76 +206,6 @@
 			]
 		}
 
-		edit: {
-			roles: ["self"]
-			steps: [
-				{do: "as-modal", background:"view", steps:[
-					{
-						do: "edit"
-						form:{
-							label: Edit Profile
-							type:layout-tabs
-							children: [
-								{
-									type: layout-vertical
-									label: Basics
-									children: [
-										{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)", options:{autocomplete:"off"}}
-										{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
-									]
-								}
-								{
-									type: layout-vertical
-									label: About
-									children: [
-										{type:"textarea", path:"statusMessage", description:"Displayed on your 'About' page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
-										{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
-									]
-								}
-								{
-									label: Images
-									type: layout-vertical
-									children: [
-										{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed next to your name as an icon. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-icon"}}
-										{type:"upload", path:"imageUrl", label:"Banner Image", description:"Displays at the top of your profile page. (PUBLIC)", options:{accept:"image/*", delete:"/@me/delete-image"}}
-										{type:"html"}
-									]
-								}
-							]
-						}
-					}
-					{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
-					{do:"upload-attachments", category:"image", fieldname:"imageUrl", attachment-path:"imageId", rules:{types:["webp"]}}
-					{do:"upload-attachments", category:"body-background", fieldname:"data.background-body", download-path:"data.background-body", rules:{types:["webp"]}}
-					{do:"save"}
-					{do:"set-password"}
-					{do:"search-index"}
-					{do:"refresh-page"}
-				]}
-			] 
-		}
-
-		edit-layout: {
-			roles: ["self"]
-			steps: [
-				{do: "as-modal", background:"view", steps:[
-					{
-						do: "edit"
-						form:{
-							label: Edit Layout
-							type:layout-vertical
-							children: [
-								{type:"radio-button-group", path:"data.layout", options:{provider:"qwerty-outbox.layouts"}}
-								//{type:"checkbox", path:"data.layout-highlight-first", label:"Expand the Top Item in the list"}
-							]
-						}
-					}
-					{do:"save"}
-					{do:"refresh-page"}
-				]}
-			]
-		}
-
 		edit-status: {
 			roles: ["self"]
 			steps: [
@@ -239,7 +216,8 @@
 							label: Edit Status Message
 							type: layout-vertical
 							children: [
-								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:8, showLimit:true}}
+								{type:"textarea", path:"statusMessage", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
+								{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
 							]
 						}
 					}
@@ -248,6 +226,17 @@
 					{do:"refresh-page"}
 				]}
 			] 
+		}
+
+		// The profile header's empty banner posts its image here, when the owner clicks it or drops a file on it
+		upload-banner: {
+			roles: ["self"]
+			steps: [
+				{do:"upload-attachments", category:"image", fieldname:"image", attachment-path:"imageId", accept-type:"image/*", rules:{types:["webp"]}}
+				{do:"save"}
+				{do:"search-index", if:"{{.IsIndexable}}"}
+				{do:"refresh-page"}
+			]
 		}
 
 		edit-banner: {
@@ -274,19 +263,10 @@
 			] 
 		}
 
-		follow: {
-			roles: ["anonymous"]
-			steps: [
-				{do:"as-modal", steps:[
-					{do:"view-html"}
-				]}
-			]
-		}
-
 		header: {
 			roles: ["anonymous"]
 			steps: [
-				{do:"view-html", file:"header"}
+				{do:"view-html", file:"profile-header"}
 			]
 		}
 
@@ -310,17 +290,88 @@
 			]
 		}
 
-		replies: {
-			roles: ["anonymous"]
+		// base-outbox's General form plus the line-break toggle under About Me; an override replaces the whole action, so keep its fields
+		settings-general-form: {
+			roles: ["self"]
+			steps: [
+				{
+					do: "edit"
+					options: ["endpoint:/@me/settings-general-form", "cancel-button:hide"]
+					form: {
+						type: layout-vertical
+						children: [
+							{type:"text", path:"displayName", label:"Name", description:"Displayed wherever someone sees your profile. (PUBLIC)"}
+							{type:"text", path:"username", label:"Username", description:"How others will identify you online. (PUBLIC)", options:{autocomplete:"off", validator:"/.validate/user/username"}}
+							{type:"text", path:"emailAddress", label:"Email Address", description:"Used to sign in and support your account. Not shared. (PRIVATE)"}
+							{type:"textarea", path:"statusMessage", label:"About Me", description:"Displayed on your profile page. Markdown is allowed. (PUBLIC)", options:{rows:12, showLimit:true}}
+							{type:"toggle", path:"data.hardWraps", options:{false-text:"Keep line breaks as typed?", true-text:"Keeping line breaks as typed."}}
+							{type:"text", path:"location", label:"Location", description:"City, State, or whatever you want. (PUBLIC)"}
+							{type:"text", path:"data.tags", label:"Hashtags", description:"Enter #Hashtags separated by spaces.  (PUBLIC)"}
+						]
+					}
+				}
+				{do:"save"}
+				{do:"search-index"}
+				{do:"inline-save-button"}
+			]
+		}
+
+		// base-outbox's ?tab= switch plus Collections and Stylesheet; an override replaces the whole action, so keep its cases
+		settings-general: {
+			roles: ["self"]
+			steps: [
+				{do:"switch", expression:"{{.QueryParam `tab`}}", cases:{
+					images: {do:"view-html", file:"settings-images"}
+					links: {do:"view-html", file:"settings-links"}
+					collections: {do:"view-html", file:"settings-collections"}
+					stylesheet: {do:"view-html", file:"settings-stylesheet"}
+				}, default:{do:"view-html"}}
+			]
+		}
+
+		// The Collections tab of Settings → Profile, after base-outbox's Links tab
+		settings-collections: {
+			roles: ["self"]
 			steps: [
 				{do:"view-html"}
 			]
 		}
 
-		replies-list: {
-			roles: ["anonymous"]
+		// The tab's form: re-ranks the collections on POST, then answers with the form again
+		settings-collections-form: {
+			roles: ["self"]
+			steps: [
+				{do:"sort", model:"Stream", keys:"_id", values:"rank"}
+				{do:"view-html", method:"both"}
+			]
+		}
+
+		// The Stylesheet tab of Settings → Profile, after Collections
+		settings-stylesheet: {
+			roles: ["self"]
 			steps: [
 				{do:"view-html"}
+			]
+		}
+
+		// The tab's form: one textarea of CSS, which the custom-css format checks before it saves
+		settings-stylesheet-form: {
+			roles: ["self"]
+			steps: [
+				{
+					do:"edit"
+					options:["endpoint:/@me/settings-stylesheet-form", "cancel-button:hide"]
+					form:{
+						type:layout-vertical
+						children:[
+							{type:"textarea", path:"data.stylesheet", description:"Custom styles work only on your profile. Images and fonts must come from this website.", options:{rows:20, showLimit:true, style:"font-family:monospace;"}}
+						]
+					}
+				}
+				// RULE: edit drops a refused stylesheet without a word; set-data writes it again and shows why (see AGENTS.md)
+				{do:"set-data", from-form:["data.stylesheet"]}
+				{do:"save"}
+				{do:"inline-save-button"}
 			]
 		}
 
@@ -336,13 +387,6 @@
 			roles: ["self"]
 			steps: [
 				{do:"sort", model:"Stream", keys:"_id", values:"rankAlt"}
-			]
-		}
-
-		stylesheet: {
-			roles: ["anonymous"]
-			steps: [
-				{do:"view-css"}
 			]
 		}
 
@@ -365,19 +409,35 @@
 		wizard-1: {
 			roles: ["self"]
 			steps: [
-				{
-					do:edit
-					form: {
-						type:layout-vertical
-						children: [
-							{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
-							{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
-							{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
-							{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
-						]
+				// RULE: ask for a password only when the account has none; set-password never replaces one without the current one
+				{do:"if", condition:"{{.HasPassword}}", then:[
+					{
+						do:edit
+						form: {
+							type:layout-vertical
+							children: [
+								{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
+								{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
+								{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
+							]
+						}
+						options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
 					}
-					options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
-				},
+				], else:[
+					{
+						do:edit
+						form: {
+							type:layout-vertical
+							children: [
+								{type:"text", path:"displayName", label:"Your Name", description:"Displayed publicly. The name you want to be known by.", options:{autocomplete:"name", required:true}}
+								{type:"text", path:"username", label:"Username", description:"Displayed publicly. How others will find you online.", options:{autocomplete:"username", required:true}}
+								{type:"password", path:"new_password", label:"Choose Your Password", description:"At least 8 characters. Please use a Password Manager.", options:{autocomplete:"new-password", minLength:8, required:true}}
+								{type:"upload", path:"iconUrl", label:"Avatar Image", description:"Displayed publicly next to your name, often on other websites, too.", options:{accept:"image/*"}}
+							]
+						}
+						options: ["endpoint:/@{{.UserID}}/wizard-1", "submit-label:Continue >>", "cancel-button:hide"]
+					}
+				]}
 				{do:"upload-attachments", category:"icon", fieldname:"iconUrl", attachment-path:"iconId", rules:{width:400, height:400, types:["webp"]}}
 				{do:"set-state", state:"LIVE"}
 				{do:"set-password"}

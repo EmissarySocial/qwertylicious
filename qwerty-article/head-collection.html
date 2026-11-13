@@ -1,0 +1,6 @@
+<!-- head-collection links to the Article's collection, above its title.  ParentSummary applies the reader's
+     permissions, so a hidden collection, or a parent that is not a collection, shows nothing. -->
+{{- $collection := .ParentSummary.Slice.First -}}
+{{- if ne "" $collection.Label -}}
+	<div id="article-collection" class="text-sm text-uppercase"><a href="/{{.ParentID}}" class="text-nocolor text-gray turboclick">{{$collection.Label}}</a></div>
+{{- end -}}

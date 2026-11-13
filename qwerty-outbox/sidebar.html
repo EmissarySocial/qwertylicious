@@ -28,12 +28,12 @@
 		
 		{{- if .IsMyself -}}
 			<div class="margin-top-lg text-sm align-center">
-				<a href="/@me/settings" class="button">{{icon "gear"}} Edit Profile</a>
+				<a href="/@me/settings" class="button turboclick">{{icon "gear"}} Edit Profile</a>
 				<button hx-post="/signout" hx-target="body">Sign Out</button>
 			</div>
 		{{- else -}}
 			<div class="margin-top-lg">
-				<button type="button" class="primary width-100% ellipsis" hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}">{{icon "plus-circle"}} Follow {{.DisplayName}}</button>
+				<button type="button" class="primary width-100% ellipsis turboclick" hx-get="/@{{.UserID}}/intent?intent=follow&object={{.Permalink}}">{{icon "plus-circle"}} Follow {{.DisplayName}}</button>
 			</div>
 		{{- end -}}
 
