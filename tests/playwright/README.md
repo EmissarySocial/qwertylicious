@@ -41,6 +41,7 @@ npx playwright show-report        # the HTML report of the last run
 | `/lists` | A gallery's hashtag list from JSON, for the picker spec; a gallery with none set lists `travel` and `food` |
 | `/list` | The `list` widget's fixture inside a form; its POST answers with every value it received, by name, in the order posted |
 | `/tabs` | A two-tab form, General and Hashtags, as `layout-tabs` draws one |
+| `/upload` | The `upload` widget's fixture inside a form: seven single-file zones. Its POST answers with each field's values and the name of each file it received. `/upload/image/{width}x{height}` is an image of that size, and a POST to `/upload/delete` answers nothing |
 | `/seed`, `/posts/{id}` | A post stored from JSON, and a post's files in rank order, for the photo spec |
 | `/editorjs` | `qwerty-article/edit-content-editorjs.html` for a new Article, read from the template itself |
 | `/editorjs-emissary` | Emissary's `stream-article-editorjs/editor.html`, the same way |
@@ -86,7 +87,7 @@ The pieces a test is about come from the template files themselves:
 - the `htmx-config` meta in every page's `<head>`, from `qwerty-theme/page.html`, so the specs run htmx with the theme's settings;
 - a photo's pencil and X, from `qwerty-photo/modal.html` and `edit-pencil.html`.
 
-`fixtures/list.html` holds benpate/form's `list` widget as it draws three lists in a `layout-vertical`: one of at most 4 values, an empty one, and one of at least 2. Render it again from the form library whenever the widget's markup changes. `fixtures/tabs.html` holds a `layout-tabs` form drawn the same way, with a text field on General and a `list` on Hashtags.
+`fixtures/list.html` holds benpate/form's `list` widget as it draws three lists in a `layout-vertical`: one of at most 4 values, an empty one, and one of at least 2. Render it again from the form library whenever the widget's markup changes. `fixtures/tabs.html` holds a `layout-tabs` form drawn the same way, with a text field on General and a `list` on Hashtags. `fixtures/upload.html` holds benpate/form's `upload` widget as it draws seven fields in a `layout-vertical`: an empty image field, saved square, banner, portrait, and panorama images, a saved audio file with a `filename` option, and an empty audio field. Three of them carry a `delete` option.
 
 `fixtures/photo-create.html` and `fixtures/photo-edit.html` copy Add Photos and Edit Photo as Emissary's `edit` step renders them from `qwerty-photo/template.hjson`, with their two `html-remote` elements' own markup, empty shells that load the photo zone and the hashtag picker from `server.mjs`; `fixtures/photo-modal.html` holds the modal around the carousel, which `server.mjs` draws from the post's files as `qwerty-photo/photo-figure.html` does.
 
@@ -130,6 +131,18 @@ EMISSARY_DIR=../../../emissary QWERTY_DIR=/path/to/broken-copy CI=1 npx playwrig
 - **No file during the Save.** While Add Photos' Save is held in flight, the plus is disabled and a drop is refused in the status line; once the Save is refused, the plus returns, the message clears, and a drop uploads again.
 - **Edit Photo.** The row loads the saved photos; a drop uploads at once, after them, with the plus still after the row; Home on a focused tile moves it to the front and saves the order; the X deletes a saved photo after its confirm; and Save returns to the modal, whose carousel shows the photos in the new order.
 - **The last photo cannot be deleted.** Its X is disabled, and says to add another file first.
+
+`upload.spec.mjs` drives the `upload` form widget, with Emissary's `upload-single.js` and styles served from source, and checks the following:
+
+- **Sizes.** Every tile is 96px tall and takes its width from its image: 96px for a square, 171px for 16:9, the 96px minimum for a portrait, and the 640px maximum for a panorama, which letterboxes. The plus is a 96px square, every zone is the same height, and a tile stays inside a 390px window.
+- **Files with no preview.** A saved audio file is an icon and the name from its `filename` option.
+- **Picking.** The plus opens the picker; the picked file shows at once as a tile at its own proportions with "will upload when you save" beside it, the zone keeps its height, and the Save carries the file. The tile's X removes the pick and returns the plus, with the focus on it.
+- **Replacing.** A click on a saved tile opens the picker, the pick hides the saved tile, and its X brings the saved tile back. A Save with nothing picked carries the saved address alone.
+- **The keyboard.** Enter and Space on a focused tile open the picker, and focus inside a tile shows its X.
+- **Dropping.** A dragged file lights the zone, a dropped one is taken into the input, a file the field does not accept is refused in the status line, and a drop of several takes the first that fits.
+- **An undecodable image** falls back to the icon and its name.
+- **Deleting.** A field with no `delete` option has no X. The X on a saved tile confirms, a refused delete keeps the tile, and one that goes through removes it and shows the plus.
+- **A stray drop.** A file dropped beside a zone never replaces the page.
 
 `list.spec.mjs` drives the `list` form widget, with Emissary's `ListWidget` behavior and styles served from source (emissary-specs `projects/LIST-WIDGET.md` §1.3), and checks the following:
 
