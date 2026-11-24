@@ -1,5 +1,4 @@
 <div class="page framed">
-
 	<script type="text/hyperscript">
 		def saveDraft(promote)
 			if promote then
@@ -11,8 +10,8 @@
 	</script>
 
 	<div id="menu-bar">
-		<div class="left tabs">
-			<button script="on click saveDraft(false)">&larr; View</button>
+		<button script="on click saveDraft(false)">&larr; View</button>
+		<div class="center tabs">
 			{{- if .UserCan "edit" -}}
 				<a class="tab turboclick" href="/{{.StreamID}}/edit">Edit</a>
 			{{- end -}}
@@ -37,13 +36,12 @@
 
 		<div class="right">
 			<button script="on click saveDraft(true)" class="button primary">Promote</button>
-			<button class="turboclick" hx-get="/{{.StreamID}}/discard-draft">Discard Draft</button>
+			<!-- <button class="turboclick" hx-get="/{{.StreamID}}/discard-draft">Discard Draft</button> -->
 
 			{{- if .UserCan "delete" -}}
 				<a hx-get="/{{.StreamID}}/delete" class="text-red turboclick">Delete</a>
 			{{- end -}}
 		</div>
-
 	</div>
 
 	{{- template "widgets-list" . -}}
