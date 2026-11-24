@@ -38,12 +38,22 @@
 
 #app-sidebar .menu-item {
 	display: flex;
-	gap: var(--rhythm);
 	align-items: center;
+	gap: var(--rhythm);
 	padding: var(--rhythm) calc(var(--rhythm) * 2);
 	border-radius: calc(var(--border-radius) * 0.6);
 	color: var(--text-color-secondary);
 	font-weight: 400;
+
+	&:has(.left) {
+		justify-content: space-between;
+	}
+
+	.left {
+		display: flex;
+		align-items: center;
+		gap: var(--rhythm);
+	}
 
 	&:hover {
 		background-color: var(--input-background);
@@ -98,17 +108,32 @@
 	margin-right:0px;
 }
 
+@media screen and (max-width: 640px) {
+	#app-sidebar:not(.mobile) {
+		display: none;
+	}
+
+	#app-sidebar.mobile {
+		width: 100%;
+		max-width: 100%;
+		background-color: var(--page-background);
+	}
+}
+
 /* Sections */
 
 .app-content {
-	flex-grow: 1;
 	padding: unset;
 	position: relative;
 	view-transition-name: app-content;
+
+	> * {
+		width: 100%;
+	}
 }
 
 .card, .qwerty-note {
-	border: none;
+	border: unset;
 	border-radius: var(--border-radius);
 	background-color: var(--page-background);
 	box-shadow: unset;
@@ -140,63 +165,39 @@ a.selected .icon .ti {
 	color: var(--gray80);
 }
 
-.pill {
-	position:relative;
-	top:-2px;
-	padding:2px 8px;
-	border-radius:1em;
-	background-color:var(--gray15);
-	color:var(--gray80);
-	font-size:12px;
-	font-weight:400;
-	vertical-align: middle;
-}
-
-.pill.pill-red {
-	background-color:var(--red50);
-	color:var(--white);
-}
-
-.pill.pill-blue {
-	background-color:var(--blue60);
-	color:var(--white);
-}
-
-button > .pill,
-.button > .pill {
-	position:unset;
-	background-color:var(--gray20);
-}
-
 i {min-width:calc(1.5 * var(--rhythm))px;}
 
 
 /* Pill Style Tabs */
 
-[role="tablist"].pills {
+[role="tablist"].pills, [role="tablist"] {
 	background-color: var(--page-background);
 	padding: calc(var(--rhythm) / 1.5);
 	border-radius: calc(var(--border-radius) * 4);
+	border: unset;
 	white-space: nowrap;
 	overflow-x: auto;
 }
 
-[role="tablist"].pills > [role="tab"] {
+[role="tablist"].pills > [role="tab"], [role="tablist"] > [role="tab"] {
 	padding: 12px 16px;
 	color: var(--text-color-tertiary);
 	background-color: unset;
 	border-radius: calc(var(--border-radius) * 4); 
+	border: unset;
 }
 
 [role="tablist"].pills > [role="tab"]:hover:not([disabled]),
-[role="tablist"].pills > [role="tab"]:focus-visible:not([disabled]) {
+[role="tablist"].pills > [role="tab"]:focus-visible:not([disabled]),
+[role="tablist"] > [role="tab"]:hover:not([disabled]),
+[role="tablist"] > [role="tab"]:focus-visible:not([disabled]) {
 	padding: 12px 16px;
-	border: none;
+	border: unset;
 	background-color: var(--input-background);
 	color:var(--gray100);
 }
 
-[role="tablist"].pills > [role="tab"][disabled] {
+[role="tablist"].pills > [role="tab"][disabled], [role="tablist"] > [role="tab"][disabled] {
 	padding: 12px 16px;
 	color:var(--gray60);
 	cursor:default;
@@ -205,7 +206,11 @@ i {min-width:calc(1.5 * var(--rhythm))px;}
 [role="tablist"].pills > [role="tab"][aria-selected="true"],
 [role="tablist"].pills > [role="tab"][aria-selected="true"]:hover,
 [role="tablist"].pills > [role="tab"].selected,
-[role="tablist"].pills > [role="tab"].selected:hover {
+[role="tablist"].pills > [role="tab"].selected:hover,
+[role="tablist"] > [role="tab"][aria-selected="true"],
+[role="tablist"] > [role="tab"][aria-selected="true"]:hover,
+[role="tablist"] > [role="tab"].selected,
+[role="tablist"] > [role="tab"].selected:hover {
 	padding: 12px 16px;
 	border: none;
 	background-color: var(--gray00);

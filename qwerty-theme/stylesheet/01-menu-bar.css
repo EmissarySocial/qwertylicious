@@ -16,6 +16,10 @@
 	border-bottom: unset;
 	line-height: 100%;
 	flex-wrap: nowrap;
+	
+	&:has(.left), &:has(.right) {
+		width: 100%;
+	}
 }
 
 #menu-bar div {
@@ -39,7 +43,7 @@
 	text-align: right;
 }
 
-#menu-bar .tabs, #menu-bar .left:has(a) {
+#menu-bar .tabs, #menu-bar .left:has(a):not(.dropdown) {
 	display: flex;
 	align-items: center;
 	gap: calc(var(--rhythm) / 2);
@@ -49,7 +53,7 @@
 	white-space: nowrap;
 	overflow-x: auto;
 
-	a.turboclick {
+	a {
 		padding: 12px 16px;
 		border-radius: calc(var(--border-radius) * 4);
 
@@ -103,6 +107,7 @@
 .dropdown-content, #menu-bar .dropdown-content, #menu-bar .dropdown-content.left:has(.selected) {
 	display: none;
 	position: absolute;
+	top: 100%;
 	right: 0;
 	z-index: 100;
 	flex-direction: column;
@@ -139,10 +144,13 @@
 }
 
 .dropdown-content .dropdown-item, #menu-bar .dropdown-content .dropdown-item {
+	width: 100%;
 	padding: 12px 16px;
 	border-radius: calc(var(--border-radius) / 1.5);
 	background-color: unset;
+	color: var(--text-color-secondary);
 	text-align: left;
+	word-wrap: normal;
 
 	&:hover, &.selected {
 		background-color: var(--page-background);
@@ -150,6 +158,12 @@
 
 	&.selected {
 		color: var(--text-color);
+	}
+}
+
+@media screen and (max-width: 640px) {
+	#menu-bar:has(*[hx-on\:click="saveAndView()"]) {
+		display: none;
 	}
 }
 

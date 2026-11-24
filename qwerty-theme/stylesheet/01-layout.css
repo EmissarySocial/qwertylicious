@@ -15,15 +15,12 @@ html, body {
 }
 
 body {
-	color: var(--text-color);
-	margin: 0px;
+	display: flex;
+	flex-direction: row;
 	height: 100vh;
 	width: 100vw;
-
-	&.desktop {
-		display: flex;
-		flex-direction: row;
-	}
+	margin: 0px;
+	color: var(--text-color);
 }
 
 main {
@@ -39,4 +36,10 @@ main:has(> .app) {
 	overflow-y: auto;
 	overflow-x: hidden;
 	overscroll-behavior: smooth;
+}
+
+@media screen and (max-width: 640px) {
+	body {
+		flex-direction: column;
+	}
 }

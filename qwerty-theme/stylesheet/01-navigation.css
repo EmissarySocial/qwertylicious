@@ -1,24 +1,10 @@
-nav.desktop, nav.mobile {
+nav {
 	display: flex;
-  justify-content: space-between;
-  min-height: 100dvh;
-  min-width: 240px;
+	justify-content: flex-start;
+	position: relative;
+	padding: unset;
 	background-color: var(--body-background);
-	border-right: solid 1px var(--page-border);
-	padding: calc(var(--rhythm) * 2);
-	color: var(--gray100);
-
-	&.mobile {
-		min-height: unset;
-		height: unset;
-		padding: unset;
-	}
-
-	@media screen and (width >= 640px) {
-		& {
-			border-bottom: unset;
-		}
-	}
+	overflow: visible;
 }
 
 nav.collapsed {
@@ -33,45 +19,66 @@ nav.collapsed {
 	}
 }
 
-#topbar {
-	display: flex;
-	position: relative;
-	padding: var(--rhythm);
-	border-bottom: 1px solid var(--page-border);
-
-	.nav-item {
-		aspect-ratio: 1/1;
-		padding: var(--rhythm);
-	}
-}
-
-#topbar-content {
+#nav-menu-panel, #secondary-menu-panel {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	position: absolute;
-	min-width: 240px;
-	height: 100dvh;
-	z-index: 100;
-	padding: calc(var(--rhythm) * 2);
-	border-right: 1px solid var(--page-border);
-	background-color: var(--body-background);
+	width: 100%;
+	height: 100%;
 
-	.nav-item {
-		padding: calc(var(--rhythm) * 1.2) calc(var(--rhythm) * 1.6);
+	.top, .bottom {
+		margin: calc(var(--rhythm) * 2);
 	}
 }
 
-.nav-item {
+.page:has(.top), .page:has(.bottom) {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-height: unset;
+	height: 100%;
+
+	> * {
+		width: 100%;
+	}
+
+	h1:not(.flex-row) {
+		display: none;
+	}
+	
+	.top {
+		height: 100%;
+	}
+
+	.menu-item + .menu-item {
+		margin-top: var(--rhythm);
+
+		+ .menu-item {
+			margin-top: var(--rhythm);
+		}
+	}
+}
+
+#secondary-menu-panel {
+	display: none;
+}
+
+.nav-menu-toggle, .nav-menu-button, .secondary-menu-toggle, .secondary-menu-button {
+	display: none;
+}
+
+.nav-item, .page:has(.top) .menu-item {
 	display: flex;
   flex-direction: row;
-  gap: var(--rhythm);
   margin: unset;
+	width: 100%;
+  gap: var(--rhythm);
 	padding: calc(var(--rhythm) * 1.2) calc(var(--rhythm) * 2);
-	color:var(--gray90);
-	background-color: unset;
-	font-size: calc(var(--rhythm) * 2);
 	border-radius: calc(var(--rhythm) * 1.5);
+	border-bottom: unset;
+	background-color: unset;
+	color:var(--gray90);
+	font-size: calc(var(--rhythm) * 2);
 	line-height:1.5em;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -79,17 +86,28 @@ nav.collapsed {
   + .nav-item:not(.ToggleHide) {
     margin-top: var(--rhythm);
   }
-  
-	.mobile & * {
-		font-size: calc(var(--rhythm) * 1.8);
-	}
 
 	&:last-child {
 		border: none;
 	}
 
 	&:hover, &.selected, &:focus {
-		background-color: var(--page-background);
+		background-color: var(--body-background);
+		color: var(--text-color-primary);
+	}
+
+	&.action {
+		background-color: var(--button-action-background);
+		color: var(--button-action-color);
+
+		i {
+			color: var(--button-action-color);
+		}
+
+		&:hover, &.icon:hover {
+			background-color: var(--button-action-background-hover);
+			color: var(--button-action-color);
+		}
 	}
 
 	&.selected {
@@ -117,4 +135,225 @@ nav.collapsed {
 		}
 	}
 
+	i {
+		color: var(--text-color-secondary);
+		font-size: calc(var(--rhythm) * 2.25);
+	}
+
+	.left {
+		display: flex;
+		gap: var(--rhythm);
+	}
+
+}
+
+.nav-float-right {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+/* Desktop navigation styling */ 
+@media screen and (min-width: 640px) {
+	nav {
+		min-height: 100dvh;
+		min-width: 0;
+		border-right: solid 1px var(--page-border);
+		color: var(--gray100);
+
+		.nav-item {
+			aspect-ratio: 1/1;
+			
+			.label {
+				display: none;
+			}
+		}
+
+		.title {
+			display: none;
+		}
+	}
+}
+
+/* Mobile navigation styling */
+
+@media screen and (max-width: 640px) {
+	nav {
+		position: relative;
+		height: fit-content;
+		width: 100%;
+		border-bottom: 1px solid var(--page-border);
+
+		.nav-item {
+			gap: calc(var(--rhythm) * 1.5);
+			padding: calc(var(--rhythm) * 2);
+		}
+
+		a > .label, button > .label {
+			font-size: calc(var(--rhythm) * 2);
+		}
+	}
+
+	*:has(> .nav-float-right) {
+		position: unset !important;
+	}
+
+	.nav-float-right {
+		top: 6px;
+		right: var(--rhythm);
+	}
+
+	#topbar {
+		width: 100%;
+		height: auto;
+		display: flex;
+		position: relative;
+		align-items: center;
+		justify-content: flex-start;
+
+		.title {
+			display: block;
+		}
+	}
+
+	/* RULE: position:fixed, never absolute, because this is also the close button over a fixed
+	   sheet. z-index sits above the sheet and below the 1000 tier of modals (see theme-minimal/AGENTS.md). */
+	.nav-menu-button, .secondary-menu-button {
+		display: flex;
+		position: relative;
+		align-items: center;
+		justify-content: center;
+
+		top: unset;
+		right: unset;
+
+		z-index: unset;
+
+		/* 44px, the smallest target both mobile platforms treat as reliably tappable.
+		   --rhythm is 8px at every breakpoint, so this is not a responsive multiple. */
+		width: calc(var(--rhythm) * 5.5);
+		height: calc(var(--rhythm) * 5.5);
+
+		border-radius: unset;
+		background-color: unset;
+		box-shadow: unset;
+		color: var(--text-color-secondary);
+		cursor: pointer;
+
+		& > .icon {
+			font-size: calc(var(--rhythm) * 2);
+			line-height: 1;
+		}
+	}
+
+	/* Closed shows the hamburger, open shows the X: one control with two glyphs, so one tab stop
+	   and one focus ring. `+` reaches the label because the whitespace between them is a text
+	   node, which the adjacent sibling combinator skips. */
+	.nav-menu-button > .nav-menu-close {
+		display: none;
+	}
+
+	.nav-menu-toggle:checked + #topbar .nav-menu-button > .nav-menu-open {
+		display: none;
+	}
+
+	.secondary-menu-toggle:checked + h1 .nav-menu-button > .nav-menu-open {
+		display: none;
+	}
+
+	.nav-menu-toggle:checked + #topbar .nav-menu-button > .nav-menu-close {
+		display: block;
+	}
+
+	.secondary-menu-toggle:checked + #topbar .nav-menu-button > .nav-menu-close {
+		display: block;
+	}
+
+	/* The focused element is the off-screen checkbox, so the ring is drawn on its label. */
+	.nav-menu-toggle:focus-visible + .nav-menu-button {
+		outline: solid 2px var(--focus-color);
+		outline-offset: 2px;
+	}
+
+	/* The sheet. Hidden until the checkbox is checked: `:checked` is a selector, so it lives inside
+	   this media query and does not exist above 640px (see theme-minimal/AGENTS.md). */
+	#nav-menu-panel, #secondary-menu-panel {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 0;
+		height: calc(100vh - calc(var(--rhythm) * 5.5));
+		display: flex;
+		flex-direction: column;
+		z-index: 100;
+		background-color: var(--body-background);
+		border-bottom: solid 1px var(--page-border);
+
+		/* RULE: visibility, not display. `display` cannot transition, and @starting-style animates
+		   the entry only, so the sheet would fade in and then vanish on exit (see theme-minimal/AGENTS.md). */
+		transition: width var(--motion-base) var(--motion-ease);
+
+		/* Clears the control, which is fixed over this sheet's own top-right corner */
+		margin-top: calc(var(--rhythm) * 5.5);
+
+		/* RULE: `contain`, not `none`, or a swipe scrolls the document behind the sheet (see theme-minimal/AGENTS.md). */
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+
+	#nav-menu-panel {
+		z-index: 101;
+	}
+
+	.nav-menu-toggle:checked ~ #nav-menu-panel, .secondary-menu-toggle:checked ~ #secondary-menu-panel {
+		width: 100%;
+
+		/* Same durations, but the visibility delay drops to zero: the sheet has to be visible at
+		   the start of the fade-in and stay visible until the end of the fade-out. */
+		transition: width var(--motion-base) var(--motion-ease);
+	}
+
+	/* RULE: zero the delay as well as the duration. The global reduced-motion switch overrides
+	   duration only, and a lingering delay leaves an invisible sheet swallowing taps (see theme-minimal/AGENTS.md). */
+	@media (prefers-reduced-motion: reduce) {
+
+		.nav-menu-panel,
+		.nav-menu-toggle:checked ~ .nav-menu-panel {
+			transition-delay: 0s;
+		}
+	}
+
+	/* RULE: .floating-menu is z-index 1000 and would paint over the sheet. It sits outside .nav-menu,
+	   so :has on <body> is the only selector that reaches it. */
+	body:has(.nav-menu-toggle:checked) .floating-menu {
+		display: none;
+	}
+
+	/* The bar's account links, repeated in the sheet because the bar is hidden here */
+	.nav-menu-account {
+		margin-top: calc(var(--rhythm) * 2);
+		border-top: solid 1px var(--gray15);
+	}
+
+	/* Join Now is a call to action, not a destination, so it reads as a button rather than as
+	   one more row in the list. */
+	#nav-menu-panel a.primary, #secondary-menu-panel a.primary {
+		justify-content: center;
+		margin: calc(var(--rhythm) * 2);
+		padding: calc(var(--rhythm) * 1.5) calc(var(--rhythm) * 2);
+		border-bottom: none;
+		border-radius: var(--border-radius);
+		background-color: var(--button-primary-background);
+		color: var(--button-primary-color);
+
+		&:hover,
+		&:focus {
+			background-color: var(--button-primary-background-hover);
+			color: var(--button-primary-color-hover);
+		}
+	}
+
+	.nav-item {
+		font-size: calc(var(--rhythm) * 1.8);
+	}
 }

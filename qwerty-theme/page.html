@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html data-theme="stone" lang="en">
-<head>
-	<title>{{.DomainLabel}} - {{.PageTitle}}</title>
-	<link rel="webmention" href="/.webmention"/>
-	{{ template "includes-head" .}}
-</head>
 
-<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y" class="desktop"
-	script="
- 		install ToggleContainer
-		install SelectNav">
+	<head>
+		<title>{{.DomainLabel}} - {{.PageTitle}}</title>
+		<link rel="webmention" href="/.webmention"/>
+		{{ template "includes-head" .}}
+	</head>
 
-	<!-- The skip link, the sidebar <nav>, and the mobile menu that replaces it below 640px -->
-	{{- template "navigation-desktop" . -}}
+	<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y"
+		script="
+			install ToggleContainer
+			install SelectNav">
 
-	<main id="main">
-		{{- .GetContent -}}
-	</main>
-	
-	<aside></aside>
+			<!-- The skip link, the sidebar <nav>, and the mobile menu that replaces it below 640px -->
+			{{- template "navigation" . -}}
 
-</body>
+			<main id="main">
 
-{{ template "includes-foot" .}}
+				<script src="/.themes/qwerty-theme/mobile"></script>
 
+				{{- .GetContent -}}
+				
+			</main>
+		
+			<aside></aside>
+
+	</body>
+
+	{{ template "includes-foot" .}}
 </html>

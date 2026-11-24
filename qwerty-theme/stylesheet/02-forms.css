@@ -25,6 +25,7 @@ button, .button,
 		align-content: center;
 		text-align: center;
 		aspect-ratio: 1/1;
+		min-height: calc(var(--rhythm) * 3);
 
 		i {
 			color: var(--text-color-secondary);
@@ -96,10 +97,15 @@ button, .button,
 	}
 
 	&.text-red {
-		color: var(--red60);
+		background-color: var(--red60);
 
 		i {
-			color: var(--red60);
+			color: var(--button-primary-color);
+		}
+
+		&:hover, &:focus {
+			background-color: var(--red70);
+			color: var(--button-primary-color);
 		}
 	}
 
@@ -112,7 +118,7 @@ button, .button,
 		}
 
 		&:hover, &:focus {
-			background-color: var(--red60);
+			background-color: var(--red70);
 			color: var(--button-primary-color);
 		}
 	}
@@ -301,26 +307,9 @@ select,
    centered with flexbox and Bootstrap Icons' baseline nudge is undone. */
 button.edit-circle,
 .button.edit-circle {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: calc(var(--rhythm) * 5);
-	height: calc(var(--rhythm) * 5);
-	padding: var(--rhythm);
-	margin: 0;
-	border-radius: 50%;
-
-	i {
-		display: block;
-		font-size: calc(var(--rhythm) * 1.75);
-		line-height: 1;
-
-		&::before {
-			display: block;
-			vertical-align: 0;
-		}
-	}
+	border-radius: calc(var(--border-radius) * 4) !important;
+	width: auto !important;
+	height: auto !important;
 }
 
 /* The pencil in an item's top right corner, on its modal or page and on its editor, which toggles between them */
