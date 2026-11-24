@@ -407,7 +407,7 @@
 }
 
 /* On a phone, the Photo Gallery shows two across, and the Month grid keeps its shape while its event labels shrink to dots */
-@media (max-width: 640px) {
+@media screen and (max-width: 640px) {
 	.qwerty-gallery {
 		grid-template-columns: repeat(2, 1fr);
 		gap: 2px;
@@ -704,7 +704,7 @@
 	margin-bottom: 0 !important;
 }
 
-@media (max-width: 640px) {
+@media screen and (max-width: 640px) {
 	.qwerty-episode-art {
 		width: 64px;
 		height: 64px;
