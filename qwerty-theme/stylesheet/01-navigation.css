@@ -92,7 +92,7 @@ nav.collapsed {
 	}
 
 	&:hover, &.selected, &:focus {
-		background-color: var(--body-background);
+		background-color: var(--page-background);
 		color: var(--text-color-primary);
 	}
 
@@ -160,14 +160,6 @@ nav.collapsed {
 		min-width: 0;
 		border-right: solid 1px var(--page-border);
 		color: var(--gray100);
-
-		.nav-item {
-			aspect-ratio: 1/1;
-			
-			.label {
-				display: none;
-			}
-		}
 
 		.title {
 			display: none;

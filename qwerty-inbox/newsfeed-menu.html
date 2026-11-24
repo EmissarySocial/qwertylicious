@@ -11,7 +11,7 @@
 	<span style="view-transition-name:app-sidebar-add-folder-label">New Folder</span>
 </div>
 
-<a href="/@me/newsfeed/feed" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick nav-item ellipsis hover-trigger folder selected">
+<a href="/@me/newsfeed/feed" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick nav-item ellipsis hover-trigger folder{{if $allFolders}} selected{{end}}">
 	<span>
 		{{- if $allFolders -}}
 			{{- iconFilled "inbox" -}}

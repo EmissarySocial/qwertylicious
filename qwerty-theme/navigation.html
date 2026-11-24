@@ -10,7 +10,7 @@
 <!-- RULE: the skip link sits outside both layouts, which are each hidden at some width -->
 <a href="#main" class="hide-visual">Skip navigation</a>
 
-<nav hx-push-url="true" hx-swap="transition:true">
+<nav class="collapsed" hx-push-url="true" hx-swap="transition:true">
 	<!-- RULE: a checkbox, not <details>, and it precedes the label and the sheet.  role=button stays here, and the
 	     Escape branch sets aria-expanded itself, because setting .checked fires no change event. -->
 	<input type="checkbox" id="nav-menu-toggle" class="nav-menu-toggle hide-visual" autocomplete="off"

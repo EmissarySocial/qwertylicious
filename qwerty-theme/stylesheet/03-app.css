@@ -36,7 +36,7 @@
 }
 
 
-#app-sidebar .menu-item {
+#app-sidebar .menu-item, #app-sidebar .nav-item {
 	display: flex;
 	align-items: center;
 	gap: var(--rhythm);
@@ -61,8 +61,8 @@
 	}
 
 	&.selected {
-		background-color: var(--gray00);
-		color: var(--gray100);
+		background-color: var(--body-background);
+		color: var(--text-color-primary);
 		font-weight: 500;
 	}
 
