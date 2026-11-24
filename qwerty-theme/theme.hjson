@@ -3,8 +3,8 @@
 	extends:["global"]
 	isVisible:true
 	category: General
-	label: Qwertylicious V2
-	description: Modern theme to emphasize long-form text content.
+	label: Qwerty
+	description: A modern theme for every kind of creator.
 	rank: 0
 	schema: {
 		type: object
@@ -24,6 +24,31 @@
 			{type: "upload", label: "Icon", path: "iconUrl", description: "Icon for this website. Must be square. Often cropped to be a circle.", options:{accept:"image/*", delete:"/admin/domain/delete-icon"}}
 			{type: "upload", label: "Image", path: "imageUrl", description: "Image to display on signin pages and emails. Roughly 16:9 works best.", options:{accept:"image/*", delete:"/admin/domain/delete-image"}}
 			{type: "textarea", label: "Description", path: "description", options:{rows:5}}
+		]
+	}
+	// The startup checklist's copy of the form above, in tabs.  A field added to one goes in both
+	startupForm: {
+		type: layout-tabs
+		children: [
+			{type: "layout-vertical", label: "General", children: [
+				{type: "text", label: "Website Name", path: "label", description: "Title of this website and domain."}
+				{type: "select", label: "Colors", path: "themeData.colorway", description: "Color tones to use. Light and dark modes supported.", options:{enum:[
+					{value:"stone", label:"Stone (warm gray)"}
+					{value:"neutral", label:"Neutral gray"}
+					{value:"slate", label:"Slate (cool gray)"}
+				]}}
+				{type: "select", label: "Navigation", path: "themeData.navigation", description: "Who sees the navigation sidebar.", options:{enum:[
+					{value:"always", label:"Always Show"}
+					{value:"authenticated", label:"Authenticated Users Only"}
+				]}}
+			]}
+			{type: "layout-vertical", label: "Description", children: [
+				{type: "textarea", path: "description", description:"Shared with other websites (NodeInfo, Mastodon Instance Info, etc)", options:{rows:8}}
+			]}
+			{type: "layout-vertical", label: "Icons", children: [
+				{type: "upload", label: "Icon", path: "iconUrl", description: "Icon for this website. Must be square. Often cropped to be a circle.", options:{accept:"image/*", delete:"/admin/domain/delete-icon"}}
+				{type: "upload", label: "Image", path: "imageUrl", description: "Image to display on signin pages and emails. Roughly 16:9 works best.", options:{accept:"image/*", delete:"/admin/domain/delete-image"}}
+			]}
 		]
 	}
 	bundles: {
@@ -46,10 +71,25 @@
 			content-type:"text/javascript"
 		}
 	}
+	startupTasks: [
+		{label:"Website Name, Logo and Colors", description:"Set some basic info about this domain, and choose its colors and navigation.", href:"/startup/domain", value:"/admin/domain"}
+		{label:"Add Default Content", description:"Creates your Home page, and sets your start pages.", href:"/startup/content", value:"/startup/content"}
+		{label:"Maps: Map Tiles", description:"Draws the maps in placemarks, timelines, and map collections.", href:"/admin/connections/edit?providerId=GEOCODE-TILES", value:"GEOCODE-TILES"}
+		{label:"Maps: Address Search", description:"Suggests places as people type a location.", href:"/admin/connections/edit?providerId=GEOCODE-AUTOCOMPLETE", value:"GEOCODE-AUTOCOMPLETE"}
+		{label:"Maps: Address Geocoder", description:"Finds the map coordinates of a street address.", href:"/admin/connections/edit?providerId=GEOCODE-ADDRESS", value:"GEOCODE-ADDRESS"}
+		{label:"New User Signups (Optional)", description:"Enable readers to register on this website.", href:"/admin/domain/signup", value:"/admin/domain/signup"}
+		{label:"Configure Payments (Optional)", description:"Connect Stripe, so authors can sell paid subscriptions.", href:"/admin/connections/edit?providerId=STRIPE-CONNECT", value:"STRIPE-CONNECT"}
+	]
+	startupDefaultPages: {
+		anonymous: "/home"
+		authenticated: "/@me/newsfeed"
+		owner: "/@me"
+	}
 	startupStreams: [
 		{templateId:"article-editorjs", token:"home", label:"Home", rank:1}
 	]
 	startupGroups:[
+		{label:"Subscribers"}
 	]
 	defaultFolders: [
 		{label:"Family"}

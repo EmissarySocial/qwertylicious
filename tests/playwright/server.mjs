@@ -104,7 +104,95 @@ function entryModal(index) {
 		.replaceAll("${ID}", entry.id)
 		.replaceAll("${TITLE}", entry.title)
 		.replaceAll("${DATE}", entry.date)
-		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div>`)
+		.replaceAll("${NEIGHBORS}", `<div role="navigation" class="qwerty-entry-neighbors" aria-label="Timeline">${links}</div><script src="/.themes/qwerty-theme/carousel" defer></script>`)
+}
+
+function eventModal() {
+	return read(join(here, "fixtures/event-modal.html"))
+		.replaceAll("${H1}", heading("qwerty-event/modal.html", "h1"))
+		.replaceAll("${ID}", calendarEvent.id)
+		.replaceAll("${TITLE}", calendarEvent.title)
+		.replaceAll("${DATE}", calendarEvent.date)
+}
+
+// modalFor renders the modal of the episode, entry, or event with this id, or "" when there is none
+function modalFor(id) {
+	const index = episodes.findIndex((episode) => episode.id == id)
+	if (index >= 0) {
+		return episodeModal(index)
+	}
+	const entryIndex = entries.findIndex((entry) => entry.id == id)
+	if (entryIndex >= 0) {
+		return entryModal(entryIndex)
+	}
+	if (calendarEvent.id == id) {
+		return eventModal()
+	}
+	return ""
+}
+
+// listRoute answers the list spec's Save with every value it received, by name, in the order posted
+async function listRoute(request, response, path) {
+
+	if (path != "/list" || request.method != "POST") {
+		return false
+	}
+
+	const posted = {}
+
+	for (const [name, value] of (await formData(request)).entries()) {
+		posted[name] = [...(posted[name] || []), value]
+	}
+
+	htmlResponse(response, escapeHTML(JSON.stringify(posted)))
+	return true
+}
+
+// uploadRoute serves the upload spec: an image of the size its path names, a Save answered with the name of each
+// file and the value of each field it received, and a delete that answers nothing or, with ?fail, a 500
+async function uploadRoute(request, response, path, url) {
+
+	let match
+
+	if ((match = path.match(/^\/upload\/image\/(\d+)x(\d+)$/))) {
+		const [width, height] = [Number(match[1]), Number(match[2])]
+		response.writeHead(200, { "Content-Type": "image/svg+xml" })
+		response.end(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#264653"/><stop offset="1" stop-color="#e9c46a"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><circle cx="${width * 0.75}" cy="${height * 0.3}" r="${Math.min(width, height) * 0.15}" fill="#fff8"/></svg>`)
+		return true
+	}
+
+	if (path == "/upload/delete" && request.method == "POST") {
+		response.writeHead(url.searchParams.has("fail") ? 500 : 200, { "Content-Type": "text/html" })
+		response.end("")
+		return true
+	}
+
+	if (path != "/upload" || request.method != "POST") {
+		return false
+	}
+
+	const posted = {}
+
+	for (const [name, value] of (await formData(request)).entries()) {
+		if (typeof value == "string" || value.name != "") {
+			posted[name] = [...(posted[name] || []), typeof value == "string" ? value : `file:${value.name}`]
+		}
+	}
+
+	htmlResponse(response, escapeHTML(JSON.stringify(posted)))
+	return true
+}
+
+// profileTabLink is one tab link of qwerty-common/profile-tabs.html, read from the template, for the collection $tabID on $userID's profile
+function profileTabLink(label, tabID, userID, selected) {
+	const link = stripComments(read(join(qwerty, "qwerty-common/profile-tabs.html"))).match(/<a [^>]*>/)[0]
+	return link.replaceAll("{{$tabID}}", tabID).replaceAll("{{$userID}}", userID)
+		.replace(/\{\{if [^}]*\}\}true\{\{else\}\}false\{\{end\}\}/, selected ? "true" : "false") + `${label}</a>`
+}
+
+// profileTab is the Articles tab link, selected, for the sorting spec's profile
+function profileTab() {
+	return profileTabLink("Articles", "articles", "author", true)
 }
 
 function page(body) {
@@ -127,10 +215,35 @@ const routes = {
 	"/episode": () => ["text/html", page(`<aside>${episodeModal(0)}</aside>`)],
 	"/entry": () => ["text/html", page(`<aside>${entryModal(0)}</aside>`)],
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
+	"/list": () => ["text/html", page(read(join(here, "fixtures/list.html")))],
+	"/tabs": () => ["text/html", page(read(join(here, "fixtures/tabs.html")))],
+	"/upload": () => ["text/html", page(read(join(here, "fixtures/upload.html")))],
+	"/editorjs": () => ["text/html", page(visualEditor(join(qwerty, "qwerty-article/edit-content-editorjs.html")))],
+	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
+	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
+	"/articles/list": () => ["text/html", profileArticles()],
+	"/@photographer": () => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${galleryTab("")}</div></main>`)],
+	"/gallery/list": (url) => ["text/html", galleryTab(url.searchParams.get("tag") || "")],
+	"/@columnist": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${profileFrame(url.searchParams.get("tab") == "scrapbook" ? scrapbookTab() : essaysTab(url.searchParams.get("tag") || ""))}</div></main>`)],
+	"/essays/list": (url) => ["text/html", essaysTab(url.searchParams.get("tag") || "")],
+	"/scrapbook/list": () => ["text/html", scrapbookTab()],
+	"/@cartographer": (url) => ["text/html", page(`<main><div><div style="height: 300px">The profile's header</div>${mapTab(url.searchParams.get("tag") || "")}</div></main>`)],
+	"/map/list": (url) => ["text/html", mapTab(url.searchParams.get("tag") || "")],
+	"/.themes/qwerty-theme/carousel": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/carousel"))],
+	"/.themes/qwerty-theme/podcast": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/podcast"))],
+	"/.themes/qwerty-theme/maps": () => ["text/javascript", concat(join(qwerty, "qwerty-theme/maps"))],
+	"/handle": () => ["text/html", page(profileUsername())],
+	...Object.fromEntries(articles.map((article) => [`/${article.token}`, () => ["text/html", `<h1>${article.title}</h1>`]])),
+	...Object.fromEntries(essays.map((essay) => [`/${essay.token}`, () => ["text/html", `<h1>${essay.title}</h1>`]])),
 }
 
 createServer((request, response) => {
 	const path = new URL(request.url, "http://x").pathname
+
+	// The upload spec's images, Save, and delete
+	if (await uploadRoute(request, response, path, url)) {
+		return
+	}
 
 	// The bootstrap icons, as static files
 	if (path.startsWith("/icons/")) {

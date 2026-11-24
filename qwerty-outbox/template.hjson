@@ -3,7 +3,7 @@
 	templateRole: user-outbox
 	category: Special
 	model: Outbox
-	label: Qwertylicious Profile
+	label: Qwerty
 	description:Profile displays everything about a user, including their inbox and outbox information
 	icon: inbox
 	extends: ["base-social", "base-intent", "qwerty-common", "base-outbox"]

@@ -249,7 +249,15 @@ hjson is deliberately lenient, so a typo in a key name is not a parse error; the
 
 ## The server caches template folders — restart before concluding an edit did nothing
 
-Emissary loads Git and filesystem template packages into memory at startup. An edit to a `template.hjson` or an `.html` view will not appear until the server reloads that package, so a change that seems to have no effect is usually a stale copy rather than a broken template.
+**An unknown step option is ignored, not refused.** A Custom Photo Gallery needs the `sort` step's `direction` option and turboclick's `.drag-handle` exemption. On an Emissary without them, a drag numbers the posted photos from 1, and pressing a handle opens the photo.
+
+**An unknown step stops the Template from loading.** `settings-general-form` uses `startup-save-task`, and the theme's checklist links to `/startup/groups` and reads `startupDefaultPages`, so Emissary's startup checklist deploys first.
+
+**An unknown form path is dropped, not refused.** The episode editor's Publish Date needs Stream's `publishDateTime`. On an Emissary without it, the field renders empty and a save drops the value, logged only at debug level.
+
+## The server caches template folders
+
+An edit appears only after the server reloads the package: a restart, or automatically for filesystem folders when the `hotReloadTemplates` server setting is on. When an edit seems to do nothing, confirm which copy is serving before debugging (see Emissary's root `AGENTS.md`).
 
 ## Pin the htmx and hyperscript resource paths
 
@@ -296,5 +304,20 @@ Emissary's settings page at `/@me/settings/general` renders its Profile tabs fro
 
 **Collections is Qwerty's own tab, after Links.** `settings-collections` draws the tab bar and a card holding `settings-collections-form`, the sortable list of the profile's collections. The profile has no Manage Collections button. The form has no Save button: a drop that changes the order posts it at once (`hx-trigger="update"`, Sortable's event for a changed order, which bubbles from the `tbody`), and a drop in place sends nothing (Ben, 2026-10-25). The action runs `sort` and answers with the form again (`view-html` with `method: "both"`), whose new `tbody` installs `sortContainer` afresh. The instructions sit in the card's `.alert-gray`, outside the form, as on Links and Images. Edit and Add still open modals over the settings page. Each row's View, left of Edit, opens that collection's tab on the profile (`/@user?tab={id}`).
 
-- **The tab reloads itself on `refreshPage`.** Edit Collection ends with `refresh-page`, and the settings page has no listener of its own, so `settings-collections.html` carries one that re-fetches `/@me/settings-collections` into `#profile-settings`. Without it the list keeps a collection's old name after an edit. Reloading the whole page would open General instead.
-- **Add and Delete leave the settings page.** Add a Collection forwards to the new collection's tab on the profile, and deleting one from its Edit modal forwards to `/@me`.
+- **The card draws Emissary's `follow-button`:** the modal until CamperJS finds a saved account that can follow, then one-click follow with a "⁂" account manager beside it.
+- **Restyle by naming a view, never by defining an action.** A `follow-heading.html` or `follow-styles.html` in `qwerty-outbox` replaces Emissary's for every Qwerty profile.
+
+## The theme's startup tasks depend on Emissary's own actions
+
+[theme.hjson](qwerty-theme/theme.hjson) lists `startupTasks`, the rows of the first-run checklist at `/startup`. Each row is checked off in one of two ways, and neither is checked when this package loads:
+
+- **Its `value` is recorded by a `startup-save-task` step** in some action, usually one of Emissary's admin templates. A value that no step records leaves a row that can never be checked.
+- **Its `value` is a connection provider ID**, such as `GEOCODE-TILES`, and the row is checked while that connection is active. Link such a row to `/admin/connections/edit?providerId=...`.
+
+The first row links to `/startup/domain`, Emissary's startup-only modal that draws this theme's settings `form`. It records `/admin/domain`, the same value as the admin console's own screen, so saving either one checks the row.
+
+That modal draws `startupForm`, the same fields as `form` in three tabs (General, Description, Icons), and the admin console keeps drawing `form`. hjson cannot share them, so a field added to one goes in both. Every required field stays on General: a tab that is not open hides its fields, and the browser cannot show the message for an invalid control there, so the Save would do nothing.
+
+`startupDefaultPages` names the start pages that "Add Default Content" sets after it creates `startupStreams`. Each must be a path on the website, and the anonymous one must be a page that `startupStreams` creates. Emissary's `tests/startup_test.go` checks all of this for every sibling package, so run `go test ./tests` in Emissary after editing these lists.
+
+The "Create Your Author Profile" row is recorded by `settings-general-form` in [qwerty-outbox/template.hjson](qwerty-outbox/template.hjson), and only when a domain owner saves it. [content/](qwerty-theme/content/) still holds `about.md` and `join-the-team.md`, which are copies of Emissary's default theme and are deliberately not listed in `startupStreams`.

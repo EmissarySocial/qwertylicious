@@ -46,6 +46,7 @@
 		published: {
 			label: "Published"
 			description: "Visible to all people with permissions"
+			outbox: true
 		}
 	}
 
