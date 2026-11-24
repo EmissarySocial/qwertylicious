@@ -76,7 +76,7 @@
   function apply() {
     backButton();
     transformDropdown(document.querySelector('#menu-bar .left'), 'a');
-    transformDropdown(document.querySelector('.tabs'), '.a');
+    transformDropdown(document.querySelector('.tabs'), 'a');
     transformDropdown(document.querySelector('[role="tablist"]'), 'a');
   }
 
