@@ -16,10 +16,6 @@
 	border-bottom: unset;
 	line-height: 100%;
 	flex-wrap: nowrap;
-	
-	&:has(.left), &:has(.right) {
-		width: 100%;
-	}
 }
 
 #menu-bar div {
@@ -96,6 +92,12 @@
 #menu-bar .button.selected:hover {
 	background-color: var(--gray00);
 	color: var(--gray100);
+}
+
+@media screen and (max-width: 640px) {
+	#menu-bar:has(.left), #menu-bar:has(.right) {
+		width: 100%;
+	}
 }
 
 /* Dropdowns */
