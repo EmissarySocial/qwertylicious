@@ -42,6 +42,9 @@
 		podcast: {
 			content-type:"text/javascript"
 		}
+		mobile: {
+			content-type:"text/javascript"
+		}
 	}
 	startupStreams: [
 		{templateId:"article-editorjs", token:"home", label:"Home", rank:1}
