@@ -8,24 +8,14 @@
 {{- $filter := .FilteredByFollowing -}}
 {{- $followingID := .QueryParam "origin.followingId" -}}
 
-{{- $layout := "sidebar" -}}
+{{- template "newsfeed-sidebar" . -}}
 
-<!-- Navigation Option A: Sidebar -->
-{{- if eq $layout "sidebar" -}}
-	{{- template "newsfeed-sidebar" . -}}
-{{- end -}}
+<div class='page flex-row' script="init send SelectNav(id:'inbox')">
 
-<div class='page{{if ne $layout "sidebar"}} framed {{else}} flex-row flex-justify-center{{end}}' script="init send SelectNav(id:'inbox')">
-
-	<link rel="stylesheet" href="/.templates/user-inbox/stylesheet">
+	<link rel="stylesheet" href="/.templates/qwerty-inbox/stylesheet">
 
 	<!-- Main Content -->
-	<div class='content{{if eq $layout "sidebar"}} framed{{end}}'>
-
-		<!-- Navigation Option B: Menu Bar -->
-		{{- if ne $layout "sidebar" -}}
-			{{- template "newsfeed-menu" . -}}
-		{{- end -}}
+	<div class="content" style="position: unset">
 	
 		<div class="flex-row margin-bottom-sm">
 
@@ -54,14 +44,25 @@
 					</div>
 				</div>
 			{{- else -}}
-				<h1 class="text-xl bold margin-none flex-grow">
+				<input type="checkbox" id="secondary-menu-toggle" class="secondary-menu-toggle hide-visual" autocomplete="off"
+					role="button" aria-controls="secondary-menu-panel" aria-expanded="false" aria-label="Secondary menu"
+					script="on change set @aria-expanded to my.checked end on keydown[key=='Escape'] from window if my.checked set my.checked to false then set @aria-expanded to 'false' then focus me end end" />
+				<h1 class="text-xl bold margin-none flex-row flex-grow" style="align-items: center;">
 					{{- if $isMobile -}}
-						<a href="/@me/newsfeed/mobile">{{icon "back"}}</a>
+						<label class="nav-menu-button icon text-xs" for="secondary-menu-toggle">
+							<span class="icon nav-menu-open" aria-hidden="true">{{icon "back"}}</span>
+						</label>
 					{{- else -}}
 						{{iconFilled $folder.Icon}} 
 					{{- end }}
 					{{$folder.Label}}
 				</h1>
+
+				<div id="secondary-menu-panel">
+					<div class="top">
+						{{- template "newsfeed-menu" .FoldersWithSelection "FOLDER" -}}
+					</div>
+				</div>
 			{{- end -}}
 
 			{{- $selectedFolder := ne $folderID nilObjectID.Hex -}}

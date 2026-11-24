@@ -6,12 +6,12 @@
 <!-- RULE: each link spells out hx-target, hx-swap and hx-push-url (see AGENTS.md). -->
 
 <!-- New Folder: a menu row like the folders above it, colored as a link. -->
-<div role="button" tabIndex="0" hx-get="/@me/newsfeed/folder-add" class="turboclick menu-item action">
+<div role="button" tabIndex="0" hx-get="/@me/newsfeed/folder-add" class="turboclick nav-item action">
 	<span style="view-transition-name:app-sidebar-add-folder-icon;">{{icon "add"}}</span>
 	<span style="view-transition-name:app-sidebar-add-folder-label">New Folder</span>
 </div>
 
-<a href="/@me/newsfeed/feed" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick menu-item ellipsis hover-trigger folder {{if $allFolders}}selected{{end}}">
+<a href="/@me/newsfeed/feed" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick nav-item ellipsis hover-trigger folder selected">
 	<span>
 		{{- if $allFolders -}}
 			{{- iconFilled "inbox" -}}
@@ -22,7 +22,7 @@
 	<span>My Inbox</span>
 </a>
 
-<a href="/@me/newsfeed/annotations" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick menu-item ellipsis hover-trigger folder {{if $isAnnotations}}selected{{end}}">
+<a href="/@me/newsfeed/annotations" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick nav-item ellipsis hover-trigger folder {{if $isAnnotations}}selected{{end}}">
 	<span>
 		{{- if $isAnnotations -}}
 			{{- iconFilled "bookmark" -}}
@@ -33,22 +33,23 @@
 	<span>Notes</span>
 </a>
 
-<!-- An extra line between Notes and the named folders -->
 <br>
 
 <form class="sortable" hx-post="/@me/newsfeed/folder-sort" hx-push-url="false" hx-trigger="end" hx-swap="none">
 
 	{{- range .Folders -}}
 		{{- $folderID := .FolderID.Hex -}}
-		<a href="/@me/newsfeed/folder?folderId={{$folderID}}" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick menu-item ellipsis hover-trigger folder {{if eq $selectedID .FolderID}}selected{{end}}">
-			<span>
-				{{- if eq $selectedID .FolderID -}}
-					{{- iconFilled .Icon -}}
-				{{- else -}}
-					{{- icon .Icon -}}
-				{{- end }}
-			</span>
-			<span>{{.Label}}</span>
+		<a href="/@me/newsfeed/folder?folderId={{$folderID}}" hx-boost="true" hx-target="main" hx-swap="innerHTML transition:true show:none" hx-push-url="true" class="turboclick nav-item ellipsis hover-trigger folder {{if eq $selectedID .FolderID}}selected{{end}}">
+			<div class="left">
+				<span>
+					{{- if eq $selectedID .FolderID -}}
+						{{- iconFilled .Icon -}}
+					{{- else -}}
+						{{- icon .Icon -}}
+					{{- end }}
+				</span>
+				<span>{{.Label}}</span>
+			</div>
 			<span class="folder-handle">
 				{{- if ne 0 .UnreadCount -}}
 					<span id="folder-unread-{{$folderID}}"

@@ -3,6 +3,9 @@
 }
 
 .folder-handle {
+	position: absolute;
+	top: unset;
+	right: var(--rhythm);
 	cursor: grab;
 
 	i {
@@ -13,6 +16,6 @@
 .folder-whisper {
 	background-color: var(--gray50);
 	color: var(--text-color-tertiary);
-	cursor: grabbing;
+	cursor: grab;
 }
 
