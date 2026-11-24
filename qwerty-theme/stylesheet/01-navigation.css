@@ -7,18 +7,6 @@ nav {
 	overflow: visible;
 }
 
-nav.collapsed {
-	min-width: 0;
-
-	.nav-item {
-		aspect-ratio: 1/1;
-		
-		.label {
-			display: none;
-		}
-	}
-}
-
 #nav-menu-panel, #secondary-menu-panel {
 	display: flex;
 	flex-direction: column;
@@ -165,6 +153,18 @@ nav.collapsed {
 			display: none;
 		}
 	}
+
+	nav.collapsed {
+	min-width: 0;
+
+	.nav-item {
+		aspect-ratio: 1/1;
+		
+		.label {
+			display: none;
+		}
+	}
+}
 }
 
 /* Mobile navigation styling */
