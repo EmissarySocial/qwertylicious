@@ -83,7 +83,7 @@
 {{- $nextKey := $next.Format "2006-01-02" -}}
 
 <!-- The events that touch the range: the query reaches back a month for long events, and each day keeps its own -->
-{{- $query := ((.ChildrenWithDrafts.Where "templateId" "qwerty-event").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd -}}
+{{- $query := ((.Children.Where "templateId" "qwerty-event").WhereGT "startDate" ($gridStart.AddDate 0 -1 0)).WhereLT "startDate" $gridEnd -}}
 {{- if ne "" $tag -}}
 	{{- $query = ($query.Tags $tag).CaseInsensitive -}}
 {{- end -}}

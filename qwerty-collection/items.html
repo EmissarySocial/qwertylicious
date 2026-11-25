@@ -1,5 +1,5 @@
 <!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, Notes, and About have
-     their own views; every other format lists Articles, featured first or in Custom order.  ChildrenWithDrafts adds drafts. -->
+     their own views; every other format lists Articles, featured first or in Custom order.  Children lists what this viewer may view, which for the author includes drafts. -->
 {{- $layout := .Data "layout" -}}
 
 {{- if eq $layout "gallery" -}}
@@ -32,7 +32,7 @@
 {{- if not ($tags.Contains $tag) -}}
 	{{- $tag = "" -}}
 {{- end -}}
-{{- $children := .ChildrenWithDrafts -}}
+{{- $children := .Children -}}
 {{- if ne "" $tag -}}
 	{{- $children = ($children.Tags $tag).CaseInsensitive -}}
 {{- end -}}
