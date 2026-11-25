@@ -102,7 +102,7 @@
 					// The include lets the gallery's add run tag-options on the unsaved post, and runs on the POST only, so the GET draws no second picker (see AGENTS.md)
 					{do:"include", action:"tag-options", method:"post"}
 					{do:"process-content", format:"MARKDOWN", hard-wraps:"{{.Data `hardWraps`}}"}
-					{do:"save-and-publish", state:"published", outbox:"true"}
+					{do:"save-and-publish", state:"published"}
 					{do:"search-index"}
 				]}
 				{do:"refresh-page"}
@@ -269,7 +269,7 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"unpublish", state:"default"}
 				{do:"delete", title:"Delete this Photo?", message:"The photo and its caption will be removed from your gallery.  There is NO UNDO."}
 				{do:"forward-to", url:"/{{.ParentID}}"}
 			]
