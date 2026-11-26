@@ -18,6 +18,10 @@
 	flex-wrap: nowrap;
 }
 
+#menu-bar:has(.left), #menu-bar:has(.right) {
+	width: 100%;
+}
+
 #menu-bar div {
 	white-space: nowrap;
 	flex-grow: unset;
@@ -80,7 +84,7 @@
 #menu-bar button:focus,
 #menu-bar .button:hover,
 #menu-bar .button:focus {
-	background-color: var(--input-background);
+	background-color: var(--button-background-hover);
 }
 
 #menu-bar .bold,
@@ -90,14 +94,8 @@
 #menu-bar .button.selected,
 #menu-bar .button.selected:hover,
 #menu-bar .button.selected:hover {
-	background-color: var(--gray00);
+	background-color: var(--button-secondary-background-hover);
 	color: var(--gray100);
-}
-
-@media screen and (max-width: 640px) {
-	#menu-bar:has(.left), #menu-bar:has(.right) {
-		width: 100%;
-	}
 }
 
 /* Dropdowns */

@@ -136,6 +136,10 @@ button, .button,
 			color: var(--button-primary-color);
 		}
 	}
+
+	&.selected {
+		background-color: var(--button-background-hover);
+	}
 }
 
 input[disabled],

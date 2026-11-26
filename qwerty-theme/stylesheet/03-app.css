@@ -123,7 +123,6 @@
 /* Sections */
 
 .app-content {
-	padding: unset;
 	position: relative;
 	view-transition-name: app-content;
 

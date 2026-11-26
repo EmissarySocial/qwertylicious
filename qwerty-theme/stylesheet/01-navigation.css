@@ -19,12 +19,12 @@ nav {
 	}
 }
 
-.page:has(.top), .page:has(.bottom) {
+.page:has(.top):has(.bottom) {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	min-height: unset;
 	height: 100%;
+	min-height: unset;
 
 	> * {
 		width: 100%;
@@ -135,10 +135,13 @@ nav {
 
 }
 
-.nav-float-right {
-	position: absolute;
+.action.top.right {
 	top: 0;
 	right: 0;
+
+	> * {
+		margin: unset;
+	}
 }
 
 /* Desktop navigation styling */ 
@@ -186,12 +189,8 @@ nav {
 		}
 	}
 
-	*:has(> .nav-float-right) {
-		position: unset !important;
-	}
-
-	.nav-float-right {
-		top: 6px;
+	.action.top.right {
+		top: calc(var(--rhythm) - 2px);
 		right: var(--rhythm);
 	}
 
