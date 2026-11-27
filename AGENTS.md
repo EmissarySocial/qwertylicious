@@ -328,6 +328,8 @@ A template that uses a funcmap helper (such as `toTime` or `cssValue`) fails to 
 
 **An unknown step option is ignored, not refused.** A Custom Photo Gallery needs the `sort` step's `direction` option and turboclick's `.drag-handle` exemption. On an Emissary without them, a drag numbers the posted photos from 1, and pressing a handle opens the photo.
 
+**An unknown step stops the Template from loading.** `settings-general-form` uses `startup-save-task`, and the theme's checklist links to `/startup/groups` and reads `startupDefaultPages`, so Emissary's startup checklist deploys first.
+
 **An unknown form path is dropped, not refused.** The episode editor's Publish Date needs Stream's `publishDateTime`. On an Emissary without it, the field renders empty and a save drops the value, logged only at debug level.
 
 ## The server caches template folders
@@ -412,3 +414,18 @@ The profile card's Follow (`profile-header.html`) and a product-less Subscribe m
 
 - **The card draws Emissary's `follow-button`:** the modal until CamperJS finds a saved account that can follow, then one-click follow with a "⁂" account manager beside it.
 - **Restyle by naming a view, never by defining an action.** A `follow-heading.html` or `follow-styles.html` in `qwerty-outbox` replaces Emissary's for every Qwerty profile.
+
+## The theme's startup tasks depend on Emissary's own actions
+
+[theme.hjson](qwerty-theme/theme.hjson) lists `startupTasks`, the rows of the first-run checklist at `/startup`. Each row is checked off in one of two ways, and neither is checked when this package loads:
+
+- **Its `value` is recorded by a `startup-save-task` step** in some action, usually one of Emissary's admin templates. A value that no step records leaves a row that can never be checked.
+- **Its `value` is a connection provider ID**, such as `GEOCODE-TILES`, and the row is checked while that connection is active. Link such a row to `/admin/connections/edit?providerId=...`.
+
+The first row links to `/startup/domain`, Emissary's startup-only modal that draws this theme's settings `form`. It records `/admin/domain`, the same value as the admin console's own screen, so saving either one checks the row.
+
+That modal draws `startupForm`, the same fields as `form` in three tabs (General, Description, Icons), and the admin console keeps drawing `form`. hjson cannot share them, so a field added to one goes in both. Every required field stays on General: a tab that is not open hides its fields, and the browser cannot show the message for an invalid control there, so the Save would do nothing.
+
+`startupDefaultPages` names the start pages that "Add Default Content" sets after it creates `startupStreams`. Each must be a path on the website, and the anonymous one must be a page that `startupStreams` creates. Emissary's `tests/startup_test.go` checks all of this for every sibling package, so run `go test ./tests` in Emissary after editing these lists.
+
+The "Create Your Author Profile" row is recorded by `settings-general-form` in [qwerty-outbox/template.hjson](qwerty-outbox/template.hjson), and only when a domain owner saves it. [content/](qwerty-theme/content/) still holds `about.md` and `join-the-team.md`, which are copies of Emissary's default theme and are deliberately not listed in `startupStreams`.
