@@ -11,19 +11,24 @@ button, .button,
 	border-radius: calc(var(--rhythm) * 4);
 	background-color: var(--button-background);
 	color: var(--button-color);
-
-	i.ti {
-		color: var(--text-color-tertiary);
+	
+	&:first-letter {
+		text-transform: capitalize;
 	}
 
-	&.icon {
+	i {
+		color: var(--text-color-secondary);
+	}
+
+	&.icon, &.edit-circle {
 		padding: calc(var(--rhythm) * 1.25);
 		align-content: center;
 		text-align: center;
 		aspect-ratio: 1/1;
+		min-height: calc(var(--rhythm) * 3);
 
 		i {
-			color: var(--text-color-tertiary);
+			color: var(--text-color-secondary);
 		}
 	}
 
@@ -31,7 +36,7 @@ button, .button,
 		background-color: var(--button-action-background);
 		color: var(--button-action-color);
 
-		i.ti {
+		i {
 			color: var(--button-action-color);
 		}
 
@@ -45,7 +50,7 @@ button, .button,
 		background-color: var(--button-primary-background);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
@@ -59,7 +64,7 @@ button, .button,
 		background-color: var(--button-secondary-background);
 		color: var(--button-secondary-color);
 
-		i.ti {
+		i {
 			color: var(--text-color-tertiary);
 		}
 
@@ -72,7 +77,7 @@ button, .button,
 		background-color: unset;
 	}
 
-	i.ti {
+	i {
 		color: var(--text-color-tertiary);
 	}
 
@@ -87,15 +92,20 @@ button, .button,
 	}
 
 	&.text-xs {
-		padding: calc(var(--rhythm) * 1.5) calc(var(--rhythm) * 1);
+		padding: calc(var(--rhythm) * 1) calc(var(--rhythm) * 1.25);
 		border-radius: calc(var(--rhythm) * 4);
 	}
 
 	&.text-red {
-		color: var(--red60);
+		background-color: var(--red60);
 
-		i.ti {
-			color: var(--red60);
+		i {
+			color: var(--button-primary-color);
+		}
+
+		&:hover, &:focus {
+			background-color: var(--red70);
+			color: var(--button-primary-color);
 		}
 	}
 
@@ -103,12 +113,12 @@ button, .button,
 		background-color: var(--red70);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
 		&:hover, &:focus {
-			background-color: var(--red60);
+			background-color: var(--red70);
 			color: var(--button-primary-color);
 		}
 	}
@@ -117,7 +127,7 @@ button, .button,
 		background-color: var(--green70);
 		color: var(--button-primary-color);
 
-		i.ti {
+		i {
 			color: var(--button-primary-color);
 		}
 
@@ -125,6 +135,10 @@ button, .button,
 			background-color: var(--green80);
 			color: var(--button-primary-color);
 		}
+	}
+
+	&.selected {
+		background-color: var(--button-background-hover);
 	}
 }
 
@@ -212,7 +226,7 @@ button.button-invisible {
 			background-color: var(--red40);
 			color: var(--button-primary-color);
 
-			i.ti {
+			i {
 				color: var(--button-primary-color);
 			}
 
@@ -226,7 +240,7 @@ button.button-invisible {
 			background-color: var(--green40);
 			color: var(--button-primary-color);
 
-			i.ti {
+			i {
 				color: var(--button-primary-color);
 			}
 
@@ -297,26 +311,9 @@ select,
    centered with flexbox and Bootstrap Icons' baseline nudge is undone. */
 button.edit-circle,
 .button.edit-circle {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: calc(var(--rhythm) * 4);
-	height: calc(var(--rhythm) * 4);
-	padding: 0;
-	margin: 0;
-	border-radius: 50%;
-
-	i {
-		display: block;
-		font-size: calc(var(--rhythm) * 1.75);
-		line-height: 1;
-
-		&::before {
-			display: block;
-			vertical-align: 0;
-		}
-	}
+	border-radius: calc(var(--border-radius) * 4) !important;
+	width: auto !important;
+	height: auto !important;
 }
 
 /* An invisible circle that keeps a missing button's place in the owner's menu (qwerty-common/profile-menu.html) */

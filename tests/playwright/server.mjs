@@ -621,6 +621,41 @@ async function listRoute(request, response, path) {
 	return true
 }
 
+// uploadRoute serves the upload spec: an image of the size its path names, a Save answered with the name of each
+// file and the value of each field it received, and a delete that answers nothing or, with ?fail, a 500
+async function uploadRoute(request, response, path, url) {
+
+	let match
+
+	if ((match = path.match(/^\/upload\/image\/(\d+)x(\d+)$/))) {
+		const [width, height] = [Number(match[1]), Number(match[2])]
+		response.writeHead(200, { "Content-Type": "image/svg+xml" })
+		response.end(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#264653"/><stop offset="1" stop-color="#e9c46a"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><circle cx="${width * 0.75}" cy="${height * 0.3}" r="${Math.min(width, height) * 0.15}" fill="#fff8"/></svg>`)
+		return true
+	}
+
+	if (path == "/upload/delete" && request.method == "POST") {
+		response.writeHead(url.searchParams.has("fail") ? 500 : 200, { "Content-Type": "text/html" })
+		response.end("")
+		return true
+	}
+
+	if (path != "/upload" || request.method != "POST") {
+		return false
+	}
+
+	const posted = {}
+
+	for (const [name, value] of (await formData(request)).entries()) {
+		if (typeof value == "string" || value.name != "") {
+			posted[name] = [...(posted[name] || []), typeof value == "string" ? value : `file:${value.name}`]
+		}
+	}
+
+	htmlResponse(response, escapeHTML(JSON.stringify(posted)))
+	return true
+}
+
 // profileTabLink is one tab link of qwerty-common/profile-tabs.html, read from the template, for the collection $tabID on $userID's profile
 function profileTabLink(label, tabID, userID, selected) {
 	const link = stripComments(read(join(qwerty, "qwerty-common/profile-tabs.html"))).match(/<a [^>]*>/)[0]
@@ -812,6 +847,7 @@ const routes = {
 	"/podcast-list": () => ["text/html", page(read(join(here, "fixtures/podcast-list.html")).replace("${DATE}", dateCell()))],
 	"/list": () => ["text/html", page(read(join(here, "fixtures/list.html")))],
 	"/tabs": () => ["text/html", page(read(join(here, "fixtures/tabs.html")))],
+	"/upload": () => ["text/html", page(read(join(here, "fixtures/upload.html")))],
 	"/editorjs": () => ["text/html", page(visualEditor(join(qwerty, "qwerty-article/edit-content-editorjs.html")))],
 	"/editorjs-emissary": () => ["text/html", page(visualEditor(join(templates, "stream-article-editorjs/editor.html")))],
 	"/@author": () => ["text/html", page(`<div hx-target="main" hx-swap="innerHTML"><main>${profileArticles()}</main></div>`)],
@@ -842,6 +878,11 @@ createServer(async (request, response) => {
 
 	// The list spec's Save
 	if (await listRoute(request, response, path)) {
+		return
+	}
+
+	// The upload spec's images, Save, and delete
+	if (await uploadRoute(request, response, path, url)) {
 		return
 	}
 

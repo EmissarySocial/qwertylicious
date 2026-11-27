@@ -143,7 +143,6 @@
 			steps: [
 				{
 					do: "as-modal"
-					options: ["class:medium"]
 					background-url: "/@{{(.Parent `view`).ParentID}}?tab={{.ParentID}}"
 					background: "page"
 					replace-url: "/{{.StreamID}}"

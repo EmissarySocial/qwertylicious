@@ -1,5 +1,5 @@
 <div class="page framed wide editor-none h-entry">
-	<article id="article-editor" class="card border padding-none flex-column margin-bottom">
+	<article id="article-editor" class="card padding-none flex-column margin-bottom">
 
 		<!-- The selected pencil, top right, returns to the Article, as Cancel did (its pair is in view.html) -->
 		<a class="button primary edit-circle corner-pencil turboclick" href="/{{.StreamID}}" hx-push-url="unset" hx-replace-url="true" aria-pressed="true" aria-label="Done Editing">{{icon "pencil-fill"}}</a>
@@ -10,13 +10,13 @@
 		<!-- Save, Properties, and Publish, above the heading and outside the reading column, so they align with the banner's right edge -->
 		<div class="flex-row flex-align-center flex-justify-end padding">
 			{{- if eq .StateID "published" -}}
-				<button hx-get="/{{.StreamID}}/properties" class="button turboclick">Properties</button>
-				<button hx-get="/{{.StreamID}}/unpublish" class="button turboclick">{{icon "check"}} Published</button>
-				<button class="button success" hx-on:click="save()">{{icon "device-floppy"}} Save Changes</button>
+				<button hx-get="/{{.StreamID}}/unpublish" class="button turboclick">Unpublish</button>
+				<button class="button success" hx-on:click="save()">Save changes</button>
+				<button hx-get="/{{.StreamID}}/properties" class="icon button tertiary turboclick">{{icon "three-dots"}}</button>
 			{{- else -}}
-				<button class="button" hx-on:click="save()">{{icon "device-floppy"}} Save</button>
-				<button hx-get="/{{.StreamID}}/properties" class="button turboclick">Properties</button>
 				<button hx-on:click="publish()" class="button action">Publish</button>
+				<button class="button" hx-on:click="save()">Save</button>
+				<button hx-get="/{{.StreamID}}/properties" class="icon button tertiary turboclick">{{icon "three-dots"}}</button>
 			{{- end -}}
 		</div>
 

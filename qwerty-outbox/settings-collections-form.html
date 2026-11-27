@@ -23,8 +23,8 @@
 					<td>{{.Label}}</td>
 					<!-- View opens the collection's tab on the profile; Edit opens its Edit Collection modal (qwerty-collection's settings action) -->
 					<td class="align-right" style="width:1px; white-space:nowrap;">
+						<button type="button" class="icon text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">{{icon "pencil"}}</button>
 						<a href="/@{{$.UserID}}?tab={{.ObjectID.Hex}}" class="button text-sm turboclick">View</a>
-						<button type="button" class="text-sm turboclick" hx-get="/{{.ObjectID.Hex}}/settings">Edit</button>
 					</td>
 				</tr>
 			{{- end -}}

@@ -1,0 +1,109 @@
+<!-- navigation-desktop: the sidebar <nav>, and the mobile menu that replaces it below 640px.
+     The menu's CSS is theme-default/stylesheet/04-nav-menu.css; its rules are in theme-minimal/AGENTS.md. -->
+
+<!-- Read once: .Navigation runs a database query, and both layouts range over it -->
+{{- $navigation := .Navigation -}}
+
+<!-- Marks the current section in the sheet only; SelectNav marks the sidebar client-side -->
+{{- $navigationID := .NavigationID -}}
+
+<!-- RULE: the skip link sits outside both layouts, which are each hidden at some width -->
+<a href="#main" class="hide-visual">Skip navigation</a>
+
+<nav class="collapsed" hx-push-url="true" hx-swap="transition:true">
+	<!-- RULE: a checkbox, not <details>, and it precedes the label and the sheet.  role=button stays here, and the
+	     Escape branch sets aria-expanded itself, because setting .checked fires no change event. -->
+	<input type="checkbox" id="nav-menu-toggle" class="nav-menu-toggle hide-visual" autocomplete="off"
+			role="button" aria-controls="nav-menu-panel" aria-expanded="false" aria-label="Navigation menu"
+			script="on change set @aria-expanded to my.checked end on keydown[key=='Escape'] from window if my.checked set my.checked to false then set @aria-expanded to 'false' then focus me end end">
+	
+	<div id="topbar">
+		<!-- One control, two glyphs: CSS swaps them on :checked, so this is the close button too -->
+		<label for="nav-menu-toggle" class="nav-menu-button">
+			<span class="icon nav-menu-open" aria-hidden="true">{{icon "menu"}}</span>
+			<span class="icon nav-menu-close" aria-hidden="true">{{icon "cancel"}}</span>
+		</label>
+		<label class="title">
+			{{- if .IsAction "settings-images" -}}Images{{- else if .IsAction "settings-links" -}}Links{{- else if .IsAction "settings-collections" -}}Collections{{- else if .IsAction "settings-general" -}}General {{- else -}}{{.PageTitle}}{{- end }}
+		</label>
+	</div>
+	
+	<div id="nav-menu-panel">
+		<div class="top">
+			{{- range $navigation -}}
+				<a href="/{{.Token}}" id="nav-{{.StreamID}}" class="nav-item turboclick" aria-label="{{.Label}}">
+					{{- $icon := .Icon -}}
+					{{- if ne "" $icon -}}
+						<span class="icon selected-hide">{{icon $icon}}</span>
+						<span class="icon selected-show">{{iconFilled $icon}}</span>
+					{{- end }}
+					<span class="label">{{.Label}}</span>
+				</a>
+			{{- end -}}
+			{{- if .IsAuthenticated -}}
+				<a href="/@me" id="nav-outbox" class="nav-item turboclick" aria-label="Profile">
+					<span class="icon selected-hide">{{icon "user"}}</span>
+					<span class="icon selected-show">{{icon "user-fill"}}</span>
+					<span class="label">Profile</span>
+				</a>
+				<a href="/@me/newsfeed" id="nav-inbox" class="nav-item turboclick" aria-label="Feed">
+					<span class="icon selected-hide">{{icon "inbox"}}</span>
+					<span class="icon selected-show">{{icon "inbox-fill"}}</span>
+					<span class="label">Feed</span>
+				</a>
+				<a href="/@me/conversations" id="nav-conversations" class="nav-item turboclick" aria-label="Conversations">
+					<span class="icon selected-hide">{{icon "chat"}}</span>
+					<span class="icon selected-show">{{icon "chat-fill"}}</span>
+					<span class="label">Conversations</span>
+				</a>
+				<!-- The unread badge, refreshed by the listener at the foot of this <nav> -->
+				<a href="/@me/notifications/replies" id="nav-notifications" class="nav-item turboclick" aria-label="Notifications">
+					<span class="icon selected-hide">{{icon "bell"}}</span>
+					<span class="icon selected-show">{{icon "bell-fill"}}</span>
+					<span class="label">Notifications</span>
+					<span id="nav-notifications-badge" class="nav-badge text-red text-sm {{if not .HasUnreadNotifications}}hide{{end}}">&#9679;</span>
+				</a>
+				<a href="/@me/settings" id="nav-settings" class="nav-item turboclick" aria-label="Settings">
+					<span class="icon selected-hide">{{icon "settings"}}</span>
+					<span class="icon selected-show">{{icon "settings-fill"}}</span>
+					<span class="label">Settings</span>
+				</a>
+			{{- else if .IsIdentity -}}
+				<a href="/@guest" id="nav-settings" class="nav-item turboclick" aria-label="Profile">
+					<span class="icon selected-hide">{{icon "user"}}</span>
+					<span class="icon selected-show">{{icon "user-fill"}}</span>
+					<span class="label">Profile</span>
+				</a>
+			{{- else -}}
+				<a href="/signin" id="nav-signin" class="nav-item turboclick" aria-label="Sign In">
+					<span class="icon">{{icon "user"}}</span>
+					<span class="label">Sign In</span>
+				</a>
+			{{- end -}}
+		</div>
+		<div class="bottom">
+			{{- if .IsAuthenticated -}}
+				{{- if .IsOwner -}}
+					<a href="/admin/domain" id="nav-admin" class="nav-item turboclick" aria-label="Server Admin">
+						<span class="icon selected-hide">{{icon "database"}}</span>
+						<span class="icon selected-show">{{icon "database-fill"}}</span>
+						<span class="label">Server</span>
+					</a>
+				{{- end -}}
+			{{- end -}}
+		</div>
+
+		{{- if .IsAuthenticated -}}
+			<!-- Refreshes the Notifications badge. RULE: outside .top, whose spacing rule needs adjacent nav items. -->
+			<div hx-ext="sse" sse-connect="/@me/sse/notifications" style="display:none;">
+				<div
+					hx-get="/@me/notifications/badge"
+					hx-trigger="sse:message, refreshSidebar from:window"
+					hx-target="#nav-notifications-badge"
+					hx-swap="outerHTML"
+					hx-push-url="false">
+				</div>
+			</div>
+		{{- end -}}
+	</div>
+</nav>
