@@ -1,0 +1,21 @@
+.folder {
+	position: relative;
+}
+
+.folder-handle {
+	position: absolute;
+	top: unset;
+	right: var(--rhythm);
+	cursor: grab;
+
+	i {
+		color: var(--text-color-gray50);
+	}
+}
+
+.folder-whisper {
+	background-color: var(--gray50);
+	color: var(--text-color-tertiary);
+	cursor: grab;
+}
+

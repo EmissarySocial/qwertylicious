@@ -439,7 +439,7 @@
 }
 
 /* On a phone, the Photo Gallery shows two across, and the Month grid keeps its shape while its event labels shrink to dots */
-@media (max-width: 640px) {
+@media screen and (max-width: 640px) {
 	.qwerty-gallery {
 		grid-template-columns: repeat(2, 1fr);
 		gap: 2px;
@@ -739,8 +739,7 @@
 
 .qwerty-note {
 	gap: var(--rhythm);
-	padding: calc(var(--rhythm) * 2) 0;
-	border-top: solid 1px var(--gray20);
+	padding: calc(var(--rhythm) * 2);
 }
 
 .qwerty-note-avatar {

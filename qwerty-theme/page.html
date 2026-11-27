@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html data-theme="{{.ThemeData `colorway`}}" lang="en">
-<head>
-	<title>{{.DomainLabel}} - {{.PageTitle}}</title>
-	<link rel="webmention" href="/.webmention"/>
-	<!-- RULE: every htmx show: scroll is instant, never smooth, so a swap that moves the page is corrected before it paints (see AGENTS.md) -->
-	<meta name="htmx-config" content='{"scrollBehavior":"instant"}'>
-	{{ template "includes-head" .}}
-</head>
 
-<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y" class="desktop"
-	script="
- 		install ToggleContainer
-		install SelectNav">
+	<head>
+		<title>{{.DomainLabel}} - {{.PageTitle}}</title>
+		<link rel="webmention" href="/.webmention"/>
+		<!-- RULE: every htmx show: scroll is instant, never smooth, so a swap that moves the page is corrected before it paints (see AGENTS.md) -->
+		<meta name="htmx-config" content='{"scrollBehavior":"instant"}'>
+		{{ template "includes-head" .}}
+	</head>
 
-	<!-- The skip link, the sidebar <nav>, and the mobile menu that replaces it below 640px -->
-	<!-- RULE: themeData.navigation "authenticated" hides all three from anonymous visitors, and guests keep them (see AGENTS.md) -->
-	{{- if or (ne (.ThemeData `navigation`) `authenticated`) .IsAuthenticated .IsIdentity -}}
-		{{- template "navigation-desktop" . -}}
-	{{- end -}}
+	<body hx-target="main" hx-swap="innerHTML transition:true show:window:top" hx-push-url="true" hx-ext="a11y"
+		script="
+			install ToggleContainer
+			install SelectNav">
 
-	<main id="main">
-		{{- .GetContent -}}
-	</main>
-	
-	<aside></aside>
+			<!-- The skip link, the sidebar <nav>, and the mobile menu that replaces it below 640px -->
+			<!-- RULE: themeData.navigation "authenticated" hides all three from anonymous visitors, and guests keep them (see AGENTS.md) -->
+			{{- if or (ne (.ThemeData `navigation`) `authenticated`) .IsAuthenticated .IsIdentity -}}
+				{{- template "navigation" . -}}
+			{{- end -}}
 
-</body>
+			<main id="main">
 
-{{ template "includes-foot" .}}
+				<script src="/.themes/qwerty-theme/mobile"></script>
 
+				{{- .GetContent -}}
+				
+			</main>
+		
+			<aside></aside>
+
+	</body>
+
+	{{ template "includes-foot" .}}
 </html>

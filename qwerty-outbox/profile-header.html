@@ -107,16 +107,16 @@
 				<div class="flex-row flex-wrap md:flex-justify-end flex-align-start margin-none">
 					{{- if $isMyself -}}
 
-						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
-						<button hx-get="/@me/settings" class="text-sm turboclick">{{icon "settings"}} Edit Profile</button>
-
 						<!-- Both open the publish modal: green until the profile is public, then gray, to unpublish -->
 						{{- if $isPublic -}}
-							<button hx-get="/@me/publish" class="text-sm turboclick">{{icon "check"}} Published</button>
+							<button hx-get="/@me/publish" class="text-sm icon turboclick" data-tooltip="Profile Privacy" aria-label="Published">{{icon "globe"}}</button>
 						{{- else -}}
-							<button hx-get="/@me/publish" class="success text-sm turboclick">Publish Profile</button>
+							<button hx-get="/@me/publish" class="text-sm icon turboclick" data-tooltip="Profile Privacy" aria-label="Private">{{icon "lock"}}</button>
 						{{- end -}}
 
+						<!-- Edit Profile opens the settings in <main>, through the body's hx-target and hx-push-url -->
+						<button hx-get="/@me/settings" class="text-sm icon turboclick" data-tooltip="Edit Profile" aria-label="Edit Profile">{{icon "settings"}}</button>
+						
 					{{- else -}}
 
 						<!-- Emissary's base-outbox: follows in one click as the visitor's saved account, or opens the Follow modal -->

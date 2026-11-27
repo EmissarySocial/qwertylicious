@@ -1,7 +1,7 @@
 <!-- items-podcast is a Podcast's tab: its description and the feed's link, then a table of episodes that each open their modal.
      RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
 <!-- By rank, highest (newest) first unless data.sortDirection is "asc" -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByRank -}}
+{{- $query := (.Children.Where "templateId" "qwerty-episode").ByRank -}}
 {{- if ne (.DataString "sortDirection") "asc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}

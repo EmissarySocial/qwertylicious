@@ -1,5 +1,5 @@
 <!-- items-timeline is a Timeline's tab: its events in date order, oldest first, down a vertical line, under a heading per year. -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
+{{- $query := (.Children.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
 {{- $allEvents := $query.All.Slice -}}
 <!-- The collection's author edits its entries (the same check as list.html's owner menu) -->
 {{- $canEdit := .UserCan "add" -}}

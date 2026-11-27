@@ -1,6 +1,6 @@
 <!-- items-gallery is a Photo Gallery's tab: a square grid of posts, 30 at a time, newest first or in its Custom order.
      Each page ends in a sentinel that loads the next (gallery-more.html); a post opens qwerty-photo's modal. -->
-{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
+{{- $photos := .Children.Where "templateId" "qwerty-photo" -}}
 {{- $canEdit := .UserCan "settings" -}}
 {{- $empty := "This gallery shows off your photos, newest first.  Each post holds up to 16.  Add your first one now." -}}
 

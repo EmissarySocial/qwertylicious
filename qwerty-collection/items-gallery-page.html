@@ -1,5 +1,5 @@
 <!-- items-gallery-page is the next page of a Photo Gallery, for gallery-more.html's sentinel (?publishDate=LT: or ?rank=LT:, and any ?tag=). -->
-{{- $photos := .ChildrenWithDrafts.Where "templateId" "qwerty-photo" -}}
+{{- $photos := .Children.Where "templateId" "qwerty-photo" -}}
 
 <!-- The gallery's own hashtags are its filters, collected by range (see AGENTS.md) -->
 {{- $tags := split "" "," -}}
