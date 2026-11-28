@@ -1,5 +1,5 @@
 <!-- modal: a place opened from its map's marker, drawn over its collection or its own page.
-     ?tab=likes or ?tab=shares opens that tab under the place. -->
+     Its Replies tab re-opens this modal with ?tab=replies. -->
 <div class="h-entry">
 
 	<!-- Top right: the author's pencil opens the edit modal in its place (its pair is edit-pencil.html), and X closes -->
@@ -17,8 +17,12 @@
 	<div class="padding">
 		<h1 class="p-name margin-top-none margin-bottom">{{.Label}}</h1>
 
-		<!-- The place's details stay on every tab, and its Replies, Likes, and Shares tabs sit beneath them, as on a Note -->
-		{{- template "entry-body" . -}}
-		{{- template "responses" . -}}
+		{{- template "replies-tabs" (array . "Details" "modal") -}}
+
+		{{- if eq (.QueryParam "tab") "replies" -}}
+			{{- template "replies-panel" . -}}
+		{{- else -}}
+			{{- template "entry-body" . -}}
+		{{- end -}}
 	</div>
 </div>

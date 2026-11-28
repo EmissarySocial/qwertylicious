@@ -5,19 +5,19 @@
 {{- $image := .IconURL -}}
 {{- if eq "" $image -}}{{- $image = .AttributedTo.IconURL -}}{{- end -}}
 
-<!-- The neighboring episodes, in the list's order: highest rank first unless sortDirection is "asc" -->
+<!-- The neighboring episodes, in the list's order: newest first unless episodeOrder is "asc" -->
 {{- $episodes := .Siblings.Where "templateId" "qwerty-episode" -}}
-{{- $rank := .Rank -}}
-{{- $higher := (($episodes.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
-{{- $lower := (($episodes.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
+{{- $created := .CreateDate -}}
+{{- $newer := (($episodes.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+{{- $older := (($episodes.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
 {{- $above := "" -}}
 {{- $below := "" -}}
-{{- if eq ($podcast.DataString "sortDirection") "asc" -}}
-	{{- if not $lower.ObjectID.IsZero -}}{{- $above = $lower.StreamID -}}{{- end -}}
-	{{- if not $higher.ObjectID.IsZero -}}{{- $below = $higher.StreamID -}}{{- end -}}
+{{- if eq ($podcast.DataString "episodeOrder") "asc" -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $above = $older.StreamID -}}{{- end -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $below = $newer.StreamID -}}{{- end -}}
 {{- else -}}
-	{{- if not $higher.ObjectID.IsZero -}}{{- $above = $higher.StreamID -}}{{- end -}}
-	{{- if not $lower.ObjectID.IsZero -}}{{- $below = $lower.StreamID -}}{{- end -}}
+	{{- if not $newer.ObjectID.IsZero -}}{{- $above = $newer.StreamID -}}{{- end -}}
+	{{- if not $older.ObjectID.IsZero -}}{{- $below = $older.StreamID -}}{{- end -}}
 {{- end -}}
 
 <div class="qwerty-episode h-entry padding" data-episode-id="{{.StreamID}}">
@@ -57,9 +57,29 @@
 		</div>
 	{{- end -}}
 
-	<!-- The notes stay on every tab, and the Replies, Likes, and Shares tabs sit beneath them, as on a Note -->
-	<div class="e-content">{{.ContentHTML}}</div>
-	{{- template "responses" . -}}
+	<!-- The Show Notes and Replies tabs, with Share (not a tab) at the right -->
+	<div class="qwerty-episode-tabs flex-row flex-align-center margin-bottom-lg">
+		{{- template "replies-tabs" (array . "Show Notes" "modal" "count") -}}
+		<div class="flex-grow"></div>
+		<!-- Share opens the device's share sheet, or copies the URL -->
+		<button type="button" class="turboclick" data-share-url="{{.Permalink}}" script="
+			on click
+				if navigator.share
+					call navigator.share({url: my @data-share-url})
+				else
+					call navigator.clipboard.writeText(my @data-share-url)
+					put 'Link Copied' into the first <span/> in me
+				end
+			catch error
+				log error
+			end">{{icon "share"}} <span>Share</span></button>
+	</div>
+	<!-- With replies closed there is no Replies tab, so ?tab=replies shows the notes -->
+	{{- if and (eq (.QueryParam "tab") "replies") (not .RepliesClosed) -}}
+		{{- template "replies-panel" . -}}
+	{{- else -}}
+		<div class="e-content">{{.ContentHTML}}</div>
+	{{- end -}}
 
 	<!-- Hidden links to the neighboring episodes, clicked by the skip buttons and keys -->
 	{{- if ne "" $above -}}

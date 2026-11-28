@@ -1,19 +1,5 @@
-<!-- RULE: settings-general draws the tab ?tab= names, so match its switch cases here (see AGENTS.md) -->
-{{- $tab := "general" -}}
-{{- if .IsAction "settings-general" -}}
-	{{- $query := trim (.QueryParam "tab") -}}
-	{{- if in $query "images" "links" "collections" "stylesheet" -}}
-		{{- $tab = $query -}}
-	{{- end -}}
-{{- else if .IsAction "settings-images" -}}
-	{{- $tab = "images" -}}
-{{- else if .IsAction "settings-links" -}}
-	{{- $tab = "links" -}}
-{{- else if .IsAction "settings-collections" -}}
-	{{- $tab = "collections" -}}
-{{- else if .IsAction "settings-stylesheet" -}}
-	{{- $tab = "stylesheet" -}}
-{{- end -}}
+{{- $isDesktop := .IsDesktop -}}
+
 <div id="menu-bar">
 	<div class="left tabs">
 		{{ if not .IsDesktop }}

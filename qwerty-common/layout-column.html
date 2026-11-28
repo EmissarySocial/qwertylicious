@@ -1,9 +1,8 @@
-<!-- layout-column renders (array $posts $canEdit $canSort) and fetches nothing: an Edit link and a drag handle.  The caller handles empty. -->
+<!-- layout-column renders (array $posts $canEdit) and fetches nothing; $canEdit adds a hover Edit link.  The caller handles empty. -->
 {{- $canEdit := index . 1 -}}
-{{- $canSort := index . 2 -}}
 {{- range index . 0 -}}
 	<div class="pos-relative hover-trigger">
-		<a href="/{{.Token}}" hx-boost="true" class="height-100% card qwerty-outbox-item text-plain text-nocolor turboclick">
+		<a href="{{.URL}}" hx-boost="true" class="height-100% card qwerty-outbox-item text-plain text-nocolor turboclick">
 			{{- if ne "" .IconURL -}}
 				<div class="width-100%" style="height:300px; overflow:hidden;">
 					<img src="{{.IconURL}}.webp" class="rounded object-fit-cover qwerty-outbox-item-image width-100%">
@@ -16,16 +15,9 @@
 			</div>
 			<div class="padding text-sm text-gray qwerty-outbox-item-date">{{.PublishDate | shortDate}}</div>
 		</a>
-		<!-- The handle starts a drag (Sortable's handle option); a click on it must not open the article -->
-		{{- if $canSort -}}
-			<input type="hidden" name="keys" value="{{.StreamID}}">
-			<div class="hover-show pos-absolute-top-left">
-				<span class="button edit-circle drag-handle" aria-hidden="true" script="on click halt the event">{{icon "drag-handle"}}</span>
-			</div>
-		{{- end -}}
 		{{- if $canEdit -}}
 			<div class="hover-show pos-absolute-top-right">
-				<a href="/{{.Token}}/edit" hx-boost="true" class="button edit-circle turboclick" aria-label="Edit" title="Edit">{{icon "pencil"}}</a>
+				<a href="/{{.StreamID}}/edit" hx-boost="true" class="button edit-circle turboclick" aria-label="Edit" title="Edit">{{icon "pencil"}}</a>
 			</div>
 		{{- end -}}
 	</div>

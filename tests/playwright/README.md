@@ -23,13 +23,11 @@ npx playwright show-report        # the HTML report of the last run
 | --- | --- |
 | `/css` | Emissary's `theme-global` and `theme-default` stylesheets, then `qwerty-theme/stylesheet` and `qwerty-outbox/stylesheet`, in the order a real page loads them |
 | `/js/htmx.js`, `/js/hyperscript.js` | Emissary's htmx 1.9.12 and hyperscript 0.9.93 |
-| `/js/global.js`, `/hs/global.hs` | Emissary's `theme-global` JavaScript and hyperscript bundles, including the `Modal`, `Share`, and `Clipboard` behaviors |
-| `/.themes/qwerty-theme/carousel`, `/.themes/qwerty-theme/podcast` | `qwerty-theme/carousel` and `qwerty-theme/podcast`, at the paths the photo figure, the Timeline entry's bar, the episode player, and the Podcast tab's list load them from |
-| `/.themes/global/resources/sortable-1.15.7/Sortable.min.js` | Emissary's Sortable, at the path `sortContainer` and the `upload-multiple` script load it from, never cached so that every load is a request |
+| `/js/global.js`, `/hs/global.hs` | Emissary's `theme-global` JavaScript and hyperscript bundles, including the `Modal` behavior |
+| `/js/podcast.js` | `qwerty-theme/podcast` |
 | `/episode` | A page with the first of three episodes open in its modal |
 | `/entry` | A page with the first of three Timeline entries open in its modal |
-| `/calendar` | A page with one button that opens a Calendar event's modal |
-| `/{id}/modal` | An episode's, an entry's, the event's, or a photo post's modal, with the headers Emissary's `as-modal` sends |
+| `/{id}/modal` | An episode's or an entry's modal, with the headers Emissary's `as-modal` sends |
 | `/podcast-list` | One row of a podcast's episode list |
 | `/gallery/{collectionId}` | A Photo Gallery's tab for its owner: the Add Photos button, and the posts the spec has made in that collection |
 | `/{collectionId}/add` | Add Photos in a modal; its POST stores any file posted with it and adopts the staged photos its `photos.order` values name, in that order, keeping the first 16 and leaving the rest staged, as the `create` action's `include` does. With `?action=photos` it is the `photos` action run on the unsaved post, as Emissary's `add-stream` runs it: a GET draws a create form's zone, a POST stores the one posted file under the user and draws its tile alone, and `?attachmentId=` deletes one staged file and answers nothing |

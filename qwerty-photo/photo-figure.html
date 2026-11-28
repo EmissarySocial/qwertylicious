@@ -14,49 +14,27 @@
 {{- if $hasCaption -}}{{- $labelledBy = trim (print $labelledBy " " $captionID) -}}{{- end -}}
 {{- $several := gt (len $photos) 1 -}}
 
-<!-- The neighboring posts, in the gallery's order: by rank when Custom, else pinned posts and then the rest, each newest first -->
-{{- $collection := $builder.Parent "view" -}}
+<!-- The neighboring posts, in the gallery's order: pinned posts, then the rest, each newest first -->
 {{- $gallery := $builder.Siblings.Where "templateId" "qwerty-photo" -}}
-<!-- The gallery's own hashtags, collected by range (see AGENTS.md) -->
-{{- $tags := split "" "," -}}
-{{- range ($collection.Data "tags") -}}
-	{{- $tags = append $tags (split . "\x00") -}}
-{{- end -}}
-<!-- RULE: only the gallery's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
-{{- $tag := $builder.QueryParam "tag" -}}
-{{- if not ($tags.Contains $tag) -}}
-	{{- $tag = "" -}}
-{{- end -}}
-{{- $modalQuery := "" -}}
-{{- if ne "" $tag -}}
-	{{- $gallery = ($gallery.Tags $tag).CaseInsensitive -}}
-	{{- $modalQuery = print "?tag=" ($tag | urlquery) -}}
-{{- end -}}
 {{- $pinned := $gallery.Where "isFeatured" true -}}
 {{- $unpinned := $gallery.Where "isFeatured" false -}}
-{{- $published := $builder.PublishDate -}}
+{{- $created := $builder.CreateDate -}}
 {{- $prev := "" -}}
 {{- $next := "" -}}
-{{- if eq ($collection.DataString "sortType") "rank" -}}
-	{{- $rank := $builder.Rank -}}
-	{{- $higher := (($gallery.WhereGT "rank" $rank).ByRank.Top1.Slice).First -}}
-	{{- $lower := (($gallery.WhereLT "rank" $rank).ByRank.Reverse.Top1.Slice).First -}}
-	{{- if not $higher.ObjectID.IsZero -}}{{- $prev = $higher.StreamID -}}{{- end -}}
-	{{- if not $lower.ObjectID.IsZero -}}{{- $next = $lower.StreamID -}}{{- end -}}
-{{- else if $builder.IsFeatured -}}
-	{{- $newer := (($pinned.WhereGT "publishDate" $published).ByPublishDate.Top1.Slice).First -}}
-	{{- $older := (($pinned.WhereLT "publishDate" $published).ByPublishDate.Reverse.Top1.Slice).First -}}
+{{- if $builder.IsFeatured -}}
+	{{- $newer := (($pinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
+	{{- $older := (($pinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
 	{{- if $older.ObjectID.IsZero -}}
-		{{- $older = ($unpinned.ByPublishDate.Reverse.Top1.Slice).First -}}
+		{{- $older = ($unpinned.ByCreateDate.Reverse.Top1.Slice).First -}}
 	{{- end -}}
 	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
 	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
 {{- else -}}
-	{{- $newer := (($unpinned.WhereGT "publishDate" $published).ByPublishDate.Top1.Slice).First -}}
+	{{- $newer := (($unpinned.WhereGT "createDate" $created).ByCreateDate.Top1.Slice).First -}}
 	{{- if $newer.ObjectID.IsZero -}}
-		{{- $newer = ($pinned.ByPublishDate.Top1.Slice).First -}}
+		{{- $newer = ($pinned.ByCreateDate.Top1.Slice).First -}}
 	{{- end -}}
-	{{- $older := (($unpinned.WhereLT "publishDate" $published).ByPublishDate.Reverse.Top1.Slice).First -}}
+	{{- $older := (($unpinned.WhereLT "createDate" $created).ByCreateDate.Reverse.Top1.Slice).First -}}
 	{{- if not $newer.ObjectID.IsZero -}}{{- $prev = $newer.StreamID -}}{{- end -}}
 	{{- if not $older.ObjectID.IsZero -}}{{- $next = $older.StreamID -}}{{- end -}}
 {{- end -}}
@@ -82,25 +60,22 @@
 			<div class="qwerty-carousel-count text-xs" aria-live="polite">1 / {{len $photos}}</div>
 		{{- end -}}
 
-		<!-- Hidden links to the neighboring posts, for the arrow keys; a modal opens a modal, a page a page, each in the same ?tag= -->
+		<!-- Hidden links to the neighboring posts, for the arrow keys; a modal opens a modal, a page a page -->
 		{{- if ne "" $prev -}}
 			<a class="qwerty-carousel-post-prev" hidden aria-hidden="true" tabindex="-1"
 				href="/{{$prev}}"
-				hx-get="/{{$prev}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}{{$modalQuery}}"
+				hx-get="/{{$prev}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
 				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
 				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$prev}}{{end}}">Previous Post</a>
 		{{- end -}}
 		{{- if ne "" $next -}}
 			<a class="qwerty-carousel-post-next" hidden aria-hidden="true" tabindex="-1"
 				href="/{{$next}}"
-				hx-get="/{{$next}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}{{$modalQuery}}"
+				hx-get="/{{$next}}{{if eq $mode `modal`}}/modal{{else}}/page{{end}}"
 				hx-target="{{if eq $mode `modal`}}aside{{else}}main{{end}}"
 				hx-push-url="{{if eq $mode `modal`}}false{{else}}/{{$next}}{{end}}">Next Post</a>
 		{{- end -}}
 	</div>
-
-	<!-- RULE: the figure loads its own script; no theme's footer does (see AGENTS.md) -->
-	<script src="/.themes/qwerty-theme/carousel" defer></script>
 
 	<figcaption class="margin-top">
 		<!-- The title (the pencil is in modal.html, and view.html draws its own Edit) -->
@@ -118,14 +93,11 @@
 				</div>
 				<div class="text-sm">{{$builder.PublishDate | longDate}}</div>
 			</div>
-			<!-- Across from the byline, Follow for everyone but the author, worded as the profile's follow-button -->
+			<!-- Across from the byline, Follow for everyone but the author -->
 			{{- if not $builder.IsAuthor -}}
-				<!-- Follow opens the author's Follow modal, or follows in one click once CamperJS finds a saved account that can -->
-				<div data-camper-intent="follow" data-camper-object="{{$builder.AttributedTo.ProfileURL}}">
-					<button type="button" class="primary text-sm turboclick camper-hide-if-ready" hx-get="/@{{$builder.AttributedTo.UserID.Hex}}/follow" hx-push-url="false">⁂ Follow {{$builder.AttributedTo.Name}}</button>
-					<button type="button" class="primary text-sm camper-show-if-ready" data-camper-action="intent" hidden>⁂ Follow {{$builder.AttributedTo.Name}}</button>
+				<div>
+					<button hx-get="/@{{$builder.AttributedTo.UserID.Hex}}/follow" class="primary text-sm turboclick">{{icon "plus"}} Follow</button>
 				</div>
-				<script src="/.themes/global/resources/camperjs-0.2.0/camper.js"></script>
 			{{- end -}}
 		</div>
 		{{- if $hasCaption -}}

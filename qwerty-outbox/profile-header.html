@@ -38,14 +38,14 @@
 			</div>
 		</div>
 	{{- else if or $hasBannerImage $hasBannerColor -}}
-		<div id="profile-banner" class="pos-relative">
+		<div id="profile-banner" class="pos-relative hide sm:show">
 			<img src="{{.ImageURL}}" class="width-100%">
 			<!-- The banner image is removed only from Edit Profile -->
 		</div>
 	{{- end -}}
 
 	<!-- Author Name -->
-	<div class="padding md:flex-row flex-align-middle md:flex-align-start pos-relative">
+	<div class="padding flex-row flex-align-start pos-relative">
 		<div class="width-128 height-100 margin-right-sm">
 			<img id="profile-icon" src="{{.IconURL}}" class="width-100%" aria-hidden="true">
 		</div>
@@ -103,8 +103,8 @@
 		<div>
 
 			<div class="nowrap" script="on load trigger storage on window">
-				<!-- The buttons stack on a phone, where two side by side would run past the card, and align to the top, under which Follow may name its account -->
-				<div class="flex-row flex-wrap md:flex-justify-end flex-align-start margin-none">
+				<!-- The buttons stack on a phone, where two side by side would run past the card -->
+				<div class="flex-row flex-justify-end margin-none">
 					{{- if $isMyself -}}
 
 						<!-- Both open the publish modal: green until the profile is public, then gray, to unpublish -->
@@ -119,8 +119,9 @@
 						
 					{{- else -}}
 
-						<!-- Emissary's base-outbox: follows in one click as the visitor's saved account, or opens the Follow modal -->
-						{{- template "follow-button" . -}}
+						<button hx-get="/@{{.UserID}}/follow" class="primary turboclick">
+							Follow
+						</button>
 
 						{{- if gt $circleCount 0 -}}
 							<button hx-get="/@{{.UserID}}/subscribe" class="primary turboclick">
