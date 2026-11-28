@@ -15,6 +15,12 @@
 			description: {type:"string", maxLength:100}
 			themeId: {type:"string", maxLength: 100}
 			registrationId: {type:"string", maxLength: 100}
+			themeData: {type:"object", properties: {
+				// page.html's data-theme; the default serves a Domain that has never saved this form
+				colorway: {type:"string", enum:["slate", "gray", "zinc", "neutral", "stone", "taupe", "mauve", "mist", "olive"], default:"stone", required:true}
+				// page.html hides the navigation from anonymous visitors when this is "authenticated"
+				navigation: {type:"string", enum:["always", "authenticated"], default:"always", required:true}
+			}}
 		}
 	}
 	form: {
@@ -24,6 +30,21 @@
 			{type: "upload", label: "Icon", path: "iconUrl", description: "Icon for this website. Must be square. Often cropped to be a circle.", options:{accept:"image/*", delete:"/admin/domain/delete-icon"}}
 			{type: "upload", label: "Image", path: "imageUrl", description: "Image to display on signin pages and emails. Roughly 16:9 works best.", options:{accept:"image/*", delete:"/admin/domain/delete-image"}}
 			{type: "textarea", label: "Description", path: "description", options:{rows:5}}
+			{type: "select", label: "Colors", path: "themeData.colorway", description: "The shade of gray behind every page, in light and dark mode.", options:{enum:[
+				{value:"slate", label:"Slate (cool gray)"}
+				{value:"gray", label:"Gray (cool gray)"}
+				{value:"zinc", label:"Zinc (neutral gray)"}
+				{value:"neutral", label:"Neutral gray"}
+				{value:"stone", label:"Stone (warm gray)"}
+				{value:"taupe", label:"Taupe (warm gray)"}
+				{value:"mauve", label:"Mauve (earthy)"}
+				{value:"mist", label:"Mist (earthy)"}
+				{value:"olive", label:"Olive (earthy)"}
+			]}}
+			{type: "select", label: "Navigation", path: "themeData.navigation", description: "Who sees the navigation sidebar. Hidden, it takes its Sign In link with it, so visitors sign in at /signin.", options:{enum:[
+				{value:"always", label:"Always Show"}
+				{value:"authenticated", label:"Authenticated Users Only"}
+			]}}
 		]
 	}
 	// The startup checklist's copy of the form above, in tabs.  A field added to one goes in both
@@ -33,9 +54,15 @@
 			{type: "layout-vertical", label: "General", children: [
 				{type: "text", label: "Website Name", path: "label", description: "Title of this website and domain."}
 				{type: "select", label: "Colors", path: "themeData.colorway", description: "Color tones to use. Light and dark modes supported.", options:{enum:[
-					{value:"stone", label:"Stone (warm gray)"}
-					{value:"neutral", label:"Neutral gray"}
 					{value:"slate", label:"Slate (cool gray)"}
+					{value:"gray", label:"Gray (cool gray)"}
+					{value:"zinc", label:"Zinc (neutral gray)"}
+					{value:"neutral", label:"Neutral gray"}
+					{value:"stone", label:"Stone (warm gray)"}
+					{value:"taupe", label:"Taupe (warm gray)"}
+					{value:"mauve", label:"Mauve (earthy)"}
+					{value:"mist", label:"Mist (earthy)"}
+					{value:"olive", label:"Olive (earthy)"}
 				]}}
 				{type: "select", label: "Navigation", path: "themeData.navigation", description: "Who sees the navigation sidebar.", options:{enum:[
 					{value:"always", label:"Always Show"}

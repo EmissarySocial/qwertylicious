@@ -1,8 +1,8 @@
 <!-- items-podcast is a Podcast's tab: the feed's link, then a table of episodes that each open their modal.
      RULE: the play button starts the audio in its own click, or the browser blocks it (see AGENTS.md). -->
-<!-- Newest first unless data.episodeOrder is "asc" -->
-{{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-episode").ByCreateDate -}}
-{{- if ne (.Data "episodeOrder") "asc" -}}
+<!-- By rank, highest (newest) first unless data.sortDirection is "asc" -->
+{{- $query := (.Children.Where "templateId" "qwerty-episode").ByRank -}}
+{{- if ne (.DataString "sortDirection") "asc" -}}
 	{{- $query = $query.Reverse -}}
 {{- end -}}
 {{- $episodes := $query.Top60.Slice -}}

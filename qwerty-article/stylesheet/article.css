@@ -1,61 +1,66 @@
 #article {
-	width:100%;
-	max-width:640px;
-	margin:0px auto;
-	padding:32px 16px;
+	width: 100%;
+	max-width: 800px;
+	margin: 0px auto;
+	padding: 32px 16px;
 
-	& > #article-name {
-		font-size:32px;
-		margin:0px;
+	&>#article-name {
+		font-size: 32px;
+		margin: 0px;
 	}
 
-	& > #article-description {
-		font-size:18px;
-		font-weight:600;
-		line-height:1.5em;
+	&>#article-description {
+		font-size: 18px;
+		font-weight: 600;
+		line-height: 1.5em;
 		color: var(--text-color-tertiary);
 	}
 
-	& > #article-byline {
-		margin:24px 0px 32px 0px;
+	&>#article-byline {
+		margin: 24px 0px 32px 0px;
 
-		& > #author-icon {
-			width:48px;
-			height:48px;
+		&>#author-icon {
+			width: 48px;
+			height: 48px;
 		}
 
-		& > #article-author {
+		&>#article-author {
 			color: var(--text-color-tertiary);
 		}
 	}
 
 
-	& > #article-social {
+	&>#article-social {
 		padding: 8px 0px;
 		border-top: solid 1px var(--gray20);
 		border-bottom: solid 1px var(--gray20);
-		margin:16px 0px 32px 0px;
+		margin: 16px 0px 32px 0px;
 	}
 
-	& > #article-content {
+	&>#article-content {
 		color: var(--gray80);
-		font-size:16px;
+		font-size: 16px;
 
-		& h1, & h2, & h3, & h4, & h5, & h6 {
+		& h1,
+		& h2,
+		& h3,
+		& h4,
+		& h5,
+		& h6 {
 			color: var(--gray100);
-			font-weight:normal;
+			font-weight: normal;
 			margin-top: 1.5em;
 			margin-bottom: 0em;
-			line-height:1.25em;
+			line-height: 1.25em;
 		}
 
 		& p {
-			line-height:1.75em;
+			line-height: 1.75em;
 		}
 	}
 
 	& img {
-		max-width:100%;
+		max-width: 100%;
 	}
 }
 
@@ -65,3 +70,7 @@
 	letter-spacing: 0.05em;
 }
 
+/* A hashtag chip that links to the collection's tab (head-tags.html): the global .tag sets cursor: default for plain chips */
+#article-tags a.tag {
+	cursor: pointer;
+}

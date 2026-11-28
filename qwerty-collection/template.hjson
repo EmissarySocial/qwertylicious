@@ -443,8 +443,8 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				// The Notes collection holds no Notes, so deleting it only hides them (§1.7)
-				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else}}This deletes the collection and all {{.ChildrenWithDrafts.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
+				// The Notes and About collections hold nothing, so deleting one only hides its tab (§1.7)
+				{do:"delete", title:"Delete '{{.Label}}'?", message:"{{if eq (.Data `layout`) `notes`}}Hide this collection from my profile page.  Existing notes will not be deleted.{{else if eq (.Data `layout`) `about`}}Hide this collection from my profile page.  Your About Me message will not be deleted.{{else}}This deletes the collection and all {{.Children.Count}} items in it, drafts included.  There is NO UNDO.{{end}}"}
 				{do:"forward-to", url:"/@me"}
 			]
 		}

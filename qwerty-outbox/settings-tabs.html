@@ -2,13 +2,14 @@
 
 <div id="menu-bar">
 	<div class="left tabs">
-		{{ if not $isDesktop }}
+		{{ if not .IsDesktop }}
 			<a class="turboclick" href="/@me/settings/mobile" hx-boost="true">{{icon "back"}}</a>
 		{{ end }}
-		<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-general`}}selected{{end}}">General</a>
-		<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-images`}}selected{{end}}">Images</a>
-		<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-links`}}selected{{end}}">Links</a>
-		<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if .IsAction `settings-collections`}}selected{{end}}">Collections</a>
+		<a href="#" hx-get="/@me/settings-general" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `general`}}selected{{end}}">General</a>
+		<a href="#" hx-get="/@me/settings-images" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `images`}}selected{{end}}">Images</a>
+		<a href="#" hx-get="/@me/settings-links" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `links`}}selected{{end}}">Links</a>
+		<a href="#" hx-get="/@me/settings-collections" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `collections`}}selected{{end}}">Collections</a>
+		<a href="#" hx-get="/@me/settings-stylesheet" hx-target="#profile-settings" hx-push-url="false" class="turboclick tab {{if eq $tab `stylesheet`}}selected{{end}}">Stylesheet</a>
 	</div>
 	<div class="right">
 		<a href="https://emissary.dev/user-profile" target="_blank" rel="noopener noreferrer" class="{{if .IsMobile}}icon {{end}}button secondary">

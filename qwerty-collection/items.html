@@ -1,5 +1,5 @@
-<!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, and Notes have
-     their own views; every other format lists Articles, featured first.  ChildrenWithDrafts adds the author's drafts. -->
+<!-- items lists this collection's contents in its format.  Gallery, Map, Timeline, Calendar, Podcast, Notes, and About have
+     their own views; every other format lists Articles, featured first or in Custom order.  Children lists what this viewer may view, which for the author includes drafts. -->
 {{- $layout := .Data "layout" -}}
 
 {{- if eq $layout "gallery" -}}
@@ -22,7 +22,35 @@
 
 {{- if and $featured.IsEmpty $articles.IsEmpty -}}
 
-	{{- template "items-empty" (array . "article" "Your Articles" "This collection holds your articles, each one on its own page.  Write your first one now." "+ Add an Article") -}}
+<!-- RULE: only the collection's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
+{{- $tag := .QueryParam "tag" -}}
+{{- if not ($tags.Contains $tag) -}}
+	{{- $tag = "" -}}
+{{- end -}}
+{{- $children := .Children -}}
+{{- if ne "" $tag -}}
+	{{- $children = ($children.Tags $tag).CaseInsensitive -}}
+{{- end -}}
+
+{{- if eq (.DataString "sortType") "rank" -}}
+	<!-- RULE: Custom order is rank, highest first, and ignores Featured (see AGENTS.md) -->
+	{{- $articles := $children.ByRank.Reverse.Slice -}}
+	<!-- RULE: only All drags, because ranking a filtered few would move the articles hidden between them -->
+	{{- $sortURL := "" -}}
+	{{- if and (.UserCan "sort") (eq "" $tag) -}}
+		{{- $sortURL = print "/" .StreamID "/sort" -}}
+	{{- end -}}
+
+	{{- if and $articles.IsEmpty (eq "" $tag) -}}
+		{{- template "items-empty" (array . "article" "Your Articles" $empty "+ Add an Article") -}}
+	{{- else -}}
+		{{- template "tag-pills" (array . $tags $tag "") -}}
+		{{- if $articles.IsEmpty -}}
+			{{- template "tag-empty" (array "articles" $tag) -}}
+		{{- else -}}
+			{{- template "layout" (array $layout $articles $canEdit $sortURL) -}}
+		{{- end -}}
+	{{- end -}}
 
 {{- else -}}
 

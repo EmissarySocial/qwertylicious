@@ -109,7 +109,7 @@
 		delete: {
 			roles: ["author"]
 			steps: [
-				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"unpublish", state:"default"}
 				{do:"delete", title:"Delete '{{.Label}}'?", message:"All content and comments will be lost.  There is NO UNDO."}
 				{do:"forward-to", url:"/{{.ParentID}}"}
 			]
@@ -121,7 +121,7 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-confirmation", title:"Publish this Article?", message:"Viewers will be able to see this article on your profile.", submit:"Publish"}
-				{do:"save-and-publish", state:"published", outbox:"true"}
+				{do:"save-and-publish", state:"published"}
 				{do:"search-index"}
 				{do:"forward-to", url:"/{{.StreamID}}"}
 			]
@@ -132,7 +132,7 @@
 			roles: ["author"]
 			steps: [
 				{do:"as-confirmation", title:"Un-Publish this Article?", message:"This article will remain on your profile, but viewers will no longer be able to see it", submit:"Un-Publish"}
-				{do:"unpublish", state:"default", outbox:"true"}
+				{do:"unpublish", state:"default"}
 				{do:"refresh-page"}
 			]
 		}

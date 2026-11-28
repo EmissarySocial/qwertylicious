@@ -1,4 +1,16 @@
-<!-- items-timeline is a Timeline's tab: its events in date order down a vertical line, under a heading per year. -->
+<!-- items-timeline is a Timeline's tab: its events in date order, oldest first, down a vertical line, under a heading per year. -->
+{{- $query := (.Children.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
+{{- $allEvents := $query.All.Slice -}}
+<!-- The collection's author edits its entries (the same check as list.html's owner menu) -->
+{{- $canEdit := .UserCan "add" -}}
+
+<!-- The Timeline's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
+{{- end -}}
+
+<!-- RULE: only the Timeline's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-timeline-entry").ByStartDate -}}
 {{- if eq (.Data "timelineOrder") "desc" -}}

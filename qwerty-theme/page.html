@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html data-theme="stone" lang="en">
+<html data-theme="{{.ThemeData `colorway`}}" lang="en">
 
 	<head>
 		<title>{{.DomainLabel}} - {{.PageTitle}}</title>
 		<link rel="webmention" href="/.webmention"/>
+		<!-- RULE: every htmx show: scroll is instant, never smooth, so a swap that moves the page is corrected before it paints (see AGENTS.md) -->
+		<meta name="htmx-config" content='{"scrollBehavior":"instant"}'>
 		{{ template "includes-head" .}}
 	</head>
 
@@ -13,7 +15,10 @@
 			install SelectNav">
 
 			<!-- The skip link, the sidebar <nav>, and the mobile menu that replaces it below 640px -->
-			{{- template "navigation" . -}}
+			<!-- RULE: themeData.navigation "authenticated" hides all three from anonymous visitors, and guests keep them (see AGENTS.md) -->
+			{{- if or (ne (.ThemeData `navigation`) `authenticated`) .IsAuthenticated .IsIdentity -}}
+				{{- template "navigation" . -}}
+			{{- end -}}
 
 			<main id="main">
 

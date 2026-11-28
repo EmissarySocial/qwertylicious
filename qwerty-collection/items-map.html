@@ -1,5 +1,14 @@
 <!-- items-map is a Map's tab: one map with a marker per place, which opens the entry's modal when clicked (see AGENTS.md).
-     The default view is the collection's location and data.zoom; with none saved, the map fits its places. -->
+     A selected tag fits the map to its places; otherwise the view is the collection's location and data.zoom, else its places. -->
+{{- $query := (.Children.Where "templateId" "qwerty-placemark").ByLabel -}}
+
+<!-- The Map's own hashtags are its filters, in the author's order, collected by range (see AGENTS.md) -->
+{{- $tags := split "" "," -}}
+{{- range (.Data "tags") -}}
+	{{- $tags = append $tags (split . "\x00") -}}
+{{- end -}}
+
+<!-- RULE: only the Map's own tags filter it, ignoring case, and any other ?tag= shows All (see AGENTS.md) -->
 {{- $tag := .QueryParam "tag" -}}
 {{- $query := (.ChildrenWithDrafts.Where "templateId" "qwerty-placemark").ByLabel -}}
 {{- $allPlaces := $query.All.Slice -}}
